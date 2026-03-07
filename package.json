@@ -1,0 +1,83 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2580
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 LucidaGrande;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \{\
+  "name": "ringdesk-server",\
+  "version": "1.0.0",\
+  "description": "RingDesk multi-tenant AI receptionist server",\
+  "main": "server.js",\
+  "scripts": \{\
+    "start": "node server.js",\
+    "dev": "nodemon server.js"\
+  \},\
+  "dependencies": \{\
+    "@anthropic-ai/sdk": "^0.24.0",\
+    "bcryptjs": "^2.4.3",\
+    "better-sqlite3": "^9.6.0",\
+    "body-parser": "^1.20.2",\
+    "cors": "^2.8.5",\
+    "dotenv": "^16.4.5",\
+    "express": "^4.19.2",\
+    "jsonwebtoken": "^9.0.2",\
+    "stripe": "^15.7.0",\
+    "twilio": "^5.2.0",\
+    "uuid": "^10.0.0"\
+  \},\
+  "devDependencies": \{\
+    "nodemon": "^3.1.4"\
+  \}\
+\}\
+```\
+\
+4. Press **Cmd + S** to save\
+5. Navigate to `/Users/thiru/Documents/ringdesk/server`\
+6. Name the file `package.json`\
+7. **Important** \'97 at the bottom of the save dialog, uncheck **"If no extension is provided, use .txt"**\
+8. Click Save\
+\
+---\
+\
+## Create .env.example\
+\
+1. In TextEdit press **Cmd + N** (new file)\
+2. Click **Format 
+\f1 \uc0\u8594 
+\f0  Make Plain Text**\
+3. Paste this:\
+```\
+ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxxxxxx\
+JWT_SECRET=change-this-to-a-long-random-string\
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\
+TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx\
+STRIPE_SECRET_KEY=sk_live_xxxxxxxxxxxxxxxxxxxx\
+STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxxxxxx\
+STRIPE_PRICE_STARTER=price_xxxxxxxxxxxxxxxxxxxx\
+STRIPE_PRICE_PROFESSIONAL=price_xxxxxxxxxxxxxxxxxxxx\
+STRIPE_PRICE_BUSINESS=price_xxxxxxxxxxxxxxxxxxxx\
+DASHBOARD_URL=https://app.ringdesk.io\
+PORT=3000\
+```\
+\
+4. Press **Cmd + S**\
+5. Save to same folder `/Users/thiru/Documents/ringdesk/server`\
+6. Name it `.env.example`\
+7. Click Save\
+\
+---\
+\
+## Create .gitignore\
+\
+1. **Cmd + N** again 
+\f1 \uc0\u8594 
+\f0  **Format 
+\f1 \uc0\u8594 
+\f0  Make Plain Text**\
+2. Paste this:\
+```\
+.env\
+node_modules\
+ringdesk.db}
