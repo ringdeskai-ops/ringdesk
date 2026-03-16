@@ -512,5 +512,9 @@ app.post('/api/admin/toggle', authRequired, (req, res) => {
   res.json({ success: true });
 });
 
+
+app.use('/dashboard', require('express').static(__dirname + '/public/dashboard'));
+app.get('/dashboard/*', (req, res) => res.sendFile(__dirname + '/public/dashboard/index.html'));
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`\n🚀 RingDesk server running on port ${PORT}\n`));
