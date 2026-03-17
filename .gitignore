@@ -1,0 +1,8 @@
+.env
+node_modules
+ringdesk.db
+*.db
+*.log
+.env.backup
+*.key
+*.pem

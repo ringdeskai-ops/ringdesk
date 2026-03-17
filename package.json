@@ -1,0 +1,25 @@
+{
+  "name": "airingdesk-retell-app",
+  "version": "1.0.0",
+  "description": "Retell AI and Twilio integration for IONOS VPS",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "axios": "^1.6.0",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.8.0",
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
+    "dotenv": "^16.6.1",
+    "express": "^4.22.1",
+    "jsonwebtoken": "^9.0.3",
+    "nodemailer": "^8.0.2",
+    "retell-sdk": "^5.9.0",
+    "stripe": "^20.4.1",
+    "twilio": "^5.13.0",
+    "uuid": "^13.0.0"
+  }
+}

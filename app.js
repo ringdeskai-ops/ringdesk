@@ -136,6 +136,7 @@ Keep responses under 40 words — this is a phone call.`;
 
     const token = jwt.sign({ id, email, business_name }, process.env.JWT_SECRET, { expiresIn: "7d" });
     res.json({ token, client: { id, business_name, email, plan: "trial" } });
+  sendWelcomeEmail(business_name, email);
   } catch (err) {
     if (err.message.includes("UNIQUE")) return res.status(409).json({ error: "Email already registered" });
     res.status(500).json({ error: err.message });
@@ -227,7 +228,7 @@ app.get("/api/stats", authRequired, (req, res) => {
 
 // Create checkout session for plan upgrade
 app.post("/api/billing/checkout", authRequired, async (req, res) => {
-  const { plan } = req.body;
+  const { plan, phone_number } = req.body;
   const priceId = STRIPE_PRICE_IDS[plan];
   if (!priceId) return res.status(400).json({ error: "Invalid plan" });
 
@@ -236,11 +237,12 @@ app.post("/api/billing/checkout", authRequired, async (req, res) => {
   const session = await stripe.checkout.sessions.create({
     customer: client.stripe_customer_id,
     mode: "subscription",
+    subscription_data: { trial_period_days: 14 },
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${process.env.DASHBOARD_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.DASHBOARD_URL}/billing`,
-    metadata: { client_id: client.id, plan },
+    metadata: { client_id: client.id, plan, phone_number: phone_number || '' },
   });
 
   res.json({ url: session.url });
@@ -497,6 +499,17 @@ app.post("/voice/status", (req, res) => {
   db.prepare("UPDATE calls SET duration = ?, status = CASE WHEN status = 'active' THEN 'completed' ELSE status END, ended_at = ? WHERE call_sid = ?")
     .run(parseInt(CallDuration || 0), Math.floor(Date.now() / 1000), CallSid);
   db.prepare("DELETE FROM call_sessions WHERE call_sid = ?").run(CallSid);
+  try {
+    const call = db.prepare("SELECT * FROM calls WHERE call_sid = ?").get(CallSid);
+    if (call) {
+      const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(call.client_id);
+      if (client && client.email_notifications) {
+        let transcript = [];
+        try { transcript = JSON.parse(call.transcript || '[]'); } catch {}
+        sendCallNotificationEmail(client, call, transcript);
+      }
+    }
+  } catch(err) { console.error('Email notification error:', err.message); }
   res.sendStatus(200);
 });
 
@@ -504,17 +517,266 @@ app.post("/voice/status", (req, res) => {
 app.get("/health", (req, res) => res.json({ status: "ok", uptime: process.uptime(), clients: db.prepare("SELECT COUNT(*) as c FROM clients").get().c }));
 
 
-// ── Admin Toggle Route ────────────────────────────────────────────────────────
-app.post('/api/admin/toggle', authRequired, (req, res) => {
-  const { client_id, feature, value } = req.body;
-  const allowed = ['email_notifications','call_recording','daily_summary','sms_notifications','transfer_enabled'];
-  db.prepare('UPDATE clients SET ' + feature + ' = ? WHERE id = ?').run(value ? 1 : 0, client_id);
-  res.json({ success: true });
-});
-
-
+app.get('/', (req, res) => res.sendFile(__dirname + '/public/index.html'));
+app.get('/get-number', (req, res) => res.sendFile(__dirname + '/public/get-number.html'));
 app.use('/dashboard', require('express').static(__dirname + '/public/dashboard'));
 app.get('/dashboard/*', (req, res) => res.sendFile(__dirname + '/public/dashboard/index.html'));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`\n🚀 RingDesk server running on port ${PORT}\n`));
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  PHONE NUMBER PROVISIONING
+// ═══════════════════════════════════════════════════════════════════════════════
+const Retell = require('retell-sdk');
+const retell = new Retell({ apiKey: process.env.RETELL_API_KEY });
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+
+// Search available numbers by country
+app.get('/api/numbers/search', authRequired, async (req, res) => {
+  const { country = 'GB', areaCode } = req.query;
+  try {
+    const countryMap = { GB: 'GB', US: 'US', CH: 'CH', DE: 'DE', FR: 'FR', NL: 'NL' };
+    const isoCountry = countryMap[country] || 'GB';
+    const searchParams = { limit: 10, voiceEnabled: true };
+    if (areaCode) searchParams.areaCode = areaCode;
+
+    let numbers;
+    if (isoCountry === 'GB') {
+      numbers = await twilioClient.availablePhoneNumbers('GB').local.list(searchParams);
+    } else if (isoCountry === 'US') {
+      numbers = await twilioClient.availablePhoneNumbers('US').local.list(searchParams);
+    } else if (isoCountry === 'CH') {
+      numbers = await twilioClient.availablePhoneNumbers('CH').local.list(searchParams);
+    } else {
+      numbers = await twilioClient.availablePhoneNumbers(isoCountry).local.list(searchParams);
+    }
+
+    res.json({ numbers: numbers.map(n => ({
+      phoneNumber: n.phoneNumber,
+      friendlyName: n.friendlyName,
+      region: n.region,
+      locality: n.locality,
+    }))});
+  } catch (err) {
+    console.error('Number search error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Provision number for client after payment
+app.post('/api/numbers/provision', authRequired, async (req, res) => {
+  const { phoneNumber } = req.body;
+  if (!phoneNumber) return res.status(400).json({ error: 'Phone number required' });
+
+  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  if (client.phone_number) return res.status(400).json({ error: 'Already have a number' });
+
+  try {
+    // Step 1: Purchase number from Twilio
+    const purchased = await twilioClient.incomingPhoneNumbers.create({
+      phoneNumber,
+      voiceUrl: `${process.env.DASHBOARD_URL}/voice/incoming`,
+      voiceMethod: 'POST',
+      statusCallback: `${process.env.DASHBOARD_URL}/voice/status`,
+      statusCallbackMethod: 'POST',
+    });
+
+    // Step 2: Import number into Retell
+    await retell.phoneNumber.import({
+      twilio_phone_number: phoneNumber,
+      twilio_account_sid: process.env.TWILIO_ACCOUNT_SID,
+      twilio_auth_token: process.env.TWILIO_AUTH_TOKEN,
+    });
+
+    // Step 3: Create Retell AI agent for this client
+    const agent = await retell.agent.create({
+      agent_name: `${client.business_name} - AI Receptionist`,
+      voice_id: 'elevenlabs-Paige',
+      llm_websocket_url: `${process.env.DASHBOARD_URL}/retell-llm`,
+      response_engine: {
+        type: 'retell-llm',
+        llm_id: 'gpt-4o-mini',
+      },
+      begin_message: `Thank you for calling ${client.business_name}. How can I help you today?`,
+    });
+
+    // Step 4: Link agent to number
+    await retell.phoneNumber.update(phoneNumber, {
+      agent_id: agent.agent_id,
+    });
+
+    // Step 5: Save to database
+    db.prepare('UPDATE clients SET phone_number = ? WHERE id = ?').run(phoneNumber, client.id);
+
+    res.json({ success: true, phoneNumber, agentId: agent.agent_id });
+  } catch (err) {
+    console.error('Provisioning error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get client's current number status
+app.get('/api/numbers/status', authRequired, (req, res) => {
+  const client = db.prepare('SELECT phone_number, plan, plan_status FROM clients WHERE id = ?').get(req.client.id);
+  res.json({
+    hasNumber: !!client.phone_number,
+    phoneNumber: client.phone_number,
+    plan: client.plan,
+    planStatus: client.plan_status,
+  });
+});
+
+// ── AUTO-PROVISION NUMBER AFTER PAYMENT ──────────────────────────────────────
+async function provisionNumberAfterPayment(clientId, phoneNumber) {
+  if (!phoneNumber) return;
+  try {
+    const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(clientId);
+    if (!client || client.phone_number) return;
+
+    // Purchase from Twilio
+    await twilioClient.incomingPhoneNumbers.create({
+      phoneNumber,
+      voiceUrl: `${process.env.DASHBOARD_URL}/voice/incoming`,
+      voiceMethod: 'POST',
+      statusCallback: `${process.env.DASHBOARD_URL}/voice/status`,
+      statusCallbackMethod: 'POST',
+    });
+
+    // Import into Retell
+    await retell.phoneNumber.import({
+      twilio_phone_number: phoneNumber,
+      twilio_account_sid: process.env.TWILIO_ACCOUNT_SID,
+      twilio_auth_token: process.env.TWILIO_AUTH_TOKEN,
+    });
+
+    // Create Retell agent
+    const agent = await retell.agent.create({
+      agent_name: `${client.business_name} - AI Receptionist`,
+      voice_id: 'elevenlabs-Paige',
+      response_engine: { type: 'retell-llm', llm_id: 'gpt-4o-mini' },
+      begin_message: `Thank you for calling ${client.business_name}. How can I help you today?`,
+    });
+
+    // Link agent to number
+    await retell.phoneNumber.update(phoneNumber, { agent_id: agent.agent_id });
+
+    // Save to DB
+    db.prepare('UPDATE clients SET phone_number = ? WHERE id = ?').run(phoneNumber, clientId);
+    console.log(`✅ Provisioned ${phoneNumber} for client ${clientId}`);
+  } catch (err) {
+    console.error('❌ Provisioning failed:', err.message);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  EMAIL SYSTEM
+// ═══════════════════════════════════════════════════════════════════════════════
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST || 'localhost',
+  port: parseInt(process.env.EMAIL_PORT) || 587,
+  secure: false,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: { rejectUnauthorized: false },
+});
+
+// ── Send welcome email to new customer ────────────────────────────────────────
+async function sendWelcomeEmail(business_name, email) {
+  try {
+    await transporter.sendMail({
+      from: `"RingDesk" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: `Welcome to RingDesk, ${business_name}! 🎉`,
+      html: `
+        <div style="font-family:'Helvetica Neue',sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">
+          <div style="font-size:28px;font-weight:800;background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:24px">RingDesk</div>
+          <h1 style="font-size:22px;font-weight:700;margin-bottom:12px">Welcome aboard, ${business_name}! 🎉</h1>
+          <p style="color:#8896a8;font-size:15px;line-height:1.7;margin-bottom:20px">
+            Your AI receptionist is ready to go. You have a <strong style="color:#10b981">14-day free trial</strong> — no charge until your trial ends.
+          </p>
+          <div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin-bottom:24px">
+            <div style="font-size:13px;color:#8896a8;margin-bottom:8px">NEXT STEPS</div>
+            <div style="font-size:14px;color:#f0f4f8;margin-bottom:8px">✅ Account created</div>
+            <div style="font-size:14px;color:#f0f4f8;margin-bottom:8px">📞 Pick your phone number</div>
+            <div style="font-size:14px;color:#f0f4f8;margin-bottom:8px">🤖 Customise your AI receptionist</div>
+            <div style="font-size:14px;color:#f0f4f8">🚀 Go live in 30 minutes</div>
+          </div>
+          <a href="https://airingdesk.com/dashboard" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:15px;font-weight:600;margin-bottom:24px">Go to your dashboard →</a>
+          <p style="color:#3d4f63;font-size:12px;margin-top:24px;border-top:1px solid #1a2332;padding-top:16px">
+            RingDesk · AI Receptionist Platform · <a href="https://airingdesk.com" style="color:#3b82f6">airingdesk.com</a>
+          </p>
+        </div>
+      `,
+    });
+    console.log(`✅ Welcome email sent to ${email}`);
+  } catch (err) {
+    console.error(`❌ Welcome email failed:`, err.message);
+  }
+}
+
+// ── Send call notification email ───────────────────────────────────────────────
+async function sendCallNotificationEmail(client, call, transcript) {
+  if (!client.email_notifications) return;
+  try {
+    const duration = call.duration > 0 ? `${Math.floor(call.duration/60)}m ${call.duration%60}s` : 'Unknown';
+    const transcriptHtml = transcript && transcript.length > 0
+      ? transcript.map(m => `
+          <div style="margin-bottom:8px;padding:8px 12px;border-radius:8px;background:${m.role==='user'?'rgba(59,130,246,0.1)':'rgba(139,92,246,0.1)'}">
+            <div style="font-size:10px;color:${m.role==='user'?'#60a5fa':'#a78bfa'};text-transform:uppercase;margin-bottom:3px">${m.role==='user'?'Caller':'AI'}</div>
+            <div style="font-size:13px;color:#e5e7eb">${m.content}</div>
+          </div>`).join('')
+      : '<p style="color:#8896a8;font-size:13px">No transcript available</p>';
+
+    await transporter.sendMail({
+      from: `"RingDesk" <${process.env.EMAIL_USER}>`,
+      to: client.email,
+      subject: `📞 New call from ${call.caller_name || call.caller_number || 'Unknown'} — ${call.status}`,
+      html: `
+        <div style="font-family:'Helvetica Neue',sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">
+          <div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px">RingDesk</div>
+          <h2 style="font-size:18px;margin-bottom:16px">New call received</h2>
+          <div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:18px;margin-bottom:20px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><div style="font-size:10px;color:#3d4f63;text-transform:uppercase;margin-bottom:3px">From</div><div style="font-size:14px;color:#f0f4f8">${call.caller_name || call.caller_number || 'Unknown'}</div></div>
+              <div><div style="font-size:10px;color:#3d4f63;text-transform:uppercase;margin-bottom:3px">Status</div><div style="font-size:14px;color:#10b981;text-transform:capitalize">${call.status}</div></div>
+              <div><div style="font-size:10px;color:#3d4f63;text-transform:uppercase;margin-bottom:3px">Duration</div><div style="font-size:14px;color:#f0f4f8">${duration}</div></div>
+              <div><div style="font-size:10px;color:#3d4f63;text-transform:uppercase;margin-bottom:3px">Time</div><div style="font-size:14px;color:#f0f4f8">${new Date().toLocaleString('en-GB')}</div></div>
+            </div>
+            ${call.summary ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid #1a2332"><div style="font-size:10px;color:#3d4f63;text-transform:uppercase;margin-bottom:6px">AI Summary</div><div style="font-size:13px;color:#8896a8;line-height:1.6">${call.summary}</div></div>` : ''}
+          </div>
+          <div style="font-size:12px;color:#3d4f63;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Transcript</div>
+          <div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:16px;margin-bottom:24px;max-height:300px;overflow:hidden">
+            ${transcriptHtml}
+          </div>
+          <a href="https://airingdesk.com/dashboard" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;text-decoration:none;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:600">View in dashboard →</a>
+          <p style="color:#3d4f63;font-size:12px;margin-top:24px;border-top:1px solid #1a2332;padding-top:16px">RingDesk · <a href="https://airingdesk.com" style="color:#3b82f6">airingdesk.com</a></p>
+        </div>
+      `,
+    });
+    console.log(`✅ Call notification sent to ${client.email}`);
+  } catch (err) {
+    console.error(`❌ Call notification failed:`, err.message);
+  }
+}
+
+// ── Test email endpoint ────────────────────────────────────────────────────────
+app.post('/api/email/test', authRequired, async (req, res) => {
+  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id);
+  try {
+    await transporter.sendMail({
+      from: `"RingDesk" <${process.env.EMAIL_USER}>`,
+      to: client.email,
+      subject: '✅ RingDesk email test successful!',
+      html: `<div style="font-family:sans-serif;padding:20px"><h2>Email is working! ✅</h2><p>Your RingDesk email notifications are configured correctly.</p></div>`,
+    });
+    res.json({ success: true, message: `Test email sent to ${client.email}` });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});

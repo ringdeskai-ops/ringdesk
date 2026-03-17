@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Get Your Phone Number — RingDesk</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#060912;--surface:#0d1117;--border:#1a2332;--text:#f0f4f8;--muted:#8896a8;--dim:#3d4f63;--blue:#3b82f6;--blue-light:#60a5fa;--green:#10b981;--grad:linear-gradient(135deg,#3b82f6 0%,#8b5cf6 100%)}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+h1,h2,h3{font-family:'Sora',sans-serif}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:520px;box-shadow:0 40px 100px rgba(0,0,0,.6)}
+.brand{font-size:22px;font-weight:800;background:var(--grad);-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px;margin-bottom:24px;display:block}
+h2{font-size:22px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
+.sub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.search-row{display:flex;gap:8px;margin-bottom:12px}
+.search-row select{flex:1;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;outline:none}
+.search-row select option{background:#0d1117}
+.refresh-btn{padding:11px 16px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--text);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;transition:all .2s}
+.refresh-btn:hover{border-color:var(--blue);color:var(--blue-light)}
+.number-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;max-height:260px;overflow-y:auto}
+.number-card{padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.02);cursor:pointer;transition:all .2s}
+.number-card:hover{border-color:rgba(59,130,246,.4);background:rgba(59,130,246,.04)}
+.number-card.selected{border-color:var(--blue);background:rgba(59,130,246,.08);box-shadow:0 0 0 1px var(--blue)}
+.number-card-num{font-size:13px;font-weight:600;color:var(--text);font-family:'Sora',sans-serif}
+.number-card-loc{font-size:11px;color:var(--muted);margin-top:2px}
+.loading{text-align:center;padding:30px;color:var(--muted);font-size:13px}
+.btn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--grad);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;box-shadow:0 0 30px rgba(59,130,246,.3);display:flex;align-items:center;justify-content:center;gap:8px}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 40px rgba(59,130,246,.45)}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:8px;padding:10px 14px;font-size:13px;color:#f87171;margin-top:12px;display:none}
+.error.show{display:block}
+.success{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);border-radius:8px;padding:16px;font-size:14px;color:#10b981;margin-top:12px;display:none;text-align:center}
+.success.show{display:block}
+.spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.selected-banner{background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.3);border-radius:10px;padding:12px 16px;margin-bottom:16px;display:none;font-size:13px;color:var(--blue-light)}
+.selected-banner.show{display:flex;align-items:center;gap:10px}
+.back-link{font-size:13px;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-top:16px;transition:color .2s}
+.back-link:hover{color:var(--text)}
+</style>
+</head>
+<body>
+<div class="card">
+  <span class="brand">RingDesk</span>
+  <h2>Get your phone number</h2>
+  <p class="sub">Choose a number for your AI receptionist to answer 24/7.</p>
+
+  <div class="search-row">
+    <select id="countrySelect" onchange="loadNumbers()">
+      <option value="GB">🇬🇧 United Kingdom</option>
+      <option value="US">🇺🇸 United States</option>
+      <option value="CH">🇨🇭 Switzerland</option>
+      <option value="DE">🇩🇪 Germany</option>
+      <option value="FR">🇫🇷 France</option>
+      <option value="NL">🇳🇱 Netherlands</option>
+    </select>
+    <button class="refresh-btn" onclick="loadNumbers()">🔄 Refresh</button>
+  </div>
+
+  <div id="numberGrid" class="number-grid">
+    <div class="loading">Loading available numbers...</div>
+  </div>
+
+  <div class="selected-banner" id="selectedBanner">
+    <span>📞</span>
+    <span id="selectedDisplay">No number selected</span>
+  </div>
+
+  <button class="btn" id="provisionBtn" onclick="provisionNumber()" disabled>
+    <span id="btnText">Select a number to continue</span>
+  </button>
+  <div class="error" id="errorMsg"></div>
+  <div class="success" id="successMsg"></div>
+</div>
+<a href="/dashboard" class="back-link">← Back to dashboard</a>
+
+<script>
+let selectedNumber = null;
+const token = localStorage.getItem('rd_token');
+
+if (!token) {
+  window.location.href = '/dashboard';
+}
+
+async function loadNumbers() {
+  const country = document.getElementById('countrySelect').value;
+  const grid = document.getElementById('numberGrid');
+  selectedNumber = null;
+  updateSelected();
+  grid.innerHTML = '<div class="loading"><div class="spinner" style="margin:0 auto 8px;border-top-color:var(--blue-light)"></div>Loading numbers...</div>';
+
+  try {
+    const res = await fetch('/api/numbers/search?country=' + country, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to load numbers');
+    if (!data.numbers || data.numbers.length === 0) {
+      grid.innerHTML = '<div class="loading">No numbers available. Try another country.</div>';
+      return;
+    }
+    grid.innerHTML = data.numbers.map(n => `
+      <div class="number-card" onclick="selectNumber('${n.phoneNumber}', '${n.friendlyName}', '${n.locality || n.region || 'Local'}', this)">
+        <div class="number-card-num">${n.friendlyName}</div>
+        <div class="number-card-loc">${n.locality || n.region || 'Local number'}</div>
+      </div>
+    `).join('');
+  } catch(err) {
+    grid.innerHTML = '<div class="loading" style="color:#f87171">Error: ' + err.message + '</div>';
+  }
+}
+
+function selectNumber(number, friendly, loc, el) {
+  document.querySelectorAll('.number-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedNumber = number;
+  updateSelected(friendly);
+  document.getElementById('errorMsg').classList.remove('show');
+}
+
+function updateSelected(friendly) {
+  const banner = document.getElementById('selectedBanner');
+  const display = document.getElementById('selectedDisplay');
+  const btn = document.getElementById('provisionBtn');
+  const btnText = document.getElementById('btnText');
+  if (selectedNumber && friendly) {
+    banner.classList.add('show');
+    display.textContent = friendly + ' selected';
+    btn.disabled = false;
+    btnText.textContent = 'Activate this number →';
+  } else {
+    banner.classList.remove('show');
+    btn.disabled = true;
+    btnText.textContent = 'Select a number to continue';
+  }
+}
+
+async function provisionNumber() {
+  if (!selectedNumber) return;
+  const btn = document.getElementById('provisionBtn');
+  const btnText = document.getElementById('btnText');
+  const errorEl = document.getElementById('errorMsg');
+  const successEl = document.getElementById('successMsg');
+
+  btn.disabled = true;
+  btnText.innerHTML = '<div class="spinner"></div> Setting up your number...';
+  errorEl.classList.remove('show');
+  successEl.classList.remove('show');
+
+  try {
+    const res = await fetch('/api/numbers/provision', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ phoneNumber: selectedNumber })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Provisioning failed');
+
+    successEl.innerHTML = '✅ <strong>' + selectedNumber + '</strong> is now your AI receptionist number!<br><small style="opacity:.7">Redirecting to dashboard...</small>';
+    successEl.classList.add('show');
+    btn.style.display = 'none';
+
+    setTimeout(() => window.location.href = '/dashboard', 2500);
+  } catch(err) {
+    errorEl.textContent = err.message;
+    errorEl.classList.add('show');
+    btn.disabled = false;
+    btnText.textContent = 'Activate this number →';
+  }
+}
+
+// Load numbers on page load
+loadNumbers();
+</script>
+</body>
+</html>

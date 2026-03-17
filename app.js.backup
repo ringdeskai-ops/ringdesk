@@ -1,0 +1,112 @@
+const express = require('express');
+const axios = require('axios');
+const twilio = require('twilio');
+require('dotenv').config();
+
+const app = express();
+
+// Middleware: Standard for Twilio POST requests and JSON payloads
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+const VoiceResponse = twilio.twiml.VoiceResponse;
+
+/**
+ * 🛠️ CENTRALIZED RETELL CLIENT
+ * Handles the registration of phone calls via Retell API V2.
+ */
+async function registerRetellCall(from, to) {
+    const apiKey = (process.env.RETELL_API_KEY || "").trim();
+    const agentId = (process.env.RETELL_AGENT_ID || "").trim();
+
+    if (!apiKey || !agentId) {
+        throw new Error("Missing Retell Credentials in Environment Variables");
+    }
+
+    try {
+        const response = await axios.post('https://api.retellai.com/v2/register-phone-call', {
+            agent_id: agentId,
+            direction: 'inbound',
+            from_number: from || "+10000000000", // Fallback for testing
+            to_number: to || "+10000000000"
+        }, {
+            headers: { 
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            },
+            timeout: 7000 // 7-second timeout to respect Twilio's limits
+        });
+        return response.data.call_id;
+    } catch (error) {
+        console.error("Retell Registration Error Detail:", error.response?.data || error.message);
+        throw error;
+    }
+}
+
+/**
+ * 📞 ROUTE: TWILIO WEBHOOK
+ * Point your Twilio number here: https://airingdesk.com/api/retell-webhook
+ */
+app.post('/api/retell-webhook', async (req, res) => {
+    const twiml = new VoiceResponse();
+    const fromNumber = req.body.From;
+
+    console.log(`[${new Date().toISOString()}] Incoming call from: ${fromNumber}`);
+
+    try {
+        // 1. Register with Retell
+        const callId = await registerRetellCall(req.body.From, req.body.To);
+        console.log(`✅ Registered Call ID: ${callId}`);
+
+        // 2. Respond to Twilio with WebSocket Stream
+        const connect = twiml.connect();
+        connect.stream({ 
+            url: `wss://api.retellai.com/audio-websocket/${callId}` 
+        });
+
+        res.type('text/xml').send(twiml.toString());
+
+    } catch (err) {
+        console.error(`❌ Failover triggered for ${fromNumber}:`, err.message);
+        
+        // Professional Failover: Avoid the "Application Error" voice.
+        twiml.say({ voice: 'Polly.Joey' }, "The system is currently busy. Please wait a moment.");
+        twiml.pause({ length: 2 });
+        twiml.hangup();
+
+        res.type('text/xml').send(twiml.toString());
+    }
+});
+
+/**
+ * ✅ ROUTE: STATUS / HEALTH CHECK
+ * Visit: https://airingdesk.com/status
+ */
+app.get('/status', (req, res) => {
+    res.status(200).json({
+        status: 'online',
+        service: 'Satfocus Voice Agent',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'production'
+    });
+});
+
+/**
+ * 📡 ROUTE: STATUS CALLBACK
+ * Point Twilio "Status Callback URL" here to avoid holding the line.
+ */
+app.post('/api/call-status', (req, res) => {
+    res.sendStatus(200);
+});
+
+// --- SERVER INITIALIZATION ---
+const PORT = process.env.PORT || 3000;
+
+// Condition to prevent port conflicts during Testing or Plesk/Passenger execution
+if (process.env.NODE_ENV !== 'test' && !process.env.PASSENGER_APP_ENV) {
+    app.listen(PORT, () => {
+        console.log(`🚀 Satfocus Production Server live on Port ${PORT}`);
+    });
+}
+
+module.exports = app; // Export for unit testing
