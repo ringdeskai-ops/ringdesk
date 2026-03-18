@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Support Centre — AiRingDesk</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--black:#020408;--surface:#080e18;--surface2:#0c1520;--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);--text:#f0f6ff;--muted:#5a7a9a;--dim:#2a3f55;--cyan:#00d4ff;--green:#00e87a;--amber:#ffb800;--font-display:'Instrument Serif',Georgia,serif;--font-body:'Geist',system-ui,sans-serif}
+body{background:var(--black);color:var(--text);font-family:var(--font-body);line-height:1.6}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,60px);background:rgba(2,4,8,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:var(--text);text-decoration:none}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.btn{display:inline-flex;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;border:none;font-family:var(--font-body);transition:all .2s;align-items:center}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border2)}
+.btn-cyan{background:var(--cyan);color:#020408;font-weight:700}
+.hero{padding:100px clamp(20px,5vw,60px) 60px;text-align:center;position:relative}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(0,212,255,.07),transparent);pointer-events:none}
+.stag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:16px}
+.stag::before{content:'';width:20px;height:1px;background:var(--cyan)}
+h1{font-family:var(--font-display);font-size:clamp(40px,6vw,64px);font-weight:400;letter-spacing:-2px;margin-bottom:20px;line-height:1.05}
+h1 em{font-style:italic;color:var(--cyan)}
+.search-bar{display:flex;gap:10px;max-width:520px;margin:0 auto 0;align-items:center}
+.search-input{flex:1;padding:14px 18px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:12px;color:var(--text);font-size:15px;font-family:var(--font-body);outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--cyan)}
+.search-input::placeholder{color:var(--dim)}
+.search-btn{padding:14px 20px;border-radius:12px;border:none;background:var(--cyan);color:#020408;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--font-body);white-space:nowrap}
+section{padding:60px clamp(20px,5vw,60px)}
+.cats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;max-width:1000px;margin:0 auto 60px}
+.cat-card{padding:24px;border-radius:16px;border:1px solid var(--border);background:var(--surface);cursor:pointer;transition:all .2s;text-decoration:none;display:block}
+.cat-card:hover{border-color:rgba(0,212,255,.2);transform:translateY(-2px);background:rgba(0,212,255,.03)}
+.cat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;border:1px solid var(--border)}
+.cat-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.cat-desc{font-size:12px;color:var(--muted)}
+.cat-count{font-size:11px;color:var(--cyan);margin-top:8px;font-weight:600}
+.faq-section{max-width:760px;margin:0 auto}
+h2{font-family:var(--font-display);font-size:clamp(28px,4vw,44px);font-weight:400;letter-spacing:-1.5px;margin-bottom:32px}
+h2 em{font-style:italic;color:var(--cyan)}
+.faq-item{border-bottom:1px solid var(--border);padding:18px 0}
+.faq-q{font-size:15px;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;gap:12px;transition:color .2s}
+.faq-q:hover{color:var(--cyan)}
+.faq-arr{font-size:20px;color:var(--dim);transition:transform .3s;flex-shrink:0}
+.faq-item.open .faq-arr{transform:rotate(45deg);color:var(--cyan)}
+.faq-a{font-size:14px;color:var(--muted);line-height:1.8;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s}
+.faq-item.open .faq-a{max-height:300px;padding-top:12px}
+.contact-strip{background:var(--surface2);border-top:1px solid var(--border);padding:40px clamp(20px,5vw,60px);text-align:center}
+.contact-options{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+.contact-opt{display:flex;align-items:center;gap:10px;padding:14px 22px;border-radius:12px;border:1px solid var(--border2);background:var(--surface);text-decoration:none;font-size:13px;font-weight:600;color:var(--text);transition:all .2s}
+.contact-opt:hover{border-color:rgba(0,212,255,.3);color:var(--cyan)}
+footer{padding:32px clamp(20px,5vw,60px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:12px;color:var(--muted);text-decoration:none}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-brand"><div class="nav-dot"></div>AiRingDesk</a>
+  <div style="display:flex;gap:8px">
+    <a href="/" class="btn btn-ghost">← Home</a>
+    <a href="/dashboard" class="btn btn-cyan">Dashboard</a>
+  </div>
+</nav>
+<div class="hero">
+  <div class="stag">Help Centre</div>
+  <h1>How can we <em>help you?</em></h1>
+  <div class="search-bar">
+    <input class="search-input" type="text" placeholder="Search articles, guides, FAQs..."/>
+    <button class="search-btn">Search</button>
+  </div>
+</div>
+
+<section>
+  <div class="cats-grid">
+    <a href="#getting-started" class="cat-card">
+      <div class="cat-icon" style="background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.15)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="cat-title">Getting Started</div>
+      <div class="cat-desc">Set up your account, get a number, go live</div>
+      <div class="cat-count">8 articles</div>
+    </a>
+    <a href="#billing" class="cat-card">
+      <div class="cat-icon" style="background:rgba(0,232,122,.08);border-color:rgba(0,232,122,.15)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      </div>
+      <div class="cat-title">Billing & Plans</div>
+      <div class="cat-desc">Payments, upgrades, cancellations</div>
+      <div class="cat-count">6 articles</div>
+    </a>
+    <a href="#ai-settings" class="cat-card">
+      <div class="cat-icon" style="background:rgba(124,58,237,.08);border-color:rgba(124,58,237,.15)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+      </div>
+      <div class="cat-title">AI Settings</div>
+      <div class="cat-desc">Customise Aria's voice, script, and behaviour</div>
+      <div class="cat-count">10 articles</div>
+    </a>
+    <a href="#phone-numbers" class="cat-card">
+      <div class="cat-icon" style="background:rgba(255,184,0,.08);border-color:rgba(255,184,0,.15)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.5 1.18 2 2 0 012.5 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11z"/></svg>
+      </div>
+      <div class="cat-title">Phone Numbers</div>
+      <div class="cat-desc">Getting, managing, and porting numbers</div>
+      <div class="cat-count">5 articles</div>
+    </a>
+    <a href="#dashboard" class="cat-card">
+      <div class="cat-icon" style="background:rgba(0,102,255,.08);border-color:rgba(0,102,255,.15)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6699ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      </div>
+      <div class="cat-title">Dashboard & Reports</div>
+      <div class="cat-desc">Call logs, transcripts, analytics</div>
+      <div class="cat-count">7 articles</div>
+    </a>
+    <a href="#gdpr" class="cat-card">
+      <div class="cat-icon" style="background:rgba(0,232,122,.08);border-color:rgba(0,232,122,.15)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="cat-title">GDPR & Compliance</div>
+      <div class="cat-desc">Data protection, call recording laws</div>
+      <div class="cat-count">4 articles</div>
+    </a>
+  </div>
+
+  <div class="faq-section" id="getting-started">
+    <div class="stag">Most asked questions</div>
+    <h2>Frequently asked <em>questions</em></h2>
+    <div class="faq-item"><div class="faq-q" onclick="tf(this)">How do I get started with AiRingDesk? <span class="faq-arr">+</span></div><div class="faq-a">Sign up at airingdesk.com, choose your plan, pick a UK or international phone number, write your AI prompt (we have templates), and you're live. Most businesses complete setup in under 30 minutes.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="tf(this)">How do I write an effective AI prompt? <span class="faq-arr">+</span></div><div class="faq-a">Include: your business name, what you do, your opening hours, your FAQs (top 5-10 questions callers ask), and how you want calls handled. The more detail you provide, the better Aria performs. We provide templates for each industry in your dashboard.</div></div>
+    <div class="faq-item" id="billing"><div class="faq-q" onclick="tf(this)">How do I upgrade or change my plan? <span class="faq-arr">+</span></div><div class="faq-a">Go to Dashboard → Billing → and click "Upgrade Plan". Changes take effect immediately. You'll be charged the prorated difference for the remainder of your billing period.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="tf(this)">How do I cancel my subscription? <span class="faq-arr">+</span></div><div class="faq-a">Go to Dashboard → Billing → Cancel Subscription. Your service will remain active until the end of your current billing period. No cancellation fees.</div></div>
+    <div class="faq-item" id="ai-settings"><div class="faq-q" onclick="tf(this)">How do I change Aria's voice or name? <span class="faq-arr">+</span></div><div class="faq-a">Go to Dashboard → AI Settings. You can change the AI name, update the script, set transfer numbers for different departments, and adjust the greeting. Changes take effect on the next call.</div></div>
+    <div class="faq-item" id="phone-numbers"><div class="faq-q" onclick="tf(this)">Can I port my existing number to AiRingDesk? <span class="faq-arr">+</span></div><div class="faq-a">Yes. You can port your existing number via Twilio, or you can forward calls from your existing number to your AiRingDesk number — which works immediately without any porting process.</div></div>
+    <div class="faq-item" id="dashboard"><div class="faq-q" onclick="tf(this)">How long are call recordings and transcripts stored? <span class="faq-arr">+</span></div><div class="faq-a">Call recordings and transcripts are stored for 90 days by default. You can view all calls in Dashboard → Call Logs. Export functionality is coming soon.</div></div>
+    <div class="faq-item" id="gdpr"><div class="faq-q" onclick="tf(this)">Do I need to tell callers they're being recorded? <span class="faq-arr">+</span></div><div class="faq-a">Under UK law (RIPA), if you're recording calls for business purposes, you should notify callers. We recommend adding a recording notice to Aria's greeting. You can do this in Dashboard → AI Settings → Greeting. AiRingDesk provides tools to make this easy.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="tf(this)">What happens if Aria can't answer a question? <span class="faq-arr">+</span></div><div class="faq-a">If Aria encounters a question outside her training, she'll politely take a message and ensure the caller gets a callback. She'll never guess or make up information — she's designed to be honest about what she doesn't know.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="tf(this)">How do I set up call transfers? <span class="faq-arr">+</span></div><div class="faq-a">Go to Dashboard → AI Settings → Transfer Numbers. Add phone numbers for each department (Sales, Support, Billing, Manager, General). Aria will automatically detect when a caller needs a human and transfer to the right department.</div></div>
+  </div>
+</section>
+
+<div class="contact-strip">
+  <div class="stag" style="justify-content:center">Still need help?</div>
+  <h2 style="font-family:var(--font-display);font-size:32px;font-weight:400;letter-spacing:-1px;margin-bottom:8px">Our UK team is here for you</h2>
+  <p style="font-size:14px;color:var(--muted)">Mon–Fri 9am–6pm GMT · Usually responds within 2 hours</p>
+  <div class="contact-options">
+    <a href="mailto:support@airingdesk.com" class="contact-opt">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Email support
+    </a>
+    <a href="tel:+442046348499" class="contact-opt">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.5 1.18 2 2 0 012.5 0h3a2 2 0 012 1.72z"/></svg>
+      Call us
+    </a>
+    <a href="/contact" class="contact-opt">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      Contact form
+    </a>
+  </div>
+</div>
+<footer>
+  <div style="font-size:16px;font-weight:800;color:var(--text)">AiRingDesk</div>
+  <div class="footer-links">
+    <a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a>
+  </div>
+  <div style="font-size:11px;color:var(--dim)">© 2025 AiRingDesk Ltd.</div>
+</footer>
+<script>
+function tf(el){const i=el.parentElement;document.querySelectorAll('.faq-item.open').forEach(x=>{if(x!==i)x.classList.remove('open')});i.classList.toggle('open')}
+</script>
+</body>
+</html>

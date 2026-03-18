@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>About Us — AiRingDesk</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--black:#020408;--surface:#080e18;--surface2:#0c1520;--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);--text:#f0f6ff;--muted:#5a7a9a;--dim:#2a3f55;--cyan:#00d4ff;--blue:#0066ff;--green:#00e87a;--amber:#ffb800;--font-display:'Instrument Serif',Georgia,serif;--font-body:'Geist',system-ui,sans-serif}
+html{overflow-x:hidden}
+body{background:var(--black);color:var(--text);font-family:var(--font-body);line-height:1.6}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,60px);background:rgba(2,4,8,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:var(--text);text-decoration:none}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.btn{display:inline-flex;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;border:none;font-family:var(--font-body);transition:all .2s;cursor:pointer}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border2)}
+.btn-cyan{background:var(--cyan);color:#020408;font-weight:700}
+.hero{padding:120px clamp(20px,5vw,60px) 80px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,black,transparent);pointer-events:none}
+.orb{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.08),transparent 70%);top:-100px;left:50%;transform:translateX(-50%);filter:blur(60px);pointer-events:none}
+.stag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:16px}
+.stag::before{content:'';width:20px;height:1px;background:var(--cyan)}
+h1{font-family:var(--font-display);font-size:clamp(44px,7vw,80px);font-weight:400;line-height:1.05;letter-spacing:-2px;margin-bottom:24px}
+h1 em{font-style:italic;color:var(--cyan)}
+h2{font-family:var(--font-display);font-size:clamp(28px,4vw,44px);font-weight:400;letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px}
+h2 em{font-style:italic;color:var(--cyan)}
+.hero-sub{font-size:18px;color:var(--muted);max-width:560px;margin:0 auto;line-height:1.7}
+section{padding:clamp(60px,8vw,100px) clamp(20px,5vw,60px)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;max-width:1100px;margin:0 auto}
+@media(max-width:768px){.grid-2{grid-template-columns:1fr}}
+p{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:16px}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.stat-card{padding:24px 20px;border-radius:14px;border:1px solid var(--border);background:var(--surface);text-align:center}
+.stat-val{font-size:36px;font-weight:800;letter-spacing:-2px;color:var(--cyan);margin-bottom:4px}
+.stat-label{font-size:12px;color:var(--muted)}
+.values-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;max-width:1100px;margin:0 auto}
+.value-card{padding:28px;border-radius:16px;border:1px solid var(--border);background:var(--surface);transition:all .3s}
+.value-card:hover{border-color:rgba(0,212,255,.2);transform:translateY(-2px)}
+.value-icon{width:44px;height:44px;border-radius:12px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.15);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.value-title{font-size:16px;font-weight:700;margin-bottom:8px}
+.value-desc{font-size:13px;color:var(--muted);line-height:1.7}
+.tech-row{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap;margin-top:40px}
+.tech-badge{display:flex;align-items:center;gap:10px;padding:12px 20px;border-radius:12px;border:1px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;color:var(--text)}
+.tech-dot{width:8px;height:8px;border-radius:50%}
+.cta-section{text-align:center;padding:80px clamp(20px,5vw,60px);background:var(--surface)}
+.cta-inner{max-width:600px;margin:0 auto}
+footer{padding:32px clamp(20px,5vw,60px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:12px;color:var(--muted);text-decoration:none}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-brand"><div class="nav-dot"></div>AiRingDesk</a>
+  <div style="display:flex;gap:8px">
+    <a href="/#pricing" class="btn btn-ghost">Pricing</a>
+    <a href="/dashboard" class="btn btn-cyan">Get started</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="orb"></div>
+  <div class="stag">About AiRingDesk</div>
+  <h1>Built in the <em>UK</em>,<br>for UK businesses</h1>
+  <p class="hero-sub">We built AiRingDesk because we saw how many brilliant UK businesses were losing customers simply because they couldn't answer the phone.</p>
+</div>
+
+<section style="background:var(--surface)">
+  <div class="grid-2">
+    <div>
+      <div class="stag">Our story</div>
+      <h2>The problem we <em>set out to solve</em></h2>
+      <p>A plumber on a job site. A dentist with a patient in the chair. An estate agent showing a property. The phone rings — and they can't answer. The caller hangs up. They call the next business on Google. That's a lost customer.</p>
+      <p>We saw this happen every day across thousands of UK businesses. The solution — a full-time receptionist — costs £25,000+ per year. That's simply not viable for most small businesses.</p>
+      <p>So we built AiRingDesk: an AI receptionist powered by the most advanced AI available (Claude by Anthropic), priced for real businesses, with UK phone numbers, UK support, and UK data storage.</p>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-val">62%</div><div class="stat-label">of callers hang up without voicemail</div></div>
+      <div class="stat-card"><div class="stat-val">£25k</div><div class="stat-label">cost of a full-time UK receptionist</div></div>
+      <div class="stat-card"><div class="stat-val">£49</div><div class="stat-label">AiRingDesk starting price</div></div>
+      <div class="stat-card"><div class="stat-val">30min</div><div class="stat-label">average time to go live</div></div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--black)">
+  <div style="text-align:center;margin-bottom:48px">
+    <div class="stag">Our values</div>
+    <h2>What we <em>stand for</em></h2>
+  </div>
+  <div class="values-grid">
+    <div class="value-card">
+      <div class="value-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="value-title">Privacy first</div>
+      <div class="value-desc">UK GDPR compliance isn't a checkbox for us — it's foundational. Your data stays in the UK and is never sold or shared without your consent.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      </div>
+      <div class="value-title">Built for speed</div>
+      <div class="value-desc">Most AI receptionist services require a sales call and weeks of setup. We built self-serve onboarding so you're live in 30 minutes.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      </div>
+      <div class="value-title">UK-focused</div>
+      <div class="value-desc">We understand British business culture, UK phone number formats, and what callers expect. Not a generic US product — built for the UK market.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="value-title">Transparent pricing</div>
+      <div class="value-desc">No per-minute charges. No hidden fees. No sales calls required. One flat monthly price in pounds, cancel any time.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      </div>
+      <div class="value-title">Always improving</div>
+      <div class="value-desc">We ship improvements every week based on customer feedback. Our AI gets smarter with every call, every update, every release.</div>
+    </div>
+    <div class="value-card">
+      <div class="value-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      </div>
+      <div class="value-title">Enterprise-grade security</div>
+      <div class="value-desc">SSL encryption, UK data centres, regular audits, and strict access controls — the same security standards as the UK's largest enterprises.</div>
+    </div>
+  </div>
+</section>
+
+<section style="background:var(--surface)">
+  <div style="text-align:center;margin-bottom:48px">
+    <div class="stag">Our technology</div>
+    <h2>Powered by the <em>world's best</em> infrastructure</h2>
+    <p style="font-size:16px;color:var(--muted);max-width:520px;margin:0 auto">We don't build AI models — we partner with the best in the world and focus on building the best product for UK businesses.</p>
+  </div>
+  <div class="tech-row">
+    <div class="tech-badge"><div class="tech-dot" style="background:#00d4ff"></div>Claude AI by Anthropic — most natural AI conversation</div>
+    <div class="tech-badge"><div class="tech-dot" style="background:#f22f46"></div>Twilio — enterprise telephony infrastructure</div>
+    <div class="tech-badge"><div class="tech-dot" style="background:#635bff"></div>Stripe — PCI DSS payment processing</div>
+    <div class="tech-badge"><div class="tech-dot" style="background:#00a0e0"></div>Retell AI — ultra-low latency voice AI</div>
+  </div>
+</section>
+
+<div class="cta-section">
+  <div class="cta-inner">
+    <div class="stag" style="justify-content:center">Ready to start?</div>
+    <h2>Join <em>UK businesses</em> who never miss a call</h2>
+    <p style="font-size:16px;color:var(--muted);margin-bottom:32px">14-day free trial. No credit card required. Live in 30 minutes.</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="/" class="btn btn-cyan" style="padding:14px 32px;font-size:15px">Start free trial →</a>
+      <a href="/contact" class="btn btn-ghost" style="padding:14px 24px;font-size:15px">Contact us</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div style="font-size:16px;font-weight:800;color:var(--text)">AiRingDesk</div>
+  <div class="footer-links">
+    <a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Contact</a><a href="/about">About</a>
+  </div>
+  <div style="font-size:11px;color:var(--dim)">© 2025 AiRingDesk Ltd. Registered in England & Wales.</div>
+</footer>
+</body>
+</html>

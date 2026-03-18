@@ -519,6 +519,16 @@ app.get("/health", (req, res) => res.json({ status: "ok", uptime: process.uptime
 
 app.get('/', (req, res) => res.sendFile(__dirname + '/public/index.html'));
 app.get('/get-number', (req, res) => res.sendFile(__dirname + '/public/get-number.html'));
+app.get('/about', (req, res) => res.sendFile(__dirname + '/public/about.html'));
+app.get('/contact', (req, res) => res.sendFile(__dirname + '/public/contact.html'));
+app.get('/support', (req, res) => res.sendFile(__dirname + '/public/support.html'));
+app.get('/privacy', (req, res) => res.sendFile(__dirname + '/public/privacy.html'));
+app.get('/terms', (req, res) => res.sendFile(__dirname + '/public/terms.html'));
+app.get('/industries/dental', (req, res) => res.sendFile(__dirname + '/public/industries/dental.html'));
+app.get('/industries/plumbers', (req, res) => res.sendFile(__dirname + '/public/industries/plumbers.html'));
+app.get('/industries/estate-agents', (req, res) => res.sendFile(__dirname + '/public/industries/estate-agents.html'));
+app.get('/industries/solicitors', (req, res) => res.sendFile(__dirname + '/public/industries/solicitors.html'));
+app.get('/industries/medical', (req, res) => res.sendFile(__dirname + '/public/industries/medical.html'));
 app.use('/dashboard', require('express').static(__dirname + '/public/dashboard'));
 app.get('/dashboard/*', (req, res) => res.sendFile(__dirname + '/public/dashboard/index.html'));
 

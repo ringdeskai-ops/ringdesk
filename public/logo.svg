@@ -1,0 +1,20 @@
+<svg width="200" height="44" viewBox="0 0 200 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Icon mark: stylised phone wave -->
+  <rect width="36" height="36" x="0" y="4" rx="10" fill="rgba(0,212,255,0.12)" stroke="rgba(0,212,255,0.3)" stroke-width="1"/>
+  <!-- Phone icon -->
+  <path d="M22 24.92v2a1.33 1.33 0 01-1.45 1.33 13.19 13.19 0 01-5.75-2.05 13 13 0 01-4-4 13.19 13.19 0 01-2.05-5.78A1.33 1.33 0 0110 15h2a1.33 1.33 0 011.33 1.15c.085.64.24 1.27.467 1.87a1.33 1.33 0 01-.3 1.4l-.847.85a10.67 10.67 0 004 4l.847-.847a1.33 1.33 0 011.4-.3c.607.228 1.233.383 1.873.467A1.33 1.33 0 0122 24.92z" fill="#00d4ff"/>
+  <!-- Pulse waves -->
+  <path d="M24.5 19.5a5 5 0 000-7" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" opacity="0.7"/>
+  <path d="M27 22a9 9 0 000-13" stroke="#00d4ff" stroke-width="1.5" stroke-linecap="round" opacity="0.4"/>
+  
+  <!-- Wordmark -->
+  <!-- "Ai" in cyan -->
+  <text x="46" y="30" font-family="'Geist', system-ui, sans-serif" font-weight="800" font-size="22" letter-spacing="-0.5" fill="#00d4ff">Ai</text>
+  <!-- "Ring" in white -->
+  <text x="72" y="30" font-family="'Geist', system-ui, sans-serif" font-weight="800" font-size="22" letter-spacing="-0.5" fill="#f0f6ff">Ring</text>
+  <!-- "Desk" in muted blue-grey -->
+  <text x="126" y="30" font-family="'Geist', system-ui, sans-serif" font-weight="700" font-size="22" letter-spacing="-0.5" fill="#5a7a9a">Desk</text>
+  
+  <!-- Tagline dot -->
+  <circle cx="170" cy="10" r="3" fill="#00d4ff" opacity="0.6"/>
+</svg>
