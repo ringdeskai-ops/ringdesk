@@ -20,7 +20,11 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Database = require("better-sqlite3");
 
+const testEmailRoute = require("./routes/email");
 const app = express();
+app.use(express.json());
+app.use("/api/email", testEmailRoute);
+
 const VoiceResponse = twilio.twiml.VoiceResponse;
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -579,7 +583,7 @@ app.post('/api/numbers/provision', authRequired, async (req, res) => {
   const { phoneNumber } = req.body;
   if (!phoneNumber) return res.status(400).json({ error: 'Phone number required' });
 
-  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id);
+  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id) || db.prepare('SELECT * FROM clients WHERE email = ?').get(req.client.email) || { email: process.env.NOTIFY_EMAIL };
   if (!client) return res.status(404).json({ error: 'Client not found' });
   if (client.phone_number) return res.status(400).json({ error: 'Already have a number' });
 
@@ -776,7 +780,7 @@ async function sendCallNotificationEmail(client, call, transcript) {
 
 // ── Test email endpoint ────────────────────────────────────────────────────────
 app.post('/api/email/test', authRequired, async (req, res) => {
-  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id);
+  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id) || db.prepare('SELECT * FROM clients WHERE email = ?').get(req.client.email) || { email: process.env.NOTIFY_EMAIL };
   try {
     await sendBrevoEmail(client.email, '✅ AiRingDesk email test successful!', '<div style="font-family:sans-serif;padding:20px"><h2>Email is working!</h2><p>AiRingDesk notifications are working correctly.</p></div>');
     res.json({ success: true, message: `Test email sent to ${client.email}` });
