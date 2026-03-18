@@ -683,27 +683,32 @@ async function provisionNumberAfterPayment(clientId, phoneNumber) {
 // ═══════════════════════════════════════════════════════════════════════════════
 //  EMAIL SYSTEM
 // ═══════════════════════════════════════════════════════════════════════════════
-const nodemailer = require('nodemailer');
-
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'localhost',
-  port: parseInt(process.env.EMAIL_PORT) || 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: { rejectUnauthorized: false },
-});
+// ── Brevo HTTP API email sender ───────────────────────────────────────────────
+async function sendBrevoEmail(to, subject, html) {
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'accept': 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { name: 'AiRingDesk', email: process.env.EMAIL_FROM || 'hello@airingdesk.com' },
+      to: [{ email: to }],
+      subject: subject,
+      htmlContent: html,
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(JSON.stringify(data));
+  return data;
+}
 
 // ── Send welcome email to new customer ────────────────────────────────────────
 async function sendWelcomeEmail(business_name, email) {
   try {
-    await transporter.sendMail({
-      from: `"RingDesk" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: `Welcome to RingDesk, ${business_name}! 🎉`,
-      html: `
+    await sendBrevoEmail(email, `Welcome to AiRingDesk, ${business_name}! 🎉`,
+      `
         <div style="font-family:'Helvetica Neue',sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">
           <div style="font-size:28px;font-weight:800;background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:24px">RingDesk</div>
           <h1 style="font-size:22px;font-weight:700;margin-bottom:12px">Welcome aboard, ${business_name}! 🎉</h1>
@@ -722,8 +727,7 @@ async function sendWelcomeEmail(business_name, email) {
             RingDesk · AI Receptionist Platform · <a href="https://airingdesk.com" style="color:#3b82f6">airingdesk.com</a>
           </p>
         </div>
-      `,
-    });
+      `);
     console.log(`✅ Welcome email sent to ${email}`);
   } catch (err) {
     console.error(`❌ Welcome email failed:`, err.message);
@@ -743,11 +747,7 @@ async function sendCallNotificationEmail(client, call, transcript) {
           </div>`).join('')
       : '<p style="color:#8896a8;font-size:13px">No transcript available</p>';
 
-    await transporter.sendMail({
-      from: `"RingDesk" <${process.env.EMAIL_USER}>`,
-      to: client.email,
-      subject: `📞 New call from ${call.caller_name || call.caller_number || 'Unknown'} — ${call.status}`,
-      html: `
+    await sendBrevoEmail(client.email, `📞 New call from ${call.caller_name || call.caller_number || 'Unknown'} — ${call.status}`, `
         <div style="font-family:'Helvetica Neue',sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">
           <div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px">RingDesk</div>
           <h2 style="font-size:18px;margin-bottom:16px">New call received</h2>
@@ -767,8 +767,7 @@ async function sendCallNotificationEmail(client, call, transcript) {
           <a href="https://airingdesk.com/dashboard" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;text-decoration:none;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:600">View in dashboard →</a>
           <p style="color:#3d4f63;font-size:12px;margin-top:24px;border-top:1px solid #1a2332;padding-top:16px">RingDesk · <a href="https://airingdesk.com" style="color:#3b82f6">airingdesk.com</a></p>
         </div>
-      `,
-    });
+      `);
     console.log(`✅ Call notification sent to ${client.email}`);
   } catch (err) {
     console.error(`❌ Call notification failed:`, err.message);
@@ -779,12 +778,7 @@ async function sendCallNotificationEmail(client, call, transcript) {
 app.post('/api/email/test', authRequired, async (req, res) => {
   const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id);
   try {
-    await transporter.sendMail({
-      from: `"RingDesk" <${process.env.EMAIL_USER}>`,
-      to: client.email,
-      subject: '✅ RingDesk email test successful!',
-      html: `<div style="font-family:sans-serif;padding:20px"><h2>Email is working! ✅</h2><p>Your RingDesk email notifications are configured correctly.</p></div>`,
-    });
+    await sendBrevoEmail(client.email, '✅ AiRingDesk email test successful!', '<div style="font-family:sans-serif;padding:20px"><h2>Email is working!</h2><p>AiRingDesk notifications are working correctly.</p></div>');
     res.json({ success: true, message: `Test email sent to ${client.email}` });
   } catch (err) {
     res.status(500).json({ error: err.message });
