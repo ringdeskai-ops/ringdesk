@@ -1,14 +1,1301 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/dashboard/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>dashboard</title>
-    <script type="module" crossorigin src="/dashboard/assets/index-xZUndAxK.js"></script>
-    <link rel="stylesheet" crossorigin href="/dashboard/assets/index-nqMpL4T3.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>AiRingDesk Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#020408;--surface:#080e18;--surface2:#0c1520;--surface3:#101c2c;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.10);
+  --text:#f0f6ff;--muted:#5a7a9a;--dim:#2a3f55;
+  --cyan:#00d4ff;--cyan2:#00a8cc;--blue:#0066ff;
+  --green:#00e87a;--amber:#ffb800;--red:#ff4466;--purple:#a78bfa;
+  --grad:linear-gradient(135deg,#00d4ff,#0066ff);
+  --font-display:'Instrument Serif',Georgia,serif;
+  --font-body:'Geist',system-ui,sans-serif;
+  --sidebar:240px;
+}
+html{overflow-x:hidden}
+body{background:var(--black);color:var(--text);font-family:var(--font-body);line-height:1.5;overflow-x:hidden}
+
+/* ── AUTH SCREENS ──────────────────────────────────────────────── */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden}
+.auth-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,black,transparent)}
+.auth-orb{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.08),transparent 70%);top:-200px;left:50%;transform:translateX(-50%);filter:blur(60px);pointer-events:none}
+.auth-card{background:var(--surface);border:1px solid var(--border2);border-radius:24px;padding:40px;width:100%;max-width:420px;position:relative;z-index:1;overflow:hidden}
+.auth-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:32px;justify-content:center}
+.auth-logo-icon{width:40px;height:40px;border-radius:10px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center}
+.auth-logo-text{font-size:20px;font-weight:800;letter-spacing:-.5px}
+.auth-logo-text .ai{color:var(--cyan)}
+.auth-logo-text .ring{color:var(--text)}
+.auth-logo-text .desk{color:var(--muted)}
+.auth-title{font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px;text-align:center}
+.auth-sub{font-size:13px;color:var(--muted);text-align:center;margin-bottom:28px}
+.auth-tabs{display:flex;gap:4px;background:rgba(255,255,255,.04);padding:4px;border-radius:10px;margin-bottom:24px}
+.auth-tab{flex:1;padding:9px;border-radius:7px;border:none;background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.auth-tab.active{background:var(--surface2);color:var(--text)}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.form-input{width:100%;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--font-body);outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--cyan);background:rgba(0,212,255,.04)}
+.form-input::placeholder{color:var(--dim)}
+.auth-btn{width:100%;padding:13px;border-radius:10px;border:none;background:var(--cyan);color:#020408;font-size:15px;font-weight:800;cursor:pointer;font-family:var(--font-body);transition:all .2s;box-shadow:0 0 24px rgba(0,212,255,.3);margin-top:4px}
+.auth-btn:hover{background:#1ae0ff;box-shadow:0 0 40px rgba(0,212,255,.5)}
+.auth-btn:disabled{opacity:.6;cursor:not-allowed}
+.auth-error{background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:#ff8899;margin-top:10px;display:none}
+.auth-error.show{display:block}
+.auth-footer{font-size:12px;color:var(--dim);text-align:center;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)}
+.auth-footer a{color:var(--cyan);text-decoration:none}
+
+/* ── DASHBOARD LAYOUT ──────────────────────────────────────────── */
+.dash-wrap{display:none;min-height:100vh}
+.dash-wrap.active{display:flex}
+
+/* Sidebar */
+.sidebar{width:var(--sidebar);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;bottom:0;left:0;z-index:50;overflow-y:auto}
+.sidebar-header{padding:20px 18px;border-bottom:1px solid var(--border)}
+.sidebar-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.sidebar-logo-icon{width:32px;height:32px;border-radius:8px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sidebar-logo-text{font-size:16px;font-weight:800;letter-spacing:-.3px}
+.sidebar-logo-text .ai{color:var(--cyan)}
+.sidebar-logo-text .ring{color:var(--text)}
+.sidebar-logo-text .desk{color:var(--muted)}
+.sidebar-role{font-size:10px;color:var(--cyan);font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-top:4px}
+.sidebar-biz{font-size:11px;color:var(--dim);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sidebar-nav{padding:12px 10px;flex:1}
+.nav-section-label{font-size:10px;font-weight:700;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;padding:8px 10px 6px;margin-top:8px}
+.nav-btn{width:100%;display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;border:none;cursor:pointer;background:transparent;color:var(--muted);font-size:13px;font-family:var(--font-body);text-align:left;margin-bottom:2px;transition:all .2s;text-decoration:none;position:relative}
+.nav-btn:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.nav-btn.active{background:rgba(0,212,255,.12);color:var(--cyan)}
+.nav-btn.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:20px;background:var(--cyan);border-radius:0 3px 3px 0}
+.nav-icon{width:16px;height:16px;flex-shrink:0;opacity:.7}
+.nav-btn.active .nav-icon{opacity:1}
+.nav-badge{margin-left:auto;background:rgba(0,212,255,.15);color:var(--cyan);font-size:10px;font-weight:700;padding:2px 7px;border-radius:100px}
+.sidebar-footer{padding:14px 12px;border-top:1px solid var(--border)}
+.phone-badge{display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:10px;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.15);margin-bottom:10px}
+.phone-pulse{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 1.5s infinite;flex-shrink:0}
+.phone-num{font-size:12px;font-weight:600;color:var(--green)}
+.phone-label{font-size:10px;color:var(--muted)}
+.logout-btn{width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:12px;cursor:pointer;font-family:var(--font-body);transition:all .2s;text-align:left}
+.logout-btn:hover{color:var(--text);border-color:var(--border2)}
+
+/* Main content */
+.main{margin-left:var(--sidebar);flex:1;overflow-y:auto;min-height:100vh}
+.page{display:none;padding:32px}
+.page.active{display:block}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
+.page-title{font-family:var(--font-display);font-size:32px;font-weight:400;letter-spacing:-1px;line-height:1}
+.page-title em{font-style:italic;color:var(--cyan)}
+.page-sub{font-size:13px;color:var(--muted);margin-top:4px}
+.header-actions{display:flex;gap:8px;align-items:center}
+
+/* Cards & Stats */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px 18px;position:relative;overflow:hidden;transition:border-color .2s}
+.stat-card:hover{border-color:var(--border2)}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--c,rgba(0,212,255,.3)),transparent);opacity:0;transition:opacity .3s}
+.stat-card:hover::before{opacity:1}
+.stat-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;border:1px solid var(--border)}
+.stat-val{font-size:28px;font-weight:800;letter-spacing:-1.5px;margin-bottom:2px}
+.stat-label{font-size:11px;color:var(--muted);font-weight:500}
+.stat-trend{display:flex;align-items:center;gap:4px;font-size:11px;margin-top:6px;font-weight:600}
+.trend-up{color:var(--green)}
+.trend-down{color:var(--red)}
+
+/* Table card */
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.table-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.table-title{font-size:14px;font-weight:700;color:var(--text)}
+.table-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.table-actions{display:flex;gap:8px;align-items:center}
+.filter-btn{padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.filter-btn.active{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.3);color:var(--cyan)}
+table{width:100%;border-collapse:collapse}
+th{padding:11px 16px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);text-align:left;background:rgba(255,255,255,.02)}
+td{padding:13px 16px;font-size:13px;color:var(--muted);border-top:1px solid var(--border);vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,.015)}
+.caller-name{font-size:13px;font-weight:600;color:var(--text)}
+.caller-num{font-size:11px;color:var(--dim)}
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:100px;font-size:11px;font-weight:600}
+.s-completed{background:rgba(0,232,122,.1);color:var(--green);border:1px solid rgba(0,232,122,.2)}
+.s-transferred{background:rgba(0,102,255,.1);color:#6699ff;border:1px solid rgba(0,102,255,.2)}
+.s-voicemail{background:rgba(255,184,0,.1);color:var(--amber);border:1px solid rgba(255,184,0,.2)}
+.s-active{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2)}
+.duration-val{font-variant-numeric:tabular-nums;color:var(--text);font-weight:500}
+.summary-text{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+
+/* Call detail panel */
+.call-detail{position:fixed;right:0;top:0;bottom:0;width:400px;background:var(--surface2);border-left:1px solid var(--border2);z-index:60;transform:translateX(100%);transition:transform .3s;overflow-y:auto}
+.call-detail.open{transform:translateX(0)}
+.detail-header{padding:20px 22px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--surface2);z-index:1}
+.detail-title{font-size:16px;font-weight:700}
+.detail-close{width:30px;height:30px;border-radius:8px;border:none;background:rgba(255,255,255,.06);color:var(--muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.detail-body{padding:22px}
+.detail-meta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.detail-meta-item{padding:12px 14px;border-radius:10px;background:var(--black);border:1px solid var(--border)}
+.detail-meta-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.detail-meta-val{font-size:13px;font-weight:600;color:var(--text)}
+.detail-summary{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:12px;padding:14px 16px;margin-bottom:20px}
+.detail-summary-label{font-size:10px;color:var(--cyan);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;font-weight:700}
+.detail-summary-text{font-size:13px;color:var(--muted);line-height:1.7}
+.transcript-wrap{margin-bottom:20px}
+.transcript-label{font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;font-weight:700}
+.t-msg{margin-bottom:10px}
+.t-role{font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px}
+.t-caller .t-role{color:rgba(102,153,255,.8)}
+.t-ai .t-role{color:rgba(0,212,255,.8)}
+.t-bubble{padding:8px 12px;border-radius:10px;font-size:13px;line-height:1.6;display:inline-block;max-width:100%}
+.t-caller .t-bubble{background:rgba(0,102,255,.1);border:1px solid rgba(0,102,255,.15);border-radius:10px 10px 10px 3px}
+.t-ai .t-bubble{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.12);border-radius:10px 10px 3px 10px}
+.detail-actions{display:flex;gap:8px}
+.action-btn{flex:1;padding:10px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s}
+.action-callback{background:var(--cyan);color:#020408}
+.action-callback:hover{background:#1ae0ff}
+.action-export{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border2)}
+.action-export:hover{border-color:var(--border2)}
+
+/* Settings forms */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+@media(max-width:900px){.settings-grid{grid-template-columns:1fr}}
+.settings-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:0}
+.settings-card-title{font-size:14px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.form-textarea{width:100%;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:13px;font-family:var(--font-body);outline:none;resize:vertical;min-height:120px;transition:border-color .2s;line-height:1.6}
+.form-textarea:focus{border-color:var(--cyan)}
+.save-btn{padding:11px 24px;border-radius:9px;border:none;background:var(--cyan);color:#020408;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .2s;display:inline-flex;align-items:center;gap:6px;box-shadow:0 0 16px rgba(0,212,255,.2)}
+.save-btn:hover{background:#1ae0ff}
+.save-btn.saved{background:var(--green);color:#020408}
+.dept-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.dept-label{font-size:12px;font-weight:600;color:var(--muted);width:70px;flex-shrink:0}
+
+/* Billing cards */
+.billing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.billing-plan{padding:28px 24px;border-radius:18px;border:1px solid var(--border);background:var(--surface);position:relative;transition:all .3s}
+.billing-plan:hover{transform:translateY(-3px)}
+.billing-plan.current{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.04)}
+.plan-current-badge{position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--cyan);color:#020408;font-size:10px;font-weight:800;padding:3px 12px;border-radius:100px;white-space:nowrap}
+.plan-name-sm{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+.plan-price-sm{font-size:40px;font-weight:800;letter-spacing:-2px;margin-bottom:4px}
+.plan-price-sm sup{font-size:18px;vertical-align:super;font-weight:600;letter-spacing:0}
+.plan-price-sm sub{font-size:13px;color:var(--muted);font-weight:400;letter-spacing:0;vertical-align:baseline}
+.plan-calls-sm{font-size:12px;color:var(--green);font-weight:600;margin-bottom:20px;display:flex;align-items:center;gap:5px}
+.plan-calls-sm::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0}
+.plan-feat{font-size:12px;color:var(--muted);padding:5px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.plan-feat:last-of-type{border-bottom:none}
+.plan-feat::before{content:'✓';color:var(--green);font-size:10px;font-weight:700;flex-shrink:0}
+.upgrade-btn{width:100%;margin-top:20px;padding:11px;border-radius:9px;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.upgrade-primary{background:var(--cyan);color:#020408;box-shadow:0 0 16px rgba(0,212,255,.25)}
+.upgrade-primary:hover{background:#1ae0ff}
+.upgrade-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border2)}
+.upgrade-ghost:hover{border-color:rgba(0,212,255,.3);color:var(--cyan)}
+.upgrade-current{background:rgba(255,255,255,.03);color:var(--dim);cursor:default;border:1px solid var(--border)}
+
+/* Usage bar */
+.usage-bar-wrap{margin-top:8px}
+.usage-bar-track{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.usage-bar-fill{height:100%;border-radius:3px;background:var(--grad);transition:width .8s ease}
+.usage-bar-fill.warning{background:linear-gradient(90deg,var(--amber),var(--red))}
+.usage-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+
+/* Chart placeholder */
+.chart-wrap{height:160px;display:flex;align-items:flex-end;gap:6px;padding:0 4px}
+.chart-bar{flex:1;border-radius:4px 4px 0 0;background:rgba(0,212,255,.15);border:1px solid rgba(0,212,255,.2);transition:all .3s;cursor:pointer;min-width:8px;position:relative}
+.chart-bar:hover{background:rgba(0,212,255,.3)}
+.chart-bar.today{background:rgba(0,212,255,.35);border-color:rgba(0,212,255,.5)}
+
+/* Toggle switch */
+.toggle{width:40px;height:22px;border-radius:11px;background:rgba(255,255,255,.1);border:1px solid var(--border2);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--cyan)}
+.toggle-thumb{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.toggle.on .toggle-thumb{left:20px}
+
+/* Notification panel */
+.notif-dot{width:7px;height:7px;border-radius:50%;background:var(--red);position:absolute;top:4px;right:4px}
+.recent-call{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all .2s}
+.recent-call:hover{padding-left:4px}
+.recent-call:last-child{border-bottom:none}
+.call-avatar{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-weight:700}
+.call-info{flex:1;min-width:0}
+.call-name{font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.call-snippet{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+.call-time-sm{font-size:11px;color:var(--dim);flex-shrink:0}
+
+/* Lead status */
+.lead-status{display:inline-flex;padding:2px 8px;border-radius:100px;font-size:10px;font-weight:700;letter-spacing:.04em}
+.l-new{background:rgba(0,212,255,.1);color:var(--cyan);border:1px solid rgba(0,212,255,.2)}
+.l-followup{background:rgba(255,184,0,.1);color:var(--amber);border:1px solid rgba(255,184,0,.2)}
+.l-converted{background:rgba(0,232,122,.1);color:var(--green);border:1px solid rgba(0,232,122,.2)}
+.l-spam{background:rgba(255,255,255,.06);color:var(--dim);border:1px solid var(--border)}
+
+/* Buttons */
+.btn-sm{padding:7px 14px;border-radius:7px;border:none;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s;display:inline-flex;align-items:center;gap:5px}
+.btn-cyan-sm{background:var(--cyan);color:#020408}
+.btn-ghost-sm{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border2)}
+.btn-ghost-sm:hover{border-color:rgba(0,212,255,.3);color:var(--cyan)}
+
+/* Mobile nav */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:50;background:var(--surface);border-top:1px solid var(--border);padding:8px 0;justify-content:space-around}
+.mob-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 12px;border:none;background:transparent;color:var(--muted);font-size:9px;font-weight:600;cursor:pointer;font-family:var(--font-body);letter-spacing:.04em;text-transform:uppercase;transition:color .2s}
+.mob-nav-btn.active{color:var(--cyan)}
+
+/* Animations */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page.active{animation:fadeIn .3s ease}
+.spinner{width:14px;height:14px;border:2px solid rgba(2,4,8,.3);border-top-color:#020408;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Responsive */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0;padding-bottom:70px}
+  .mobile-nav{display:flex}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .settings-grid{grid-template-columns:1fr}
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ══ AUTH SCREEN ═══════════════════════════════════════════════════ -->
+<div class="auth-wrap" id="authScreen">
+  <div class="auth-bg"></div>
+  <div class="auth-orb"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
+      </div>
+      <div>
+        <div class="auth-logo-text"><span class="ai">Ai</span><span class="ring">Ring</span><span class="desk">Desk</span></div>
+        <div style="font-size:10px;color:var(--dim)">AI Receptionist Platform</div>
+      </div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Sign In</button>
+      <button class="auth-tab" id="signupTab" onclick="switchTab('signup')">Get Started</button>
+    </div>
+
+    <!-- Login form -->
+    <div id="loginForm">
+      <div class="form-group"><label class="form-label">Email address</label><input class="form-input" type="email" id="loginEmail" placeholder="you@yourbusiness.com" autocomplete="email"/></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="loginPass" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign in →</button>
+      <div class="auth-error" id="loginError"></div>
+    </div>
+
+    <!-- Signup form -->
+    <div id="signupForm" style="display:none">
+      <div class="form-group"><label class="form-label">Business name</label><input class="form-input" type="text" id="signupBiz" placeholder="e.g. Smith Plumbing Ltd" autocomplete="organization"/></div>
+      <div class="form-group"><label class="form-label">Email address</label><input class="form-input" type="email" id="signupEmail" placeholder="you@yourbusiness.com"/></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="signupPass" placeholder="Min. 8 characters"/></div>
+      <button class="auth-btn" id="signupBtn" onclick="doSignup()">Create account →</button>
+      <div class="auth-error" id="signupError"></div>
+    </div>
+
+    <div class="auth-footer">
+      By continuing you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a><br>
+      <span style="margin-top:6px;display:block">🇬🇧 UK-based · GDPR Compliant · Secure</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ══════════════════════════════════════════════════════ -->
+<div class="dash-wrap" id="dashWrap">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <a href="/" class="sidebar-logo">
+        <div class="sidebar-logo-icon">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
+        </div>
+        <div>
+          <div class="sidebar-logo-text"><span class="ai">Ai</span><span class="ring">Ring</span><span class="desk">Desk</span></div>
+        </div>
+      </a>
+      <div class="sidebar-role" id="sidebarRole">Client</div>
+      <div class="sidebar-biz" id="sidebarBiz">Loading...</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <button class="nav-btn active" onclick="showPage('overview')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Overview
+      </button>
+      <button class="nav-btn" onclick="showPage('calls')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
+        Call Logs
+        <span class="nav-badge" id="newCallsBadge" style="display:none">0</span>
+      </button>
+      <button class="nav-btn" onclick="showPage('leads')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        Leads
+      </button>
+
+      <div class="nav-section-label">Configure</div>
+      <button class="nav-btn" onclick="showPage('settings')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+        AI Settings
+      </button>
+      <button class="nav-btn" onclick="showPage('notifications')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+        Notifications
+      </button>
+      <button class="nav-btn" onclick="showPage('billing')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Billing
+      </button>
+
+      <!-- Super admin only -->
+      <div id="adminNav" style="display:none">
+        <div class="nav-section-label">Admin</div>
+        <button class="nav-btn" onclick="showPage('customers')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Customers
+        </button>
+        <button class="nav-btn" onclick="showPage('revenue')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          Revenue
+        </button>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="phone-badge" id="phoneBadge" style="display:none">
+        <div class="phone-pulse"></div>
+        <div>
+          <div class="phone-num" id="sidebarPhone">—</div>
+          <div class="phone-label">AI answering calls</div>
+        </div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">← Sign out</button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <main class="main">
+
+    <!-- ── OVERVIEW PAGE ── -->
+    <div class="page active" id="page-overview">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Good morning, <em id="overviewName">...</em></div>
+          <div class="page-sub">Here's what's happening with your AI receptionist</div>
+        </div>
+        <div class="header-actions">
+          <a href="/get-number" class="btn-sm btn-ghost-sm" id="getNumberBtn" style="display:none">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Get number
+          </a>
+          <button class="btn-sm btn-cyan-sm" onclick="showPage('calls')">View all calls</button>
+        </div>
+      </div>
+
+      <!-- No number warning -->
+      <div id="noNumberWarn" style="display:none;background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.2);border-radius:14px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:14px">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div><div style="font-size:13px;font-weight:600;color:#ffb800">No phone number configured</div><div style="font-size:12px;color:var(--muted)">Get a number to start receiving calls through your AI receptionist</div></div>
+        <a href="/get-number" style="margin-left:auto" class="btn-sm btn-ghost-sm">Get number →</a>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row" id="overviewStats">
+        <div class="stat-card" style="--c:rgba(0,212,255,.3)">
+          <div class="stat-icon" style="background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.15)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
+          </div>
+          <div class="stat-val" id="statTotal">—</div>
+          <div class="stat-label">Total calls</div>
+          <div class="stat-trend trend-up" id="statTotalTrend"></div>
+        </div>
+        <div class="stat-card" style="--c:rgba(0,232,122,.3)">
+          <div class="stat-icon" style="background:rgba(0,232,122,.08);border-color:rgba(0,232,122,.15)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+          <div class="stat-val" id="statMonth">—</div>
+          <div class="stat-label">This month</div>
+        </div>
+        <div class="stat-card" style="--c:rgba(102,153,255,.3)">
+          <div class="stat-icon" style="background:rgba(0,102,255,.08);border-color:rgba(0,102,255,.15)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6699ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+          </div>
+          <div class="stat-val" id="statTransferred">—</div>
+          <div class="stat-label">Transferred</div>
+        </div>
+        <div class="stat-card" style="--c:rgba(255,184,0,.3)">
+          <div class="stat-icon" style="background:rgba(255,184,0,.08);border-color:rgba(255,184,0,.15)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          </div>
+          <div class="stat-val" id="statVoicemail">—</div>
+          <div class="stat-label">Voicemails</div>
+        </div>
+      </div>
+
+      <!-- Two column layout -->
+      <div style="display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start" id="overviewGrid">
+        <!-- Recent calls -->
+        <div class="table-card">
+          <div class="table-header">
+            <div>
+              <div class="table-title">Recent calls</div>
+              <div class="table-sub">Latest activity from your AI receptionist</div>
+            </div>
+            <button class="btn-sm btn-ghost-sm" onclick="showPage('calls')">View all</button>
+          </div>
+          <div id="recentCallsList" style="padding:0 16px"></div>
+        </div>
+
+        <!-- Right column -->
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <!-- Usage card -->
+          <div class="table-card">
+            <div class="table-header">
+              <div>
+                <div class="table-title">Usage this month</div>
+              </div>
+              <span id="planBadge" style="font-size:11px;padding:3px 10px;border-radius:100px;font-weight:700;background:rgba(0,212,255,.1);color:var(--cyan)">—</span>
+            </div>
+            <div style="padding:16px 20px">
+              <div class="usage-bar-wrap">
+                <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px">
+                  <span style="font-weight:600;color:var(--text)" id="usageNum">— / —</span>
+                  <span style="color:var(--muted)" id="usagePct">—%</span>
+                </div>
+                <div class="usage-bar-track"><div class="usage-bar-fill" id="usageFill" style="width:0%"></div></div>
+                <div class="usage-labels"><span>0 calls</span><span id="usageLimit">—</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Call chart -->
+          <div class="table-card">
+            <div class="table-header">
+              <div class="table-title">Last 14 days</div>
+            </div>
+            <div style="padding:16px 20px 20px">
+              <div class="chart-wrap" id="miniChart"></div>
+              <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-top:8px;padding:0 4px">
+                <span id="chartStart">—</span>
+                <span id="chartEnd">Today</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick actions -->
+          <div class="table-card">
+            <div class="table-header"><div class="table-title">Quick actions</div></div>
+            <div style="padding:12px 16px;display:flex;flex-direction:column;gap:8px">
+              <button class="btn-sm btn-ghost-sm" style="width:100%;justify-content:flex-start;padding:10px 14px" onclick="showPage('settings')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+                Edit AI script & settings
+              </button>
+              <button class="btn-sm btn-ghost-sm" style="width:100%;justify-content:flex-start;padding:10px 14px" onclick="showPage('notifications')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                Configure email alerts
+              </button>
+              <button class="btn-sm btn-ghost-sm" style="width:100%;justify-content:flex-start;padding:10px 14px" onclick="showPage('billing')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                Upgrade plan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CALLS PAGE ── -->
+    <div class="page" id="page-calls">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Call <em>Logs</em></div>
+          <div class="page-sub" id="callsSubTitle">All calls handled by your AI receptionist</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn-sm btn-ghost-sm" onclick="exportCalls()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-actions">
+            <button class="filter-btn active" onclick="filterCalls('all',this)">All</button>
+            <button class="filter-btn" onclick="filterCalls('completed',this)">Completed</button>
+            <button class="filter-btn" onclick="filterCalls('transferred',this)">Transferred</button>
+            <button class="filter-btn" onclick="filterCalls('voicemail',this)">Voicemail</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Caller</th>
+                <th>Status</th>
+                <th>Duration</th>
+                <th>Summary</th>
+                <th>Lead</th>
+                <th>Date & Time</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="callsTableBody">
+              <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Loading calls...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── LEADS PAGE ── -->
+    <div class="page" id="page-leads">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Lead <em>Tracker</em></div>
+          <div class="page-sub">Track and manage enquiries from your AI receptionist</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px">
+        <div class="stat-card" style="--c:rgba(0,212,255,.3)"><div class="stat-val" id="leadsNew" style="color:var(--cyan)">—</div><div class="stat-label">New leads</div></div>
+        <div class="stat-card" style="--c:rgba(255,184,0,.3)"><div class="stat-val" id="leadsFollowup" style="color:var(--amber)">—</div><div class="stat-label">Needs follow-up</div></div>
+        <div class="stat-card" style="--c:rgba(0,232,122,.3)"><div class="stat-val" id="leadsConverted" style="color:var(--green)">—</div><div class="stat-label">Converted</div></div>
+        <div class="stat-card"><div class="stat-val" id="leadsTotal" style="color:var(--text)">—</div><div class="stat-label">Total leads</div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-header"><div class="table-title">All leads</div></div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Caller</th>
+                <th>AI Summary</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="leadsTableBody">
+              <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted)">Loading leads...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS PAGE ── -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <div>
+          <div class="page-title">AI <em>Settings</em></div>
+          <div class="page-sub">Customise your AI receptionist</div>
+        </div>
+        <button class="save-btn" id="saveSettingsBtn" onclick="saveSettings()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save settings
+        </button>
+      </div>
+      <div class="settings-grid">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="settings-card">
+            <div class="settings-card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+              AI Identity
+            </div>
+            <div class="form-group"><label class="form-label">AI receptionist name</label><input class="form-input" type="text" id="settingsAiName" placeholder="e.g. Aria"/></div>
+          </div>
+          <div class="settings-card">
+            <div class="settings-card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              AI Script & Personality
+            </div>
+            <div class="form-group"><label class="form-label">System prompt</label><textarea class="form-textarea" id="settingsPrompt" placeholder="Tell Aria about your business — hours, FAQs, how to handle calls..."></textarea></div>
+            <p style="font-size:12px;color:var(--dim);margin-top:-8px">Include your business hours, top 5-10 FAQs, and how you want calls handled.</p>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div class="settings-card">
+            <div class="settings-card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              Call Transfer Numbers
+            </div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">When Aria detects a caller needs a human, she'll transfer to these numbers.</p>
+            <div id="deptFields">
+              <div class="dept-row"><span class="dept-label">Sales</span><input class="form-input" type="tel" id="dept-sales" placeholder="+44 7700 900000" style="flex:1"/></div>
+              <div class="dept-row"><span class="dept-label">Support</span><input class="form-input" type="tel" id="dept-support" placeholder="+44 7700 900001" style="flex:1"/></div>
+              <div class="dept-row"><span class="dept-label">Billing</span><input class="form-input" type="tel" id="dept-billing" placeholder="+44 7700 900002" style="flex:1"/></div>
+              <div class="dept-row"><span class="dept-label">Manager</span><input class="form-input" type="tel" id="dept-manager" placeholder="+44 7700 900003" style="flex:1"/></div>
+              <div class="dept-row"><span class="dept-label">General</span><input class="form-input" type="tel" id="dept-general" placeholder="+44 7700 900000" style="flex:1"/></div>
+            </div>
+          </div>
+          <div class="settings-card">
+            <div class="settings-card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
+              Your Phone Number
+            </div>
+            <div id="phoneNumberInfo" style="padding:14px;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.15);border-radius:10px">
+              <div style="font-size:13px;font-weight:700;color:var(--green)" id="settingsPhone">Loading...</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Your AI receptionist answers this number 24/7</div>
+            </div>
+            <a href="/get-number" id="getNumberLink" style="display:none;margin-top:10px" class="btn-sm btn-ghost-sm">Get a number →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NOTIFICATIONS PAGE ── -->
+    <div class="page" id="page-notifications">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Email <em>Notifications</em></div>
+          <div class="page-sub">Configure how you receive call alerts and lead notifications</div>
+        </div>
+      </div>
+      <div style="max-width:680px;display:flex;flex-direction:column;gap:16px">
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Notification Settings
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div><div style="font-size:14px;font-weight:600;color:var(--text)">Call notifications</div><div style="font-size:12px;color:var(--muted)">Email after every completed call with transcript</div></div>
+              <div class="toggle on" id="toggleCallNotif" onclick="toggleNotif('call')"><div class="toggle-thumb"></div></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div><div style="font-size:14px;font-weight:600;color:var(--text)">Voicemail alerts</div><div style="font-size:12px;color:var(--muted)">Instant email when a voicemail is left</div></div>
+              <div class="toggle on" id="toggleVoicemail" onclick="toggleNotif('voicemail')"><div class="toggle-thumb"></div></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)">
+              <div><div style="font-size:14px;font-weight:600;color:var(--text)">Daily summary</div><div style="font-size:12px;color:var(--muted)">Daily digest at 9am with all calls from yesterday</div></div>
+              <div class="toggle" id="toggleDaily" onclick="toggleNotif('daily')"><div class="toggle-thumb"></div></div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 0">
+              <div><div style="font-size:14px;font-weight:600;color:var(--text)">Weekly report</div><div style="font-size:12px;color:var(--muted)">Monday morning report with weekly stats</div></div>
+              <div class="toggle" id="toggleWeekly" onclick="toggleNotif('weekly')"><div class="toggle-thumb"></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="settings-card">
+          <div class="settings-card-title">Test your notifications</div>
+          <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Send a test email to confirm your notifications are working correctly.</p>
+          <button class="btn-sm btn-ghost-sm" id="testEmailBtn" onclick="testEmail()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            Send test email
+          </button>
+          <div id="testEmailResult" style="font-size:12px;color:var(--green);margin-top:10px;display:none">✅ Test email sent! Check your inbox.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── BILLING PAGE ── -->
+    <div class="page" id="page-billing">
+      <div class="page-header">
+        <div>
+          <div class="page-title"><em>Billing</em> & Plans</div>
+          <div class="page-sub" id="billingCurrentPlan">Current plan: loading...</div>
+        </div>
+      </div>
+      <div class="billing-grid" id="billingPlans">
+        <!-- Populated by JS -->
+      </div>
+      <div style="margin-top:24px;padding:20px 24px;background:var(--surface);border:1px solid var(--border);border-radius:14px;max-width:500px">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">Need help with billing?</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Contact our UK billing team — we're here Mon–Fri 9am–6pm GMT.</div>
+        <a href="mailto:hello@airingdesk.com" class="btn-sm btn-ghost-sm">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          hello@airingdesk.com
+        </a>
+      </div>
+    </div>
+
+    <!-- ── ADMIN: CUSTOMERS ── -->
+    <div class="page" id="page-customers">
+      <div class="page-header">
+        <div>
+          <div class="page-title">All <em>Customers</em></div>
+          <div class="page-sub" id="customerCount">Loading...</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn-sm btn-cyan-sm" onclick="showAddCustomer()">+ Add customer</button>
+        </div>
+      </div>
+      <div class="table-card">
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Business</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Plan</th>
+                <th>Calls</th>
+                <th>Notifications</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="customersTableBody">
+              <tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ADMIN: REVENUE ── -->
+    <div class="page" id="page-revenue">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Revenue <em>Overview</em></div>
+          <div class="page-sub">Monthly recurring revenue</div>
+        </div>
+      </div>
+      <div class="stats-row" id="revenueStats">
+        <div class="stat-card"><div class="stat-val" id="revMRR" style="color:var(--green)">—</div><div class="stat-label">Monthly recurring revenue</div></div>
+        <div class="stat-card"><div class="stat-val" id="revARR" style="color:var(--cyan)">—</div><div class="stat-label">Annual run rate</div></div>
+        <div class="stat-card"><div class="stat-val" id="revPaying">—</div><div class="stat-label">Paying customers</div></div>
+        <div class="stat-card"><div class="stat-val" id="revTrial">—</div><div class="stat-label">On free trial</div></div>
+      </div>
+      <div class="table-card">
+        <div class="table-header"><div class="table-title">Revenue by customer</div></div>
+        <table>
+          <thead><tr><th>#</th><th>Business</th><th>Plan</th><th>MRR</th></tr></thead>
+          <tbody id="revenueTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Call detail panel -->
+  <div class="call-detail" id="callDetail">
+    <div class="detail-header">
+      <div class="detail-title" id="detailCallerName">—</div>
+      <button class="detail-close" onclick="closeDetail()">×</button>
+    </div>
+    <div class="detail-body">
+      <div class="detail-meta" id="detailMeta"></div>
+      <div class="detail-summary" id="detailSummary" style="display:none">
+        <div class="detail-summary-label">AI Summary</div>
+        <div class="detail-summary-text" id="detailSummaryText"></div>
+      </div>
+      <div class="transcript-wrap" id="detailTranscript"></div>
+      <div class="detail-actions">
+        <button class="action-btn action-callback" id="callbackBtn" onclick="initiateCallback()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72z"/></svg>
+          Call back
+        </button>
+        <button class="action-btn action-export" onclick="exportCall()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile nav -->
+  <nav class="mobile-nav">
+    <button class="mob-nav-btn active" onclick="showPage('overview')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Overview
+    </button>
+    <button class="mob-nav-btn" onclick="showPage('calls')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72z"/></svg>
+      Calls
+    </button>
+    <button class="mob-nav-btn" onclick="showPage('leads')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Leads
+    </button>
+    <button class="mob-nav-btn" onclick="showPage('settings')">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+      Settings
+    </button>
+  </nav>
+
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────
+const API = '';  // same origin
+let authToken = localStorage.getItem('rd_token');
+let currentUser = (() => { try { return JSON.parse(localStorage.getItem('rd_user') || 'null'); } catch { return null; } })();
+let allCalls = [];
+let currentCallFilter = 'all';
+let selectedCall = null;
+let profile = null;
+
+// ── INIT ──────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  if (authToken && currentUser) {
+    showDashboard();
+  }
+});
+
+// ── AUTH ──────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+  document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
+  document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const btn = document.getElementById('loginBtn');
+  const errEl = document.getElementById('loginError');
+  errEl.classList.remove('show');
+  if (!email || !pass) return showAuthError('loginError', 'Please enter your email and password.');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    const r = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password: pass }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Login failed');
+    authToken = d.token;
+    currentUser = { ...d.client, role: d.client.role || 'client' };
+    localStorage.setItem('rd_token', authToken);
+    localStorage.setItem('rd_user', JSON.stringify(currentUser));
+    showDashboard();
+  } catch(e) { showAuthError('loginError', e.message); }
+  finally { btn.disabled = false; btn.textContent = 'Sign in →'; }
+}
+
+async function doSignup() {
+  const biz = document.getElementById('signupBiz').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const pass = document.getElementById('signupPass').value;
+  const btn = document.getElementById('signupBtn');
+  if (!biz || !email || !pass) return showAuthError('signupError', 'All fields are required.');
+  if (pass.length < 8) return showAuthError('signupError', 'Password must be at least 8 characters.');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  try {
+    const r = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ business_name: biz, email, password: pass }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || 'Registration failed');
+    authToken = d.token;
+    currentUser = { ...d.client, role: 'client' };
+    localStorage.setItem('rd_token', authToken);
+    localStorage.setItem('rd_user', JSON.stringify(currentUser));
+    showDashboard();
+  } catch(e) { showAuthError('signupError', e.message); }
+  finally { btn.disabled = false; btn.textContent = 'Create account →'; }
+}
+
+function showAuthError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.add('show');
+}
+
+function doLogout() {
+  localStorage.removeItem('rd_token'); localStorage.removeItem('rd_user');
+  authToken = null; currentUser = null;
+  document.getElementById('dashWrap').classList.remove('active');
+  document.getElementById('authScreen').style.display = 'flex';
+  window.location.reload();
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────────────
+function showDashboard() {
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('dashWrap').classList.add('active');
+  const isAdmin = currentUser?.role === 'superadmin';
+  document.getElementById('adminNav').style.display = isAdmin ? 'block' : 'none';
+  document.getElementById('sidebarRole').textContent = isAdmin ? 'Super Admin' : 'Client';
+  document.getElementById('sidebarBiz').textContent = currentUser?.business_name || '';
+  document.getElementById('overviewName').textContent = currentUser?.business_name || 'there';
+  loadProfile();
+  loadStats();
+  loadCalls();
+}
+
+async function api(path, opts = {}) {
+  const r = await fetch(API + path, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}`, ...opts.headers },
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  });
+  if (r.status === 401) { doLogout(); return null; }
+  return r.json();
+}
+
+async function loadProfile() {
+  profile = await api('/api/client/profile');
+  if (!profile) return;
+  // Phone number
+  const hasPhone = !!profile.phone_number;
+  document.getElementById('sidebarPhone').textContent = profile.phone_number || '';
+  document.getElementById('phoneBadge').style.display = hasPhone ? 'flex' : 'none';
+  document.getElementById('noNumberWarn').style.display = hasPhone ? 'none' : 'flex';
+  document.getElementById('getNumberBtn').style.display = hasPhone ? 'none' : 'flex';
+  // Settings
+  document.getElementById('settingsAiName').value = profile.ai_name || 'Aria';
+  document.getElementById('settingsPrompt').value = profile.ai_prompt || '';
+  const depts = profile.departments || {};
+  ['sales','support','billing','manager','general'].forEach(d => {
+    const el = document.getElementById('dept-' + d);
+    if (el) el.value = depts[d] || '';
+  });
+  const phoneEl = document.getElementById('settingsPhone');
+  if (hasPhone) {
+    phoneEl.textContent = profile.phone_number;
+    document.getElementById('getNumberLink').style.display = 'none';
+  } else {
+    phoneEl.textContent = 'No number assigned yet';
+    phoneEl.style.color = 'var(--amber)';
+    document.getElementById('getNumberLink').style.display = 'inline-flex';
+    document.getElementById('phoneNumberInfo').style.background = 'rgba(255,184,0,.06)';
+    document.getElementById('phoneNumberInfo').style.borderColor = 'rgba(255,184,0,.2)';
+  }
+  // Plan badge
+  const planNames = {trial:'Trial',starter:'Starter',professional:'Professional',business:'Business'};
+  document.getElementById('planBadge').textContent = planNames[profile.plan] || profile.plan;
+  document.getElementById('billingCurrentPlan').textContent = `Current plan: ${planNames[profile.plan] || profile.plan}`;
+  // Usage
+  const used = profile.calls_this_month || 0;
+  const limit = profile.call_limit || 50;
+  const pct = Math.round((used / limit) * 100);
+  document.getElementById('usageNum').textContent = `${used} / ${limit} calls`;
+  document.getElementById('usagePct').textContent = `${pct}%`;
+  document.getElementById('usageLimit').textContent = `${limit} calls`;
+  const fill = document.getElementById('usageFill');
+  fill.style.width = Math.min(pct, 100) + '%';
+  if (pct > 80) fill.classList.add('warning');
+  // Billing plans
+  renderBillingPlans(profile.plan);
+  // Admin
+  if (currentUser?.role === 'superadmin') {
+    loadCustomers();
+    loadRevenue();
+  }
+}
+
+async function loadStats() {
+  const s = await api('/api/stats');
+  if (!s) return;
+  document.getElementById('statTotal').textContent = s.total_calls || 0;
+  document.getElementById('statMonth').textContent = s.calls_this_month || 0;
+  document.getElementById('statTransferred').textContent = s.transferred || 0;
+  document.getElementById('statVoicemail').textContent = s.voicemails || 0;
+  // Mini chart
+  renderMiniChart(s.calls_by_day || []);
+}
+
+async function loadCalls() {
+  const data = await api('/api/calls?limit=100');
+  if (!data) return;
+  allCalls = data.calls || [];
+  renderCalls();
+  renderRecentCalls();
+  renderLeads();
+}
+
+function renderCalls() {
+  const filtered = currentCallFilter === 'all' ? allCalls : allCalls.filter(c => c.status === currentCallFilter);
+  document.getElementById('callsSubTitle').textContent = `${filtered.length} calls`;
+  const tbody = document.getElementById('callsTableBody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">No calls found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(c => `
+    <tr onclick="openCallDetail('${c.id}')" style="cursor:pointer">
+      <td>
+        <div class="caller-name">${c.caller_name || 'Unknown caller'}</div>
+        <div class="caller-num">${c.caller_number || '—'}</div>
+      </td>
+      <td><span class="status-badge s-${c.status}">${c.status}</span></td>
+      <td><span class="duration-val">${fmtDur(c.duration)}</span></td>
+      <td><div class="summary-text">${c.summary || 'No summary'}</div></td>
+      <td><span class="lead-status l-new">New</span></td>
+      <td style="color:var(--muted);font-size:12px">${fmtDate(c.started_at)}</td>
+      <td>
+        <button class="btn-sm btn-ghost-sm" onclick="event.stopPropagation();openCallDetail('${c.id}')">View</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderRecentCalls() {
+  const recent = allCalls.slice(0, 6);
+  const colors = {completed:'rgba(0,232,122,.1)',transferred:'rgba(0,102,255,.1)',voicemail:'rgba(255,184,0,.1)',active:'rgba(167,139,250,.1)'};
+  document.getElementById('recentCallsList').innerHTML = recent.length === 0
+    ? '<div style="padding:20px 0;text-align:center;font-size:13px;color:var(--muted)">No calls yet</div>'
+    : recent.map(c => `
+      <div class="recent-call" onclick="openCallDetail('${c.id}')">
+        <div class="call-avatar" style="background:${colors[c.status]||colors.active}">${(c.caller_name||'?')[0].toUpperCase()}</div>
+        <div class="call-info">
+          <div class="call-name">${c.caller_name || c.caller_number || 'Unknown'}</div>
+          <div class="call-snippet">${c.summary || 'No summary available'}</div>
+        </div>
+        <div class="call-time-sm">${fmtTimeAgo(c.started_at)}</div>
+      </div>
+    `).join('');
+}
+
+function renderLeads() {
+  const leads = allCalls.filter(c => c.status !== 'active');
+  document.getElementById('leadsTotal').textContent = leads.length;
+  document.getElementById('leadsNew').textContent = leads.length;
+  document.getElementById('leadsFollowup').textContent = 0;
+  document.getElementById('leadsConverted').textContent = 0;
+  const tbody = document.getElementById('leadsTableBody');
+  if (leads.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted)">No leads yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = leads.slice(0,50).map(c => `
+    <tr>
+      <td>
+        <div class="caller-name">${c.caller_name || 'Unknown'}</div>
+        <div class="caller-num">${c.caller_number || '—'}</div>
+      </td>
+      <td><div class="summary-text" style="max-width:300px">${c.summary || 'No summary'}</div></td>
+      <td><span class="lead-status l-new">New</span></td>
+      <td style="font-size:12px;color:var(--muted)">${fmtDate(c.started_at)}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn-sm btn-ghost-sm" onclick="openCallDetail('${c.id}')">View</button>
+          ${c.caller_number ? `<a href="tel:${c.caller_number}" class="btn-sm btn-cyan-sm">Call back</a>` : ''}
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderMiniChart(data) {
+  const wrap = document.getElementById('miniChart');
+  if (!data || data.length === 0) { wrap.innerHTML = '<div style="color:var(--dim);font-size:12px;width:100%;text-align:center">No data yet</div>'; return; }
+  const max = Math.max(...data.map(d => d.count), 1);
+  const last14 = [...Array(14)].map((_, i) => {
+    const d = new Date(); d.setDate(d.getDate() - (13 - i));
+    const ds = d.toISOString().split('T')[0];
+    const found = data.find(x => x.day === ds);
+    return { day: ds, count: found ? found.count : 0, isToday: i === 13 };
+  });
+  wrap.innerHTML = last14.map(d => {
+    const h = Math.max((d.count / max) * 140, d.count > 0 ? 8 : 2);
+    return `<div class="chart-bar${d.isToday?' today':''}" style="height:${h}px" title="${d.day}: ${d.count} calls"></div>`;
+  }).join('');
+  if (last14.length > 0) {
+    const s = new Date(last14[0].day);
+    document.getElementById('chartStart').textContent = s.toLocaleDateString('en-GB', {day:'numeric',month:'short'});
+  }
+}
+
+function renderBillingPlans(currentPlan) {
+  const plans = [
+    {id:'starter',name:'Starter',price:'49',calls:'200/mo',feats:['AI answering 24/7','Voicemail + transcripts','Email notifications','Call dashboard']},
+    {id:'professional',name:'Professional',price:'149',calls:'1,000/mo',feats:['Everything in Starter','Smart call transfers','Custom AI personality','Priority support'],popular:true},
+    {id:'business',name:'Business',price:'349',calls:'Unlimited',feats:['Everything in Pro','2 phone numbers','Custom voice & branding','Dedicated manager']}
+  ];
+  document.getElementById('billingPlans').innerHTML = plans.map(p => `
+    <div class="billing-plan ${currentPlan===p.id?'current':''}">
+      ${currentPlan===p.id?'<div class="plan-current-badge">YOUR PLAN</div>':''}
+      ${p.popular&&currentPlan!==p.id?'<div class="plan-current-badge" style="background:rgba(0,212,255,.15);color:var(--cyan);border:1px solid rgba(0,212,255,.3)">POPULAR</div>':''}
+      <div class="plan-name-sm">${p.name}</div>
+      <div class="plan-price-sm"><sup>£</sup>${p.price}<sub>/mo</sub></div>
+      <div class="plan-calls-sm">${p.calls}</div>
+      ${p.feats.map(f=>`<div class="plan-feat">${f}</div>`).join('')}
+      <button class="upgrade-btn ${currentPlan===p.id?'upgrade-current':p.popular?'upgrade-primary':'upgrade-ghost'}"
+        onclick="${currentPlan!==p.id?`upgradePlan('${p.id}')`:''}"
+        ${currentPlan===p.id?'disabled':''}>
+        ${currentPlan===p.id?'Current plan':'Upgrade →'}
+      </button>
+    </div>
+  `).join('');
+}
+
+// ── CALL DETAIL ───────────────────────────────────────────────────────
+function openCallDetail(id) {
+  selectedCall = allCalls.find(c => c.id === id);
+  if (!selectedCall) return;
+  document.getElementById('detailCallerName').textContent = selectedCall.caller_name || selectedCall.caller_number || 'Unknown caller';
+  document.getElementById('detailMeta').innerHTML = [
+    ['Status', `<span class="status-badge s-${selectedCall.status}">${selectedCall.status}</span>`],
+    ['Duration', fmtDur(selectedCall.duration)],
+    ['Date', fmtDate(selectedCall.started_at)],
+    ['From', selectedCall.caller_number || '—']
+  ].map(([l,v]) => `<div class="detail-meta-item"><div class="detail-meta-label">${l}</div><div class="detail-meta-val">${v}</div></div>`).join('');
+  const sumEl = document.getElementById('detailSummary');
+  if (selectedCall.summary) {
+    sumEl.style.display = 'block';
+    document.getElementById('detailSummaryText').textContent = selectedCall.summary;
+  } else { sumEl.style.display = 'none'; }
+  let transcript = [];
+  try { transcript = typeof selectedCall.transcript === 'string' ? JSON.parse(selectedCall.transcript) : (selectedCall.transcript || []); } catch {}
+  const tw = document.getElementById('detailTranscript');
+  if (transcript.length > 0) {
+    tw.innerHTML = `<div class="transcript-label">Full transcript</div>` +
+      transcript.map(m => `<div class="t-msg t-${m.role==='user'?'caller':'ai'}"><div class="t-role">${m.role==='user'?'Caller':'Aria'}</div><div class="t-bubble">${m.content}</div></div>`).join('');
+  } else { tw.innerHTML = ''; }
+  document.getElementById('callbackBtn').style.display = selectedCall.caller_number ? 'flex' : 'none';
+  document.getElementById('callDetail').classList.add('open');
+}
+
+function closeDetail() { document.getElementById('callDetail').classList.remove('open'); }
+function initiateCallback() { if (selectedCall?.caller_number) window.location.href = `tel:${selectedCall.caller_number}`; }
+function exportCall() {
+  if (!selectedCall) return;
+  const txt = `Call Report - AiRingDesk\n${'='.repeat(40)}\nCaller: ${selectedCall.caller_name||selectedCall.caller_number||'Unknown'}\nDate: ${fmtDate(selectedCall.started_at)}\nStatus: ${selectedCall.status}\nDuration: ${fmtDur(selectedCall.duration)}\n\nSummary:\n${selectedCall.summary||'None'}\n\nTranscript:\n${(() => { try { const t = typeof selectedCall.transcript==='string'?JSON.parse(selectedCall.transcript):selectedCall.transcript||[]; return t.map(m=>`${m.role==='user'?'Caller':'Aria'}: ${m.content}`).join('\n\n'); } catch { return 'N/A'; } })()}`;
+  const a = document.createElement('a');
+  a.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(txt);
+  a.download = `call-${selectedCall.id}.txt`;
+  a.click();
+}
+
+function exportCalls() {
+  const filtered = currentCallFilter === 'all' ? allCalls : allCalls.filter(c => c.status === currentCallFilter);
+  const csv = ['Caller Name,Caller Number,Status,Duration,Summary,Date'].concat(
+    filtered.map(c => `"${c.caller_name||''}","${c.caller_number||''}","${c.status}","${fmtDur(c.duration)}","${(c.summary||'').replace(/"/g,"'")}","${fmtDate(c.started_at)}"`)
+  ).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'calls-export.csv';
+  a.click();
+}
+
+// ── FILTER CALLS ─────────────────────────────────────────────────────
+function filterCalls(filter, btn) {
+  currentCallFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderCalls();
+}
+
+// ── SETTINGS ─────────────────────────────────────────────────────────
+async function saveSettings() {
+  const btn = document.getElementById('saveSettingsBtn');
+  const depts = {};
+  ['sales','support','billing','manager','general'].forEach(d => {
+    const v = document.getElementById('dept-' + d)?.value?.trim();
+    if (v) depts[d] = v;
+  });
+  btn.innerHTML = '<span class="spinner" style="border-top-color:#020408"></span>';
+  try {
+    await api('/api/client/settings', { method: 'PUT', body: {
+      ai_name: document.getElementById('settingsAiName').value,
+      ai_prompt: document.getElementById('settingsPrompt').value,
+      departments: depts
+    }});
+    btn.classList.add('saved');
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved!';
+    setTimeout(() => { btn.classList.remove('saved'); btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save settings'; }, 2500);
+  } catch(e) { btn.textContent = 'Error — try again'; }
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────────
+function toggleNotif(type) {
+  const ids = {call:'toggleCallNotif',voicemail:'toggleVoicemail',daily:'toggleDaily',weekly:'toggleWeekly'};
+  const el = document.getElementById(ids[type]);
+  el.classList.toggle('on');
+}
+
+async function testEmail() {
+  const btn = document.getElementById('testEmailBtn');
+  btn.innerHTML = '<span class="spinner"></span> Sending...';
+  btn.disabled = true;
+  try {
+    await api('/api/email/test', { method: 'POST' });
+    document.getElementById('testEmailResult').style.display = 'block';
+  } catch(e) {}
+  finally { btn.disabled = false; btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Send test email'; }
+}
+
+// ── BILLING ───────────────────────────────────────────────────────────
+async function upgradePlan(plan) {
+  try {
+    const d = await api('/api/billing/checkout', { method: 'POST', body: { plan } });
+    if (d?.url) window.location.href = d.url;
+  } catch(e) { alert('Error creating checkout: ' + e.message); }
+}
+
+// ── ADMIN ─────────────────────────────────────────────────────────────
+async function loadCustomers() {
+  const data = await api('/api/admin/customers');
+  if (!data) return;
+  const customers = data.customers || [];
+  document.getElementById('customerCount').textContent = `${customers.length} total customers`;
+  const tbody = document.getElementById('customersTableBody');
+  const planColors = {trial:'var(--dim)',starter:'var(--green)',professional:'var(--cyan)',business:'var(--purple)'};
+  tbody.innerHTML = customers.map(c => `
+    <tr>
+      <td><span style="font-size:11px;color:var(--cyan);font-weight:700">${c.customer_number||'—'}</span></td>
+      <td><div style="font-size:13px;font-weight:600;color:var(--text)">${c.business_name}</div></td>
+      <td style="font-size:12px;color:var(--muted)">${c.email}</td>
+      <td style="font-size:12px;color:var(--muted)">${c.phone_number||'—'}</td>
+      <td><span style="font-size:11px;padding:3px 9px;border-radius:100px;font-weight:700;background:${planColors[c.plan]||'var(--dim)'}15;color:${planColors[c.plan]||'var(--dim)'};">${c.plan}</span></td>
+      <td style="font-size:12px;color:var(--muted)">${c.calls_this_month||0}/${c.call_limit||50}</td>
+      <td><div class="toggle ${c.email_notifications?'on':''}" onclick="toggleCustomerFeature('${c.id}','email_notifications',this)"><div class="toggle-thumb"></div></div></td>
+      <td><button class="btn-sm btn-ghost-sm">Manage</button></td>
+    </tr>
+  `).join('');
+}
+
+async function toggleCustomerFeature(clientId, feature, el) {
+  el.classList.toggle('on');
+  const val = el.classList.contains('on') ? 1 : 0;
+  await api('/api/admin/toggle', { method: 'POST', body: { client_id: clientId, feature, value: val } });
+}
+
+async function loadRevenue() {
+  const data = await api('/api/admin/customers');
+  if (!data) return;
+  const customers = data.customers || [];
+  const planRevenue = {trial:0,starter:49,professional:149,business:349};
+  const mrr = customers.reduce((s,c) => s + (planRevenue[c.plan]||0), 0);
+  document.getElementById('revMRR').textContent = '£' + mrr;
+  document.getElementById('revARR').textContent = '£' + (mrr * 12).toLocaleString();
+  document.getElementById('revPaying').textContent = customers.filter(c => c.plan !== 'trial').length;
+  document.getElementById('revTrial').textContent = customers.filter(c => c.plan === 'trial').length;
+  const tbody = document.getElementById('revenueTableBody');
+  tbody.innerHTML = customers
+    .sort((a,b) => (planRevenue[b.plan]||0) - (planRevenue[a.plan]||0))
+    .map(c => `
+      <tr>
+        <td><span style="font-size:11px;color:var(--cyan);font-weight:700">${c.customer_number||'—'}</span></td>
+        <td style="font-size:13px;font-weight:600;color:var(--text)">${c.business_name}</td>
+        <td><span style="font-size:11px;padding:3px 9px;border-radius:100px;font-weight:700;background:rgba(0,212,255,.1);color:var(--cyan)">${c.plan}</span></td>
+        <td style="font-size:15px;font-weight:800;color:var(--green)">£${planRevenue[c.plan]||0}</td>
+      </tr>
+    `).join('');
+}
+
+// ── NAV ───────────────────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name)?.classList.add('active');
+  document.querySelectorAll('.nav-btn, .mob-nav-btn').forEach(b => {
+    if (b.getAttribute('onclick')?.includes(`'${name}'`)) b.classList.add('active');
+  });
+  closeDetail();
+  if (name === 'calls') renderCalls();
+  if (name === 'leads') renderLeads();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────
+function fmtDur(s) { if (!s || s === 0) return '—'; return `${Math.floor(s/60)}m ${s%60}s`; }
+function fmtDate(ts) { if (!ts) return '—'; return new Date(ts*1000).toLocaleString('en-GB', {day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}); }
+function fmtTimeAgo(ts) {
+  if (!ts) return '—';
+  const diff = Math.floor(Date.now()/1000) - ts;
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return `${Math.floor(diff/60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff/3600)}h ago`;
+  return `${Math.floor(diff/86400)}d ago`;
+}
+</script>
+</body>
 </html>
