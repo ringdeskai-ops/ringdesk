@@ -1169,18 +1169,6 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 </footer>
 
 <script>
-// Auto-open signup modal if ?signup=true in URL and store referral code
-window.addEventListener('DOMContentLoaded', function() {
-  const params = new URLSearchParams(window.location.search);
-  const ref = params.get('ref');
-  if (ref) {
-    sessionStorage.setItem('referral_code', ref);
-  }
-  if (params.get('signup') === 'true') {
-    setTimeout(() => openModal('starter'), 500);
-  }
-});
-
 function toggleMenu(){
   const h=document.getElementById('hamburger');
   const m=document.getElementById('mobileMenu');
@@ -1272,8 +1260,7 @@ async function goStep2(){
   if(pass.length<8)return showE(1,'Password must be at least 8 characters.');
   btn.disabled=true;bt.innerHTML='<div class="spinner"></div> Creating account...';
   try{
-    const refCode = sessionStorage.getItem('referral_code') || new URLSearchParams(window.location.search).get('ref') || '';
-    const r=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:biz,email,password:pass,referral_code:refCode})});
+    const r=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:biz,email,password:pass})});
     const d=await r.json();
     if(!r.ok)throw new Error(d.error||'Registration failed.');
     tok=d.token;document.getElementById('sBizSum').textContent=biz;goStep(2);loadNums();

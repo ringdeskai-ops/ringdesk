@@ -111,7 +111,7 @@ const STRIPE_PRICE_IDS = {
 
 // Register new client
 app.post("/api/auth/register", async (req, res) => {
-  const { business_name, email, password } = req.body;
+  const { business_name, email, password, referral_code } = req.body;
   if (!business_name || !email || !password)
     return res.status(400).json({ error: "All fields required" });
 
@@ -660,6 +660,12 @@ app.get('/industries/plumbers', (req, res) => res.sendFile(__dirname + '/public/
 app.get('/industries/estate-agents', (req, res) => res.sendFile(__dirname + '/public/industries/estate-agents.html'));
 app.get('/industries/solicitors', (req, res) => res.sendFile(__dirname + '/public/industries/solicitors.html'));
 app.get('/industries/medical', (req, res) => res.sendFile(__dirname + '/public/industries/medical.html'));
+app.get('/signup', (req, res) => {
+  const ref = req.query.ref || '';
+  const plan = req.query.plan || 'starter';
+  res.redirect('/?signup=true&plan=' + plan + '&ref=' + ref);
+});
+
 app.get('/billing/success', (req, res) => {
   res.send(`<!DOCTYPE html>
 <html lang="en">
@@ -707,7 +713,11 @@ app.get('/billing/cancel', (req, res) => res.redirect('/'));
 
 app.use("/api/admin", require("./routes/admin")(db));
 app.use("/api/referral", require("./routes/referral")(db, sendBrevoEmail));
-app.use('/dashboard', require('express').static(__dirname + '/public/dashboard'));
+app.use('/dashboard', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  next();
+}, require('express').static(__dirname + '/public/dashboard'));
 app.get('/dashboard/*', (req, res) => res.sendFile(__dirname + '/public/dashboard/index.html'));
 
 const PORT = process.env.PORT || 3000;
@@ -907,6 +917,17 @@ async function sendWelcomeEmail(business_name, email) {
         </div>
       `);
     console.log(`✅ Welcome email sent to ${email}`);
+    // Activate referral if code provided
+    if (referral_code) {
+      try {
+        await fetch('http://127.0.0.1:' + (process.env.PORT || 3000) + '/api/referral/activate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ referral_code, new_client_id: id, new_client_email: email })
+        });
+        console.log('Referral activated for code:', referral_code);
+      } catch(e) { console.error('Referral activation error:', e.message); }
+    }
   } catch (err) {
     console.error(`❌ Welcome email failed:`, err.message);
   }
