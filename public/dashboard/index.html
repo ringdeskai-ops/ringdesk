@@ -2833,13 +2833,13 @@ async function submitCreateAdmin() {
 
 
 function updateGreeting() {
-  // Use UK timezone
   const now = new Date();
-  const ukTime = new Date(now.toLocaleString('en-GB', { timeZone: 'Europe/London' }));
-  const hour = ukTime.getHours();
-  const day = ukTime.getDate();
-  const weekday = ukTime.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'Europe/London' });
-  const timeStr = ukTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' });
+
+  // Get UK hour directly
+  const hour = parseInt(now.toLocaleString('en-GB', { hour: 'numeric', hour12: false, timeZone: 'Europe/London' }));
+  const day = parseInt(now.toLocaleString('en-GB', { day: 'numeric', timeZone: 'Europe/London' }));
+  const weekday = now.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'Europe/London' });
+  const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' });
 
   // Dynamic greeting
   var greeting;
@@ -2856,9 +2856,8 @@ function updateGreeting() {
 
   // Update greeting
   var greetEl = document.getElementById('greetingText');
-  var nameEl = document.getElementById('overviewName');
-  if (greetEl && nameEl) {
-    greetEl.innerHTML = greeting + ', <em id="overviewName">' + (currentUser?.business_name || 'there') + '</em>';
+  if (greetEl) {
+    greetEl.innerHTML = greeting + ', <em id="overviewName">' + (currentUser && currentUser.business_name ? currentUser.business_name : 'there') + '</em>';
   }
 
   // Update date/time display
