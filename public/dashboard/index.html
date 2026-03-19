@@ -421,8 +421,11 @@ tr:hover td{background:rgba(255,255,255,.015)}
     <div class="page active" id="page-overview">
       <div class="page-header">
         <div>
-          <div class="page-title">Good morning, <em id="overviewName">...</em></div>
-          <div class="page-sub">Here's what's happening with your AI receptionist</div>
+          <div class="page-title" id="greetingText">Good morning, <em id="overviewName">...</em></div>
+          <div class="page-sub" style="display:flex;align-items:center;gap:16px">
+            <span>Here's what's happening with your AI receptionist</span>
+            <span id="greetingDateTime" style="color:var(--cyan);font-weight:600;font-size:13px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.15);padding:4px 12px;border-radius:100px"></span>
+          </div>
         </div>
         <div class="header-actions">
           <a href="/get-number" class="btn-sm btn-ghost-sm" id="getNumberBtn" style="display:none">
@@ -1757,6 +1760,8 @@ function showDashboard() {
   superOnly.forEach(el => el.style.display = isSuperAdmin ? '' : 'none');
   document.getElementById('sidebarBiz').textContent = currentUser?.business_name || '';
   document.getElementById('overviewName').textContent = currentUser?.business_name || 'there';
+  updateGreeting();
+  setInterval(updateGreeting, 60000); // Update every minute
   loadProfile();
   loadStats();
   loadCalls();
@@ -2824,6 +2829,43 @@ async function submitCreateAdmin() {
   closeCreateAdminModal();
   showToast('Admin account created for ' + email, 'success');
   loadAdminManagement();
+}
+
+
+function updateGreeting() {
+  // Use UK timezone
+  const now = new Date();
+  const ukTime = new Date(now.toLocaleString('en-GB', { timeZone: 'Europe/London' }));
+  const hour = ukTime.getHours();
+  const day = ukTime.getDate();
+  const weekday = ukTime.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'Europe/London' });
+  const timeStr = ukTime.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/London' });
+
+  // Dynamic greeting
+  var greeting;
+  if (hour >= 5 && hour < 12) greeting = 'Good morning';
+  else if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
+  else if (hour >= 17 && hour < 21) greeting = 'Good evening';
+  else greeting = 'Good night';
+
+  // Day suffix
+  var suffix = 'th';
+  if (day === 1 || day === 21 || day === 31) suffix = 'st';
+  else if (day === 2 || day === 22) suffix = 'nd';
+  else if (day === 3 || day === 23) suffix = 'rd';
+
+  // Update greeting
+  var greetEl = document.getElementById('greetingText');
+  var nameEl = document.getElementById('overviewName');
+  if (greetEl && nameEl) {
+    greetEl.innerHTML = greeting + ', <em id="overviewName">' + (currentUser?.business_name || 'there') + '</em>';
+  }
+
+  // Update date/time display
+  var dtEl = document.getElementById('greetingDateTime');
+  if (dtEl) {
+    dtEl.textContent = weekday + ' ' + day + suffix + ' · ' + timeStr + ' UK';
+  }
 }
 
 function showToast(msg, type) {
