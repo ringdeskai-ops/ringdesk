@@ -515,7 +515,7 @@ app.post("/voice/status", async (req, res) => {
         max_tokens: 300,
         messages: [{
           role: 'user',
-          content: `Summarise this call in 2-3 sentences. Extract: caller name, reason for call, any details given (address, email, postcode), and what action is needed.\n\nTranscript:\n${history.map(m => m.role + ': ' + m.content).join('\n')}`
+          content: `Summarise this call clearly in plain text (no markdown, no asterisks). Include: caller name, reason for call, contact details given (phone, email, address, postcode), and what action is needed next. Keep it concise and professional.\n\nTranscript:\n${history.map(m => m.role + ': ' + m.content).join('\n')}`
         }]
       });
       summary = summaryResp.content[0]?.text || null;
@@ -740,7 +740,7 @@ async function sendWelcomeEmail(business_name, email) {
     await sendBrevoEmail(email, `Welcome to AiRingDesk, ${business_name}! 🎉`,
       `
         <div style="font-family:'Helvetica Neue',sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">
-          <div style="font-size:28px;font-weight:800;background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:24px">RingDesk</div>
+          <div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>
           <h1 style="font-size:22px;font-weight:700;margin-bottom:12px">Welcome aboard, ${business_name}! 🎉</h1>
           <p style="color:#8896a8;font-size:15px;line-height:1.7;margin-bottom:20px">
             Your AI receptionist is ready to go. You have a <strong style="color:#10b981">14-day free trial</strong> — no charge until your trial ends.
@@ -754,7 +754,7 @@ async function sendWelcomeEmail(business_name, email) {
           </div>
           <a href="https://airingdesk.com/dashboard" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:15px;font-weight:600;margin-bottom:24px">Go to your dashboard →</a>
           <p style="color:#3d4f63;font-size:12px;margin-top:24px;border-top:1px solid #1a2332;padding-top:16px">
-            RingDesk · AI Receptionist Platform · <a href="https://airingdesk.com" style="color:#3b82f6">airingdesk.com</a>
+            AiRingDesk · AI Receptionist Platform · <a href="https://airingdesk.com" style="color:#00d4ff">airingdesk.com</a>
           </p>
         </div>
       `);
@@ -795,7 +795,7 @@ async function sendCallNotificationEmail(client, call, transcript) {
             ${transcriptHtml}
           </div>
           <a href="https://airingdesk.com/dashboard" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;text-decoration:none;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:600">View in dashboard →</a>
-          <p style="color:#3d4f63;font-size:12px;margin-top:24px;border-top:1px solid #1a2332;padding-top:16px">RingDesk · <a href="https://airingdesk.com" style="color:#3b82f6">airingdesk.com</a></p>
+          <p style="color:#3d4f63;font-size:12px;margin-top:24px;border-top:1px solid #1a2332;padding-top:16px">AiRingDesk · <a href="https://airingdesk.com" style="color:#00d4ff">airingdesk.com</a></p>
         </div>
       `);
     console.log(`✅ Call notification sent to ${client.email}`);
