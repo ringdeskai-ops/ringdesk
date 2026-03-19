@@ -28,6 +28,25 @@ function adminRequired(req, res, next) {
 
 module.exports = function(db, sendBrevoEmail) {
 
+  // ── Get single customer full details
+  router.get('/customer/:clientId', adminRequired, (req, res) => {
+    const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.params.clientId);
+    if (!client) return res.status(404).json({ error: 'Not found' });
+    delete client.password_hash;
+    res.json({ client });
+  });
+
+  // ── Update customer details
+  router.post('/update-customer', adminRequired, (req, res) => {
+    const { client_id, contact_name, contact_surname, work_phone, mobile_phone,
+            address_line1, address_line2, city, county, postcode, business_name } = req.body;
+    db.prepare('UPDATE clients SET contact_name=?,contact_surname=?,work_phone=?,mobile_phone=?,address_line1=?,address_line2=?,city=?,county=?,postcode=?,business_name=? WHERE id=?')
+      .run(contact_name||'', contact_surname||'', work_phone||'', mobile_phone||'',
+           address_line1||'', address_line2||'', city||'', county||'', postcode||'', business_name||'', client_id);
+    console.log('Customer details updated:', client_id);
+    res.json({ success: true });
+  });
+
   router.get('/customers', adminRequired, (req, res) => {
     const customers = db.prepare('SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, calls_this_month, call_limit, email_notifications, stripe_customer_id, stripe_subscription_id, created_at FROM clients ORDER BY created_at ASC').all();
     customers.forEach((c, i) => c.customer_number = 'RD-' + String(i+1).padStart(3,'0'));
