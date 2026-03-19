@@ -766,8 +766,8 @@ app.listen(PORT, () => console.log(`\n🚀 RingDesk server running on port ${POR
 // ═══════════════════════════════════════════════════════════════════════════════
 //  PHONE NUMBER PROVISIONING
 // ═══════════════════════════════════════════════════════════════════════════════
-const Retell = require('retell-sdk');
-const retell = new Retell({ apiKey: process.env.RETELL_API_KEY });
+// Retell SDK removed
+
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 // Search available numbers by country
@@ -807,48 +807,31 @@ app.post('/api/numbers/provision', authRequired, async (req, res) => {
   const { phoneNumber } = req.body;
   if (!phoneNumber) return res.status(400).json({ error: 'Phone number required' });
 
-  const client = { email: req.client.email || process.env.NOTIFY_EMAIL };
+  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id);
   if (!client) return res.status(404).json({ error: 'Client not found' });
   if (client.phone_number) return res.status(400).json({ error: 'Already have a number' });
 
   try {
-    // Step 1: Purchase number from Twilio
-    const purchased = await twilioClient.incomingPhoneNumbers.create({
+    // Purchase from Twilio - webhook points to our Express app (Claude AI answers)
+    await twilioClient.incomingPhoneNumbers.create({
       phoneNumber,
-      voiceUrl: `${process.env.DASHBOARD_URL}/voice/incoming`,
+      voiceUrl: process.env.DASHBOARD_URL + '/voice/incoming',
       voiceMethod: 'POST',
-      statusCallback: `${process.env.DASHBOARD_URL}/voice/status`,
+      statusCallback: process.env.DASHBOARD_URL + '/voice/status',
       statusCallbackMethod: 'POST',
     });
 
-    // Step 2: Import number into Retell
-    await retell.phoneNumber.import({
-      twilio_phone_number: phoneNumber,
-      twilio_account_sid: process.env.TWILIO_ACCOUNT_SID,
-      twilio_auth_token: process.env.TWILIO_AUTH_TOKEN,
-    });
-
-    // Step 3: Create Retell AI agent for this client
-    const agent = await retell.agent.create({
-      agent_name: `${client.business_name} - AI Receptionist`,
-      voice_id: 'elevenlabs-Paige',
-      llm_websocket_url: `${process.env.DASHBOARD_URL}/retell-llm`,
-      response_engine: {
-        type: 'retell-llm',
-        llm_id: 'gpt-4o-mini',
-      },
-      begin_message: `Thank you for calling ${client.business_name}. How can I help you today?`,
-    });
-
-    // Step 4: Link agent to number
-    await retell.phoneNumber.update(phoneNumber, {
-      agent_id: agent.agent_id,
-    });
-
-    // Step 5: Save to database
+    // Save number to DB - AI answering starts immediately!
     db.prepare('UPDATE clients SET phone_number = ? WHERE id = ?').run(phoneNumber, client.id);
 
-    res.json({ success: true, phoneNumber, agentId: agent.agent_id });
+    // Set default AI prompt if none exists
+    if (!client.ai_prompt) {
+      const defaultPrompt = 'You are ' + (client.ai_name || 'Aria') + ', the professional AI receptionist for ' + client.business_name + '. Answer all calls warmly and professionally. Take messages with caller name and contact number. Help with general enquiries about the business.';
+      db.prepare('UPDATE clients SET ai_prompt = ? WHERE id = ?').run(defaultPrompt, client.id);
+    }
+
+    console.log('Provisioned ' + phoneNumber + ' for ' + client.business_name);
+    res.json({ success: true, phoneNumber, message: 'Your AI receptionist is now live!' });
   } catch (err) {
     console.error('Provisioning error:', err.message);
     res.status(500).json({ error: err.message });
@@ -873,38 +856,27 @@ async function provisionNumberAfterPayment(clientId, phoneNumber) {
     const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(clientId);
     if (!client || client.phone_number) return;
 
-    // Purchase from Twilio
+    // Purchase from Twilio - webhook points to our Express app
     await twilioClient.incomingPhoneNumbers.create({
       phoneNumber,
-      voiceUrl: `${process.env.DASHBOARD_URL}/voice/incoming`,
+      voiceUrl: process.env.DASHBOARD_URL + '/voice/incoming',
       voiceMethod: 'POST',
-      statusCallback: `${process.env.DASHBOARD_URL}/voice/status`,
+      statusCallback: process.env.DASHBOARD_URL + '/voice/status',
       statusCallbackMethod: 'POST',
     });
 
-    // Import into Retell
-    await retell.phoneNumber.import({
-      twilio_phone_number: phoneNumber,
-      twilio_account_sid: process.env.TWILIO_ACCOUNT_SID,
-      twilio_auth_token: process.env.TWILIO_AUTH_TOKEN,
-    });
-
-    // Create Retell agent
-    const agent = await retell.agent.create({
-      agent_name: `${client.business_name} - AI Receptionist`,
-      voice_id: 'elevenlabs-Paige',
-      response_engine: { type: 'retell-llm', llm_id: 'gpt-4o-mini' },
-      begin_message: `Thank you for calling ${client.business_name}. How can I help you today?`,
-    });
-
-    // Link agent to number
-    await retell.phoneNumber.update(phoneNumber, { agent_id: agent.agent_id });
-
-    // Save to DB
+    // Save to DB - AI answering starts immediately!
     db.prepare('UPDATE clients SET phone_number = ? WHERE id = ?').run(phoneNumber, clientId);
-    console.log(`✅ Provisioned ${phoneNumber} for client ${clientId}`);
+
+    // Set default AI prompt if none exists
+    if (!client.ai_prompt) {
+      const defaultPrompt = 'You are ' + (client.ai_name || 'Aria') + ', the professional AI receptionist for ' + client.business_name + '. Answer all calls warmly, take messages with caller name and number, and help with enquiries.';
+      db.prepare('UPDATE clients SET ai_prompt = ? WHERE id = ?').run(defaultPrompt, clientId);
+    }
+
+    console.log('Provisioned ' + phoneNumber + ' for ' + client.business_name + ' - AI live!');
   } catch (err) {
-    console.error('❌ Provisioning failed:', err.message);
+    console.error('Provisioning failed:', err.message);
   }
 }
 
