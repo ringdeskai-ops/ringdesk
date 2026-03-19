@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>AiRingDesk Dashboard</title>
+<title>AiRingDesk Dashboard v2</title>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -2110,7 +2110,7 @@ async function loadBillingInvoices() {
       + '<td style="font-size:13px;color:var(--green)">'+(inv.discount>0?'-£'+(inv.discount/100).toFixed(2):'—')+'</td>'
       + '<td style="font-size:14px;font-weight:700;color:var(--cyan)">£'+(inv.final_amount/100).toFixed(2)+'</td>'
       + '<td><span style="font-size:11px;padding:2px 8px;border-radius:100px;font-weight:700;background:rgba(0,232,122,.1);color:var(--green)">PAID</span></td>'
-      + '<td><a href="#" onclick="downloadInvoice(event,''+inv.id+'')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none">PDF</a></td>'
+      + '<td><a href="#" onclick="downloadInvoice(event,\'' + inv.id + '\')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none">PDF</a></td>'
       + '</tr>';
   }
   tbody.innerHTML = rows;
