@@ -496,11 +496,39 @@ app.post("/voice/voicemail-transcript", (req, res) => {
 });
 
 // Call status callback
-app.post("/voice/status", (req, res) => {
+app.post("/voice/status", async (req, res) => {
   const { CallSid, CallDuration, CallStatus } = req.body;
-  db.prepare("UPDATE calls SET duration = ?, status = CASE WHEN status = 'active' THEN 'completed' ELSE status END, ended_at = ? WHERE call_sid = ?")
-    .run(parseInt(CallDuration || 0), Math.floor(Date.now() / 1000), CallSid);
+
+  // Get session BEFORE deleting it
+  const session = db.prepare("SELECT * FROM call_sessions WHERE call_sid = ?").get(CallSid);
+  const history = session ? JSON.parse(session.history || '[]') : [];
+  const callerName = session ? session.caller_name : null;
+
+  // Generate AI summary of the conversation
+  let summary = null;
+  if (history.length > 0) {
+    try {
+      const Anthropic = require('@anthropic-ai/sdk');
+      const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+      const summaryResp = await anthropic.messages.create({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: `Summarise this call in 2-3 sentences. Extract: caller name, reason for call, any details given (address, email, postcode), and what action is needed.\n\nTranscript:\n${history.map(m => m.role + ': ' + m.content).join('\n')}`
+        }]
+      });
+      summary = summaryResp.content[0]?.text || null;
+    } catch(e) { console.error('Summary error:', e.message); }
+  }
+
+  // Save transcript, summary and caller name to calls table
+  db.prepare("UPDATE calls SET duration = ?, status = CASE WHEN status = 'active' THEN 'completed' ELSE status END, ended_at = ?, transcript = ?, summary = ?, caller_name = ? WHERE call_sid = ?")
+    .run(parseInt(CallDuration || 0), Math.floor(Date.now() / 1000), JSON.stringify(history), summary, callerName, CallSid);
+
+  // Now delete the session
   db.prepare("DELETE FROM call_sessions WHERE call_sid = ?").run(CallSid);
+
   try {
     const call = db.prepare("SELECT * FROM calls WHERE call_sid = ?").get(CallSid);
     if (call) {
