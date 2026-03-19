@@ -305,13 +305,38 @@ app.post("/stripe-webhook", async (req, res) => {
   }
 
   if (event.type === "invoice.payment_succeeded") {
-    // Trial ended and first payment succeeded - activate full plan
     const invoice = event.data.object;
-    if (invoice.billing_reason === "subscription_cycle" || invoice.billing_reason === "subscription_update") {
+    if (invoice.billing_reason === "subscription_cycle" || invoice.billing_reason === "subscription_update" || invoice.billing_reason === "subscription_create") {
       const sub = db.prepare("SELECT * FROM clients WHERE stripe_subscription_id = ?").get(invoice.subscription);
-      if (sub && sub.plan_status !== "active") {
+      if (sub) {
         db.prepare("UPDATE clients SET plan_status = 'active' WHERE id = ?").run(sub.id);
-        console.log(`Payment succeeded - client ${sub.id} plan activated`);
+        console.log("Payment succeeded - client " + sub.id + " plan activated");
+        // Send payment confirmation email with invoice
+        const planNames = { trial:"Trial", starter:"Starter", professional:"Professional", business:"Business" };
+        const amountPaid = (invoice.amount_paid / 100).toFixed(2);
+        const nextDate = invoice.period_end ? new Date(invoice.period_end * 1000).toLocaleDateString("en-GB") : "N/A";
+        const invoiceUrl = invoice.hosted_invoice_url || null;
+        const invoicePdf = invoice.invoice_pdf || null;
+        sendBrevoEmail(sub.email, "Payment confirmed — AiRingDesk " + planNames[sub.plan] + " plan", 
+          "<div style=\"font-family:Helvetica Neue,sans-serif;max-width:600px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px\">"
+          + "<div style=\"font-size:28px;font-weight:800;margin-bottom:8px\"><span style=\"color:#00d4ff\">Ai</span><span style=\"color:#f0f6ff\">Ring</span><span style=\"color:#5a7a9a\">Desk</span></div>"
+          + "<div style=\"padding:20px 0;border-bottom:1px solid #1a2332;margin-bottom:24px\">"
+          + "<div style=\"display:inline-block;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);border-radius:100px;padding:6px 16px;font-size:13px;font-weight:700;color:#00e87a;margin-bottom:16px\">✅ Payment confirmed</div>"
+          + "<h1 style=\"font-size:22px;font-weight:700;margin-bottom:8px\">Thank you, " + sub.business_name + "!</h1>"
+          + "<p style=\"color:#8896a8;font-size:15px\">Your payment has been received and your subscription is active.</p></div>"
+          + "<div style=\"background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:24px;margin-bottom:24px\">"
+          + "<div style=\"font-size:12px;color:#5a7a9a;margin-bottom:16px;text-transform:uppercase\">Invoice details</div>"
+          + "<div style=\"display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a2332\"><span style=\"color:#8896a8\">Plan</span><strong style=\"color:#00d4ff\">" + planNames[sub.plan] + "</strong></div>"
+          + "<div style=\"display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a2332\"><span style=\"color:#8896a8\">Amount paid</span><strong style=\"color:#00e87a\">£" + amountPaid + "</strong></div>"
+          + "<div style=\"display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a2332\"><span style=\"color:#8896a8\">Status</span><strong style=\"color:#00e87a\">PAID ✅</strong></div>"
+          + "<div style=\"display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a2332\"><span style=\"color:#8896a8\">Next renewal</span><strong>" + nextDate + "</strong></div>"
+          + (sub.referral_discount > 0 ? "<div style=\"display:flex;justify-content:space-between;padding:10px 0\"><span style=\"color:#8896a8\">Referral discount</span><strong style=\"color:#00e87a\">-£" + sub.referral_discount + "</strong></div>" : "")
+          + "</div>"
+          + (invoiceUrl ? "<a href=\"" + invoiceUrl + "\" style=\"display:block;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:#00d4ff;text-decoration:none;padding:14px;border-radius:10px;font-size:14px;font-weight:700;text-align:center;margin-bottom:12px\">View invoice online →</a>" : "")
+          + (invoicePdf ? "<a href=\"" + invoicePdf + "\" style=\"display:block;background:rgba(255,255,255,.04);border:1px solid #1a2332;color:#8896a8;text-decoration:none;padding:14px;border-radius:10px;font-size:14px;font-weight:600;text-align:center;margin-bottom:24px\">Download PDF invoice ↓</a>" : "")
+          + "<a href=\"https://airingdesk.com/dashboard\" style=\"display:block;background:#00d4ff;color:#020408;text-decoration:none;padding:14px;border-radius:10px;font-size:15px;font-weight:700;text-align:center;margin-bottom:24px\">Go to dashboard →</a>"
+          + "<p style=\"color:#3d4f63;font-size:12px;border-top:1px solid #1a2332;padding-top:16px\">AiRingDesk · AI Receptionist Platform · <a href=\"https://airingdesk.com\" style=\"color:#5a7a9a\">airingdesk.com</a></p></div>"
+        ).catch(e => console.error("Payment email error:", e.message));
       }
     }
   }
@@ -584,6 +609,41 @@ app.post("/voice/status", async (req, res) => {
   res.sendStatus(200);
 });
 
+
+// ── Referral system DB migration ─────────────────────────────────────
+db.exec(`
+  CREATE TABLE IF NOT EXISTS referrals (
+    id TEXT PRIMARY KEY,
+    referrer_id TEXT NOT NULL,
+    referee_email TEXT NOT NULL,
+    referee_id TEXT,
+    status TEXT DEFAULT 'pending',
+    sent_at INTEGER DEFAULT (strftime('%s','now')),
+    activated_at INTEGER,
+    FOREIGN KEY(referrer_id) REFERENCES clients(id)
+  );
+  CREATE TABLE IF NOT EXISTS referral_discounts (
+    id TEXT PRIMARY KEY,
+    client_id TEXT NOT NULL,
+    month TEXT NOT NULL,
+    active_referrals INTEGER DEFAULT 0,
+    discount_amount INTEGER DEFAULT 0,
+    applied INTEGER DEFAULT 0,
+    FOREIGN KEY(client_id) REFERENCES clients(id)
+  );
+`);
+try {
+  db.exec('ALTER TABLE clients ADD COLUMN referral_code TEXT');
+  db.exec('ALTER TABLE clients ADD COLUMN referred_by TEXT');
+  db.exec('ALTER TABLE clients ADD COLUMN referral_discount INTEGER DEFAULT 0');
+} catch(e) {}
+// Generate referral codes for existing clients
+const clientsWithoutCode = db.prepare("SELECT id, business_name FROM clients WHERE referral_code IS NULL").all();
+clientsWithoutCode.forEach(c => {
+  const code = c.business_name.replace(/[^a-zA-Z0-9]/g,'').toUpperCase().substring(0,6) + Math.random().toString(36).substring(2,5).toUpperCase();
+  db.prepare("UPDATE clients SET referral_code = ? WHERE id = ?").run(code, c.id);
+});
+
 // ── Health & Admin ─────────────────────────────────────────────────────────────
 app.get("/health", (req, res) => res.json({ status: "ok", uptime: process.uptime(), clients: db.prepare("SELECT COUNT(*) as c FROM clients").get().c }));
 
@@ -646,6 +706,7 @@ p{color:#5a7a9a;font-size:15px;line-height:1.7;margin-bottom:8px}
 app.get('/billing/cancel', (req, res) => res.redirect('/'));
 
 app.use("/api/admin", require("./routes/admin")(db));
+app.use("/api/referral", require("./routes/referral")(db, sendBrevoEmail));
 app.use('/dashboard', require('express').static(__dirname + '/public/dashboard'));
 app.get('/dashboard/*', (req, res) => res.sendFile(__dirname + '/public/dashboard/index.html'));
 
