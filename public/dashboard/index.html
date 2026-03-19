@@ -874,6 +874,10 @@ tr:hover td{background:rgba(255,255,255,.015)}
         <div class="header-actions">
           <button id="detailProvisionBtn" onclick="openProvisionModal(currentDetailCustomer.id, currentDetailCustomer.business_name)" style="display:none;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);color:var(--amber);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">📞 Assign Number</button>
           <button id="detailEditAiBtn" onclick="openEditAiModal(currentDetailCustomer.id, currentDetailCustomer.business_name, currentDetailCustomer.ai_name, currentDetailCustomer.ai_prompt, currentDetailCustomer.departments)" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">🤖 Edit AI</button>
+          <button id="detailWhatsAppBtn" onclick="whatsappCustomer()" style="display:none;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);color:#25d366;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#25d366" style="margin-right:4px;vertical-align:middle"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.136.564 4.14 1.534 5.876L0 24l6.29-1.51A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.002-1.366l-.36-.214-3.733.897.944-3.627-.235-.374A9.818 9.818 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/></svg>
+            WhatsApp
+          </button>
           <button onclick="cancelCustomerSubscription()" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">Cancel Sub</button>
         </div>
       </div>
@@ -1111,6 +1115,10 @@ tr:hover td{background:rgba(255,255,255,.015)}
             <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">Share your unique referral link. When someone signs up and completes their first payment, you earn a <strong style="color:var(--cyan)">one-time £10 discount</strong> on your next month's bill. No limit on referrals — every successful referral earns you £10 off.</p>
             <div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;font-size:12px;color:var(--cyan);word-break:break-all;margin-bottom:12px" id="refLinkDisplay">Loading...</div>
             <button onclick="copyRefLink()" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cyan);padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;width:100%">📋 Copy referral link</button>
+            <button onclick="shareReferralWhatsApp()" style="background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.25);color:#25d366;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.136.564 4.14 1.534 5.876L0 24l6.29-1.51A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.002-1.366l-.36-.214-3.733.897.944-3.627-.235-.374A9.818 9.818 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/></svg>
+              Share via WhatsApp
+            </button>
           </div>
         </div>
 
@@ -2164,6 +2172,9 @@ async function openCustomerDetail(clientId) {
   if (provBtn) provBtn.style.display = customer.phone_number ? 'none' : 'inline-block';
   if (aiBtn) aiBtn.style.display = 'inline-block';
   document.getElementById('dPhone').textContent = customer.phone_number || '—';
+  // Show WhatsApp button if customer has a contact number
+  var waBtn = document.getElementById('detailWhatsAppBtn');
+  if (waBtn) waBtn.style.display = customer.contact_phone ? 'inline-flex' : 'none';
   document.getElementById('dAiName').textContent = customer.ai_name || 'Aria';
   document.getElementById('dId').textContent = customer.id;
   document.getElementById('dJoined').textContent = customer.created_at ? new Date(customer.created_at*1000).toLocaleDateString('en-GB') : '—';
@@ -2881,6 +2892,37 @@ function updateGreeting() {
   if (dtEl) {
     dtEl.textContent = weekday + ' ' + day + suffix + ' · ' + timeStr + ' UK';
   }
+}
+
+
+// ── WHATSAPP FUNCTIONS ────────────────────────────────────────────────
+function shareReferralWhatsApp() {
+  var link = document.getElementById('refLinkDisplay')?.textContent || '';
+  if (!link || link === 'Loading...') { showToast('Referral link not loaded yet', 'error'); return; }
+  var msg = encodeURIComponent(
+    'Hi! I use AiRingDesk for my business - it answers all my calls with AI, 24/7. ' +
+    'You get a 14-day free trial and I earn a £10 discount when you subscribe. ' +
+    'Sign up here: ' + link
+  );
+  window.open('https://wa.me/?text=' + msg, '_blank');
+}
+
+function whatsappCustomer() {
+  if (!currentDetailCustomer) return;
+  var phone = currentDetailCustomer.contact_phone || currentDetailCustomer.phone_number || '';
+  if (!phone) { showToast('No phone number for this customer', 'error'); return; }
+  // Clean phone number - remove spaces and + for wa.me
+  var cleanPhone = phone.replace(/[^0-9]/g, '');
+  var bizName = currentDetailCustomer.business_name || '';
+  var msg = encodeURIComponent('Hi ' + bizName + ', this is AiRingDesk support. ');
+  window.open('https://wa.me/' + cleanPhone + '?text=' + msg, '_blank');
+}
+
+function whatsappAdminAlert(message) {
+  // Admin WhatsApp alert - opens WhatsApp with pre-filled message
+  var adminPhone = '447429037336'; // AiRingDesk admin WhatsApp
+  var msg = encodeURIComponent('[AiRingDesk Alert] ' + message);
+  window.open('https://wa.me/' + adminPhone + '?text=' + msg, '_blank');
 }
 
 function showToast(msg, type) {
