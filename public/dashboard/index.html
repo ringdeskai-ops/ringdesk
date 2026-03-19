@@ -851,7 +851,9 @@ tr:hover td{background:rgba(255,255,255,.015)}
           </div>
         </div>
         <div class="header-actions">
-          <button onclick="cancelCustomerSubscription()" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">Cancel Subscription</button>
+          <button id="detailProvisionBtn" onclick="openProvisionModal(currentDetailCustomer.id, currentDetailCustomer.business_name)" style="display:none;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);color:var(--amber);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">📞 Assign Number</button>
+          <button id="detailEditAiBtn" onclick="openEditAiModal(currentDetailCustomer.id, currentDetailCustomer.business_name, currentDetailCustomer.ai_name, currentDetailCustomer.ai_prompt, currentDetailCustomer.departments)" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">🤖 Edit AI</button>
+          <button onclick="cancelCustomerSubscription()" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">Cancel Sub</button>
         </div>
       </div>
 
@@ -1526,6 +1528,110 @@ tr:hover td{background:rgba(255,255,255,.015)}
       </div>
     </div>
 
+
+    <!-- ── ADD CUSTOMER MODAL ── -->
+    <div id="addCustomerModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center">
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:28px;width:100%;max-width:480px;margin:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div style="font-size:18px;font-weight:700">Add New Customer</div>
+          <button onclick="closeAddCustomer()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px">×</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">BUSINESS NAME</label>
+            <input id="newBizName" type="text" placeholder="e.g. Thornton Plumbing" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;outline:none">
+          </div>
+          <div>
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">EMAIL ADDRESS</label>
+            <input id="newEmail" type="email" placeholder="client@business.com" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;outline:none">
+          </div>
+          <div>
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">TEMPORARY PASSWORD</label>
+            <input id="newPassword" type="text" placeholder="Min 8 characters" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;outline:none">
+          </div>
+          <div>
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">PLAN</label>
+            <select id="newPlan" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;outline:none">
+              <option value="trial">Free Trial (14 days)</option>
+              <option value="starter">Starter — £49/month</option>
+              <option value="professional">Professional — £149/month</option>
+              <option value="business">Business — £349/month</option>
+            </select>
+          </div>
+          <div id="addCustomerError" style="display:none;background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);border-radius:8px;padding:10px;font-size:13px;color:var(--red)"></div>
+          <button onclick="submitAddCustomer()" id="addCustomerBtn" style="background:var(--cyan);color:#020408;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:700;width:100%">Create Customer</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROVISION NUMBER MODAL ── -->
+    <div id="provisionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center">
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:28px;width:100%;max-width:520px;margin:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div style="font-size:18px;font-weight:700">Provision Phone Number</div>
+          <button onclick="closeProvisionModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px">×</button>
+        </div>
+        <div style="margin-bottom:16px;font-size:13px;color:var(--muted)">Assign a phone number to <strong id="provisionClientName" style="color:var(--text)"></strong></div>
+        <div style="display:flex;gap:8px;margin-bottom:12px">
+          <select id="provisionCountry" onchange="searchProvisionNumbers()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:13px;outline:none;flex:1">
+            <option value="GB">🇬🇧 United Kingdom</option>
+            <option value="US">🇺🇸 United States</option>
+            <option value="CH">🇨🇭 Switzerland</option>
+            <option value="DE">🇩🇪 Germany</option>
+            <option value="FR">🇫🇷 France</option>
+          </select>
+          <button onclick="searchProvisionNumbers()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 16px;border-radius:8px;cursor:pointer;font-size:13px">🔄 Refresh</button>
+        </div>
+        <div id="provisionNumberGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:200px;overflow-y:auto;margin-bottom:16px">
+          <div style="text-align:center;padding:20px;color:var(--muted);grid-column:1/-1">Loading numbers...</div>
+        </div>
+        <div id="provisionSelectedBanner" style="display:none;background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:13px;color:var(--cyan)"></div>
+        <div id="provisionError" style="display:none;background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);border-radius:8px;padding:10px;font-size:13px;color:var(--red);margin-bottom:12px"></div>
+        <button onclick="confirmProvision()" id="confirmProvisionBtn" disabled style="background:var(--cyan);color:#020408;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:700;width:100%;opacity:.5">Select a number to continue</button>
+      </div>
+    </div>
+
+    <!-- ── EDIT AI SETTINGS MODAL ── -->
+    <div id="editAiModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center">
+      <div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:28px;width:100%;max-width:560px;margin:20px;max-height:90vh;overflow-y:auto">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+          <div style="font-size:18px;font-weight:700">Edit AI Settings — <span id="editAiClientName" style="color:var(--cyan)"></span></div>
+          <button onclick="closeEditAiModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px">×</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div>
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">AI RECEPTIONIST NAME</label>
+            <input id="editAiName" type="text" placeholder="e.g. Aria, Sophie, Emma" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;outline:none">
+          </div>
+          <div>
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">AI PROMPT / INSTRUCTIONS</label>
+            <textarea id="editAiPrompt" rows="8" placeholder="Describe the business, how to handle calls, transfer numbers, hours..." style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:13px;outline:none;resize:vertical;font-family:monospace;line-height:1.6"></textarea>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Be specific — include business hours, how to handle different types of callers, transfer numbers</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div>
+              <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">SALES TRANSFER</label>
+              <input id="editDeptSales" type="tel" placeholder="+44..." style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:13px;outline:none">
+            </div>
+            <div>
+              <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">SUPPORT TRANSFER</label>
+              <input id="editDeptSupport" type="tel" placeholder="+44..." style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:13px;outline:none">
+            </div>
+            <div>
+              <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">BILLING TRANSFER</label>
+              <input id="editDeptBilling" type="tel" placeholder="+44..." style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:13px;outline:none">
+            </div>
+            <div>
+              <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">MANAGER TRANSFER</label>
+              <input id="editDeptManager" type="tel" placeholder="+44..." style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:13px;outline:none">
+            </div>
+          </div>
+          <div id="editAiError" style="display:none;background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);border-radius:8px;padding:10px;font-size:13px;color:var(--red)"></div>
+          <button onclick="submitEditAi()" style="background:var(--cyan);color:#020408;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:700;width:100%">Save AI Settings</button>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- Call detail panel -->
@@ -2045,6 +2151,11 @@ async function openCustomerDetail(clientId) {
   document.getElementById('detailEmail').textContent = customer.email;
   document.getElementById('dBusiness').textContent = customer.business_name;
   document.getElementById('dEmail').textContent = customer.email;
+  // Show provision btn if no number, always show AI edit btn
+  var provBtn = document.getElementById('detailProvisionBtn');
+  var aiBtn = document.getElementById('detailEditAiBtn');
+  if (provBtn) provBtn.style.display = customer.phone_number ? 'none' : 'inline-block';
+  if (aiBtn) aiBtn.style.display = 'inline-block';
   document.getElementById('dPhone').textContent = customer.phone_number || '—';
   document.getElementById('dAiName').textContent = customer.ai_name || 'Aria';
   document.getElementById('dId').textContent = customer.id;
@@ -2072,6 +2183,12 @@ async function openCustomerDetail(clientId) {
     : 'Monthly (auto-renew)';
   const refToggle = document.getElementById('clientReferralToggle');
   refToggle.classList.toggle('on', customer.referral_programme_enabled !== 0);
+
+  // Show provision button if no number
+  var provBtn = document.getElementById('detailProvisionBtn');
+  var editAiBtn = document.getElementById('detailEditAiBtn');
+  if (provBtn) provBtn.style.display = customer.phone_number ? 'none' : 'inline-flex';
+  if (editAiBtn) editAiBtn.style.display = 'inline-flex';
 
   // Set plan selector
   document.getElementById('planChangeSelect').value = customer.plan || 'trial';
@@ -2481,6 +2598,146 @@ function copyPrompt(type) {
   navigator.clipboard.writeText(el.textContent.trim()).then(function() {
     showToast('Prompt copied! Paste into AI Settings.', 'success');
   });
+}
+
+
+// ── ADD CUSTOMER ──────────────────────────────────────────────────────
+function showAddCustomer() {
+  document.getElementById('addCustomerModal').style.display = 'flex';
+  document.getElementById('newBizName').value = '';
+  document.getElementById('newEmail').value = '';
+  document.getElementById('newPassword').value = 'Welcome2025!';
+  document.getElementById('newPlan').value = 'trial';
+  document.getElementById('addCustomerError').style.display = 'none';
+}
+function closeAddCustomer() {
+  document.getElementById('addCustomerModal').style.display = 'none';
+}
+async function submitAddCustomer() {
+  const biz = document.getElementById('newBizName').value.trim();
+  const email = document.getElementById('newEmail').value.trim();
+  const password = document.getElementById('newPassword').value;
+  const plan = document.getElementById('newPlan').value;
+  const errEl = document.getElementById('addCustomerError');
+  const btn = document.getElementById('addCustomerBtn');
+  if (!biz || !email || !password) { errEl.textContent = 'All fields required'; errEl.style.display = 'block'; return; }
+  btn.textContent = 'Creating...'; btn.disabled = true;
+  const data = await api('/api/admin/create-customer', { method: 'POST', body: { business_name: biz, email, password, plan } });
+  btn.textContent = 'Create Customer'; btn.disabled = false;
+  if (!data || data.error) { errEl.textContent = data?.error || 'Failed'; errEl.style.display = 'block'; return; }
+  closeAddCustomer();
+  showToast('Customer created! ' + email, 'success');
+  loadCustomers();
+}
+
+// ── PROVISION NUMBER ──────────────────────────────────────────────────
+let provisionClientId = null;
+let provisionSelectedNumber = null;
+
+function openProvisionModal(clientId, clientName) {
+  provisionClientId = clientId;
+  provisionSelectedNumber = null;
+  document.getElementById('provisionClientName').textContent = clientName;
+  document.getElementById('provisionModal').style.display = 'flex';
+  document.getElementById('provisionError').style.display = 'none';
+  document.getElementById('provisionSelectedBanner').style.display = 'none';
+  document.getElementById('confirmProvisionBtn').disabled = true;
+  document.getElementById('confirmProvisionBtn').style.opacity = '.5';
+  document.getElementById('confirmProvisionBtn').textContent = 'Select a number to continue';
+  searchProvisionNumbers();
+}
+function closeProvisionModal() {
+  document.getElementById('provisionModal').style.display = 'none';
+}
+async function searchProvisionNumbers() {
+  const country = document.getElementById('provisionCountry').value;
+  const grid = document.getElementById('provisionNumberGrid');
+  grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);grid-column:1/-1">Loading...</div>';
+  const data = await api('/api/numbers/search?country=' + country);
+  if (!data || !data.numbers || !data.numbers.length) {
+    grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted);grid-column:1/-1">No numbers available</div>';
+    return;
+  }
+  grid.innerHTML = data.numbers.map(function(n) {
+    var num = n.phoneNumber.replace(/'/g, '');
+    var fname2 = n.friendlyName.replace(/'/g, '');
+    var loc = (n.locality || n.region || 'Local').replace(/'/g, '');
+    return '<div onclick="selectProvisionNumber(this,\''+num+'\',\''+fname2+'\',\''+loc+'\')" style="padding:10px 12px;border:1px solid var(--border2);border-radius:8px;cursor:pointer;background:var(--surface2);transition:all .2s">'
+      + '<div style="font-size:12px;font-weight:700;color:var(--text)">' + n.friendlyName + '</div>'
+      + '<div style="font-size:11px;color:var(--muted)">' + (n.locality || n.region || 'Local') + '</div>'
+      + '</div>';
+  }).join('');;
+}
+function selectProvisionNumber(el, number, friendly, loc) {
+  document.querySelectorAll('#provisionNumberGrid div').forEach(function(d) {
+    d.classList.remove('sel'); d.style.borderColor = 'var(--border2)'; d.style.background = 'var(--surface2)';
+  });
+  el.classList.add('sel'); el.style.borderColor = 'var(--cyan)'; el.style.background = 'rgba(0,212,255,.06)';
+  provisionSelectedNumber = number;
+  var banner = document.getElementById('provisionSelectedBanner');
+  banner.textContent = '✅ Selected: ' + friendly;
+  banner.style.display = 'block';
+  var btn = document.getElementById('confirmProvisionBtn');
+  btn.disabled = false; btn.style.opacity = '1';
+  btn.textContent = 'Assign ' + friendly + ' to client →';
+}
+async function confirmProvision() {
+  if (!provisionSelectedNumber || !provisionClientId) return;
+  var btn = document.getElementById('confirmProvisionBtn');
+  btn.textContent = 'Provisioning...'; btn.disabled = true;
+  var data = await api('/api/admin/provision-number', { method: 'POST', body: { client_id: provisionClientId, phone_number: provisionSelectedNumber } });
+  if (!data || data.error) {
+    document.getElementById('provisionError').textContent = data?.error || 'Failed';
+    document.getElementById('provisionError').style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Try again';
+    return;
+  }
+  closeProvisionModal();
+  showToast('Number ' + provisionSelectedNumber + ' provisioned! AI is live!', 'success');
+  loadCustomers();
+  if (currentDetailCustomer) openCustomerDetail(currentDetailCustomer.id);
+}
+
+// ── EDIT AI SETTINGS ──────────────────────────────────────────────────
+let editAiClientId = null;
+
+function openEditAiModal(clientId, clientName, aiName, aiPrompt, departments) {
+  editAiClientId = clientId;
+  document.getElementById('editAiClientName').textContent = clientName;
+  document.getElementById('editAiName').value = aiName || '';
+  document.getElementById('editAiPrompt').value = aiPrompt || '';
+  var depts = departments || {};
+  document.getElementById('editDeptSales').value = depts.sales || '';
+  document.getElementById('editDeptSupport').value = depts.support || '';
+  document.getElementById('editDeptBilling').value = depts.billing || '';
+  document.getElementById('editDeptManager').value = depts.manager || '';
+  document.getElementById('editAiError').style.display = 'none';
+  document.getElementById('editAiModal').style.display = 'flex';
+}
+function closeEditAiModal() {
+  document.getElementById('editAiModal').style.display = 'none';
+}
+async function submitEditAi() {
+  var departments = {
+    sales: document.getElementById('editDeptSales').value,
+    support: document.getElementById('editDeptSupport').value,
+    billing: document.getElementById('editDeptBilling').value,
+    manager: document.getElementById('editDeptManager').value,
+  };
+  var data = await api('/api/admin/update-ai-settings', { method: 'POST', body: {
+    client_id: editAiClientId,
+    ai_name: document.getElementById('editAiName').value,
+    ai_prompt: document.getElementById('editAiPrompt').value,
+    departments
+  }});
+  if (!data || data.error) {
+    document.getElementById('editAiError').textContent = data?.error || 'Failed';
+    document.getElementById('editAiError').style.display = 'block';
+    return;
+  }
+  closeEditAiModal();
+  showToast('AI settings updated!', 'success');
+  if (currentDetailCustomer) openCustomerDetail(currentDetailCustomer.id);
 }
 
 function showToast(msg, type) {

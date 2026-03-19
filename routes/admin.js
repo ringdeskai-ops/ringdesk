@@ -89,6 +89,83 @@ module.exports = function(db) {
   });
 
 
+  // ── Create new customer (admin)
+  router.post('/create-customer', superAdminRequired, async (req, res) => {
+    const { business_name, email, password, plan } = req.body;
+    if (!business_name || !email || !password) return res.status(400).json({ error: 'All fields required' });
+    const existing = db.prepare('SELECT id FROM clients WHERE email = ?').get(email);
+    if (existing) return res.status(400).json({ error: 'Email already registered' });
+    const bcrypt = require('bcryptjs');
+    const { v4: uuidv4 } = require('uuid');
+    const id = uuidv4();
+    const hash = await bcrypt.hash(password, 10);
+    const referralCode = 'ARD' + Math.random().toString(36).substr(2,6).toUpperCase();
+    const customerNumber = 'RD-' + String(db.prepare('SELECT COUNT(*) as c FROM clients').get().c + 1).padStart(3,'0');
+    const planLimits = { trial: 50, starter: 300, professional: 1000, business: 999999 };
+    const selectedPlan = plan || 'trial';
+    db.prepare(`INSERT INTO clients (id, business_name, email, password, plan, plan_status, call_limit, calls_this_month, email_notifications, referral_code, created_at)
+      VALUES (?, ?, ?, ?, ?, 'trial', ?, 0, 1, ?, strftime('%s','now'))`)
+      .run(id, business_name, email, hash, selectedPlan, planLimits[selectedPlan] || 50, referralCode);
+    console.log('Admin created customer:', email);
+    res.json({ success: true, id, customerNumber, email });
+  });
+
+  // ── Admin provision number for a customer
+  router.post('/provision-number', superAdminRequired, async (req, res) => {
+    const { client_id, phone_number } = req.body;
+    if (!client_id || !phone_number) return res.status(400).json({ error: 'client_id and phone_number required' });
+    const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(client_id);
+    if (!client) return res.status(404).json({ error: 'Client not found' });
+    try {
+      const twilio = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+      // Check if number is already in our account - if not, purchase it
+      try {
+        await twilio.incomingPhoneNumbers.create({
+          phoneNumber: phone_number,
+          voiceUrl: process.env.DASHBOARD_URL + '/voice/incoming',
+          voiceMethod: 'POST',
+          statusCallback: process.env.DASHBOARD_URL + '/voice/status',
+          statusCallbackMethod: 'POST',
+        });
+        console.log('Purchased number:', phone_number);
+      } catch(e) {
+        // Number may already be in account - just update webhook
+        const existing = await twilio.incomingPhoneNumbers.list({ phoneNumber: phone_number });
+        if (existing.length > 0) {
+          await twilio.incomingPhoneNumbers(existing[0].sid).update({
+            voiceUrl: process.env.DASHBOARD_URL + '/voice/incoming',
+            voiceMethod: 'POST',
+            statusCallback: process.env.DASHBOARD_URL + '/voice/status',
+            statusCallbackMethod: 'POST',
+          });
+          console.log('Updated webhook for existing number:', phone_number);
+        } else {
+          throw e;
+        }
+      }
+      // Set default prompt if none
+      if (!client.ai_prompt) {
+        const defaultPrompt = 'You are the AI receptionist for ' + client.business_name + '. Answer calls professionally, take messages with caller name and number, and help with general enquiries.';
+        db.prepare('UPDATE clients SET ai_prompt = ? WHERE id = ?').run(defaultPrompt, client_id);
+      }
+      db.prepare('UPDATE clients SET phone_number = ? WHERE id = ?').run(phone_number, client_id);
+      res.json({ success: true, phone_number });
+    } catch(e) {
+      console.error('Admin provision error:', e.message);
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // ── Admin update client AI settings
+  router.post('/update-ai-settings', superAdminRequired, (req, res) => {
+    const { client_id, ai_name, ai_prompt, departments } = req.body;
+    if (!client_id) return res.status(400).json({ error: 'client_id required' });
+    if (ai_name) db.prepare('UPDATE clients SET ai_name = ? WHERE id = ?').run(ai_name, client_id);
+    if (ai_prompt) db.prepare('UPDATE clients SET ai_prompt = ? WHERE id = ?').run(ai_prompt, client_id);
+    if (departments) db.prepare('UPDATE clients SET departments = ? WHERE id = ?').run(JSON.stringify(departments), client_id);
+    res.json({ success: true });
+  });
+
   // ── Get referrals for a specific customer
   router.get('/customer-referrals/:clientId', superAdminRequired, (req, res) => {
     const referrals = db.prepare('SELECT * FROM referrals WHERE referrer_id = ?').all(req.params.clientId);
