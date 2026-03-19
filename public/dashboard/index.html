@@ -385,6 +385,10 @@ tr:hover td{background:rgba(255,255,255,.015)}
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
           Settings
         </button>
+        <button class="nav-btn" onclick="showPage('compliance')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          Compliance
+        </button>
       </div>
     </nav>
 
@@ -1187,6 +1191,145 @@ tr:hover td{background:rgba(255,255,255,.015)}
       </div>
     </div>
 
+
+    <!-- ── COMPLIANCE PAGE ── -->
+    <div class="page" id="page-compliance">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Policy & <em>Compliance</em></div>
+          <div class="page-sub">UK law compliance reference for AiRingDesk operations</div>
+        </div>
+        <a href="/terms" target="_blank" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">View full T&Cs →</a>
+      </div>
+
+      <!-- Key policy cards -->
+      <div class="stats-row" style="margin-bottom:20px">
+        <div class="stat-card" style="border-color:rgba(0,232,122,.2)">
+          <div class="stat-val" style="color:var(--green);font-size:14px">✅ Active</div>
+          <div class="stat-label">Consumer Rights Act 2015</div>
+        </div>
+        <div class="stat-card" style="border-color:rgba(0,232,122,.2)">
+          <div class="stat-val" style="color:var(--green);font-size:14px">✅ Active</div>
+          <div class="stat-label">UK GDPR Compliant</div>
+        </div>
+        <div class="stat-card" style="border-color:rgba(0,232,122,.2)">
+          <div class="stat-val" style="color:var(--green);font-size:14px">✅ Active</div>
+          <div class="stat-label">ASA/CAP Code</div>
+        </div>
+        <div class="stat-card" style="border-color:rgba(0,232,122,.2)">
+          <div class="stat-val" style="color:var(--green);font-size:14px">✅ Active</div>
+          <div class="stat-label">PECR Compliant</div>
+        </div>
+      </div>
+
+      <!-- Refund Policy -->
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header">
+          <div class="table-title">🔄 Refund Policy</div>
+          <span style="font-size:11px;padding:3px 10px;border-radius:100px;background:rgba(0,232,122,.1);color:var(--green);font-weight:700">Consumer Rights Act 2015</span>
+        </div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+          <div style="background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.15);border-radius:10px;padding:16px">
+            <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">14-Day Free Trial Protection</div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.7">All new subscriptions include a 14-day free trial. No payment is taken during this period. By proceeding with payment, the customer acknowledges the service has begun and waives their 14-day cooling-off right under Regulation 36(1) of the Consumer Contracts Regulations 2013.</div>
+          </div>
+          <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:10px;padding:16px">
+            <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:8px">When to Issue Refunds ✅</div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.7">
+              • Service was not provided as described for a significant portion of the billing period<br>
+              • Material technical failure on our part substantially prevented use of the service<br>
+              • Customer was charged incorrectly due to a billing error<br>
+              <strong style="color:var(--text)">Action:</strong> Issue pro-rata credit or refund within 5–10 working days. Contact: hello@airingdesk.com
+            </div>
+          </div>
+          <div style="background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.15);border-radius:10px;padding:16px">
+            <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:8px">When NOT to Issue Refunds ❌</div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.7">
+              • Change of mind after 14-day free trial has been used<br>
+              • Failure to use the service during the billing period<br>
+              • Issues caused by third-party services (e.g. Twilio outages)<br>
+              • Accounts suspended due to breach of Terms
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Referral Programme Compliance -->
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header">
+          <div class="table-title">🤝 Referral Programme Compliance</div>
+          <span style="font-size:11px;padding:3px 10px;border-radius:100px;background:rgba(255,184,0,.1);color:var(--amber);font-weight:700">UK ASA/CAP Code</span>
+        </div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+          <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:10px;padding:16px">
+            <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:8px">Current Referral Terms</div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.7">
+              • <strong style="color:var(--text)">Discount:</strong> One-time £10 credit per successful referral<br>
+              • <strong style="color:var(--text)">Qualifying period:</strong> Referred customer must complete 30 days of paid subscription<br>
+              • <strong style="color:var(--text)">Limit:</strong> Unlimited referrals per customer<br>
+              • <strong style="color:var(--text)">Disclosure:</strong> All referral emails automatically disclose the referrer's potential benefit (ASA compliant)<br>
+              • <strong style="color:var(--text)">Email basis:</strong> Legitimate interest under UK GDPR & PECR — one email per recipient max
+            </div>
+          </div>
+          <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:16px">
+            <div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:8px">⚠️ Admin Responsibilities</div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.7">
+              • Only modify referral discount amounts with 30 days written notice to active referrers<br>
+              • Honour all earned but uncredited discounts if programme is terminated<br>
+              • Investigate suspected fraud before withholding discounts<br>
+              • Keep records of all referral emails sent for GDPR compliance
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Protection -->
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header">
+          <div class="table-title">🔒 Data Protection (UK GDPR)</div>
+          <span style="font-size:11px;padding:3px 10px;border-radius:100px;background:rgba(0,212,255,.1);color:var(--cyan);font-weight:700">UK GDPR & PECR</span>
+        </div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+          <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:10px;padding:16px">
+            <div style="font-size:13px;color:var(--muted);line-height:1.7">
+              • <strong style="color:var(--text)">Data retention:</strong> Customer data retained for 30 days after cancellation then deleted<br>
+              • <strong style="color:var(--text)">Call recordings:</strong> Stored securely, accessible only to the relevant customer<br>
+              • <strong style="color:var(--text)">Right to erasure:</strong> Customers may request deletion of their data at any time — contact hello@airingdesk.com<br>
+              • <strong style="color:var(--text)">Data location:</strong> All data stored in UK servers<br>
+              • <strong style="color:var(--text)">ICO registration:</strong> Ensure ICO registration is kept up to date annually<br>
+              • <strong style="color:var(--text)">Breach notification:</strong> Must notify ICO within 72 hours of a data breach
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cancellation Policy -->
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">❌ Cancellation Policy</div>
+          <span style="font-size:11px;padding:3px 10px;border-radius:100px;background:rgba(255,68,102,.1);color:var(--red);font-weight:700">Consumer Contracts Regs 2013</span>
+        </div>
+        <div style="padding:20px">
+          <div style="background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.15);border-radius:10px;padding:16px">
+            <div style="font-size:13px;color:var(--muted);line-height:1.7">
+              • Customers may cancel at any time via dashboard or by emailing hello@airingdesk.com<br>
+              • Service remains active until end of current billing period<br>
+              • No refund for current month unless service failure occurred<br>
+              • Customer data retained for 30 days post-cancellation then permanently deleted<br>
+              • <strong style="color:var(--text)">Admin cancellation:</strong> When cancelling on behalf of a customer, always confirm via email and log the reason
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:14px;background:rgba(0,212,255,.04);border-radius:8px;font-size:12px;color:var(--muted)">
+            <strong style="color:var(--text)">Useful links:</strong>
+            <a href="/terms" target="_blank" style="color:var(--cyan);margin-left:12px">Terms of Service</a>
+            <a href="/privacy" target="_blank" style="color:var(--cyan);margin-left:12px">Privacy Policy</a>
+            <a href="https://ico.org.uk" target="_blank" style="color:var(--cyan);margin-left:12px">ICO Website</a>
+            <a href="https://www.citizensadvice.org.uk" target="_blank" style="color:var(--cyan);margin-left:12px">Citizens Advice</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- Call detail panel -->
@@ -1938,6 +2081,7 @@ function showPage(name) {
   if (name === 'subscriptions') { loadCustomers(); }
   if (name === 'revenue') loadRevenue();
   if (name === 'admin-settings') loadAdminSettings();
+  if (name === 'compliance') {} // Static page, no loading needed
   if (name === 'referral') loadReferral();
   if (name === 'billing') { loadBilling(); loadBillingInvoices(); }
 }
