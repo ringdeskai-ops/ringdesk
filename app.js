@@ -946,7 +946,7 @@ async function sendWelcomeEmail(business_name, email) {
             <div style="font-size:14px;color:#f0f4f8;margin-bottom:8px">🤖 Customise your AI receptionist</div>
             <div style="font-size:14px;color:#f0f4f8">🚀 Go live in 30 minutes</div>
           </div>
-          <a href="https://airingdesk.com/dashboard" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:15px;font-weight:600;margin-bottom:24px">Go to your dashboard →</a>
+          <a href="https://airingdesk.com/dashboard" style="display:inline-block;background:#00d4ff;color:#020408;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:15px;font-weight:700;margin-bottom:24px">Go to your dashboard →</a>
           <p style="color:#3d4f63;font-size:12px;margin-top:24px;border-top:1px solid #1a2332;padding-top:16px">
             AiRingDesk · AI Receptionist Platform · <a href="https://airingdesk.com" style="color:#00d4ff">airingdesk.com</a>
           </p>
@@ -976,31 +976,75 @@ async function sendCallNotificationEmail(client, call, transcript) {
     const duration = call.duration > 0 ? `${Math.floor(call.duration/60)}m ${call.duration%60}s` : 'Unknown';
     const transcriptHtml = transcript && transcript.length > 0
       ? transcript.map(m => `
-          <div style="margin-bottom:8px;padding:8px 12px;border-radius:8px;background:${m.role==='user'?'rgba(59,130,246,0.1)':'rgba(139,92,246,0.1)'}">
-            <div style="font-size:10px;color:${m.role==='user'?'#60a5fa':'#a78bfa'};text-transform:uppercase;margin-bottom:3px">${m.role==='user'?'Caller':'AI'}</div>
-            <div style="font-size:13px;color:#e5e7eb">${m.content}</div>
+          <div style="margin-bottom:8px;padding:10px 14px;border-radius:8px;background:${m.role==='user'?'rgba(0,212,255,0.06)':'rgba(0,232,122,0.06)'};border-left:3px solid ${m.role==='user'?'#00d4ff':'#00e87a'}">
+            <div style="font-size:10px;color:${m.role==='user'?'#00d4ff':'#00e87a'};text-transform:uppercase;font-weight:700;margin-bottom:4px;letter-spacing:.06em">${m.role==='user'?'Caller':'AI Receptionist'}</div>
+            <div style="font-size:13px;color:#e5e7eb;line-height:1.5">${m.content}</div>
           </div>`).join('')
-      : '<p style="color:#8896a8;font-size:13px">No transcript available</p>';
+      : '<p style="color:#5a7a9a;font-size:13px;font-style:italic">No transcript available</p>';
 
     await sendBrevoEmail(client.email, `📞 New call from ${call.caller_name || call.caller_number || 'Unknown'} — ${call.status}`, `
-        <div style="font-family:'Helvetica Neue',sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">
-          <div style="font-size:22px;font-weight:800;background:linear-gradient(135deg,#3b82f6,#8b5cf6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:20px">RingDesk</div>
-          <h2 style="font-size:18px;margin-bottom:16px">New call received</h2>
-          <div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:18px;margin-bottom:20px">
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-              <div><div style="font-size:10px;color:#3d4f63;text-transform:uppercase;margin-bottom:3px">From</div><div style="font-size:14px;color:#f0f4f8">${call.caller_name || call.caller_number || 'Unknown'}</div></div>
-              <div><div style="font-size:10px;color:#3d4f63;text-transform:uppercase;margin-bottom:3px">Status</div><div style="font-size:14px;color:#10b981;text-transform:capitalize">${call.status}</div></div>
-              <div><div style="font-size:10px;color:#3d4f63;text-transform:uppercase;margin-bottom:3px">Duration</div><div style="font-size:14px;color:#f0f4f8">${duration}</div></div>
-              <div><div style="font-size:10px;color:#3d4f63;text-transform:uppercase;margin-bottom:3px">Time</div><div style="font-size:14px;color:#f0f4f8">${new Date().toLocaleString('en-GB')}</div></div>
+        <div style="font-family:'Helvetica Neue',sans-serif;max-width:580px;margin:0 auto;background:#060912;color:#f0f4f8;padding:0;border-radius:16px;overflow:hidden;border:1px solid #1a2332">
+
+          <!-- Header -->
+          <div style="background:#080e18;padding:28px 32px;border-bottom:1px solid #1a2332">
+            <div style="font-size:24px;font-weight:800;margin-bottom:4px">
+              <span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span>
             </div>
-            ${call.summary ? `<div style="margin-top:14px;padding-top:14px;border-top:1px solid #1a2332"><div style="font-size:10px;color:#3d4f63;text-transform:uppercase;margin-bottom:6px">AI Summary</div><div style="font-size:13px;color:#8896a8;line-height:1.6">${call.summary}</div></div>` : ''}
+            <div style="font-size:11px;color:#5a7a9a;letter-spacing:.08em;text-transform:uppercase">AI Receptionist Platform</div>
           </div>
-          <div style="font-size:12px;color:#3d4f63;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px">Transcript</div>
-          <div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:16px;margin-bottom:24px;max-height:300px;overflow:hidden">
-            ${transcriptHtml}
+
+          <!-- Title bar -->
+          <div style="background:rgba(0,212,255,.06);border-bottom:1px solid rgba(0,212,255,.15);padding:16px 32px;display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,212,255,.1);border:2px solid rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;font-size:16px">📞</div>
+            <div>
+              <div style="font-size:16px;font-weight:700;color:#f0f4f8">New call received</div>
+              <div style="font-size:12px;color:#5a7a9a">${client.business_name} · ${new Date().toLocaleString('en-GB', {timeZone:'Europe/London'})}</div>
+            </div>
           </div>
-          <a href="https://airingdesk.com/dashboard" style="display:inline-block;background:linear-gradient(135deg,#3b82f6,#8b5cf6);color:#fff;text-decoration:none;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:600">View in dashboard →</a>
-          <p style="color:#3d4f63;font-size:12px;margin-top:24px;border-top:1px solid #1a2332;padding-top:16px">AiRingDesk · <a href="https://airingdesk.com" style="color:#00d4ff">airingdesk.com</a></p>
+
+          <div style="padding:28px 32px">
+            <!-- Call details -->
+            <div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin-bottom:20px">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                <div>
+                  <div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">FROM</div>
+                  <div style="font-size:15px;font-weight:600;color:#f0f4f8">${call.caller_name || call.caller_number || 'Unknown'}</div>
+                </div>
+                <div>
+                  <div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">STATUS</div>
+                  <div style="font-size:15px;font-weight:600;color:${call.status==='completed'?'#00e87a':'#ffb800'};text-transform:capitalize">${call.status}</div>
+                </div>
+                <div>
+                  <div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">DURATION</div>
+                  <div style="font-size:15px;font-weight:600;color:#f0f4f8">${duration}</div>
+                </div>
+                <div>
+                  <div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">TIME</div>
+                  <div style="font-size:13px;color:#f0f4f8">${new Date().toLocaleString('en-GB', {timeZone:'Europe/London'})}</div>
+                </div>
+              </div>
+              ${call.summary ? `
+              <div style="margin-top:16px;padding-top:16px;border-top:1px solid #1a2332">
+                <div style="font-size:10px;color:#00d4ff;text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:8px">AI SUMMARY</div>
+                <div style="font-size:13px;color:#8896a8;line-height:1.7;background:rgba(0,212,255,.04);padding:12px;border-radius:8px;border-left:3px solid rgba(0,212,255,.3)">${call.summary}</div>
+              </div>` : ''}
+            </div>
+
+            <!-- Transcript -->
+            <div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:10px">TRANSCRIPT</div>
+            <div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:16px;margin-bottom:24px">
+              ${transcriptHtml}
+            </div>
+
+            <!-- CTA Button -->
+            <a href="https://airingdesk.com/dashboard" style="display:inline-block;background:#00d4ff;color:#020408;text-decoration:none;padding:13px 28px;border-radius:50px;font-size:14px;font-weight:700;letter-spacing:.02em">View in dashboard →</a>
+          </div>
+
+          <!-- Footer -->
+          <div style="background:#080e18;border-top:1px solid #1a2332;padding:16px 32px;display:flex;justify-content:space-between;align-items:center">
+            <div style="font-size:11px;color:#3d4f63">AiRingDesk · AI Receptionist Platform</div>
+            <a href="https://airingdesk.com" style="font-size:11px;color:#5a7a9a;text-decoration:none">airingdesk.com</a>
+          </div>
         </div>
       `);
     console.log(`✅ Call notification sent to ${client.email}`);
