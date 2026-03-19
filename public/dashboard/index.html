@@ -1419,7 +1419,7 @@ async function upgradePlan(plan) {
   try {
     const d = await api('/api/billing/checkout', { method: 'POST', body: { plan } });
     if (d?.url) window.location.href = d.url;
-  } catch(e) { alert('Error creating checkout: ' + e.message); }
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
 }
 
 // ── ADMIN ─────────────────────────────────────────────────────────────
