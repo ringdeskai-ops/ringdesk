@@ -23,42 +23,20 @@ body{background:var(--black);color:var(--text);font-family:var(--font-body);line
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:80px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,60px);background:rgba(2,4,8,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.12)}
-.nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,60px);background:rgba(2,4,8,0.75);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;letter-spacing:-.5px;color:var(--text);text-decoration:none}
 .nav-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:pulse 2s infinite}
-.nav-links{display:flex;align-items:center;gap:4px}
-.nav-link{color:rgba(255,255,255,.8);font-size:15px;font-weight:600;text-decoration:none;padding:9px 16px;border-radius:8px;transition:all .2s;letter-spacing:.01em}
-.nav-link:hover{color:#fff;background:rgba(255,255,255,.1)}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:8px;font-size:15px;font-weight:600;font-family:var(--font-body);text-decoration:none;cursor:pointer;border:none;transition:all .2s}
-.btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2)}
-.btn-ghost:hover{background:rgba(255,255,255,.14)}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-link{color:var(--muted);font-size:13px;font-weight:500;text-decoration:none;padding:6px 12px;border-radius:6px;transition:all .2s}
+.nav-link:hover{color:var(--text);background:rgba(255,255,255,.05)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;font-family:var(--font-body);text-decoration:none;cursor:pointer;border:none;transition:all .2s}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border2)}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
 .btn-cyan{background:var(--cyan);color:#020408;font-weight:700;box-shadow:0 0 24px rgba(0,212,255,.3)}
 .btn-cyan:hover{background:#1ae0ff;box-shadow:0 0 40px rgba(0,212,255,.5);transform:translateY(-1px)}
 
-/* HAMBURGER */
-.hamburger{display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;width:44px;height:44px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);cursor:pointer;z-index:101;flex-shrink:0}
-.hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:all .3s}
-.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
-.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
-.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-
-/* MOBILE MENU */
-.mobile-menu{display:none;position:fixed;top:80px;left:0;right:0;background:rgba(2,4,8,0.98);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);z-index:99;padding:16px 24px 24px;flex-direction:column;gap:4px;transform:translateY(-10px);opacity:0;transition:all .25s}
-.mobile-menu.open{transform:translateY(0);opacity:1}
-.mobile-menu .nav-link{display:block;padding:12px 16px;font-size:16px;border-radius:10px;color:rgba(255,255,255,.8)}
-.mobile-menu .nav-link:hover{background:rgba(255,255,255,.08);color:#fff}
-.mobile-menu-divider{height:1px;background:rgba(255,255,255,.08);margin:8px 0}
-.mobile-menu-btns{display:flex;flex-direction:column;gap:10px;margin-top:8px}
-.mobile-menu-btns .btn{width:100%;justify-content:center;padding:13px;font-size:15px;border-radius:10px}
-
-@media(max-width:900px){
-  .nav-links{display:none}
-  .hamburger{display:flex}
-  .mobile-menu{display:flex}
-}
-
 /* HERO */
-#hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:180px clamp(20px,5vw,60px) 60px;position:relative;overflow:hidden}
+#hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px clamp(20px,5vw,60px) 60px;position:relative;overflow:hidden}
 .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.035) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,black,transparent);pointer-events:none}
 .orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
 .orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(0,212,255,.1),transparent 70%);top:-150px;left:50%;transform:translateX(-50%);animation:floatOrb 10s ease-in-out infinite}
@@ -120,14 +98,14 @@ h2 em{font-style:italic;color:var(--cyan)}
 .ssub{font-size:17px;color:var(--muted);max-width:480px;line-height:1.7;margin-bottom:56px}
 
 /* TRUST BAR */
-#trustbar{background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:32px clamp(20px,5vw,60px)}
-.trust-inner{display:flex;align-items:stretch;justify-content:center;gap:0;flex-wrap:wrap;max-width:1100px;margin:0 auto}
-.trust-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px 24px;flex:1;min-width:160px;text-align:center}
-.trust-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.15)}
+#trustbar{background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:28px clamp(20px,5vw,60px)}
+.trust-inner{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap;max-width:1100px;margin:0 auto}
+.trust-item{display:flex;align-items:center;gap:12px;padding:12px 32px;flex:1;min-width:180px;justify-content:center}
+.trust-icon{font-size:22px;flex-shrink:0}
 .trust-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
 .trust-desc{font-size:11px;color:var(--muted)}
-.trust-divider{width:1px;background:var(--border);flex-shrink:0;margin:8px 0}
-@media(max-width:768px){.trust-divider{display:none}.trust-item{min-width:140px;padding:16px 12px}}
+.trust-divider{width:1px;height:40px;background:var(--border);flex-shrink:0}
+@media(max-width:768px){.trust-divider{display:none}.trust-item{min-width:140px;padding:10px 16px}}
 
 /* HOW */
 #how{background:var(--surface)}
@@ -330,7 +308,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 .toggle-switch.annual .toggle-thumb{left:25px}
 .annual-badge{background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.25);border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:.04em}
 /* DEMO CALL BANNER */
-#demo-banner{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,102,255,.06));border-top:1px solid rgba(0,212,255,.15);border-bottom:1px solid rgba(0,212,255,.15);padding:20px clamp(20px,5vw,60px);margin-top:80px;position:relative;z-index:90}
+#demo-banner{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,102,255,.06));border-top:1px solid rgba(0,212,255,.15);border-bottom:1px solid rgba(0,212,255,.15);padding:20px clamp(20px,5vw,60px)}
 .demo-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .demo-text{display:flex;align-items:center;gap:14px}
 .demo-pulse{width:44px;height:44px;border-radius:12px;background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
@@ -466,14 +444,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 
 <!-- NAV -->
 <nav>
-  <a href="/" class="nav-brand">
-    <div style="width:38px;height:38px;border-radius:10px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
-    </div>
-    <div style="display:flex;align-items:baseline;gap:0;font-size:22px;font-weight:800;letter-spacing:-.5px">
-      <span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span>
-    </div>
-  </a>
+  <a href="/" class="nav-brand"><div class="nav-dot"></div>AiRingDesk</a>
   <div class="nav-links">
     <a href="#how" class="nav-link">How it works</a>
     <a href="#pricing" class="nav-link">Pricing</a>
@@ -481,26 +452,8 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     <a href="#faq" class="nav-link">FAQ</a>
     <a href="/dashboard" class="btn btn-ghost" style="padding:7px 16px;font-size:13px">Sign in</a>
     <button onclick="openModal('starter')" class="btn btn-cyan" style="padding:7px 16px;font-size:13px">Start free trial</button>
-    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
   </div>
 </nav>
-
-<!-- MOBILE MENU -->
-<div class="mobile-menu" id="mobileMenu">
-  <a href="#how" class="nav-link" onclick="closeMenu()">How it works</a>
-  <a href="#pricing" class="nav-link" onclick="closeMenu()">Pricing</a>
-  <a href="#compare" class="nav-link" onclick="closeMenu()">Compare</a>
-  <a href="#faq" class="nav-link" onclick="closeMenu()">FAQ</a>
-  <a href="/about" class="nav-link" onclick="closeMenu()">About</a>
-  <a href="/contact" class="nav-link" onclick="closeMenu()">Contact</a>
-  <div class="mobile-menu-divider"></div>
-  <div class="mobile-menu-btns">
-    <a href="/dashboard" class="btn btn-ghost">Sign in</a>
-    <button onclick="closeMenu();openModal('professional')" class="btn btn-cyan">Start free trial →</button>
-  </div>
-</div>
 
 <!-- HERO -->
 <section id="hero">
@@ -513,7 +466,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
   <p class="hero-sub">AiRingDesk gives every business an AI receptionist that answers calls instantly, books appointments, and transfers to your team — day and night.</p>
   <div class="hero-ctas">
     <button onclick="openModal('professional')" class="btn btn-cyan btn-xl">Start 14-day free trial →</button>
-    <a href="tel:+442046348499" class="btn btn-ghost btn-xl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72z"/></svg> +44 20 4634 8499</a>
+    <a href="tel:+442046348499" class="btn btn-ghost btn-xl">📞 +44 20 4634 8499</a>
   </div>
   <div class="hero-proof">
     <div class="proof-item"><div class="pcheck">✓</div>No setup fees</div>
@@ -629,15 +582,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 <div id="trustbar">
   <div class="trust-inner">
     <div class="trust-item">
-      <div class="trust-icon">
-        <svg width="22" height="22" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="60" height="40" rx="3" fill="#012169"/>
-          <path d="M0 0L60 40M60 0L0 40" stroke="white" stroke-width="8"/>
-          <path d="M0 0L60 40M60 0L0 40" stroke="#C8102E" stroke-width="4.5"/>
-          <path d="M30 0V40M0 20H60" stroke="white" stroke-width="13"/>
-          <path d="M30 0V40M0 20H60" stroke="#C8102E" stroke-width="8"/>
-        </svg>
-      </div>
+      <div class="trust-icon">🇬🇧</div>
       <div>
         <div class="trust-title">Proudly UK-Based</div>
         <div class="trust-desc">Registered in England & Wales</div>
@@ -645,9 +590,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     </div>
     <div class="trust-divider"></div>
     <div class="trust-item">
-      <div class="trust-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
-      </div>
+      <div class="trust-icon">🔒</div>
       <div>
         <div class="trust-title">GDPR Compliant</div>
         <div class="trust-desc">UK data protection standards</div>
@@ -655,9 +598,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     </div>
     <div class="trust-divider"></div>
     <div class="trust-item">
-      <div class="trust-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-      </div>
+      <div class="trust-icon">🏦</div>
       <div>
         <div class="trust-title">UK Data Storage</div>
         <div class="trust-desc">Your data never leaves the UK</div>
@@ -665,9 +606,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     </div>
     <div class="trust-divider"></div>
     <div class="trust-item">
-      <div class="trust-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
-      </div>
+      <div class="trust-icon">☎️</div>
       <div>
         <div class="trust-title">UK Support Team</div>
         <div class="trust-desc">Mon–Fri, 9am–6pm GMT</div>
@@ -675,9 +614,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     </div>
     <div class="trust-divider"></div>
     <div class="trust-item">
-      <div class="trust-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-      </div>
+      <div class="trust-icon">🤝</div>
       <div>
         <div class="trust-title">Twilio & Anthropic Partner</div>
         <div class="trust-desc">Enterprise-grade infrastructure</div>
@@ -769,10 +706,10 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     <p class="ssub">No technical knowledge needed. We handle everything — you just take the calls that matter.</p>
   </div>
   <div class="steps-grid reveal">
-    <div class="step"><div class="step-num">Step 01</div><div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg></div><h3>Get a real phone number</h3><p>Choose a UK, US, or European number from our marketplace. Display it on your website and business cards.</p></div>
-    <div class="step"><div class="step-num">Step 02</div><div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="12" cy="16" r="1" fill="#00d4ff"/><line x1="8" y1="16" x2="8" y2="16" stroke-width="3" stroke-linecap="round"/><line x1="16" y1="16" x2="16" y2="16" stroke-width="3" stroke-linecap="round"/></svg></div><h3>Train your AI receptionist</h3><p>Tell Aria your business hours, FAQs, and how you want calls handled. She learns your brand voice instantly.</p></div>
-    <div class="step"><div class="step-num">Step 03</div><div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="3" stroke-linecap="round"/></svg></div><h3>Calls answered 24/7</h3><p>Every call answered instantly. Aria handles enquiries, books appointments, and takes messages around the clock.</p></div>
-    <div class="step"><div class="step-num">Step 04</div><div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><h3>Smart transfers & alerts</h3><p>Complex calls transfer to your team with a handoff summary. Email notifications after every call.</p></div>
+    <div class="step"><div class="step-num">Step 01</div><div class="step-icon">📞</div><h3>Get a real phone number</h3><p>Choose a UK, US, or European number from our marketplace. Display it on your website and business cards.</p></div>
+    <div class="step"><div class="step-num">Step 02</div><div class="step-icon">🤖</div><h3>Train your AI receptionist</h3><p>Tell Aria your business hours, FAQs, and how you want calls handled. She learns your brand voice instantly.</p></div>
+    <div class="step"><div class="step-num">Step 03</div><div class="step-icon">📲</div><h3>Calls answered 24/7</h3><p>Every call answered instantly. Aria handles enquiries, books appointments, and takes messages around the clock.</p></div>
+    <div class="step"><div class="step-num">Step 04</div><div class="step-icon">⚡</div><h3>Smart transfers & alerts</h3><p>Complex calls transfer to your team with a handoff summary. Email notifications after every call.</p></div>
   </div>
 </section>
 
@@ -784,12 +721,12 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     <p class="ssub">Built for real UK businesses. Not a chatbot — a genuine AI colleague.</p>
   </div>
   <div class="features-grid reveal">
-    <div class="feat"><div class="feat-icon" style="background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.15)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div><h3>Natural voice conversations</h3><p>Powered by Claude AI (Anthropic). Understands context, handles interruptions, sounds completely human on the phone.</p></div>
-    <div class="feat"><div class="feat-icon" style="background:rgba(0,232,122,.08);border-color:rgba(0,232,122,.15)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div><h3>Intelligent call routing</h3><p>Detects when to escalate and transfers with a full handoff summary — callers never repeat themselves.</p></div>
-    <div class="feat"><div class="feat-icon" style="background:rgba(255,184,0,.08);border-color:rgba(255,184,0,.15)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><h3>Voicemail & AI transcripts</h3><p>When your team is unavailable, Aria takes a voicemail and sends you the full transcript by email within seconds.</p></div>
-    <div class="feat"><div class="feat-icon" style="background:rgba(124,58,237,.08);border-color:rgba(124,58,237,.15)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></div><h3>Full call analytics</h3><p>Every call logged. Full transcripts. AI summaries. Duration, caller info, outcome — all searchable in one place.</p></div>
-    <div class="feat"><div class="feat-icon" style="background:rgba(255,68,102,.08);border-color:rgba(255,68,102,.15)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff4466" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg></div><h3>Fully customisable AI</h3><p>Name your AI, write their script, set business hours and FAQs. Aria becomes the voice of your brand.</p></div>
-    <div class="feat"><div class="feat-icon" style="background:rgba(0,102,255,.08);border-color:rgba(0,102,255,.15)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6699ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div><h3>Multi-country numbers</h3><p>UK, US, Swiss, German, French, or Dutch numbers. Perfect for businesses serving international customers.</p></div>
+    <div class="feat"><div class="feat-icon" style="background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.15)">🎙️</div><h3>Natural voice conversations</h3><p>Powered by Claude AI (Anthropic). Understands context, handles interruptions, sounds completely human on the phone.</p></div>
+    <div class="feat"><div class="feat-icon" style="background:rgba(0,232,122,.08);border-color:rgba(0,232,122,.15)">↗️</div><h3>Intelligent call routing</h3><p>Detects when to escalate and transfers with a full handoff summary — callers never repeat themselves.</p></div>
+    <div class="feat"><div class="feat-icon" style="background:rgba(255,184,0,.08);border-color:rgba(255,184,0,.15)">📬</div><h3>Voicemail & AI transcripts</h3><p>When your team is unavailable, Aria takes a voicemail and sends you the full transcript by email within seconds.</p></div>
+    <div class="feat"><div class="feat-icon" style="background:rgba(124,58,237,.08);border-color:rgba(124,58,237,.15)">📊</div><h3>Full call analytics</h3><p>Every call logged. Full transcripts. AI summaries. Duration, caller info, outcome — all searchable in one place.</p></div>
+    <div class="feat"><div class="feat-icon" style="background:rgba(255,68,102,.08);border-color:rgba(255,68,102,.15)">⚙️</div><h3>Fully customisable AI</h3><p>Name your AI, write their script, set business hours and FAQs. Aria becomes the voice of your brand.</p></div>
+    <div class="feat"><div class="feat-icon" style="background:rgba(0,102,255,.08);border-color:rgba(0,102,255,.15)">🌐</div><h3>Multi-country numbers</h3><p>UK, US, Swiss, German, French, or Dutch numbers. Perfect for businesses serving international customers.</p></div>
   </div>
 </section>
 
@@ -802,15 +739,15 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
       <p class="ssub">62% of callers never call back after reaching voicemail. Every missed call is lost revenue.</p>
       <div style="display:flex;flex-direction:column;gap:12px">
         <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;background:var(--black);border:1px solid var(--border)">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 5 5 5 9c0 2.5 1 4.5 2.5 6L9 22h6l1.5-7C18 13.5 19 11.5 19 9c0-4-3-7-7-7z"/></svg></div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🦷</div>
           <div><div style="font-size:13px;font-weight:600;color:var(--text)">Dental clinic</div><div style="font-size:12px;color:var(--muted)">12 missed calls/month = £3,600 lost</div></div>
         </div>
         <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;background:var(--black);border:1px solid var(--border)">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🔧</div>
           <div><div style="font-size:13px;font-weight:600;color:var(--text)">Plumber</div><div style="font-size:12px;color:var(--muted)">8 missed calls/month = £2,400 lost</div></div>
         </div>
         <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;background:var(--black);border:1px solid var(--border)">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🏠</div>
           <div><div style="font-size:13px;font-weight:600;color:var(--text)">Estate agent</div><div style="font-size:12px;color:var(--muted)">5 missed calls/month = £12,500 lost</div></div>
         </div>
       </div>
@@ -840,14 +777,14 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     <p class="ssub">If your business gets phone calls, AiRingDesk pays for itself.</p>
   </div>
   <div class="ind-grid reveal">
-    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 5 5 5 9c0 2.5 1 4.5 2.5 6L9 22h6l1.5-7C18 13.5 19 11.5 19 9c0-4-3-7-7-7z"/></svg></div><div><div class="ind-name">Dental Clinics</div><div class="ind-desc">Appointments & insurance</div></div></div>
-    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div><div class="ind-name">Estate Agents</div><div class="ind-desc">Property enquiries & viewings</div></div></div>
-    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div><div><div class="ind-name">Tradespeople</div><div class="ind-desc">Quote requests & bookings</div></div></div>
-    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><div><div class="ind-name">Beauty & Spas</div><div class="ind-desc">Appointments & pricing</div></div></div>
-    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3" stroke-linecap="round"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3" stroke-linecap="round"/></svg></div><div><div class="ind-name">Solicitors</div><div class="ind-desc">Client intake & consultations</div></div></div>
-    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div><div><div class="ind-name">Gyms & Fitness</div><div class="ind-desc">Memberships & bookings</div></div></div>
-    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><div><div class="ind-name">Car Garages</div><div class="ind-desc">MOT & service bookings</div></div></div>
-    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div><div class="ind-name">Medical Clinics</div><div class="ind-desc">Appointments & referrals</div></div></div>
+    <div class="ind"><div class="ind-icon">🦷</div><div><div class="ind-name">Dental Clinics</div><div class="ind-desc">Appointments & insurance</div></div></div>
+    <div class="ind"><div class="ind-icon">🏠</div><div><div class="ind-name">Estate Agents</div><div class="ind-desc">Property enquiries & viewings</div></div></div>
+    <div class="ind"><div class="ind-icon">🔧</div><div><div class="ind-name">Tradespeople</div><div class="ind-desc">Quote requests & bookings</div></div></div>
+    <div class="ind"><div class="ind-icon">💆</div><div><div class="ind-name">Beauty & Spas</div><div class="ind-desc">Appointments & pricing</div></div></div>
+    <div class="ind"><div class="ind-icon">⚖️</div><div><div class="ind-name">Solicitors</div><div class="ind-desc">Client intake & consultations</div></div></div>
+    <div class="ind"><div class="ind-icon">🏋️</div><div><div class="ind-name">Gyms & Fitness</div><div class="ind-desc">Memberships & bookings</div></div></div>
+    <div class="ind"><div class="ind-icon">🚗</div><div><div class="ind-name">Car Garages</div><div class="ind-desc">MOT & service bookings</div></div></div>
+    <div class="ind"><div class="ind-icon">🏥</div><div><div class="ind-name">Medical Clinics</div><div class="ind-desc">Appointments & referrals</div></div></div>
   </div>
 </section>
 
@@ -1010,9 +947,9 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     <p class="ssub">Real businesses. Real results.</p>
   </div>
   <div class="test-grid reveal">
-    <div class="testi"><div class="stars">★★★★★</div><blockquote>"We were missing 30–40% of our calls after hours. AiRingDesk completely solved that. It books appointments, answers FAQs, and only transfers the complex ones to us."</blockquote><div class="tauth"><div class="tav" style="background:rgba(0,102,255,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6699ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div><div class="tname">Dr. James Whitfield</div><div class="tbiz">Whitfield Dental, Manchester</div></div></div></div>
-    <div class="testi"><div class="stars">★★★★★</div><blockquote>"I'm a one-person plumbing business. I used to lose jobs because I couldn't answer calls on site. Now Aria answers, takes details, and I call back when free. Paid for itself week one."</blockquote><div class="tauth"><div class="tav" style="background:rgba(0,232,122,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div><div><div class="tname">Dave Thornton</div><div class="tbiz">Thornton Plumbing, Leeds</div></div></div></div>
-    <div class="testi"><div class="stars">★★★★★</div><blockquote>"The call transcripts alone are worth it. I can see every conversation my AI has with customers. It handles difficult callers better than some of my staff."</blockquote><div class="tauth"><div class="tav" style="background:rgba(255,184,0,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><div><div class="tname">Priya Sharma</div><div class="tbiz">Serenity Spa, London</div></div></div></div>
+    <div class="testi"><div class="stars">★★★★★</div><blockquote>"We were missing 30–40% of our calls after hours. AiRingDesk completely solved that. It books appointments, answers FAQs, and only transfers the complex ones to us."</blockquote><div class="tauth"><div class="tav" style="background:rgba(0,102,255,.1)">👨‍⚕️</div><div><div class="tname">Dr. James Whitfield</div><div class="tbiz">Whitfield Dental, Manchester</div></div></div></div>
+    <div class="testi"><div class="stars">★★★★★</div><blockquote>"I'm a one-person plumbing business. I used to lose jobs because I couldn't answer calls on site. Now Aria answers, takes details, and I call back when free. Paid for itself week one."</blockquote><div class="tauth"><div class="tav" style="background:rgba(0,232,122,.1)">🔧</div><div><div class="tname">Dave Thornton</div><div class="tbiz">Thornton Plumbing, Leeds</div></div></div></div>
+    <div class="testi"><div class="stars">★★★★★</div><blockquote>"The call transcripts alone are worth it. I can see every conversation my AI has with customers. It handles difficult callers better than some of my staff."</blockquote><div class="tauth"><div class="tav" style="background:rgba(255,184,0,.1)">💆</div><div><div class="tname">Priya Sharma</div><div class="tbiz">Serenity Spa, London</div></div></div></div>
   </div>
 </section>
 
@@ -1038,7 +975,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     <p style="font-size:17px;color:var(--muted);margin-bottom:36px">Join businesses across the UK who never miss a customer call. 14-day free trial. Live in 30 minutes.</p>
     <div class="cta-btns">
       <button onclick="openModal('professional')" class="btn btn-cyan btn-xl">Start your free trial →</button>
-      <a href="tel:+442046348499" class="btn btn-ghost btn-xl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72z"/></svg> +44 20 4634 8499</a>
+      <a href="tel:+442046348499" class="btn btn-ghost btn-xl">📞 +44 20 4634 8499</a>
     </div>
   </div>
 </section>
@@ -1076,11 +1013,11 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     <div style="font-size:11px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;text-align:center;margin-bottom:20px">Powered by world-class infrastructure</div>
     <div style="display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap">
       <div style="display:flex;align-items:center;gap:8px;opacity:.5;filter:grayscale(1);transition:all .2s" onmouseover="this.style.opacity='1';this.style.filter='none'" onmouseout="this.style.opacity='.5';this.style.filter='grayscale(1)'">
-        <div style="width:32px;height:32px;border-radius:8px;background:#e01e5a;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg></div>
+        <div style="width:32px;height:32px;border-radius:8px;background:#e01e5a;display:flex;align-items:center;justify-content:center;font-size:16px">🤖</div>
         <span style="font-size:14px;font-weight:700;color:var(--text)">Anthropic Claude</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;opacity:.5;filter:grayscale(1);transition:all .2s" onmouseover="this.style.opacity='1';this.style.filter='none'" onmouseout="this.style.opacity='.5';this.style.filter='grayscale(1)'">
-        <div style="width:32px;height:32px;border-radius:8px;background:#f22f46;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72z"/></svg></div>
+        <div style="width:32px;height:32px;border-radius:8px;background:#f22f46;display:flex;align-items:center;justify-content:center;font-size:16px">📞</div>
         <span style="font-size:14px;font-weight:700;color:var(--text)">Twilio</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;opacity:.5;filter:grayscale(1);transition:all .2s" onmouseover="this.style.opacity='1';this.style.filter='none'" onmouseout="this.style.opacity='.5';this.style.filter='grayscale(1)'">
@@ -1088,7 +1025,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
         <span style="font-size:14px;font-weight:700;color:var(--text)">Stripe</span>
       </div>
       <div style="display:flex;align-items:center;gap:8px;opacity:.5;filter:grayscale(1);transition:all .2s" onmouseover="this.style.opacity='1';this.style.filter='none'" onmouseout="this.style.opacity='.5';this.style.filter='grayscale(1)'">
-        <div style="width:32px;height:32px;border-radius:8px;background:#00a0e0;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div>
+        <div style="width:32px;height:32px;border-radius:8px;background:#00a0e0;display:flex;align-items:center;justify-content:center;font-size:16px">🎙️</div>
         <span style="font-size:14px;font-weight:700;color:var(--text)">Retell AI</span>
       </div>
     </div>
@@ -1100,24 +1037,17 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
   <div style="max-width:1200px;margin:0 auto;width:100%">
     <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;padding-bottom:40px;border-bottom:1px solid var(--border)">
       <div>
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div style="width:32px;height:32px;border-radius:8px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
-        </div>
-        <div style="font-size:20px;font-weight:800;letter-spacing:-.5px">
-          <span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span>
-        </div>
-      </div>
+        <div class="fbrand" style="margin-bottom:12px">AiRingDesk</div>
         <p style="font-size:13px;color:var(--muted);line-height:1.7;max-width:280px;margin-bottom:16px">AI receptionist platform for UK businesses. Never miss a customer call again.</p>
         <div style="display:flex;flex-direction:column;gap:6px">
           <div style="font-size:12px;color:var(--dim);display:flex;align-items:center;gap:6px">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2a3f55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> Registered in England & Wales
+            <span>📍</span> Registered in England & Wales
           </div>
           <div style="font-size:12px;color:var(--dim);display:flex;align-items:center;gap:6px">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2a3f55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> GDPR Compliant · ICO Registered
+            <span>🔒</span> GDPR Compliant · ICO Registered
           </div>
           <div style="font-size:12px;color:var(--dim);display:flex;align-items:center;gap:6px">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2a3f55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72z"/></svg> <a href="tel:+442046348499" style="color:var(--dim);text-decoration:none">+44 20 4634 8499</a>
+            <span>☎️</span> <a href="tel:+442046348499" style="color:var(--dim);text-decoration:none">+44 20 4634 8499</a>
           </div>
         </div>
       </div>
@@ -1159,37 +1089,13 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
           <div style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)"></div>
           All systems operational
         </div>
-        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)">
-          <svg width="16" height="11" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" rx="2" fill="#012169"/><path d="M0 0L60 40M60 0L0 40" stroke="white" stroke-width="8"/><path d="M0 0L60 40M60 0L0 40" stroke="#C8102E" stroke-width="4.5"/><path d="M30 0V40M0 20H60" stroke="white" stroke-width="13"/><path d="M30 0V40M0 20H60" stroke="#C8102E" stroke-width="8"/></svg>
-          United Kingdom
-        </div>
+        <div style="font-size:11px;color:var(--dim)">🇬🇧 United Kingdom</div>
       </div>
     </div>
   </div>
 </footer>
 
 <script>
-function toggleMenu(){
-  const h=document.getElementById('hamburger');
-  const m=document.getElementById('mobileMenu');
-  h.classList.toggle('open');
-  m.classList.toggle('open');
-  document.body.style.overflow=m.classList.contains('open')?'hidden':'';
-}
-function closeMenu(){
-  document.getElementById('hamburger').classList.remove('open');
-  document.getElementById('mobileMenu').classList.remove('open');
-  document.body.style.overflow='';
-}
-// Close menu when clicking outside
-document.addEventListener('click',function(e){
-  const menu=document.getElementById('mobileMenu');
-  const hamburger=document.getElementById('hamburger');
-  if(menu.classList.contains('open') && !menu.contains(e.target) && !hamburger.contains(e.target)){
-    closeMenu();
-  }
-});
-
 function toggleFaq(el){const i=el.parentElement;document.querySelectorAll('.faq-item.open').forEach(x=>{if(x!==i)x.classList.remove('open')});i.classList.toggle('open')}
 function syncROI(v){document.getElementById('rCalls').value=v;calcROI()}
 function calcROI(){
