@@ -424,10 +424,46 @@ tr:hover td{background:rgba(255,255,255,.015)}
       </div>
 
       <!-- No number warning -->
-      <div id="noNumberWarn" style="display:none;background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.2);border-radius:14px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:14px">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <div><div style="font-size:13px;font-weight:600;color:#ffb800">No phone number configured</div><div style="font-size:12px;color:var(--muted)">Get a number to start receiving calls through your AI receptionist</div></div>
-        <a href="/get-number" style="margin-left:auto" class="btn-sm btn-ghost-sm">Get number →</a>
+      <!-- Setup Wizard - shown when no phone number -->
+      <div id="noNumberWarn" style="display:none;margin-bottom:24px">
+        <div style="background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(0,102,255,.04));border:1px solid rgba(0,212,255,.2);border-radius:16px;padding:24px;margin-bottom:16px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px">
+            <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,184,0,.1);border:2px solid rgba(255,184,0,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div>
+              <div style="font-size:16px;font-weight:700;color:var(--text)">Get live in under 15 minutes</div>
+              <div style="font-size:13px;color:var(--muted)">Complete these 3 steps and your AI receptionist will start answering calls</div>
+            </div>
+            <a href="/get-number" style="margin-left:auto;background:var(--cyan);color:#020408;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none;white-space:nowrap">Get started →</a>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
+            <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:12px;padding:16px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <div style="width:24px;height:24px;border-radius:50%;background:var(--cyan);color:#020408;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+                <span style="font-size:13px;font-weight:600;color:var(--text)">Get your phone number</span>
+              </div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.5">Choose a UK number from our marketplace. This is the number your customers will call.</div>
+              <a href="/get-number" style="display:inline-block;margin-top:10px;font-size:12px;color:var(--cyan);font-weight:600;text-decoration:none">Pick a number →</a>
+            </div>
+            <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:12px;padding:16px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <div style="width:24px;height:24px;border-radius:50%;background:var(--amber);color:#020408;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+                <span style="font-size:13px;font-weight:600;color:var(--text)">Customise your AI</span>
+              </div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.5">Give your AI a name and write a brief prompt about your business, hours and how to handle calls.</div>
+              <a href="#" onclick="showPage('settings')" style="display:inline-block;margin-top:10px;font-size:12px;color:var(--amber);font-weight:600;text-decoration:none">AI Settings →</a>
+            </div>
+            <div style="background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.15);border-radius:12px;padding:16px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                <div style="width:24px;height:24px;border-radius:50%;background:var(--green);color:#020408;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+                <span style="font-size:13px;font-weight:600;color:var(--text)">Test your AI receptionist</span>
+              </div>
+              <div style="font-size:12px;color:var(--muted);line-height:1.5">Call your new number to hear your AI answer. Calls are live instantly after getting your number!</div>
+              <span style="display:inline-block;margin-top:10px;font-size:12px;color:var(--green);font-weight:600">Auto-live after step 1 ✅</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Stats -->
