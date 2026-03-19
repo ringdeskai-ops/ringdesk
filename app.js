@@ -281,9 +281,28 @@ app.post("/stripe-webhook", async (req, res) => {
   }
 
   if (event.type === "customer.subscription.deleted") {
-    const sub = db.prepare("SELECT id FROM clients WHERE stripe_subscription_id = ?").get(session.id);
+    const sub = db.prepare("SELECT * FROM clients WHERE stripe_subscription_id = ?").get(session.id);
     if (sub) {
       db.prepare("UPDATE clients SET plan = 'trial', plan_status = 'cancelled', call_limit = 50 WHERE id = ?").run(sub.id);
+      try {
+        const cancelHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
+          + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+          + '<h2 style="font-size:20px;margin-bottom:16px">Subscription Cancelled</h2>'
+          + '<p style="color:#8896a8;line-height:1.7">Hi ' + sub.business_name + ', your AiRingDesk subscription has been cancelled. Your service remains active until the end of your current billing period.</p>'
+          + '<div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin:24px 0">'
+          + '<p style="color:#8896a8;font-size:13px;margin-bottom:12px">What happens next:</p>'
+          + '<p style="font-size:14px;margin-bottom:8px">&#8226; Your AI receptionist will stop answering calls at end of billing period</p>'
+          + '<p style="font-size:14px;margin-bottom:8px">&#8226; Your data will be retained for 30 days then deleted</p>'
+          + '<p style="font-size:14px">&#8226; You can reactivate anytime at <a href="https://airingdesk.com" style="color:#00d4ff">airingdesk.com</a></p>'
+          + '</div>'
+          + '<p style="color:#8896a8;font-size:13px">We are sorry to see you go. If there is anything we could have done better, please reply to this email.</p>'
+          + '<p style="color:#8896a8;font-size:13px;margin-top:16px">AiRingDesk Team &middot; hello@airingdesk.com</p></div>';
+        await sendBrevoEmail(sub.email, 'Your AiRingDesk subscription has been cancelled', cancelHtml);
+        await sendBrevoEmail(process.env.NOTIFY_EMAIL,
+          '[AiRingDesk] Subscription cancelled: ' + sub.business_name,
+          '<p>Customer <strong>' + sub.business_name + '</strong> (' + sub.email + ') has cancelled their subscription.</p>');
+        console.log('Cancellation emails sent for:', sub.email);
+      } catch(emailErr) { console.error('Cancellation email error:', emailErr.message); }
     }
   }
 
@@ -754,7 +773,7 @@ app.get('/invoice-preview/:id', (req, res) => {
   }
 });
 
-app.use("/api/admin", require("./routes/admin")(db));
+app.use("/api/admin", require("./routes/admin")(db, sendBrevoEmail));
 app.use("/api/referral", require("./routes/referral")(db, sendBrevoEmail));
 const invoiceRouter = require("./routes/invoice")(db);
 app.use("/api/invoice", invoiceRouter);
