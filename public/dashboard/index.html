@@ -422,9 +422,9 @@ tr:hover td{background:rgba(255,255,255,.015)}
       <div class="page-header">
         <div>
           <div class="page-title" id="greetingText">Good morning, <em id="overviewName">...</em></div>
-          <div class="page-sub" style="display:flex;align-items:center;gap:16px">
+          <div class="page-sub" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
             <span>Here's what's happening with your AI receptionist</span>
-            <span id="greetingDateTime" style="color:var(--cyan);font-weight:600;font-size:13px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.15);padding:4px 12px;border-radius:100px"></span>
+            <span id="greetingDateTime" style="color:var(--cyan);font-weight:600;font-size:12px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.15);padding:3px 10px;border-radius:100px;white-space:nowrap"></span>
           </div>
         </div>
         <div class="header-actions">
@@ -476,6 +476,18 @@ tr:hover td{background:rgba(255,255,255,.015)}
               <span style="display:inline-block;margin-top:10px;font-size:12px;color:var(--green);font-weight:600">Auto-live after step 1 ✅</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Referral Programme Banner -->
+      <div id="referralBanner" style="display:none;background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,102,255,.06));border:1px solid rgba(0,212,255,.2);border-radius:14px;padding:16px 20px;margin-bottom:20px;cursor:pointer;transition:all .2s" onclick="showPage('referral')" onmouseover="this.style.borderColor='rgba(0,212,255,.4)'" onmouseout="this.style.borderColor='rgba(0,212,255,.2)'">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(0,212,255,.1);border:2px solid rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px">🎁</div>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px">Earn £10 for every business you refer!</div>
+            <div style="font-size:12px;color:var(--muted)">Share your unique referral link. When they sign up and complete their first month, you get £10 off your next bill. Unlimited referrals!</div>
+          </div>
+          <div style="background:var(--cyan);color:#020408;padding:8px 18px;border-radius:8px;font-size:12px;font-weight:700;white-space:nowrap;flex-shrink:0">View Programme →</div>
         </div>
       </div>
 
@@ -1761,6 +1773,10 @@ function showDashboard() {
   document.getElementById('sidebarBiz').textContent = currentUser?.business_name || '';
   document.getElementById('overviewName').textContent = currentUser?.business_name || 'there';
   updateGreeting();
+  // Show referral banner for clients only
+  const isAdminUser = ['superadmin','admin'].includes(currentUser?.role);
+  const bannerEl = document.getElementById('referralBanner');
+  if (bannerEl) bannerEl.style.display = isAdminUser ? 'none' : 'block';
   setInterval(updateGreeting, 60000); // Update every minute
   loadProfile();
   loadStats();
