@@ -660,6 +660,8 @@ try {
   db.exec('ALTER TABLE clients ADD COLUMN referral_programme_enabled INTEGER DEFAULT 1');
 } catch(e) {}
 try { db.exec("ALTER TABLE clients ADD COLUMN role TEXT DEFAULT 'client'"); } catch(e) {}
+try { db.exec("ALTER TABLE clients ADD COLUMN admin_permissions TEXT"); } catch(e) {}
+try { db.exec("ALTER TABLE clients ADD COLUMN admin_active INTEGER DEFAULT 1"); } catch(e) {}
 // Set superadmin role
 db.prepare("UPDATE clients SET role = 'superadmin' WHERE email = 'ringdeskai@gmail.com'").run();
 try {

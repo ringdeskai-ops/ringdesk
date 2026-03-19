@@ -103,7 +103,7 @@ module.exports = function(db) {
 
   // ── Create new customer (admin)
   router.post('/create-customer', adminRequired, async (req, res) => {
-    const { business_name, email, password, plan } = req.body;
+    const { business_name, email, password, plan, role } = req.body;
     if (!business_name || !email || !password) return res.status(400).json({ error: 'All fields required' });
     const existing = db.prepare('SELECT id FROM clients WHERE email = ?').get(email);
     if (existing) return res.status(400).json({ error: 'Email already registered' });
@@ -186,6 +186,34 @@ module.exports = function(db) {
     const qualified = referrals.filter(r => r.qualified === 1).length;
     const pending = referrals.filter(r => r.status === 'pending').length;
     res.json({ total, active, qualified, pending, referrals });
+  });
+
+  // ── Get all admin users
+  router.get('/admin-users', superAdminRequired, (req, res) => {
+    const admins = db.prepare("SELECT id, business_name, email, role, admin_permissions, admin_active FROM clients WHERE role IN ('superadmin','admin') ORDER BY role DESC, business_name ASC").all();
+    res.json({ admins });
+  });
+
+  // ── Update admin permissions
+  router.post('/update-admin-permissions', superAdminRequired, (req, res) => {
+    const { admin_id, perm, value } = req.body;
+    const admin = db.prepare('SELECT * FROM clients WHERE id = ?').get(admin_id);
+    if (!admin) return res.status(404).json({ error: 'Not found' });
+    if (admin.role === 'superadmin') return res.status(403).json({ error: 'Cannot restrict superadmin' });
+    const perms = admin.admin_permissions ? JSON.parse(admin.admin_permissions) : {};
+    perms[perm] = value;
+    db.prepare('UPDATE clients SET admin_permissions = ? WHERE id = ?').run(JSON.stringify(perms), admin_id);
+    res.json({ success: true });
+  });
+
+  // ── Set admin active/inactive
+  router.post('/set-admin-active', superAdminRequired, (req, res) => {
+    const { admin_id, active } = req.body;
+    const admin = db.prepare('SELECT * FROM clients WHERE id = ?').get(admin_id);
+    if (!admin) return res.status(404).json({ error: 'Not found' });
+    if (admin.role === 'superadmin') return res.status(403).json({ error: 'Cannot deactivate superadmin' });
+    db.prepare('UPDATE clients SET admin_active = ? WHERE id = ?').run(active ? 1 : 0, admin_id);
+    res.json({ success: true });
   });
 
   // ── Update client role (superadmin only)

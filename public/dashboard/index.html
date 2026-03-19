@@ -393,6 +393,10 @@ tr:hover td{background:rgba(255,255,255,.015)}
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           Setup Guide
         </button>
+        <button class="nav-btn superadmin-only" onclick="showPage('admin-management')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Admin Users
+        </button>
       </div>
     </nav>
 
@@ -1532,6 +1536,79 @@ tr:hover td{background:rgba(255,255,255,.015)}
 
     </div>
 
+
+    <!-- ── ADMIN MANAGEMENT PAGE ── -->
+    <div class="page" id="page-admin-management">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Admin <em>Users</em></div>
+          <div class="page-sub">Manage admin access and permissions</div>
+        </div>
+        <button onclick="showCreateAdminModal()" style="background:var(--cyan);color:#020408;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;border:none">+ Create Admin</button>
+      </div>
+
+      <!-- Admin list -->
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header">
+          <div class="table-title">Current Admin Users</div>
+          <div style="font-size:12px;color:var(--muted)">Super Admin can grant or restrict access per admin</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Customers</th>
+                <th>Provision Numbers</th>
+                <th>Edit AI</th>
+                <th>Subscriptions</th>
+                <th>Revenue</th>
+                <th>Invoices</th>
+                <th>Active</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="adminUsersBody">
+              <tr><td colspan="11" style="text-align:center;padding:20px;color:var(--muted)">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Permissions guide -->
+      <div class="table-card">
+        <div class="table-header"><div class="table-title">Permission Reference</div></div>
+        <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:10px;padding:14px">
+            <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:8px">Customers</div>
+            <div style="font-size:12px;color:var(--muted)">View all customer accounts, contact details, call history and account status</div>
+          </div>
+          <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:14px">
+            <div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:8px">Provision Numbers</div>
+            <div style="font-size:12px;color:var(--muted)">Search and assign Twilio phone numbers to customers on their behalf</div>
+          </div>
+          <div style="background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.15);border-radius:10px;padding:14px">
+            <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">Edit AI Settings</div>
+            <div style="font-size:12px;color:var(--muted)">Modify customer AI prompts, AI name and department transfer numbers</div>
+          </div>
+          <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:10px;padding:14px">
+            <div style="font-size:13px;font-weight:700;color:#a78bfa;margin-bottom:8px">Subscriptions</div>
+            <div style="font-size:12px;color:var(--muted)">Change plans, extend subscriptions, toggle active status, cancel subscriptions</div>
+          </div>
+          <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:10px;padding:14px">
+            <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:8px">Revenue</div>
+            <div style="font-size:12px;color:var(--muted)">View MRR, ARR and revenue breakdown by customer</div>
+          </div>
+          <div style="background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.15);border-radius:10px;padding:14px">
+            <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">Invoices</div>
+            <div style="font-size:12px;color:var(--muted)">Generate, view and download branded PDF invoices for any customer</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- Call detail panel -->
@@ -2306,7 +2383,8 @@ function showPage(name) {
   if (name === 'subscriptions') { loadCustomers(); }
   if (name === 'revenue') loadRevenue();
   if (name === 'admin-settings') loadAdminSettings();
-  if (name === 'compliance') {} // Static page, no loading needed
+  if (name === 'compliance') {}
+  if (name === 'admin-management') loadAdminManagement(); // Static page, no loading needed
   if (name === 'referral') loadReferral();
   if (name === 'billing') { loadBilling(); loadBillingInvoices(); }
 }
@@ -2652,6 +2730,102 @@ async function submitEditAi() {
   if (currentDetailCustomer) openCustomerDetail(currentDetailCustomer.id);
 }
 
+
+// ── ADMIN MANAGEMENT ─────────────────────────────────────────────────
+const DEFAULT_PERMISSIONS = {
+  can_view_customers: true,
+  can_provision_numbers: true,
+  can_edit_ai: true,
+  can_manage_subscriptions: true,
+  can_view_revenue: true,
+  can_manage_invoices: true
+};
+
+async function loadAdminManagement() {
+  const data = await api('/api/admin/admin-users');
+  if (!data) return;
+  const tbody = document.getElementById('adminUsersBody');
+  const admins = data.admins || [];
+  if (!admins.length) {
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;padding:20px;color:var(--muted)">No admin users found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = admins.map(function(a) {
+    var perms = a.admin_permissions ? JSON.parse(a.admin_permissions) : DEFAULT_PERMISSIONS;
+    var isSA = a.role === 'superadmin';
+    var isActive = a.admin_active !== 0;
+    return '<tr>'
+      + '<td style="font-size:13px;font-weight:600">' + a.business_name + '</td>'
+      + '<td style="font-size:12px;color:var(--muted)">' + a.email + '</td>'
+      + '<td><span style="font-size:11px;padding:3px 8px;border-radius:100px;font-weight:700;background:' + (isSA ? 'rgba(0,212,255,.15)' : 'rgba(255,184,0,.15)') + ';color:' + (isSA ? 'var(--cyan)' : 'var(--amber)') + '">' + (isSA ? 'SUPER ADMIN' : 'ADMIN') + '</span></td>'
+      + permToggle(a.id, 'can_view_customers', perms, isSA)
+      + permToggle(a.id, 'can_provision_numbers', perms, isSA)
+      + permToggle(a.id, 'can_edit_ai', perms, isSA)
+      + permToggle(a.id, 'can_manage_subscriptions', perms, isSA)
+      + permToggle(a.id, 'can_view_revenue', perms, isSA)
+      + permToggle(a.id, 'can_manage_invoices', perms, isSA)
+      + '<td><div class="toggle ' + (isActive || isSA ? 'on' : '') + '" '
+      + (isSA ? 'style="opacity:.5;cursor:not-allowed"' : 'onclick="toggleAdminActive(\'' + a.id + '\',this)" style="' + (isSA ? 'opacity:.5;cursor:not-allowed' : '') + '"')
+      + '><div class="toggle-thumb"></div></div></td>'
+      + '<td>' + (isSA ? '<span style="font-size:11px;color:var(--muted)">Protected</span>' : '<button onclick="removeAdmin(\'' + a.id + '\',\'' + a.email + '\')" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">Revoke</button>') + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
+function permToggle(adminId, perm, perms, isSA) {
+  var on = perms[perm] !== false;
+  return '<td><div class="toggle ' + (on ? 'on' : '') + '" ' + (isSA ? 'style="opacity:.5;cursor:not-allowed"' : 'onclick="toggleAdminPerm(\'' + adminId + '\',\'' + perm + '\',this)"') + '><div class="toggle-thumb"></div></div></td>';
+}
+
+async function toggleAdminPerm(adminId, perm, el) {
+  el.classList.toggle('on');
+  var on = el.classList.contains('on');
+  await api('/api/admin/update-admin-permissions', { method: 'POST', body: { admin_id: adminId, perm, value: on } });
+  showToast('Permission ' + (on ? 'granted' : 'revoked'), 'info');
+}
+
+async function toggleAdminActive(adminId, el) {
+  el.classList.toggle('on');
+  var active = el.classList.contains('on');
+  await api('/api/admin/set-admin-active', { method: 'POST', body: { admin_id: adminId, active } });
+  showToast('Admin ' + (active ? 'activated' : 'deactivated'), active ? 'success' : 'info');
+}
+
+async function removeAdmin(adminId, email) {
+  if (!confirm('Revoke admin access for ' + email + '? They will become a regular client.')) return;
+  await api('/api/admin/set-role', { method: 'POST', body: { client_id: adminId, role: 'client' } });
+  showToast('Admin access revoked for ' + email, 'info');
+  loadAdminManagement();
+}
+
+// Create Admin Modal
+function showCreateAdminModal() {
+  document.getElementById('createAdminModal').style.display = 'flex';
+  document.getElementById('newAdminEmail').value = '';
+  document.getElementById('newAdminName').value = '';
+  document.getElementById('newAdminPassword').value = 'AiRD@Admin' + new Date().getFullYear() + '!';
+  document.getElementById('createAdminError').style.display = 'none';
+}
+function closeCreateAdminModal() {
+  document.getElementById('createAdminModal').style.display = 'none';
+}
+async function submitCreateAdmin() {
+  var email = document.getElementById('newAdminEmail').value.trim();
+  var name = document.getElementById('newAdminName').value.trim();
+  var password = document.getElementById('newAdminPassword').value;
+  var errEl = document.getElementById('createAdminError');
+  var btn = document.getElementById('createAdminBtn');
+  if (!email || !name || !password) { errEl.textContent = 'All fields required'; errEl.style.display = 'block'; return; }
+  btn.textContent = 'Creating...'; btn.disabled = true;
+  var data = await api('/api/admin/create-customer', { method: 'POST', body: { business_name: name, email, password, plan: 'trial', role: 'admin' } });
+  if (!data || data.error) { errEl.textContent = data?.error || 'Failed'; errEl.style.display = 'block'; btn.textContent = 'Create Admin'; btn.disabled = false; return; }
+  // Set role to admin
+  await api('/api/admin/set-role', { method: 'POST', body: { client_id: data.id, role: 'admin' } });
+  closeCreateAdminModal();
+  showToast('Admin account created for ' + email, 'success');
+  loadAdminManagement();
+}
+
 function showToast(msg, type) {
   type = type || 'info';
   var t = document.getElementById('toast');
@@ -2766,6 +2940,37 @@ function showToast(msg, type) {
           <button onclick="submitEditAi()" style="background:var(--cyan);color:#020408;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:700;width:100%">Save AI Settings</button>
         </div>
       </div>
+
+
+<!-- CREATE ADMIN MODAL -->
+<div id="createAdminModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:28px;width:100%;max-width:460px;margin:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-size:18px;font-weight:700">Create Admin User</div>
+      <button onclick="closeCreateAdminModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px">×</button>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">FULL NAME</label>
+        <input id="newAdminName" type="text" placeholder="e.g. John Smith" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;outline:none">
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">EMAIL ADDRESS</label>
+        <input id="newAdminEmail" type="email" placeholder="admin@example.com" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;outline:none">
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">TEMPORARY PASSWORD</label>
+        <input id="newAdminPassword" type="text" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;outline:none">
+        <div style="font-size:11px;color:var(--muted);margin-top:4px">Share this with the admin — they can change it after login</div>
+      </div>
+      <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:8px;padding:12px;font-size:12px;color:var(--muted)">
+        ℹ️ The new admin will have full access by default. You can restrict individual permissions after creation from the Admin Users page.
+      </div>
+      <div id="createAdminError" style="display:none;background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);border-radius:8px;padding:10px;font-size:13px;color:var(--red)"></div>
+      <button onclick="submitCreateAdmin()" id="createAdminBtn" style="background:var(--cyan);color:#020408;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:14px;font-weight:700">Create Admin Account</button>
+    </div>
+  </div>
+</div>
 
 </body>
 </html>
