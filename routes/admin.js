@@ -54,44 +54,78 @@ module.exports = function(db, sendBrevoEmail) {
     db.prepare('UPDATE clients SET plan_status = ? WHERE id = ?').run(plan_status, client_id);
     console.log('Admin set client ' + client_id + ' status to ' + plan_status);
 
+    function brandedEmail(icon, title, subtitle, bodyHtml, ctaText, ctaUrl, footerNote) {
+      return '<div style="font-family:Helvetica Neue,sans-serif;max-width:580px;margin:0 auto;background:#060912;color:#f0f4f8;padding:0;border-radius:16px;overflow:hidden;border:1px solid #1a2332">'
+        + '<div style="background:#080e18;padding:28px 32px;border-bottom:1px solid #1a2332">'
+        + '<div style="font-size:24px;font-weight:800;margin-bottom:4px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+        + '<div style="font-size:11px;color:#5a7a9a;letter-spacing:.08em;text-transform:uppercase">AI Receptionist Platform</div>'
+        + '</div>'
+        + '<div style="background:' + (icon==='❌'?'rgba(255,68,102,.06)':'rgba(0,232,122,.06)') + ';border-bottom:1px solid ' + (icon==='❌'?'rgba(255,68,102,.15)':'rgba(0,232,122,.15)') + ';padding:16px 32px;display:flex;align-items:center;gap:12px">'
+        + '<div style="width:40px;height:40px;border-radius:50%;background:' + (icon==='❌'?'rgba(255,68,102,.1)':'rgba(0,232,122,.1)') + ';border:2px solid ' + (icon==='❌'?'rgba(255,68,102,.3)':'rgba(0,232,122,.3)') + ';display:flex;align-items:center;justify-content:center;font-size:18px">' + icon + '</div>'
+        + '<div><div style="font-size:17px;font-weight:700;color:#f0f4f8">' + title + '</div><div style="font-size:12px;color:#5a7a9a">' + subtitle + '</div></div>'
+        + '</div>'
+        + '<div style="padding:28px 32px">'
+        + bodyHtml
+        + (ctaText ? '<a href="' + ctaUrl + '" style="display:inline-block;background:#00d4ff;color:#020408;text-decoration:none;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:700;margin-top:8px">' + ctaText + '</a>' : '')
+        + '</div>'
+        + '<div style="background:#080e18;border-top:1px solid #1a2332;padding:16px 32px;display:flex;justify-content:space-between;align-items:center">'
+        + '<div style="font-size:11px;color:#3d4f63">' + (footerNote || 'AiRingDesk · AI Receptionist Platform') + '</div>'
+        + '<a href="https://airingdesk.com" style="font-size:11px;color:#5a7a9a;text-decoration:none">airingdesk.com</a>'
+        + '</div></div>';
+    }
+
     if (plan_status === 'cancelled' && client) {
       try {
-        const cancelHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
-          + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
-          + '<h2 style="font-size:20px;margin-bottom:16px">Subscription Cancelled</h2>'
-          + '<p style="color:#8896a8;line-height:1.7">Hi ' + client.business_name + ', your AiRingDesk subscription has been cancelled. If you believe this is an error, please contact us at hello@airingdesk.com.</p>'
-          + '<div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin:24px 0">'
-          + '<p style="font-size:14px;margin-bottom:8px">&#8226; Your AI receptionist will stop answering calls immediately</p>'
-          + '<p style="font-size:14px;margin-bottom:8px">&#8226; Your data will be retained for 30 days then deleted</p>'
-          + '<p style="font-size:14px">&#8226; Reactivate anytime at <a href="https://airingdesk.com" style="color:#00d4ff">airingdesk.com</a></p>'
+        const cancelBody = '<p style="color:#8896a8;line-height:1.8;margin-bottom:20px">Hi <strong style="color:#f0f4f8">' + client.business_name + '</strong>, your AiRingDesk subscription has been cancelled by our team. If you believe this is an error, please contact us immediately.</p>'
+          + '<div style="background:#0d1117;border:1px solid rgba(255,68,102,.2);border-radius:12px;padding:20px;margin-bottom:24px">'
+          + '<div style="font-size:11px;color:#ff4466;text-transform:uppercase;font-weight:700;letter-spacing:.06em;margin-bottom:12px">What happens next</div>'
+          + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px"><div style="color:#ff4466;font-size:16px;margin-top:2px">&#9679;</div><div style="font-size:13px;color:#8896a8;line-height:1.6">Your AI receptionist has stopped answering calls</div></div>'
+          + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px"><div style="color:#ff4466;font-size:16px;margin-top:2px">&#9679;</div><div style="font-size:13px;color:#8896a8;line-height:1.6">Your data will be retained for 30 days then permanently deleted</div></div>'
+          + '<div style="display:flex;align-items:flex-start;gap:10px"><div style="color:#00d4ff;font-size:16px;margin-top:2px">&#9679;</div><div style="font-size:13px;color:#8896a8;line-height:1.6">You can reactivate your account at any time</div></div>'
           + '</div>'
-          + '<p style="color:#8896a8;font-size:13px">AiRingDesk Team &middot; hello@airingdesk.com</p></div>';
-        await sendBrevoEmail(client.email, 'Your AiRingDesk subscription has been cancelled', cancelHtml);
-        await sendBrevoEmail(process.env.NOTIFY_EMAIL,
-          '[AiRingDesk] Admin cancelled: ' + client.business_name,
-          '<p>Admin cancelled subscription for <strong>' + client.business_name + '</strong> (' + client.email + ').</p><p>Cancelled by: ' + req.client.email + '</p>');
+          + '<p style="color:#5a7a9a;font-size:12px;line-height:1.7;margin-bottom:24px">Questions? Reply to this email or contact us at <a href="mailto:hello@airingdesk.com" style="color:#00d4ff">hello@airingdesk.com</a></p>';
+
+        const adminCancelBody = '<div style="background:#0d1117;border:1px solid rgba(255,68,102,.2);border-radius:12px;padding:20px;margin-bottom:20px">'
+          + '<div style="font-size:11px;color:#ff4466;text-transform:uppercase;font-weight:700;letter-spacing:.06em;margin-bottom:12px">Cancellation Details</div>'
+          + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+          + '<div><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:4px">Customer</div><div style="font-size:14px;font-weight:600;color:#f0f4f8">' + client.business_name + '</div></div>'
+          + '<div><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:4px">Email</div><div style="font-size:14px;color:#f0f4f8">' + client.email + '</div></div>'
+          + '<div><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:4px">Cancelled by</div><div style="font-size:14px;font-weight:600;color:#ff4466">' + req.client.email + '</div></div>'
+          + '<div><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:4px">Time</div><div style="font-size:14px;color:#f0f4f8">' + new Date().toLocaleString('en-GB',{timeZone:'Europe/London'}) + '</div></div>'
+          + '</div></div>';
+
+        await sendBrevoEmail(client.email, 'Your AiRingDesk subscription has been cancelled',
+          brandedEmail('❌', 'Subscription Cancelled', 'Your account has been deactivated', cancelBody, 'Visit airingdesk.com', 'https://airingdesk.com', 'AiRingDesk · hello@airingdesk.com'));
+        await sendBrevoEmail(process.env.NOTIFY_EMAIL, '[AiRingDesk] Subscription cancelled: ' + client.business_name,
+          brandedEmail('❌', 'Admin Cancellation Alert', 'Subscription cancelled by admin', adminCancelBody, 'View in dashboard', 'https://airingdesk.com/dashboard', 'AiRingDesk Admin Notification'));
         console.log('Cancellation emails sent for:', client.email);
       } catch(e) { console.error('Cancel email error:', e.message); }
     }
 
-    // Send activation email
     if (plan_status === 'active' && client) {
       try {
-        const activateHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
-          + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
-          + '<h2 style="font-size:20px;margin-bottom:16px">&#127881; Subscription Activated!</h2>'
-          + '<p style="color:#8896a8;line-height:1.7">Hi ' + client.business_name + ', great news! Your AiRingDesk subscription has been activated. Your AI receptionist is now live and ready to answer calls.</p>'
-          + '<div style="background:#0d1117;border:1px solid rgba(0,232,122,.2);border-radius:12px;padding:20px;margin:24px 0">'
-          + '<p style="color:#00e87a;font-size:13px;margin-bottom:12px">Your account is now active:</p>'
-          + '<p style="font-size:14px;margin-bottom:8px">&#10003; AI receptionist is answering calls</p>'
-          + '<p style="font-size:14px;margin-bottom:8px">&#10003; Call summaries sent to your email</p>'
-          + '<p style="font-size:14px">&#10003; Access your dashboard at <a href="https://airingdesk.com/dashboard" style="color:#00d4ff">airingdesk.com/dashboard</a></p>'
+        const activateBody = '<p style="color:#8896a8;line-height:1.8;margin-bottom:20px">Hi <strong style="color:#f0f4f8">' + client.business_name + '</strong>, great news! Your AiRingDesk subscription has been activated. Your AI receptionist is now live and ready to answer calls 24/7.</p>'
+          + '<div style="background:#0d1117;border:1px solid rgba(0,232,122,.2);border-radius:12px;padding:20px;margin-bottom:24px">'
+          + '<div style="font-size:11px;color:#00e87a;text-transform:uppercase;font-weight:700;letter-spacing:.06em;margin-bottom:12px">Your account is now active</div>'
+          + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px"><div style="color:#00e87a;font-size:16px;margin-top:2px">&#10003;</div><div style="font-size:13px;color:#8896a8;line-height:1.6">AI receptionist is answering all incoming calls</div></div>'
+          + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px"><div style="color:#00e87a;font-size:16px;margin-top:2px">&#10003;</div><div style="font-size:13px;color:#8896a8;line-height:1.6">Call summaries and transcripts sent to your email</div></div>'
+          + '<div style="display:flex;align-items:flex-start;gap:10px"><div style="color:#00e87a;font-size:16px;margin-top:2px">&#10003;</div><div style="font-size:13px;color:#8896a8;line-height:1.6">Full dashboard access restored</div></div>'
           + '</div>'
-          + '<p style="color:#8896a8;font-size:13px">AiRingDesk Team &middot; hello@airingdesk.com</p></div>';
-        await sendBrevoEmail(client.email, 'Your AiRingDesk subscription is now active!', activateHtml);
-        await sendBrevoEmail(process.env.NOTIFY_EMAIL,
-          '[AiRingDesk] Admin activated: ' + client.business_name,
-          '<p>Admin activated subscription for <strong>' + client.business_name + '</strong> (' + client.email + ').</p><p>Activated by: ' + req.client.email + '</p>');
+          + '<p style="color:#5a7a9a;font-size:12px;line-height:1.7;margin-bottom:24px">Log in to your dashboard to customise your AI receptionist settings.</p>';
+
+        const adminActivateBody = '<div style="background:#0d1117;border:1px solid rgba(0,232,122,.2);border-radius:12px;padding:20px;margin-bottom:20px">'
+          + '<div style="font-size:11px;color:#00e87a;text-transform:uppercase;font-weight:700;letter-spacing:.06em;margin-bottom:12px">Activation Details</div>'
+          + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+          + '<div><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:4px">Customer</div><div style="font-size:14px;font-weight:600;color:#f0f4f8">' + client.business_name + '</div></div>'
+          + '<div><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:4px">Email</div><div style="font-size:14px;color:#f0f4f8">' + client.email + '</div></div>'
+          + '<div><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:4px">Activated by</div><div style="font-size:14px;font-weight:600;color:#00e87a">' + req.client.email + '</div></div>'
+          + '<div><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:4px">Time</div><div style="font-size:14px;color:#f0f4f8">' + new Date().toLocaleString('en-GB',{timeZone:'Europe/London'}) + '</div></div>'
+          + '</div></div>';
+
+        await sendBrevoEmail(client.email, '🎉 Your AiRingDesk subscription is now active!',
+          brandedEmail('✅', 'Subscription Activated!', 'Your AI receptionist is live', activateBody, 'Go to dashboard', 'https://airingdesk.com/dashboard', 'AiRingDesk · hello@airingdesk.com'));
+        await sendBrevoEmail(process.env.NOTIFY_EMAIL, '[AiRingDesk] Subscription activated: ' + client.business_name,
+          brandedEmail('✅', 'Admin Activation Alert', 'Subscription activated by admin', adminActivateBody, 'View in dashboard', 'https://airingdesk.com/dashboard', 'AiRingDesk Admin Notification'));
         console.log('Activation emails sent for:', client.email);
       } catch(e) { console.error('Activation email error:', e.message); }
     }
