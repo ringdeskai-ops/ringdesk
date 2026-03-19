@@ -84,7 +84,7 @@ body{background:var(--black);color:var(--text);font-family:var(--font-body);line
 .logout-btn:hover{color:var(--text);border-color:var(--border2)}
 
 /* Main content */
-.main{margin-left:var(--sidebar);flex:1;overflow-y:auto;min-height:100vh}
+.main{margin-left:var(--sidebar);flex:1;overflow-y:visible;min-height:100vh}
 .page{display:none;padding:32px}
 .page.active{display:block}
 .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
@@ -2374,9 +2374,8 @@ function showPage(name) {
   document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + name)?.classList.add('active');
   // Scroll to top instantly on page change
-  const mainEl = document.querySelector('.main');
-  if (mainEl) mainEl.scrollTop = 0;
-  window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
   document.querySelectorAll('.nav-btn, .mob-nav-btn').forEach(b => {
     if (b.getAttribute('onclick')?.includes(`'${name}'`)) b.classList.add('active');
   });
