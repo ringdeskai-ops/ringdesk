@@ -1173,11 +1173,10 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 window.addEventListener('DOMContentLoaded', function() {
   const params = new URLSearchParams(window.location.search);
   const ref = params.get('ref');
-  if (ref) {
-    sessionStorage.setItem('referral_code', ref);
-  }
+  const plan = params.get('plan') || 'starter';
+  if (ref) sessionStorage.setItem('referral_code', ref);
   if (params.get('signup') === 'true') {
-    setTimeout(() => openModal('starter'), 500);
+    setTimeout(() => openModal(plan), 500);
   }
 });
 

@@ -610,6 +610,26 @@ app.post("/voice/status", async (req, res) => {
 });
 
 
+// ── System settings DB migration
+db.exec(`
+  CREATE TABLE IF NOT EXISTS system_settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at INTEGER DEFAULT (strftime('%s','now'))
+  );
+`);
+// Default referral settings
+const defaultSettings = [
+  ['referral_enabled', 'true'],
+  ['referral_discount_per_referral', '10'],
+  ['referral_max_discount', '30'],
+  ['referral_qualifying_days', '30'],
+  ['referral_max_referrals', '3'],
+  ['referral_daily_limit', '10'],
+];
+const insertSetting = db.prepare('INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)');
+defaultSettings.forEach(([k, v]) => insertSetting.run(k, v));
+
 // ── Referral system DB migration ─────────────────────────────────────
 db.exec(`
   CREATE TABLE IF NOT EXISTS referrals (
@@ -636,6 +656,12 @@ try {
   db.exec('ALTER TABLE clients ADD COLUMN referral_code TEXT');
   db.exec('ALTER TABLE clients ADD COLUMN referred_by TEXT');
   db.exec('ALTER TABLE clients ADD COLUMN referral_discount INTEGER DEFAULT 0');
+  db.exec('ALTER TABLE clients ADD COLUMN subscription_ends_at INTEGER');
+  db.exec('ALTER TABLE clients ADD COLUMN referral_programme_enabled INTEGER DEFAULT 1');
+} catch(e) {}
+try {
+  db.exec('ALTER TABLE referrals ADD COLUMN qualifying_since INTEGER');
+  db.exec('ALTER TABLE referrals ADD COLUMN qualified INTEGER DEFAULT 0');
 } catch(e) {}
 // Generate referral codes for existing clients
 const clientsWithoutCode = db.prepare("SELECT id, business_name FROM clients WHERE referral_code IS NULL").all();

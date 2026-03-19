@@ -13,12 +13,25 @@ function authRequired(req, res, next) {
 }
 
 module.exports = function(db, sendBrevoEmail) {
-  const DISCOUNT_PER_REFERRAL = 10;
-  const MAX_DISCOUNT = 30;
+  function getSettings() {
+    const rows = db.prepare('SELECT key, value FROM system_settings').all();
+    const s = {};
+    rows.forEach(r => s[r.key] = r.value);
+    return {
+      enabled: s.referral_enabled !== 'false',
+      discountPerReferral: parseInt(s.referral_discount_per_referral || '10'),
+      maxDiscount: parseInt(s.referral_max_discount || '30'),
+      qualifyingDays: parseInt(s.referral_qualifying_days || '30'),
+      maxReferrals: parseInt(s.referral_max_referrals || '3'),
+      dailyLimit: parseInt(s.referral_daily_limit || '10')
+    };
+  }
 
   function updateReferralDiscount(clientId) {
-    const active = db.prepare("SELECT COUNT(*) as c FROM referrals WHERE referrer_id = ? AND status = 'active'").get(clientId);
-    const discount = Math.min(active.c * DISCOUNT_PER_REFERRAL, MAX_DISCOUNT);
+    const { discountPerReferral, maxDiscount, maxReferrals } = getSettings();
+    const qualified = db.prepare("SELECT COUNT(*) as c FROM referrals WHERE referrer_id = ? AND qualified = 1").get(clientId);
+    const cappedReferrals = Math.min(qualified.c, maxReferrals);
+    const discount = Math.min(cappedReferrals * discountPerReferral, maxDiscount);
     db.prepare('UPDATE clients SET referral_discount = ? WHERE id = ?').run(discount, clientId);
     return discount;
   }
@@ -26,22 +39,32 @@ module.exports = function(db, sendBrevoEmail) {
   // Get referral stats
   router.get('/stats', authRequired, (req, res) => {
     const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id);
+    const settings = getSettings();
     const referrals = db.prepare('SELECT * FROM referrals WHERE referrer_id = ?').all(req.client.id);
     const active = referrals.filter(r => r.status === 'active').length;
+    const qualified = referrals.filter(r => r.qualified === 1).length;
     const pending = referrals.filter(r => r.status === 'pending').length;
-    const discount = Math.min(active * DISCOUNT_PER_REFERRAL, MAX_DISCOUNT);
+    const discount = Math.min(qualified * settings.discountPerReferral, settings.maxDiscount);
     const totalSaved = db.prepare('SELECT SUM(discount_amount) as total FROM referral_discounts WHERE client_id = ? AND applied = 1').get(req.client.id);
     res.json({
       referral_code: client.referral_code,
       referral_link: process.env.DASHBOARD_URL + '/signup?ref=' + client.referral_code,
+      referral_programme_enabled: client.referral_programme_enabled !== 0 && settings.enabled,
       total_referrals: referrals.length,
       active_referrals: active,
+      qualified_referrals: qualified,
       pending_referrals: pending,
       monthly_discount: discount,
+      discount_per_referral: settings.discountPerReferral,
+      max_referrals: settings.maxReferrals,
+      daily_limit: settings.dailyLimit,
+      max_discount: settings.maxDiscount,
+      qualifying_days: settings.qualifyingDays,
       total_saved: totalSaved ? totalSaved.total || 0 : 0,
       referrals: referrals.map(r => ({
         email: r.referee_email.replace(/(.{2}).*@/, '$1***@'),
         status: r.status,
+        qualified: r.qualified === 1,
         sent_at: r.sent_at,
         activated_at: r.activated_at
       }))
@@ -54,11 +77,15 @@ module.exports = function(db, sendBrevoEmail) {
       const { email } = req.body;
       if (!email || !email.includes('@')) return res.status(400).json({ error: 'Valid email required' });
       const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id);
+      const settings = getSettings();
+      if (!settings.enabled) return res.status(403).json({ error: 'Referral programme is currently disabled' });
+      if (client.referral_programme_enabled === 0) return res.status(403).json({ error: 'Referral programme is disabled for your account' });
       const existing = db.prepare('SELECT id FROM referrals WHERE referrer_id = ? AND referee_email = ?').get(req.client.id, email);
       if (existing) return res.status(400).json({ error: 'Already sent to this email' });
+      const settings = getSettings();
       const today = Math.floor(Date.now()/1000) - 86400;
       const todayCount = db.prepare('SELECT COUNT(*) as c FROM referrals WHERE referrer_id = ? AND sent_at > ?').get(req.client.id, today);
-      if (todayCount.c >= 10) return res.status(400).json({ error: 'Daily limit reached (10/day)' });
+      if (todayCount.c >= settings.dailyLimit) return res.status(400).json({ error: 'Daily limit reached (' + settings.dailyLimit + '/day)' });
       const { v4: uuidv4 } = require('uuid');
       db.prepare('INSERT INTO referrals (id, referrer_id, referee_email) VALUES (?, ?, ?)').run(uuidv4(), req.client.id, email);
       const refLink = process.env.DASHBOARD_URL + '/signup?ref=' + client.referral_code;

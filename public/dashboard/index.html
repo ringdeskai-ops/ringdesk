@@ -381,6 +381,10 @@ tr:hover td{background:rgba(255,255,255,.015)}
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
           Revenue
         </button>
+        <button class="nav-btn" onclick="showPage('admin-settings')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+          Settings
+        </button>
       </div>
     </nav>
 
@@ -870,9 +874,28 @@ tr:hover td{background:rgba(255,255,255,.015)}
               <span style="font-size:12px;color:var(--muted)">Stripe customer</span>
               <span style="font-size:11px;color:var(--muted)" id="dStripeCustomer">—</span>
             </div>
-            <div style="display:flex;justify-content:space-between;padding:10px 0">
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
               <span style="font-size:12px;color:var(--muted)">Stripe subscription</span>
               <span style="font-size:11px;color:var(--muted)" id="dStripeSub">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:12px;color:var(--muted)">Subscription ends</span>
+              <span style="font-size:12px;font-weight:600;color:var(--amber)" id="dSubEnds">—</span>
+            </div>
+            <div style="padding:12px 0">
+              <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Extend subscription</div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap">
+                <button onclick="extendSub(1)" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">+1 mo</button>
+                <button onclick="extendSub(2)" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">+2 mo</button>
+                <button onclick="extendSub(3)" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">+3 mo</button>
+                <button onclick="extendSub(6)" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">+6 mo</button>
+                <button onclick="extendSub(8)" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">+8 mo</button>
+                <button onclick="extendSub(12)" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">+12 mo</button>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0">
+              <span style="font-size:12px;color:var(--muted)">Referral programme access</span>
+              <div class="toggle" id="clientReferralToggle" onclick="toggleDetailReferral()"><div class="toggle-thumb"></div></div>
             </div>
           </div>
         </div>
@@ -1067,6 +1090,86 @@ tr:hover td{background:rgba(255,255,255,.015)}
               <tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">No referrals sent yet</td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ── ADMIN: SETTINGS ── -->
+    <div class="page" id="page-admin-settings">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Admin <em>Settings</em></div>
+          <div class="page-sub">Configure referral programme and subscription rules</div>
+        </div>
+        <button onclick="saveAllSettings()" style="background:var(--cyan);color:#020408;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:14px;font-weight:700;border:none">Save all settings</button>
+      </div>
+
+      <!-- Referral programme settings -->
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header">
+          <div class="table-title">Referral Programme Settings</div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)">
+            Global on/off:
+            <div class="toggle" id="globalReferralToggle" onclick="toggleGlobalReferral()"><div class="toggle-thumb"></div></div>
+          </div>
+        </div>
+        <div style="padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px">
+          <div>
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:8px">Discount per referral (£/month)</label>
+            <input type="number" id="set_discount_per_referral" min="1" max="100" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;width:100%;outline:none">
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">How much each active qualified referral saves per month</div>
+          </div>
+          <div>
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:8px">Maximum discount cap (£/month)</label>
+            <input type="number" id="set_max_discount" min="1" max="1000" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;width:100%;outline:none">
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Maximum monthly discount a client can earn</div>
+          </div>
+          <div>
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:8px">Maximum referrals per client</label>
+            <input type="number" id="set_max_referrals" min="1" max="100" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;width:100%;outline:none">
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">How many referrals count towards discount (e.g. 3 = max 3 referrals)</div>
+          </div>
+          <div>
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:8px">Qualifying period (days)</label>
+            <input type="number" id="set_qualifying_days" min="1" max="365" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;width:100%;outline:none">
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Days referred client must be paying before discount activates (default: 30)</div>
+          </div>
+          <div>
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:8px">Daily referral email limit per client</label>
+            <input type="number" id="set_daily_limit" min="1" max="100" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;width:100%;outline:none">
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Max referral emails a client can send per day</div>
+          </div>
+        </div>
+        <div style="padding:0 20px 20px">
+          <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--muted);line-height:1.6">
+            ⚠️ <strong style="color:var(--amber)">UK Law Compliance:</strong> Referral discounts only activate after referred customer completes the qualifying period of paid subscription. This ensures compliance with UK Consumer Rights Act 2015 and ASA guidelines. Changing qualifying days takes effect for new referrals only.
+          </div>
+        </div>
+      </div>
+
+      <!-- Per-customer referral control -->
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header"><div class="table-title">Per-Customer Referral Access</div></div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>#</th><th>Customer</th><th>Plan</th><th>Referrals sent</th><th>Active referrals</th><th>Current discount</th><th>Referral access</th></tr></thead>
+            <tbody id="referralControlBody">
+              <tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted)">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Qualify referrals manually -->
+      <div class="table-card">
+        <div class="table-header">
+          <div class="table-title">Referral Qualification</div>
+          <button onclick="runQualification()" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">Run qualification check</button>
+        </div>
+        <div style="padding:16px;font-size:13px;color:var(--muted);line-height:1.7">
+          <p>The qualification check reviews all active referrals and activates discounts for those that have completed the qualifying period.</p>
+          <p style="margin-top:8px">This runs automatically but you can trigger it manually here. Results will show as a notification.</p>
         </div>
       </div>
     </div>
@@ -1612,6 +1715,11 @@ async function openCustomerDetail(clientId) {
   document.getElementById('dCallLimit').textContent = `${customer.call_limit||50} calls/month`;
   document.getElementById('dStripeCustomer').textContent = customer.stripe_customer_id || 'Not set';
   document.getElementById('dStripeSub').textContent = customer.stripe_subscription_id || 'Not set';
+  document.getElementById('dSubEnds').textContent = customer.subscription_ends_at
+    ? new Date(customer.subscription_ends_at * 1000).toLocaleDateString('en-GB')
+    : 'Monthly (auto-renew)';
+  const refToggle = document.getElementById('clientReferralToggle');
+  refToggle.classList.toggle('on', customer.referral_programme_enabled !== 0);
 
   // Set plan selector
   document.getElementById('planChangeSelect').value = customer.plan || 'trial';
@@ -1668,6 +1776,26 @@ async function loadCustomerInvoices(customer) {
       <td>${inv.url ? `<a href="${inv.url}" target="_blank" style="color:var(--cyan);font-size:12px">Download</a>` : '—'}</td>
     </tr>
   `).join('');
+}
+
+
+async function extendSub(months) {
+  if (!currentDetailCustomer) return;
+  if (!window.confirm('Extend subscription for ' + currentDetailCustomer.business_name + ' by ' + months + ' month(s)?')) return;
+  const data = await api('/api/admin/extend-subscription', { method: 'POST', body: { client_id: currentDetailCustomer.id, months } });
+  if (data && data.success) {
+    document.getElementById('dSubEnds').textContent = data.ends_date;
+    showToast('Subscription extended by ' + months + ' month(s) until ' + data.ends_date, 'success');
+  }
+}
+
+async function toggleDetailReferral() {
+  if (!currentDetailCustomer) return;
+  const toggle = document.getElementById('clientReferralToggle');
+  toggle.classList.toggle('on');
+  const enabled = toggle.classList.contains('on');
+  await api('/api/admin/toggle-referral', { method: 'POST', body: { client_id: currentDetailCustomer.id, enabled } });
+  showToast('Referral access ' + (enabled ? 'enabled' : 'disabled'), 'info');
 }
 
 async function changeCustomerPlan() {
@@ -1796,6 +1924,7 @@ function showPage(name) {
   if (name === 'customers') loadCustomers();
   if (name === 'subscriptions') { loadCustomers(); }
   if (name === 'revenue') loadRevenue();
+  if (name === 'admin-settings') loadAdminSettings();
   if (name === 'referral') loadReferral();
 }
 
@@ -1857,6 +1986,87 @@ async function sendReferral() {
   } else {
     showToast(data?.error || 'Failed to send referral', 'error');
   }
+}
+
+
+// ── ADMIN SETTINGS ────────────────────────────────────────────────────
+let currentSettings = {};
+
+async function loadAdminSettings() {
+  const data = await api('/api/admin/settings');
+  if (!data) return;
+  currentSettings = data.settings;
+
+  document.getElementById('set_discount_per_referral').value = data.settings.referral_discount_per_referral || '10';
+  document.getElementById('set_max_discount').value = data.settings.referral_max_discount || '30';
+  document.getElementById('set_max_referrals').value = data.settings.referral_max_referrals || '3';
+  document.getElementById('set_qualifying_days').value = data.settings.referral_qualifying_days || '30';
+  document.getElementById('set_daily_limit').value = data.settings.referral_daily_limit || '10';
+
+  const globalToggle = document.getElementById('globalReferralToggle');
+  if (data.settings.referral_enabled !== 'false') globalToggle.classList.add('on');
+  else globalToggle.classList.remove('on');
+
+  // Load per-customer referral control
+  loadReferralControl();
+}
+
+async function loadReferralControl() {
+  const data = await api('/api/admin/customers');
+  if (!data) return;
+  const tbody = document.getElementById('referralControlBody');
+  const refData = await Promise.all(data.customers.map(async c => {
+    const refs = await api('/api/admin/customer-referrals/' + c.id);
+    return { ...c, refs: refs || { total: 0, active: 0 } };
+  }));
+  tbody.innerHTML = refData.map(c => `
+    <tr>
+      <td><span style="font-size:11px;color:var(--cyan);font-weight:700">${c.customer_number||'—'}</span></td>
+      <td>
+        <div style="font-size:13px;font-weight:600">${c.business_name}</div>
+        <div style="font-size:11px;color:var(--muted)">${c.email}</div>
+      </td>
+      <td><span style="font-size:11px;padding:2px 8px;border-radius:100px;background:rgba(0,212,255,.1);color:var(--cyan)">${c.plan}</span></td>
+      <td style="font-size:13px">${c.refs?.total || 0}</td>
+      <td style="font-size:13px">${c.refs?.active || 0}</td>
+      <td style="font-size:13px;font-weight:700;color:var(--green)">£${c.referral_discount || 0}/mo</td>
+      <td><div class="toggle ${c.referral_programme_enabled !== 0 ? 'on' : ''}" onclick="toggleClientReferral('${c.id}',this)"><div class="toggle-thumb"></div></div></td>
+    </tr>
+  `).join('');
+}
+
+async function toggleGlobalReferral() {
+  const toggle = document.getElementById('globalReferralToggle');
+  toggle.classList.toggle('on');
+  const enabled = toggle.classList.contains('on');
+  await api('/api/admin/settings', { method: 'POST', body: { key: 'referral_enabled', value: enabled ? 'true' : 'false' } });
+  showToast('Referral programme ' + (enabled ? 'enabled' : 'disabled') + ' globally', enabled ? 'success' : 'info');
+}
+
+async function toggleClientReferral(clientId, el) {
+  el.classList.toggle('on');
+  const enabled = el.classList.contains('on');
+  await api('/api/admin/toggle-referral', { method: 'POST', body: { client_id: clientId, enabled } });
+  showToast('Referral access ' + (enabled ? 'enabled' : 'disabled') + ' for client', 'info');
+}
+
+async function saveAllSettings() {
+  const settings = [
+    { key: 'referral_discount_per_referral', val: document.getElementById('set_discount_per_referral').value },
+    { key: 'referral_max_discount', val: document.getElementById('set_max_discount').value },
+    { key: 'referral_max_referrals', val: document.getElementById('set_max_referrals').value },
+    { key: 'referral_qualifying_days', val: document.getElementById('set_qualifying_days').value },
+    { key: 'referral_daily_limit', val: document.getElementById('set_daily_limit').value },
+  ];
+  for (const s of settings) {
+    await api('/api/admin/settings', { method: 'POST', body: { key: s.key, value: s.val } });
+  }
+  showToast('All settings saved!', 'success');
+}
+
+async function runQualification() {
+  const data = await api('/api/admin/qualify-referrals', { method: 'POST', body: {} });
+  if (data) showToast('Qualification complete! ' + (data.qualified || 0) + ' referrals qualified.', 'success');
 }
 
 function showToast(msg, type) {

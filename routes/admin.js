@@ -88,5 +88,81 @@ module.exports = function(db) {
     });
   });
 
+
+  // ── Get referrals for a specific customer
+  router.get('/customer-referrals/:clientId', superAdminRequired, (req, res) => {
+    const referrals = db.prepare('SELECT * FROM referrals WHERE referrer_id = ?').all(req.params.clientId);
+    const total = referrals.length;
+    const active = referrals.filter(r => r.status === 'active').length;
+    const qualified = referrals.filter(r => r.qualified === 1).length;
+    const pending = referrals.filter(r => r.status === 'pending').length;
+    res.json({ total, active, qualified, pending, referrals });
+  });
+
+  // ── System settings ──────────────────────────────────────────────
+  router.get('/settings', superAdminRequired, (req, res) => {
+    const settings = db.prepare('SELECT key, value FROM system_settings').all();
+    const obj = {};
+    settings.forEach(s => obj[s.key] = s.value);
+    res.json({ settings: obj });
+  });
+
+  router.post('/settings', superAdminRequired, (req, res) => {
+    const { key, value } = req.body;
+    const allowed = ['referral_enabled','referral_discount_per_referral','referral_max_discount','referral_qualifying_days','referral_max_referrals','referral_daily_limit'];
+    if (!allowed.includes(key)) return res.status(400).json({ error: 'Invalid setting' });
+    db.prepare('INSERT OR REPLACE INTO system_settings (key, value, updated_at) VALUES (?, ?, ?)').run(key, String(value), Math.floor(Date.now()/1000));
+    console.log('Admin updated setting:', key, '=', value);
+    res.json({ success: true });
+  });
+
+  // ── Toggle referral programme per customer ────────────────────────
+  router.post('/toggle-referral', superAdminRequired, (req, res) => {
+    const { client_id, enabled } = req.body;
+    db.prepare('UPDATE clients SET referral_programme_enabled = ? WHERE id = ?').run(enabled ? 1 : 0, client_id);
+    console.log('Admin toggled referral for client', client_id, ':', enabled);
+    res.json({ success: true });
+  });
+
+  // ── Extend subscription ───────────────────────────────────────────
+  router.post('/extend-subscription', superAdminRequired, (req, res) => {
+    const { client_id, months } = req.body;
+    if (![1,2,3,6,8,12].includes(Number(months))) return res.status(400).json({ error: 'Invalid months' });
+    const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(client_id);
+    const now = Math.floor(Date.now()/1000);
+    const currentEnd = client.subscription_ends_at && client.subscription_ends_at > now
+      ? client.subscription_ends_at
+      : now;
+    const newEnd = currentEnd + (Number(months) * 30 * 24 * 60 * 60);
+    db.prepare('UPDATE clients SET subscription_ends_at = ?, plan_status = ? WHERE id = ?').run(newEnd, 'active', client_id);
+    console.log('Admin extended subscription for client', client_id, 'by', months, 'months until', new Date(newEnd*1000).toLocaleDateString('en-GB'));
+    res.json({ success: true, ends_at: newEnd, ends_date: new Date(newEnd*1000).toLocaleDateString('en-GB') });
+  });
+
+  // ── Check and qualify referrals (run daily) ───────────────────────
+  router.post('/qualify-referrals', superAdminRequired, (req, res) => {
+    const qualifyingDays = parseInt(db.prepare("SELECT value FROM system_settings WHERE key = 'referral_qualifying_days'").get()?.value || '30');
+    const cutoff = Math.floor(Date.now()/1000) - (qualifyingDays * 24 * 60 * 60);
+    // Find referrals that have been qualifying for long enough
+    const toQualify = db.prepare("SELECT * FROM referrals WHERE status = 'active' AND qualified = 0 AND activated_at < ?").all(cutoff);
+    let qualified = 0;
+    toQualify.forEach(r => {
+      // Check referred client is still paying
+      const referee = db.prepare("SELECT * FROM clients WHERE id = ?").get(r.referee_id);
+      if (referee && referee.plan_status === 'active' && referee.plan !== 'trial') {
+        db.prepare("UPDATE referrals SET qualified = 1 WHERE id = ?").run(r.id);
+        qualified++;
+        // Recalculate referrer discount
+        const discountPerRef = parseInt(db.prepare("SELECT value FROM system_settings WHERE key = 'referral_discount_per_referral'").get()?.value || '10');
+        const maxDiscount = parseInt(db.prepare("SELECT value FROM system_settings WHERE key = 'referral_max_discount'").get()?.value || '30');
+        const activeQualified = db.prepare("SELECT COUNT(*) as c FROM referrals WHERE referrer_id = ? AND qualified = 1").get(r.referrer_id);
+        const discount = Math.min(activeQualified.c * discountPerRef, maxDiscount);
+        db.prepare('UPDATE clients SET referral_discount = ? WHERE id = ?').run(discount, r.referrer_id);
+        console.log('Referral qualified:', r.id, 'discount for referrer:', discount);
+      }
+    });
+    res.json({ success: true, qualified });
+  });
+
   return router;
 };
