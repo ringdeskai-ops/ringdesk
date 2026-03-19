@@ -600,6 +600,51 @@ app.get('/industries/plumbers', (req, res) => res.sendFile(__dirname + '/public/
 app.get('/industries/estate-agents', (req, res) => res.sendFile(__dirname + '/public/industries/estate-agents.html'));
 app.get('/industries/solicitors', (req, res) => res.sendFile(__dirname + '/public/industries/solicitors.html'));
 app.get('/industries/medical', (req, res) => res.sendFile(__dirname + '/public/industries/medical.html'));
+app.get('/billing/success', (req, res) => {
+  res.send(`<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Welcome to AiRingDesk!</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#020408;color:#f0f6ff;font-family:'Geist',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.card{background:#080e18;border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:48px 40px;max-width:480px;width:100%;text-align:center}
+.icon{width:72px;height:72px;border-radius:50%;background:rgba(0,232,122,.1);border:2px solid rgba(0,232,122,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
+.logo{font-size:24px;font-weight:800;margin-bottom:32px}
+h1{font-size:26px;font-weight:700;margin-bottom:12px}
+p{color:#5a7a9a;font-size:15px;line-height:1.7;margin-bottom:8px}
+.steps{background:#0c1520;border-radius:12px;padding:20px;margin:24px 0;text-align:left}
+.step{display:flex;align-items:center;gap:12px;padding:8px 0;font-size:14px;color:#f0f6ff}
+.step-num{width:24px;height:24px;border-radius:50%;background:rgba(0,212,255,.15);color:#00d4ff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn{display:inline-block;background:#00d4ff;color:#020408;font-weight:700;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>
+  <div class="icon">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <h1>You're all set! 🎉</h1>
+  <p>Your 14-day free trial has started.</p>
+  <p>No charge until your trial ends.</p>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div> Log into your dashboard</div>
+    <div class="step"><div class="step-num">2</div> Pick your UK phone number</div>
+    <div class="step"><div class="step-num">3</div> Customise your AI receptionist</div>
+    <div class="step"><div class="step-num">4</div> Go live in under 30 minutes</div>
+  </div>
+  <a href="/dashboard" class="btn">Go to dashboard →</a>
+</div>
+</body>
+</html>`);
+});
+
+app.get('/billing/cancel', (req, res) => res.redirect('/'));
+
 app.use('/dashboard', require('express').static(__dirname + '/public/dashboard'));
 app.get('/dashboard/*', (req, res) => res.sendFile(__dirname + '/public/dashboard/index.html'));
 
