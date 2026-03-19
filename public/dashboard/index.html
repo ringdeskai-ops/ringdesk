@@ -734,6 +734,19 @@ tr:hover td{background:rgba(255,255,255,.015)}
           hello@airingdesk.com
         </a>
       </div>
+    <!-- Invoice History in Billing Page -->
+      <div class="table-card" style="margin-top:20px">
+        <div class="table-header">
+          <div class="table-title">Invoice History</div>
+          <div style="font-size:12px;color:var(--muted)">All invoices stored permanently for accounting</div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Invoice #</th><th>Date</th><th>Plan</th><th>Period</th><th>Amount</th><th>Discount</th><th>Total</th><th>Status</th><th>Download</th></tr></thead>
+            <tbody id="invoiceHistoryBody"><tr><td colspan="9" style="text-align:center;padding:20px;color:var(--muted)">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
     </div>
 
     <!-- ── ADMIN: CUSTOMERS ── -->
@@ -1926,6 +1939,7 @@ function showPage(name) {
   if (name === 'revenue') loadRevenue();
   if (name === 'admin-settings') loadAdminSettings();
   if (name === 'referral') loadReferral();
+  if (name === 'billing') { loadBilling(); loadBillingInvoices(); }
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────
@@ -2067,6 +2081,57 @@ async function saveAllSettings() {
 async function runQualification() {
   const data = await api('/api/admin/qualify-referrals', { method: 'POST', body: {} });
   if (data) showToast('Qualification complete! ' + (data.qualified || 0) + ' referrals qualified.', 'success');
+}
+
+
+async function loadBillingInvoices() {
+  var tbody = document.getElementById('invoiceHistoryBody');
+  if (!tbody) return;
+  var data = await api('/api/invoice/my');
+  if (!data) return;
+  var invoices = data.invoices || [];
+  if (!invoices.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:20px;color:var(--muted)">No invoices yet. Invoices are generated automatically when payments are processed.</td></tr>';
+    return;
+  }
+  var planNames = {trial:'Trial',starter:'Starter',professional:'Professional',business:'Business'};
+  var rows = '';
+  for (var i=0; i<invoices.length; i++) {
+    var inv = invoices[i];
+    var dt = inv.created_at ? new Date(inv.created_at*1000).toLocaleDateString('en-GB') : '-';
+    var ps = inv.period_start ? new Date(inv.period_start*1000).toLocaleDateString('en-GB') : '-';
+    var pe = inv.period_end ? new Date(inv.period_end*1000).toLocaleDateString('en-GB') : '-';
+    rows += '<tr>'
+      + '<td><span style="font-size:12px;font-weight:700;color:var(--cyan)">'+inv.invoice_number+'</span></td>'
+      + '<td style="font-size:12px;color:var(--muted)">'+dt+'</td>'
+      + '<td><span style="font-size:11px;padding:2px 8px;border-radius:100px;background:rgba(0,212,255,.1);color:var(--cyan)">'+(planNames[inv.plan]||inv.plan)+'</span></td>'
+      + '<td style="font-size:11px;color:var(--muted)">'+ps+' - '+pe+'</td>'
+      + '<td style="font-size:13px;font-weight:600">£'+(inv.amount/100).toFixed(2)+'</td>'
+      + '<td style="font-size:13px;color:var(--green)">'+(inv.discount>0?'-£'+(inv.discount/100).toFixed(2):'—')+'</td>'
+      + '<td style="font-size:14px;font-weight:700;color:var(--cyan)">£'+(inv.final_amount/100).toFixed(2)+'</td>'
+      + '<td><span style="font-size:11px;padding:2px 8px;border-radius:100px;font-weight:700;background:rgba(0,232,122,.1);color:var(--green)">PAID</span></td>'
+      + '<td><a href="#" onclick="downloadInvoice(event,''+inv.id+'')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none">PDF</a></td>'
+      + '</tr>';
+  }
+  tbody.innerHTML = rows;
+}
+
+async function downloadInvoice(e, invoiceId) {
+  e.preventDefault();
+  var token = localStorage.getItem('rd_token') || '';
+  if (!token) { showToast('Please log in first', 'error'); return; }
+  try {
+    var resp = await fetch('/api/invoice/download/' + invoiceId, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!resp.ok) throw new Error('Download failed');
+    var blob = await resp.blob();
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'AiRingDesk-Invoice.pdf'; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Invoice downloaded!', 'success');
+  } catch(err) { showToast('Download failed', 'error'); }
 }
 
 function showToast(msg, type) {
