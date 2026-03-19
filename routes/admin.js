@@ -73,6 +73,28 @@ module.exports = function(db, sendBrevoEmail) {
         console.log('Cancellation emails sent for:', client.email);
       } catch(e) { console.error('Cancel email error:', e.message); }
     }
+
+    // Send activation email
+    if (plan_status === 'active' && client) {
+      try {
+        const activateHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
+          + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+          + '<h2 style="font-size:20px;margin-bottom:16px">&#127881; Subscription Activated!</h2>'
+          + '<p style="color:#8896a8;line-height:1.7">Hi ' + client.business_name + ', great news! Your AiRingDesk subscription has been activated. Your AI receptionist is now live and ready to answer calls.</p>'
+          + '<div style="background:#0d1117;border:1px solid rgba(0,232,122,.2);border-radius:12px;padding:20px;margin:24px 0">'
+          + '<p style="color:#00e87a;font-size:13px;margin-bottom:12px">Your account is now active:</p>'
+          + '<p style="font-size:14px;margin-bottom:8px">&#10003; AI receptionist is answering calls</p>'
+          + '<p style="font-size:14px;margin-bottom:8px">&#10003; Call summaries sent to your email</p>'
+          + '<p style="font-size:14px">&#10003; Access your dashboard at <a href="https://airingdesk.com/dashboard" style="color:#00d4ff">airingdesk.com/dashboard</a></p>'
+          + '</div>'
+          + '<p style="color:#8896a8;font-size:13px">AiRingDesk Team &middot; hello@airingdesk.com</p></div>';
+        await sendBrevoEmail(client.email, 'Your AiRingDesk subscription is now active!', activateHtml);
+        await sendBrevoEmail(process.env.NOTIFY_EMAIL,
+          '[AiRingDesk] Admin activated: ' + client.business_name,
+          '<p>Admin activated subscription for <strong>' + client.business_name + '</strong> (' + client.email + ').</p><p>Activated by: ' + req.client.email + '</p>');
+        console.log('Activation emails sent for:', client.email);
+      } catch(e) { console.error('Activation email error:', e.message); }
+    }
     res.json({ success: true });
   });
 
