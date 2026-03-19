@@ -645,6 +645,7 @@ p{color:#5a7a9a;font-size:15px;line-height:1.7;margin-bottom:8px}
 
 app.get('/billing/cancel', (req, res) => res.redirect('/'));
 
+app.use("/api/admin", require("./routes/admin")(db));
 app.use('/dashboard', require('express').static(__dirname + '/public/dashboard'));
 app.get('/dashboard/*', (req, res) => res.sendFile(__dirname + '/public/dashboard/index.html'));
 
