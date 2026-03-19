@@ -1539,12 +1539,12 @@ tr:hover td{background:rgba(255,255,255,.015)}
 
     <!-- ── ADMIN MANAGEMENT PAGE ── -->
     <div class="page" id="page-admin-management">
-      <div class="page-header">
+      <div class="page-header" style="margin-bottom:24px">
         <div>
-          <div class="page-title">Admin <em>Users</em></div>
-          <div class="page-sub">Manage admin access and permissions</div>
+          <div class="page-title" style="font-size:28px;font-weight:800;margin-bottom:4px">Admin <em>Users</em></div>
+          <div class="page-sub" style="font-size:14px;color:var(--muted)">Manage admin access and permissions</div>
         </div>
-        <button onclick="showCreateAdminModal()" style="background:var(--cyan);color:#020408;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;border:none">+ Create Admin</button>
+        <button onclick="showCreateAdminModal()" style="background:var(--cyan);color:#020408;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;border:none;flex-shrink:0">+ Create Admin</button>
       </div>
 
       <!-- Admin list -->
@@ -1553,12 +1553,12 @@ tr:hover td{background:rgba(255,255,255,.015)}
           <div class="table-title">Current Admin Users</div>
           <div style="font-size:12px;color:var(--muted)">Super Admin can grant or restrict access per admin</div>
         </div>
-        <div style="overflow-x:auto">
-          <table>
+        <div style="overflow-x:auto;min-width:0">
+          <table style="min-width:900px">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
+                <th style="min-width:120px">Name</th>
+                <th style="min-width:180px">Email</th>
                 <th>Role</th>
                 <th>Customers</th>
                 <th>Provision Numbers</th>
