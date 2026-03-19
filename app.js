@@ -289,7 +289,48 @@ app.post("/stripe-webhook", async (req, res) => {
 
   if (event.type === "invoice.payment_failed") {
     const sub = db.prepare("SELECT id FROM clients WHERE stripe_subscription_id = ?").get(session.subscription);
-    if (sub) db.prepare("UPDATE clients SET plan_status = 'past_due' WHERE id = ?").run(sub.id);
+    if (sub) {
+      db.prepare("UPDATE clients SET plan_status = 'past_due' WHERE id = ?").run(sub.id);
+      console.log(`Payment failed for client ${sub.id}`);
+      // Send payment failed email
+      const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(sub.id);
+      if (client) sendBrevoEmail(client.email, 'Payment failed - Action required', `
+        <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:40px">
+          <h2>Payment failed for your AiRingDesk subscription</h2>
+          <p>We were unable to process your payment. Please update your payment details to continue using AiRingDesk.</p>
+          <a href="https://airingdesk.com/dashboard" style="display:inline-block;background:#00d4ff;color:#020408;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700">Update payment details →</a>
+        </div>
+      `).catch(e => console.error('Payment failed email error:', e.message));
+    }
+  }
+
+  if (event.type === "invoice.payment_succeeded") {
+    // Trial ended and first payment succeeded - activate full plan
+    const invoice = event.data.object;
+    if (invoice.billing_reason === "subscription_cycle" || invoice.billing_reason === "subscription_update") {
+      const sub = db.prepare("SELECT * FROM clients WHERE stripe_subscription_id = ?").get(invoice.subscription);
+      if (sub && sub.plan_status !== "active") {
+        db.prepare("UPDATE clients SET plan_status = 'active' WHERE id = ?").run(sub.id);
+        console.log(`Payment succeeded - client ${sub.id} plan activated`);
+      }
+    }
+  }
+
+  if (event.type === "customer.subscription.updated") {
+    const subscription = event.data.object;
+    const sub = db.prepare("SELECT * FROM clients WHERE stripe_subscription_id = ?").get(subscription.id);
+    if (sub) {
+      // Update plan status based on subscription status
+      const statusMap = {
+        'active': 'active',
+        'past_due': 'past_due',
+        'canceled': 'cancelled',
+        'trialing': 'trial'
+      };
+      const newStatus = statusMap[subscription.status] || sub.plan_status;
+      db.prepare("UPDATE clients SET plan_status = ? WHERE id = ?").run(newStatus, sub.id);
+      console.log(`Subscription updated for client ${sub.id}: ${subscription.status}`);
+    }
   }
 
   res.json({ received: true });
