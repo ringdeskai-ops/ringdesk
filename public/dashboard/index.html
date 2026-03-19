@@ -1023,7 +1023,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
       <div class="page-header">
         <div>
           <div class="page-title">Referral <em>Programme</em></div>
-          <div class="page-sub">Earn £10/month discount for every business you refer (max £30/month)</div>
+          <div class="page-sub">Earn a one-time £10 discount for every business you refer — unlimited referrals</div>
         </div>
       </div>
 
@@ -1041,7 +1041,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
         <div class="table-card">
           <div class="table-header"><div class="table-title">Your referral link</div></div>
           <div style="padding:20px">
-            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">Share your unique referral link. When someone signs up using your link, you earn <strong style="color:var(--cyan)">£10/month discount</strong> on your plan for every active referral (up to £30/month max).</p>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:16px;line-height:1.6">Share your unique referral link. When someone signs up and completes their first payment, you earn a <strong style="color:var(--cyan)">one-time £10 discount</strong> on your next month's bill. No limit on referrals — every successful referral earns you £10 off.</p>
             <div style="background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:12px 16px;font-size:12px;color:var(--cyan);word-break:break-all;margin-bottom:12px" id="refLinkDisplay">Loading...</div>
             <button onclick="copyRefLink()" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cyan);padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;width:100%">📋 Copy referral link</button>
           </div>
@@ -1082,13 +1082,13 @@ tr:hover td{background:rgba(255,255,255,.015)}
           </div>
           <div style="text-align:center;padding:16px">
             <div style="width:40px;height:40px;border-radius:50%;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:18px">£</div>
-            <div style="font-size:13px;font-weight:600;margin-bottom:6px">You save £10/month</div>
-            <div style="font-size:12px;color:var(--muted)">Per active referral, up to £30/month maximum</div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:6px">You save £10 once</div>
+            <div style="font-size:12px;color:var(--muted)">One-time £10 discount per successful referral, unlimited referrals</div>
           </div>
         </div>
         <div style="padding:0 20px 20px">
           <div style="background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.15);border-radius:8px;padding:12px 16px;font-size:12px;color:var(--muted);line-height:1.6">
-            <strong style="color:var(--text)">Terms & Conditions:</strong> Discount applies to your monthly subscription only. No cash payments. Maximum discount £30/month (3 active referrals). Discount continues as long as referred client remains an active paying customer. AiRingDesk reserves the right to modify or terminate the referral programme with 30 days notice. This programme is governed by English law. For full terms visit <a href="/terms" style="color:var(--cyan)">airingdesk.com/terms</a>.
+            <strong style="color:var(--text)">Terms & Conditions:</strong> One-time £10 discount applied to your next month's bill per successful referral. No cash payments. Unlimited referrals. Discount is earned only after the referred client completes their first full month of paid subscription. No discount is earned if the referred client cancels before their first payment. AiRingDesk reserves the right to modify or terminate the referral programme with 30 days notice. This programme is governed by English law. For full terms visit <a href="/terms" style="color:var(--cyan)">airingdesk.com/terms</a>.
           </div>
         </div>
       </div>
@@ -1141,7 +1141,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
           <div>
             <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:8px">Maximum referrals per client</label>
             <input type="number" id="set_max_referrals" min="1" max="100" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;width:100%;outline:none">
-            <div style="font-size:11px;color:var(--muted);margin-top:4px">How many referrals count towards discount (e.g. 3 = max 3 referrals)</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Maximum referrals per client (0 = unlimited)</div>
           </div>
           <div>
             <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:8px">Qualifying period (days)</label>
@@ -2013,7 +2013,7 @@ async function loadAdminSettings() {
 
   document.getElementById('set_discount_per_referral').value = data.settings.referral_discount_per_referral || '10';
   document.getElementById('set_max_discount').value = data.settings.referral_max_discount || '30';
-  document.getElementById('set_max_referrals').value = data.settings.referral_max_referrals || '3';
+  document.getElementById('set_max_referrals').value = data.settings.referral_max_referrals || '0';
   document.getElementById('set_qualifying_days').value = data.settings.referral_qualifying_days || '30';
   document.getElementById('set_daily_limit').value = data.settings.referral_daily_limit || '10';
 

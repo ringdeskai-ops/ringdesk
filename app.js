@@ -624,7 +624,7 @@ const defaultSettings = [
   ['referral_discount_per_referral', '10'],
   ['referral_max_discount', '30'],
   ['referral_qualifying_days', '30'],
-  ['referral_max_referrals', '3'],
+  ['referral_max_referrals', '0'],
   ['referral_daily_limit', '10'],
 ];
 const insertSetting = db.prepare('INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)');

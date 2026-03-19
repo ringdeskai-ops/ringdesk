@@ -22,7 +22,7 @@ module.exports = function(db, sendBrevoEmail) {
       discountPerReferral: parseInt(s.referral_discount_per_referral || '10'),
       maxDiscount: parseInt(s.referral_max_discount || '30'),
       qualifyingDays: parseInt(s.referral_qualifying_days || '30'),
-      maxReferrals: parseInt(s.referral_max_referrals || '3'),
+      maxReferrals: parseInt(s.referral_max_referrals || '0'),
       dailyLimit: parseInt(s.referral_daily_limit || '10')
     };
   }
@@ -30,8 +30,8 @@ module.exports = function(db, sendBrevoEmail) {
   function updateReferralDiscount(clientId) {
     const { discountPerReferral, maxDiscount, maxReferrals } = getSettings();
     const qualified = db.prepare("SELECT COUNT(*) as c FROM referrals WHERE referrer_id = ? AND qualified = 1").get(clientId);
-    const cappedReferrals = Math.min(qualified.c, maxReferrals);
-    const discount = Math.min(cappedReferrals * discountPerReferral, maxDiscount);
+    const cappedReferrals = maxReferrals > 0 ? Math.min(qualified.c, maxReferrals) : qualified.c;
+    const discount = cappedReferrals * discountPerReferral;
     db.prepare('UPDATE clients SET referral_discount = ? WHERE id = ?').run(discount, clientId);
     return discount;
   }
