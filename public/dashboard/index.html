@@ -389,6 +389,10 @@ tr:hover td{background:rgba(255,255,255,.015)}
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
           Compliance
         </button>
+        <button class="nav-btn" onclick="showPage('setup-guide')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Setup Guide
+        </button>
       </div>
     </nav>
 
@@ -1366,6 +1370,162 @@ tr:hover td{background:rgba(255,255,255,.015)}
       </div>
     </div>
 
+
+    <!-- ── SETUP GUIDE PAGE ── -->
+    <div class="page" id="page-setup-guide">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Client <em>Setup Guide</em></div>
+          <div class="page-sub">Step-by-step guide to get any client live in under 15 minutes</div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header"><div class="table-title">⚡ Quick Setup Timeline</div></div>
+        <div style="padding:20px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+          <div style="text-align:center">
+            <div style="width:48px;height:48px;border-radius:50%;background:rgba(0,212,255,.1);border:2px solid var(--cyan);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:18px;font-weight:700;color:var(--cyan)">1</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">Sign up</div>
+            <div style="font-size:11px;color:var(--muted)">~2 minutes</div>
+          </div>
+          <div style="text-align:center">
+            <div style="width:48px;height:48px;border-radius:50%;background:rgba(255,184,0,.1);border:2px solid var(--amber);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:18px;font-weight:700;color:var(--amber)">2</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">Pick number + pay</div>
+            <div style="font-size:11px;color:var(--muted)">~3 minutes</div>
+          </div>
+          <div style="text-align:center">
+            <div style="width:48px;height:48px;border-radius:50%;background:rgba(0,232,122,.1);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:18px;font-weight:700;color:var(--green)">3</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">AI goes live</div>
+            <div style="font-size:11px;color:var(--muted)">Instant ✅</div>
+          </div>
+          <div style="text-align:center">
+            <div style="width:48px;height:48px;border-radius:50%;background:rgba(0,212,255,.1);border:2px solid var(--cyan);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:18px;font-weight:700;color:var(--cyan)">4</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">Customise AI</div>
+            <div style="font-size:11px;color:var(--muted)">~5 minutes</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step by step for admin -->
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header"><div class="table-title">📋 Admin Manual Setup (for clients who call in)</div></div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:16px">
+
+          <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:10px;padding:16px">
+            <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:8px">Step 1 — Create account</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6">
+              Go to <strong style="color:var(--text)">Admin → Customers → + Add Customer</strong><br>
+              Enter: Business name, email address, temporary password<br>
+              Client will receive a welcome email automatically
+            </div>
+          </div>
+
+          <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:16px">
+            <div style="font-size:13px;font-weight:700;color:var(--amber);margin-bottom:8px">Step 2 — Assign phone number</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6">
+              Go to <strong style="color:var(--text)">Admin → Customers → [Client] → Manage</strong><br>
+              If client hasn't chosen a number: Use Twilio console to purchase a UK number<br>
+              Then update the client's phone_number in the database via Admin panel<br>
+              The number webhook is automatically set to: <code style="color:var(--cyan);background:rgba(0,212,255,.1);padding:2px 6px;border-radius:4px">https://airingdesk.com/voice/incoming</code>
+            </div>
+          </div>
+
+          <div style="background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.15);border-radius:10px;padding:16px">
+            <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">Step 3 — Set AI prompt</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6">
+              Go to <strong style="color:var(--text)">Admin → Customers → [Client] → Manage → AI Settings</strong><br>
+              Or ask the client to log in and go to <strong style="color:var(--text)">AI Settings</strong> in their dashboard<br>
+              Use the prompt template below as a starting point
+            </div>
+          </div>
+
+          <div style="background:rgba(124,58,237,.06);border:1px solid rgba(124,58,237,.15);border-radius:10px;padding:16px">
+            <div style="font-size:13px;font-weight:700;color:#a78bfa;margin-bottom:8px">Step 4 — Test the number</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6">
+              Call the client's number to verify AI answers correctly<br>
+              Check <strong style="color:var(--text)">Call Logs</strong> to confirm the call was recorded<br>
+              Verify the client receives an email notification after the call
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Prompt Templates -->
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header"><div class="table-title">🤖 AI Prompt Templates</div><span style="font-size:12px;color:var(--muted)">Click to copy</span></div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+
+          <div style="border:1px solid var(--border2);border-radius:10px;overflow:hidden">
+            <div style="background:var(--surface2);padding:10px 16px;font-size:12px;font-weight:700;color:var(--cyan);display:flex;justify-content:space-between;align-items:center">
+              General Business
+              <button onclick="copyPrompt('general')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px">Copy</button>
+            </div>
+            <div id="prompt-general" style="padding:12px 16px;font-size:12px;color:var(--muted);line-height:1.7;font-family:monospace">You are [AI Name], the professional AI receptionist for [Business Name]. Answer all calls warmly and professionally. Our business hours are [hours]. If callers need help, take their name, contact number and reason for calling and let them know someone will call back within [timeframe]. For urgent matters, transfer to [transfer number].</div>
+          </div>
+
+          <div style="border:1px solid var(--border2);border-radius:10px;overflow:hidden">
+            <div style="background:var(--surface2);padding:10px 16px;font-size:12px;font-weight:700;color:var(--cyan);display:flex;justify-content:space-between;align-items:center">
+              Dental / Medical Clinic
+              <button onclick="copyPrompt('dental')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px">Copy</button>
+            </div>
+            <div id="prompt-dental" style="padding:12px 16px;font-size:12px;color:var(--muted);line-height:1.7;font-family:monospace">You are [AI Name], the receptionist for [Practice Name]. We are a [dental/medical] practice. For appointment bookings, take the patient's name, date of birth, contact number and preferred appointment time. For emergencies, transfer to [emergency number] immediately. Our opening hours are [hours]. We are located at [address].</div>
+          </div>
+
+          <div style="border:1px solid var(--border2);border-radius:10px;overflow:hidden">
+            <div style="background:var(--surface2);padding:10px 16px;font-size:12px;font-weight:700;color:var(--cyan);display:flex;justify-content:space-between;align-items:center">
+              Trades / Plumbing / Electrical
+              <button onclick="copyPrompt('trades')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px">Copy</button>
+            </div>
+            <div id="prompt-trades" style="padding:12px 16px;font-size:12px;color:var(--muted);line-height:1.7;font-family:monospace">You are [AI Name], the receptionist for [Business Name]. We are [trade] specialists covering [area]. For new enquiries, take the caller's name, address, contact number and description of the job. For emergency callouts, take the same details and mark as urgent — the engineer will call back within [timeframe]. We cover [service area] and our typical response time is [timeframe].</div>
+          </div>
+
+          <div style="border:1px solid var(--border2);border-radius:10px;overflow:hidden">
+            <div style="background:var(--surface2);padding:10px 16px;font-size:12px;font-weight:700;color:var(--cyan);display:flex;justify-content:space-between;align-items:center">
+              Estate Agent / Property
+              <button onclick="copyPrompt('estate')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px">Copy</button>
+            </div>
+            <div id="prompt-estate" style="padding:12px 16px;font-size:12px;color:var(--muted);line-height:1.7;font-family:monospace">You are [AI Name], the receptionist for [Agency Name]. We help people buy, sell and rent properties in [area]. For viewing requests, take the caller's name, contact number, the property they are interested in and preferred viewing times. For valuations, take their name, contact number and property address. Our office hours are [hours].</div>
+          </div>
+
+          <div style="border:1px solid var(--border2);border-radius:10px;overflow:hidden">
+            <div style="background:var(--surface2);padding:10px 16px;font-size:12px;font-weight:700;color:var(--cyan);display:flex;justify-content:space-between;align-items:center">
+              Security / CCTV
+              <button onclick="copyPrompt('security')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px">Copy</button>
+            </div>
+            <div id="prompt-security" style="padding:12px 16px;font-size:12px;color:var(--muted);line-height:1.7;font-family:monospace">You are [AI Name], the receptionist for [Business Name]. We specialise in CCTV installation, alarm systems, access control and intercom systems. We offer a free security survey. For enquiries, take the caller's name, contact number, address and what type of security system they are interested in. For emergency alarm activations, transfer immediately to [number].</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Troubleshooting -->
+      <div class="table-card">
+        <div class="table-header"><div class="table-title">🔧 Troubleshooting</div></div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:10px">
+          <div style="padding:12px 16px;background:var(--surface2);border-radius:8px;font-size:13px">
+            <strong style="color:var(--text)">AI not answering calls?</strong>
+            <span style="color:var(--muted);margin-left:8px">Check Twilio webhook URL is set to https://airingdesk.com/voice/incoming</span>
+          </div>
+          <div style="padding:12px 16px;background:var(--surface2);border-radius:8px;font-size:13px">
+            <strong style="color:var(--text)">AI giving wrong information?</strong>
+            <span style="color:var(--muted);margin-left:8px">Update the AI prompt in Dashboard → AI Settings with more specific business details</span>
+          </div>
+          <div style="padding:12px 16px;background:var(--surface2);border-radius:8px;font-size:13px">
+            <strong style="color:var(--text)">Not receiving email notifications?</strong>
+            <span style="color:var(--muted);margin-left:8px">Check spam folder. Enable notifications in Dashboard → Notifications</span>
+          </div>
+          <div style="padding:12px 16px;background:var(--surface2);border-radius:8px;font-size:13px">
+            <strong style="color:var(--text)">Call transfers not working?</strong>
+            <span style="color:var(--muted);margin-left:8px">Add transfer numbers in Dashboard → AI Settings → Departments section</span>
+          </div>
+          <div style="padding:12px 16px;background:var(--surface2);border-radius:8px;font-size:13px">
+            <strong style="color:var(--text)">AI not understanding caller?</strong>
+            <span style="color:var(--muted);margin-left:8px">Check call logs for transcript. If speech recognition failing, caller may need to speak more clearly or use a better phone signal</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- Call detail panel -->
@@ -2312,6 +2472,15 @@ async function downloadInvoice(e, invoiceId) {
     URL.revokeObjectURL(url);
     showToast('Invoice downloaded!', 'success');
   } catch(err) { showToast('Download failed', 'error'); }
+}
+
+
+function copyPrompt(type) {
+  var el = document.getElementById('prompt-' + type);
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent.trim()).then(function() {
+    showToast('Prompt copied! Paste into AI Settings.', 'success');
+  });
 }
 
 function showToast(msg, type) {
