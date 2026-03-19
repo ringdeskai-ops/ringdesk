@@ -82,7 +82,6 @@ module.exports = function(db, sendBrevoEmail) {
       if (client.referral_programme_enabled === 0) return res.status(403).json({ error: 'Referral programme is disabled for your account' });
       const existing = db.prepare('SELECT id FROM referrals WHERE referrer_id = ? AND referee_email = ?').get(req.client.id, email);
       if (existing) return res.status(400).json({ error: 'Already sent to this email' });
-      const settings = getSettings();
       const today = Math.floor(Date.now()/1000) - 86400;
       const todayCount = db.prepare('SELECT COUNT(*) as c FROM referrals WHERE referrer_id = ? AND sent_at > ?').get(req.client.id, today);
       if (todayCount.c >= settings.dailyLimit) return res.status(400).json({ error: 'Daily limit reached (' + settings.dailyLimit + '/day)' });

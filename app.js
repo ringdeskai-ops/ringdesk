@@ -737,8 +737,22 @@ p{color:#5a7a9a;font-size:15px;line-height:1.7;margin-bottom:8px}
 
 app.get('/billing/cancel', (req, res) => res.redirect('/'));
 
+// Temp invoice preview (remove after testing)
+app.get('/invoice-preview/:id', (req, res) => {
+  const fs = require('fs');
+  const path = '/var/www/vhosts/airingdesk.com/httpdocs/data/invoices/' + req.params.id + '.pdf';
+  if (fs.existsSync(path)) {
+    res.setHeader('Content-Type', 'application/pdf');
+    fs.createReadStream(path).pipe(res);
+  } else {
+    res.status(404).send('Not found');
+  }
+});
+
 app.use("/api/admin", require("./routes/admin")(db));
 app.use("/api/referral", require("./routes/referral")(db, sendBrevoEmail));
+const invoiceRouter = require("./routes/invoice")(db);
+app.use("/api/invoice", invoiceRouter);
 app.use('/dashboard', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
