@@ -381,15 +381,15 @@ tr:hover td{background:rgba(255,255,255,.015)}
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
           Revenue
         </button>
-        <button class="nav-btn" onclick="showPage('admin-settings')">
+        <button class="nav-btn superadmin-only" onclick="showPage('admin-settings')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
           Settings
         </button>
-        <button class="nav-btn" onclick="showPage('compliance')">
+        <button class="nav-btn superadmin-only" onclick="showPage('compliance')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
           Compliance
         </button>
-        <button class="nav-btn" onclick="showPage('setup-guide')">
+        <button class="nav-btn superadmin-only" onclick="showPage('setup-guide')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           Setup Guide
         </button>
@@ -1620,7 +1620,11 @@ async function doLogin() {
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Login failed');
     authToken = d.token;
-    currentUser = { ...d.client, role: d.client.email === 'ringdeskai@gmail.com' ? 'superadmin' : 'client' };
+    // Decode role from JWT
+    try {
+      const payload = JSON.parse(atob(authToken.split('.')[1]));
+      currentUser = { ...d.client, role: payload.role || 'client' };
+    } catch(e) { currentUser = { ...d.client, role: 'client' }; }
     localStorage.setItem('rd_token', authToken);
     localStorage.setItem('rd_user', JSON.stringify(currentUser));
     showDashboard();
@@ -1641,7 +1645,10 @@ async function doSignup() {
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Registration failed');
     authToken = d.token;
-    currentUser = { ...d.client, role: d.client.email === 'ringdeskai@gmail.com' ? 'superadmin' : 'client' };
+    try {
+      const payload = JSON.parse(atob(authToken.split('.')[1]));
+      currentUser = { ...d.client, role: payload.role || 'client' };
+    } catch(e) { currentUser = { ...d.client, role: 'client' }; }
     localStorage.setItem('rd_token', authToken);
     localStorage.setItem('rd_user', JSON.stringify(currentUser));
     showDashboard();
@@ -1666,9 +1673,14 @@ function doLogout() {
 function showDashboard() {
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('dashWrap').classList.add('active');
-  const isAdmin = currentUser?.role === 'superadmin';
+  const isSuperAdmin = currentUser?.role === 'superadmin';
+  const isAdmin = ['superadmin','admin'].includes(currentUser?.role);
   document.getElementById('adminNav').style.display = isAdmin ? 'block' : 'none';
-  document.getElementById('sidebarRole').textContent = isAdmin ? 'Super Admin' : 'Client';
+  document.getElementById('sidebarRole').textContent = isSuperAdmin ? 'Super Admin' : isAdmin ? 'Admin' : 'Client';
+
+  // Hide superadmin-only items from regular admin
+  const superOnly = document.querySelectorAll('.superadmin-only');
+  superOnly.forEach(el => el.style.display = isSuperAdmin ? '' : 'none');
   document.getElementById('sidebarBiz').textContent = currentUser?.business_name || '';
   document.getElementById('overviewName').textContent = currentUser?.business_name || 'there';
   loadProfile();
@@ -1731,7 +1743,7 @@ async function loadProfile() {
   // Billing plans
   renderBillingPlans(profile.plan);
   // Admin
-  if (currentUser?.role === 'superadmin') {
+  if (['superadmin','admin'].includes(currentUser?.role)) {
     loadCustomers();
     loadRevenue();
   }

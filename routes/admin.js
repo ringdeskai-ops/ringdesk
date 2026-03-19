@@ -8,7 +8,19 @@ function superAdminRequired(req, res, next) {
   try {
     const token = auth.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.email !== 'ringdeskai@gmail.com') return res.status(403).json({ error: 'Forbidden' });
+    if (decoded.role !== 'superadmin') return res.status(403).json({ error: 'Forbidden' });
+    req.client = decoded;
+    next();
+  } catch(e) { res.status(401).json({ error: 'Invalid token' }); }
+}
+
+function adminRequired(req, res, next) {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const token = auth.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!['superadmin','admin'].includes(decoded.role)) return res.status(403).json({ error: 'Forbidden' });
     req.client = decoded;
     next();
   } catch(e) { res.status(401).json({ error: 'Invalid token' }); }
@@ -16,26 +28,26 @@ function superAdminRequired(req, res, next) {
 
 module.exports = function(db) {
 
-  router.get('/customers', superAdminRequired, (req, res) => {
+  router.get('/customers', adminRequired, (req, res) => {
     const customers = db.prepare('SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, calls_this_month, call_limit, email_notifications, stripe_customer_id, stripe_subscription_id, created_at FROM clients ORDER BY created_at ASC').all();
     customers.forEach((c, i) => c.customer_number = 'RD-' + String(i+1).padStart(3,'0'));
     res.json({ customers });
   });
 
-  router.get('/customer-calls/:clientId', superAdminRequired, (req, res) => {
+  router.get('/customer-calls/:clientId', adminRequired, (req, res) => {
     const calls = db.prepare('SELECT * FROM calls WHERE client_id = ? ORDER BY started_at DESC LIMIT 20').all(req.params.clientId);
     calls.forEach(c => { try { c.transcript = JSON.parse(c.transcript || '[]'); } catch { c.transcript = []; } });
     res.json({ calls });
   });
 
-  router.post('/toggle', superAdminRequired, (req, res) => {
+  router.post('/toggle', adminRequired, (req, res) => {
     const { client_id, feature, value } = req.body;
     if (!['email_notifications'].includes(feature)) return res.status(400).json({ error: 'Invalid feature' });
     db.prepare('UPDATE clients SET ' + feature + ' = ? WHERE id = ?').run(value, client_id);
     res.json({ success: true });
   });
 
-  router.post('/set-status', superAdminRequired, (req, res) => {
+  router.post('/set-status', adminRequired, (req, res) => {
     const { client_id, plan_status } = req.body;
     if (!['active','cancelled','past_due','trial'].includes(plan_status)) return res.status(400).json({ error: 'Invalid status' });
     db.prepare('UPDATE clients SET plan_status = ? WHERE id = ?').run(plan_status, client_id);
@@ -43,7 +55,7 @@ module.exports = function(db) {
     res.json({ success: true });
   });
 
-  router.post('/set-plan', superAdminRequired, (req, res) => {
+  router.post('/set-plan', adminRequired, (req, res) => {
     const { client_id, plan, call_limit } = req.body;
     if (!['trial','starter','professional','business'].includes(plan)) return res.status(400).json({ error: 'Invalid plan' });
     const limits = { trial:50, starter:300, professional:1000, business:99999 };
@@ -53,7 +65,7 @@ module.exports = function(db) {
     res.json({ success: true });
   });
 
-  router.get('/invoices/:clientId', superAdminRequired, async (req, res) => {
+  router.get('/invoices/:clientId', adminRequired, async (req, res) => {
     try {
       const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.params.clientId);
       if (!client || !client.stripe_customer_id) return res.json({ invoices: [] });
@@ -74,7 +86,7 @@ module.exports = function(db) {
     }
   });
 
-  router.get('/revenue', superAdminRequired, (req, res) => {
+  router.get('/revenue', adminRequired, (req, res) => {
     const clients = db.prepare('SELECT plan, plan_status FROM clients').all();
     const planRevenue = { trial:0, starter:49, professional:149, business:349 };
     const mrr = clients.reduce((s,c) => s + (c.plan_status === 'active' ? (planRevenue[c.plan]||0) : 0), 0);
@@ -90,7 +102,7 @@ module.exports = function(db) {
 
 
   // ── Create new customer (admin)
-  router.post('/create-customer', superAdminRequired, async (req, res) => {
+  router.post('/create-customer', adminRequired, async (req, res) => {
     const { business_name, email, password, plan } = req.body;
     if (!business_name || !email || !password) return res.status(400).json({ error: 'All fields required' });
     const existing = db.prepare('SELECT id FROM clients WHERE email = ?').get(email);
@@ -111,7 +123,7 @@ module.exports = function(db) {
   });
 
   // ── Admin provision number for a customer
-  router.post('/provision-number', superAdminRequired, async (req, res) => {
+  router.post('/provision-number', adminRequired, async (req, res) => {
     const { client_id, phone_number } = req.body;
     if (!client_id || !phone_number) return res.status(400).json({ error: 'client_id and phone_number required' });
     const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(client_id);
@@ -157,7 +169,7 @@ module.exports = function(db) {
   });
 
   // ── Admin update client AI settings
-  router.post('/update-ai-settings', superAdminRequired, (req, res) => {
+  router.post('/update-ai-settings', adminRequired, (req, res) => {
     const { client_id, ai_name, ai_prompt, departments } = req.body;
     if (!client_id) return res.status(400).json({ error: 'client_id required' });
     if (ai_name) db.prepare('UPDATE clients SET ai_name = ? WHERE id = ?').run(ai_name, client_id);
@@ -167,13 +179,22 @@ module.exports = function(db) {
   });
 
   // ── Get referrals for a specific customer
-  router.get('/customer-referrals/:clientId', superAdminRequired, (req, res) => {
+  router.get('/customer-referrals/:clientId', adminRequired, (req, res) => {
     const referrals = db.prepare('SELECT * FROM referrals WHERE referrer_id = ?').all(req.params.clientId);
     const total = referrals.length;
     const active = referrals.filter(r => r.status === 'active').length;
     const qualified = referrals.filter(r => r.qualified === 1).length;
     const pending = referrals.filter(r => r.status === 'pending').length;
     res.json({ total, active, qualified, pending, referrals });
+  });
+
+  // ── Update client role (superadmin only)
+  router.post('/set-role', superAdminRequired, (req, res) => {
+    const { client_id, role } = req.body;
+    if (!['client','admin','superadmin'].includes(role)) return res.status(400).json({ error: 'Invalid role' });
+    db.prepare('UPDATE clients SET role = ? WHERE id = ?').run(role, client_id);
+    console.log('Role updated:', client_id, '->', role);
+    res.json({ success: true });
   });
 
   // ── System settings ──────────────────────────────────────────────
@@ -194,7 +215,7 @@ module.exports = function(db) {
   });
 
   // ── Toggle referral programme per customer ────────────────────────
-  router.post('/toggle-referral', superAdminRequired, (req, res) => {
+  router.post('/toggle-referral', adminRequired, (req, res) => {
     const { client_id, enabled } = req.body;
     db.prepare('UPDATE clients SET referral_programme_enabled = ? WHERE id = ?').run(enabled ? 1 : 0, client_id);
     console.log('Admin toggled referral for client', client_id, ':', enabled);
@@ -202,7 +223,7 @@ module.exports = function(db) {
   });
 
   // ── Extend subscription ───────────────────────────────────────────
-  router.post('/extend-subscription', superAdminRequired, (req, res) => {
+  router.post('/extend-subscription', adminRequired, (req, res) => {
     const { client_id, months } = req.body;
     if (![1,2,3,6,8,12].includes(Number(months))) return res.status(400).json({ error: 'Invalid months' });
     const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(client_id);
@@ -217,7 +238,7 @@ module.exports = function(db) {
   });
 
   // ── Check and qualify referrals (run daily) ───────────────────────
-  router.post('/qualify-referrals', superAdminRequired, (req, res) => {
+  router.post('/qualify-referrals', adminRequired, (req, res) => {
     const qualifyingDays = parseInt(db.prepare("SELECT value FROM system_settings WHERE key = 'referral_qualifying_days'").get()?.value || '30');
     const cutoff = Math.floor(Date.now()/1000) - (qualifyingDays * 24 * 60 * 60);
     // Find referrals that have been qualifying for long enough

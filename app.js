@@ -136,7 +136,7 @@ Keep responses under 40 words — this is a phone call.`;
                 VALUES (?, ?, ?, ?, ?, ?)`
     ).run(id, business_name, email, password_hash, stripeCustomerId, defaultPrompt);
 
-    const token = jwt.sign({ id, email, business_name }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign({ id, email, business_name, role: "client" }, process.env.JWT_SECRET, { expiresIn: "7d" });
     res.json({ token, client: { id, business_name, email, plan: "trial" } });
   sendWelcomeEmail(business_name, email);
   } catch (err) {
@@ -155,7 +155,7 @@ app.post("/api/auth/login", async (req, res) => {
   if (!valid) return res.status(401).json({ error: "Invalid credentials" });
 
   const token = jwt.sign(
-    { id: client.id, email: client.email, business_name: client.business_name },
+    { id: client.id, email: client.email, business_name: client.business_name, role: client.role || "client" },
     process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
@@ -659,6 +659,9 @@ try {
   db.exec('ALTER TABLE clients ADD COLUMN subscription_ends_at INTEGER');
   db.exec('ALTER TABLE clients ADD COLUMN referral_programme_enabled INTEGER DEFAULT 1');
 } catch(e) {}
+try { db.exec("ALTER TABLE clients ADD COLUMN role TEXT DEFAULT 'client'"); } catch(e) {}
+// Set superadmin role
+db.prepare("UPDATE clients SET role = 'superadmin' WHERE email = 'ringdeskai@gmail.com'").run();
 try {
   db.exec('ALTER TABLE referrals ADD COLUMN qualifying_since INTEGER');
   db.exec('ALTER TABLE referrals ADD COLUMN qualified INTEGER DEFAULT 0');
