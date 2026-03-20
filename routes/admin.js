@@ -208,14 +208,28 @@ module.exports = function(db, sendBrevoEmail) {
     const id = uuidv4();
     const hash = await bcrypt.hash(password, 10);
     const referralCode = 'ARD' + Math.random().toString(36).substr(2,6).toUpperCase();
-    const customerNumber = 'RD-' + String(db.prepare('SELECT COUNT(*) as c FROM clients').get().c + 1).padStart(3,'0');
+    const finalRole = role || 'client';
     const planLimits = { trial: 50, starter: 300, professional: 1000, business: 999999 };
     const selectedPlan = plan || 'trial';
-    db.prepare(`INSERT INTO clients (id, business_name, email, password, plan, plan_status, call_limit, calls_this_month, email_notifications, referral_code, created_at)
-      VALUES (?, ?, ?, ?, ?, 'trial', ?, 0, 1, ?, strftime('%s','now'))`)
-      .run(id, business_name, email, hash, selectedPlan, planLimits[selectedPlan] || 50, referralCode);
-    console.log('Admin created customer:', email);
-    res.json({ success: true, id, customerNumber, email });
+
+    // Auto-generate ARD or ADM number
+    let assignedCustomerNumber = null;
+    let assignedAdminNumber = null;
+    if (finalRole === 'client') {
+      const lastCust = db.prepare("SELECT customer_number FROM clients WHERE role='client' AND customer_number IS NOT NULL ORDER BY created_at DESC LIMIT 1").get();
+      const nextNum = lastCust ? (parseInt(lastCust.customer_number.replace('ARD-',''))||0)+1 : 1;
+      assignedCustomerNumber = 'ARD-' + String(nextNum).padStart(5,'0');
+    } else {
+      const lastAdmin = db.prepare("SELECT admin_number FROM clients WHERE role IN ('admin','superadmin') AND admin_number IS NOT NULL ORDER BY created_at DESC LIMIT 1").get();
+      const nextNum = lastAdmin ? (parseInt(lastAdmin.admin_number.replace('ADM-',''))||0)+1 : 1;
+      assignedAdminNumber = 'ADM-' + String(nextNum).padStart(3,'0');
+    }
+
+    db.prepare(`INSERT INTO clients (id, business_name, email, password_hash, plan, plan_status, call_limit, calls_this_month, email_notifications, referral_code, role, customer_number, admin_number, admin_active, created_at) VALUES (?, ?, ?, ?, ?, 'trial', ?, 0, 1, ?, ?, ?, ?, 1, strftime('%s','now'))`)
+      .run(id, business_name, email, hash, selectedPlan, planLimits[selectedPlan]||50, referralCode, finalRole, assignedCustomerNumber, assignedAdminNumber);
+
+    console.log('Admin created:', finalRole, email, assignedCustomerNumber || assignedAdminNumber);
+    res.json({ success: true, id, customerNumber: assignedCustomerNumber, adminNumber: assignedAdminNumber, email });
   });
 
   // ── Admin provision number for a customer

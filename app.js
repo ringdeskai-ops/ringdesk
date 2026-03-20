@@ -119,6 +119,11 @@ app.post("/api/auth/register", async (req, res) => {
   const password_hash = await bcrypt.hash(password, 12);
 
   // Create Stripe customer
+  // Generate ARD customer number
+  const lastCust = db.prepare("SELECT customer_number FROM clients WHERE role = 'client' AND customer_number IS NOT NULL ORDER BY created_at DESC LIMIT 1").get();
+  const custNextNum = lastCust && lastCust.customer_number ? (parseInt(lastCust.customer_number.replace('ARD-','')) || 0) + 1 : 1;
+  const customerNumber = 'ARD-' + String(custNextNum).padStart(5, '0');
+
   let stripeCustomerId = null;
   try {
     const customer = stripe ? await stripe.customers.create({ email, name: business_name }) : { id: null };
@@ -132,9 +137,8 @@ Answer general enquiries, take messages, and transfer to the right team when nee
 Keep responses under 40 words — this is a phone call.`;
 
   try {
-    db.prepare(`INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt)
-                VALUES (?, ?, ?, ?, ?, ?)`
-    ).run(id, business_name, email, password_hash, stripeCustomerId, defaultPrompt);
+    db.prepare('INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role) VALUES (?, ?, ?, ?, ?, ?, ?, \'client\')')
+      .run(id, business_name, email, password_hash, stripeCustomerId, defaultPrompt, customerNumber);
 
     const token = jwt.sign({ id, email, business_name, role: "client" }, process.env.JWT_SECRET, { expiresIn: "7d" });
     res.json({ token, client: { id, business_name, email, plan: "trial" } });

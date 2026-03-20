@@ -331,6 +331,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
         </div>
       </a>
       <div class="sidebar-role" id="sidebarRole">Client</div>
+      <div style="font-size:10px;color:var(--muted);margin-top:2px" id="sidebarNum"></div>
       <div class="sidebar-biz" id="sidebarBiz">Loading...</div>
     </div>
 
@@ -1797,6 +1798,12 @@ function showDashboard() {
   const isAdmin = ['superadmin','admin'].includes(currentUser?.role);
   document.getElementById('adminNav').style.display = isAdmin ? 'block' : 'none';
   document.getElementById('sidebarRole').textContent = isSuperAdmin ? 'Super Admin' : isAdmin ? 'Admin' : 'Client';
+  // Show admin/customer number in sidebar
+  var sidebarNum = document.getElementById('sidebarNum');
+  if (sidebarNum) {
+    if (isAdmin) sidebarNum.textContent = currentUser.admin_number || '';
+    else sidebarNum.textContent = currentUser.customer_number || '';
+  }
 
   // Hide superadmin-only items from regular admin
   const superOnly = document.querySelectorAll('.superadmin-only');
@@ -2195,7 +2202,7 @@ async function openCustomerDetail(clientId) {
   if (provBtn) provBtn.style.display = customer.phone_number ? 'none' : 'inline-block';
   if (aiBtn) aiBtn.style.display = 'inline-block';
   document.getElementById('dPhone').textContent = customer.phone_number || '—';
-  document.getElementById('dCustomerNumber').textContent = customer.customer_number || '—';
+  document.getElementById('dCustomerNumber').textContent = customer.customer_number || customer.admin_number || '—';
   document.getElementById('dContactName').textContent = (customer.contact_name && customer.contact_surname) ? customer.contact_name + ' ' + customer.contact_surname : customer.contact_name || '—';
   document.getElementById('dWorkPhone').textContent = customer.work_phone || '—';
   document.getElementById('dMobilePhone').textContent = customer.mobile_phone || '—';
