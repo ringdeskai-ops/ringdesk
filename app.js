@@ -1,3 +1,6 @@
+// © 2026 AiRingDesk, a trading name of SatFocus Ltd. All rights reserved.
+// Registered in England & Wales. Unauthorised copying or distribution is strictly prohibited.
+
 /**
  * RingDesk — Multi-Tenant AI Receptionist Server
  * One server, unlimited clients. Each client has:
