@@ -100,6 +100,7 @@ const PLAN_LIMITS = {
 };
 
 const STRIPE_PRICE_IDS = {
+  essential:    process.env.STRIPE_PRICE_ESSENTIAL,
   starter:      process.env.STRIPE_PRICE_STARTER,
   professional: process.env.STRIPE_PRICE_PROFESSIONAL,
   business:     process.env.STRIPE_PRICE_BUSINESS,
@@ -243,7 +244,7 @@ app.post("/api/billing/checkout", authRequired, async (req, res) => {
   const session = await stripe.checkout.sessions.create({
     customer: client.stripe_customer_id,
     mode: "subscription",
-    subscription_data: { trial_period_days: 14 },
+    subscription_data: { trial_period_days: 7 },
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${process.env.DASHBOARD_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,

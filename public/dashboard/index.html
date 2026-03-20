@@ -968,6 +968,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
             <div style="display:flex;gap:8px">
               <select id="planChangeSelect" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:6px 10px;border-radius:8px;font-size:12px">
                 <option value="trial">Trial</option>
+                <option value="essential">Essential £29</option>
                 <option value="starter">Starter £49</option>
                 <option value="professional">Professional £149</option>
                 <option value="business">Business £349</option>
@@ -1186,7 +1187,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
           <div style="text-align:center;padding:16px">
             <div style="width:40px;height:40px;border-radius:50%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:18px">2</div>
             <div style="font-size:13px;font-weight:600;margin-bottom:6px">They sign up</div>
-            <div style="font-size:12px;color:var(--muted)">Your contact starts their 14-day free trial</div>
+            <div style="font-size:12px;color:var(--muted)">Your contact starts their 7-day free trial</div>
           </div>
           <div style="text-align:center;padding:16px">
             <div style="width:40px;height:40px;border-radius:50%;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:18px">3</div>
@@ -1340,7 +1341,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
         <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
           <div style="background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.15);border-radius:10px;padding:16px">
             <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">14-Day Free Trial Protection</div>
-            <div style="font-size:13px;color:var(--muted);line-height:1.7">All new subscriptions include a 14-day free trial. No payment is taken during this period. By proceeding with payment, the customer acknowledges the service has begun and waives their 14-day cooling-off right under Regulation 36(1) of the Consumer Contracts Regulations 2013.</div>
+            <div style="font-size:13px;color:var(--muted);line-height:1.7">All new subscriptions include a 7-day free trial. No payment is taken during this period. By proceeding with payment, the customer acknowledges the service has begun and waives their 14-day cooling-off right under Regulation 36(1) of the Consumer Contracts Regulations 2013.</div>
           </div>
           <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:10px;padding:16px">
             <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:8px">When to Issue Refunds ✅</div>
@@ -1354,7 +1355,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
           <div style="background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.15);border-radius:10px;padding:16px">
             <div style="font-size:13px;font-weight:700;color:var(--red);margin-bottom:8px">When NOT to Issue Refunds ❌</div>
             <div style="font-size:13px;color:var(--muted);line-height:1.7">
-              • Change of mind after 14-day free trial has been used<br>
+              • Change of mind after 7-day free trial has been used<br>
               • Failure to use the service during the billing period<br>
               • Issues caused by third-party services (e.g. Twilio outages)<br>
               • Accounts suspended due to breach of Terms
@@ -2952,7 +2953,7 @@ function shareReferralWhatsApp() {
   if (!link || link === 'Loading...') { showToast('Referral link not loaded yet', 'error'); return; }
   var msg = encodeURIComponent(
     'Hi! I use AiRingDesk for my business - it answers all my calls with AI, 24/7. ' +
-    'You get a 14-day free trial and I earn a £10 discount when you subscribe. ' +
+    'You get a 7-day free trial and I earn a £10 discount when you subscribe. ' +
     'Sign up here: ' + link
   );
   window.open('https://wa.me/?text=' + msg, '_blank');
@@ -3105,6 +3106,7 @@ function showToast(msg, type) {
             <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">PLAN</label>
             <select id="newPlan" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;outline:none">
               <option value="trial">Free Trial (14 days)</option>
+              <option value="essential">Essential — £29/month</option>
               <option value="starter">Starter — £49/month</option>
               <option value="professional">Professional — £149/month</option>
               <option value="business">Business — £349/month</option>
