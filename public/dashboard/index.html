@@ -655,7 +655,21 @@ tr:hover td{background:rgba(255,255,255,.015)}
         <div class="stat-card" style="--c:rgba(0,232,122,.3)"><div class="stat-val" id="leadsConverted" style="color:var(--green)">—</div><div class="stat-label">Converted</div></div>
         <div class="stat-card"><div class="stat-val" id="leadsTotal" style="color:var(--text)">—</div><div class="stat-label">Total leads</div></div>
       </div>
-      <div class="table-card">
+              <!-- Website enquiries table -->
+        <div class="table-card" style="margin-bottom:20px">
+          <div class="table-header">
+            <div class="table-title">🎯 Website Enquiries</div>
+            <button onclick="loadWebsiteLeads()" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600">🔄 Refresh</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr><th>Date</th><th>Business</th><th>Contact</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="websiteLeadsBody"><tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted)">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="table-card">
         <div class="table-header"><div class="table-title">All leads</div></div>
         <div style="overflow-x:auto">
           <table>
@@ -2447,7 +2461,7 @@ function showPage(name) {
   });
   closeDetail();
   if (name === 'calls') renderCalls();
-  if (name === 'leads') renderLeads();
+  if (name === 'leads') { renderLeads(); loadWebsiteLeads(); }
   if (name === 'customers') loadCustomers();
   if (name === 'subscriptions') { loadCustomers(); }
   if (name === 'revenue') loadRevenue();

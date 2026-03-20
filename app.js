@@ -683,6 +683,20 @@ try {
   db.exec('ALTER TABLE clients ADD COLUMN referral_programme_enabled INTEGER DEFAULT 1');
 } catch(e) {}
 try { db.exec("ALTER TABLE clients ADD COLUMN role TEXT DEFAULT 'client'"); } catch(e) {}
+// Leads table
+db.exec(`CREATE TABLE IF NOT EXISTS leads (
+  id TEXT PRIMARY KEY,
+  business_name TEXT,
+  first_name TEXT,
+  last_name TEXT,
+  email TEXT,
+  phone TEXT,
+  industry TEXT,
+  message TEXT,
+  status TEXT DEFAULT 'new',
+  source TEXT DEFAULT 'website',
+  created_at INTEGER DEFAULT (strftime('%s','now'))
+)`);
 try { db.exec("ALTER TABLE clients ADD COLUMN admin_permissions TEXT"); } catch(e) {}
 try { db.exec("ALTER TABLE clients ADD COLUMN admin_active INTEGER DEFAULT 1"); } catch(e) {}
 // Set superadmin role
@@ -714,6 +728,92 @@ app.get('/industries/plumbers', (req, res) => res.sendFile(__dirname + '/public/
 app.get('/industries/estate-agents', (req, res) => res.sendFile(__dirname + '/public/industries/estate-agents.html'));
 app.get('/industries/solicitors', (req, res) => res.sendFile(__dirname + '/public/industries/solicitors.html'));
 app.get('/industries/medical', (req, res) => res.sendFile(__dirname + '/public/industries/medical.html'));
+// ── Lead management routes ───────────────────────────────────────────
+app.get('/api/leads', authRequired, (req, res) => {
+  const leads = db.prepare('SELECT * FROM leads ORDER BY created_at DESC').all();
+  res.json({ leads });
+});
+
+app.post('/api/leads/status', authRequired, (req, res) => {
+  const { lead_id, status } = req.body;
+  if (!['new','contacted','converted','lost'].includes(status)) return res.status(400).json({ error: 'Invalid status' });
+  db.prepare('UPDATE leads SET status = ? WHERE id = ?').run(status, lead_id);
+  res.json({ success: true });
+});
+
+// ── Lead capture ─────────────────────────────────────────────────────
+app.post('/api/leads/submit', async (req, res) => {
+  const { business_name, first_name, last_name, email, phone, industry, message } = req.body;
+  if (!business_name || !first_name || !email || !phone) {
+    return res.status(400).json({ error: 'Required fields missing' });
+  }
+  try {
+    const { v4: uuidv4 } = require('uuid');
+    const id = uuidv4();
+    db.prepare(`INSERT INTO leads (id, business_name, first_name, last_name, email, phone, industry, message)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`).run(id, business_name, first_name, last_name||'', email, phone, industry||'', message||'');
+
+    // Send notification to admin
+    const adminHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:580px;margin:0 auto;background:#060912;color:#f0f4f8;padding:0;border-radius:16px;overflow:hidden;border:1px solid #1a2332">'
+      + '<div style="background:#080e18;padding:24px 32px;border-bottom:1px solid #1a2332">'
+      + '<div style="font-size:24px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+      + '</div>'
+      + '<div style="background:rgba(0,212,255,.06);border-bottom:1px solid rgba(0,212,255,.15);padding:16px 32px;display:flex;align-items:center;gap:12px">'
+      + '<div style="width:36px;height:36px;border-radius:50%;background:rgba(0,212,255,.1);border:2px solid rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;font-size:16px">🎯</div>'
+      + '<div><div style="font-size:16px;font-weight:700">New Lead!</div><div style="font-size:12px;color:#5a7a9a">Website enquiry · ' + new Date().toLocaleString('en-GB',{timeZone:'Europe/London'}) + '</div></div>'
+      + '</div>'
+      + '<div style="padding:24px 32px">'
+      + '<div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin-bottom:20px">'
+      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'
+      + '<div><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:4px">Business</div><div style="font-size:14px;font-weight:600;color:#f0f4f8">' + business_name + '</div></div>'
+      + '<div><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:4px">Contact</div><div style="font-size:14px;font-weight:600;color:#f0f4f8">' + first_name + ' ' + (last_name||'') + '</div></div>'
+      + '<div><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:4px">Email</div><div style="font-size:14px;color:#00d4ff">' + email + '</div></div>'
+      + '<div><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:4px">Phone</div><div style="font-size:14px;color:#f0f4f8">' + phone + '</div></div>'
+      + '<div><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:4px">Industry</div><div style="font-size:14px;color:#f0f4f8">' + (industry||'Not specified') + '</div></div>'
+      + '</div>'
+      + (message ? '<div style="margin-top:16px;padding-top:16px;border-top:1px solid #1a2332"><div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;margin-bottom:8px">Message</div><div style="font-size:13px;color:#8896a8;line-height:1.6">' + message + '</div></div>' : '')
+      + '</div>'
+      + '<a href="https://airingdesk.com/dashboard" style="display:inline-block;background:#00d4ff;color:#020408;text-decoration:none;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:700">View in dashboard →</a>'
+      + '</div>'
+      + '<div style="background:#080e18;border-top:1px solid #1a2332;padding:16px 32px"><div style="font-size:11px;color:#3d4f63">AiRingDesk · Lead Notification</div></div>'
+      + '</div>';
+
+    await sendBrevoEmail(process.env.NOTIFY_EMAIL, '🎯 New Lead: ' + business_name + ' — ' + first_name, adminHtml);
+
+    // Send confirmation to lead
+    const confirmHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:580px;margin:0 auto;background:#060912;color:#f0f4f8;padding:0;border-radius:16px;overflow:hidden;border:1px solid #1a2332">'
+      + '<div style="background:#080e18;padding:24px 32px;border-bottom:1px solid #1a2332">'
+      + '<div style="font-size:24px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+      + '</div>'
+      + '<div style="padding:28px 32px">'
+      + '<h2 style="font-size:22px;font-weight:700;margin-bottom:12px">Thanks for getting in touch, ' + first_name + '! 👋</h2>'
+      + '<p style="color:#8896a8;line-height:1.8;margin-bottom:20px">We have received your enquiry for <strong style="color:#f0f4f8">' + business_name + '</strong> and our team will call you back within 1 business hour.</p>'
+      + '<div style="background:#0d1117;border:1px solid rgba(0,212,255,.2);border-radius:12px;padding:20px;margin-bottom:24px">'
+      + '<div style="font-size:11px;color:#00d4ff;text-transform:uppercase;font-weight:700;letter-spacing:.06em;margin-bottom:12px">What happens next</div>'
+      + '<div style="font-size:13px;color:#8896a8;line-height:1.8">'
+      + '&#10003; Our team will call you back within 1 business hour<br>'
+      + '&#10003; We will set up your AI receptionist in under 30 minutes<br>'
+      + '&#10003; You will start your 14-day free trial immediately<br>'
+      + '&#10003; No contracts, cancel anytime'
+      + '</div></div>'
+      + '<p style="color:#5a7a9a;font-size:13px;margin-bottom:24px">In the meantime, you can <a href="https://airingdesk.com/dashboard" style="color:#00d4ff">create your account</a> and explore the dashboard.</p>'
+      + '<a href="https://airingdesk.com" style="display:inline-block;background:#00d4ff;color:#020408;text-decoration:none;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:700">Visit airingdesk.com →</a>'
+      + '</div>'
+      + '<div style="background:#080e18;border-top:1px solid #1a2332;padding:16px 32px;display:flex;justify-content:space-between">'
+      + '<div style="font-size:11px;color:#3d4f63">AiRingDesk · hello@airingdesk.com</div>'
+      + '<a href="https://airingdesk.com" style="font-size:11px;color:#5a7a9a;text-decoration:none">airingdesk.com</a>'
+      + '</div></div>';
+
+    await sendBrevoEmail(email, 'Thanks for your enquiry — AiRingDesk will call you shortly!', confirmHtml);
+
+    console.log('New lead saved:', business_name, email);
+    res.json({ success: true });
+  } catch(e) {
+    console.error('Lead submit error:', e.message);
+    res.status(500).json({ error: 'Failed to submit enquiry' });
+  }
+});
+
 app.get('/signup', (req, res) => {
   const ref = req.query.ref || '';
   const plan = req.query.plan || 'starter';

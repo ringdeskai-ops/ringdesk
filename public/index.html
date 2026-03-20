@@ -1098,6 +1098,107 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 </section>
 
 <!-- FOOTER -->
+
+<!-- LEAD CAPTURE SECTION -->
+<section id="contact" style="background:var(--surface);padding:80px clamp(20px,5vw,60px)">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center">
+
+      <!-- Left: Copy -->
+      <div class="reveal">
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:100px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);margin-bottom:24px">
+          📞 Get in touch
+        </div>
+        <h2 style="font-size:clamp(28px,4vw,42px);font-weight:800;line-height:1.15;margin-bottom:16px">Ready to never miss<br><em style="font-family:'Instrument Serif',serif;color:var(--cyan);font-style:italic">a call again?</em></h2>
+        <p style="font-size:16px;color:var(--muted);line-height:1.7;margin-bottom:32px">Leave your details and we'll get your AI receptionist set up within 30 minutes. No tech skills needed.</p>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">✅</div>
+            <span style="font-size:14px;color:var(--muted)">14-day free trial — no card required</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">⚡</div>
+            <span style="font-size:14px;color:var(--muted)">Live in under 30 minutes</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">🇬🇧</div>
+            <span style="font-size:14px;color:var(--muted)">UK-based support team</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">❌</div>
+            <span style="font-size:14px;color:var(--muted)">Cancel anytime, no long contracts</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Form -->
+      <div class="reveal" style="background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:36px">
+        <h3 style="font-size:20px;font-weight:700;margin-bottom:6px">Get a free consultation</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:24px">We'll call you back within 1 business hour</p>
+
+        <div id="leadFormWrap">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Business Name *</label>
+              <input id="leadBiz" type="text" placeholder="e.g. Thornton Plumbing" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;transition:border .2s;font-family:inherit" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border2)'">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">First Name *</label>
+                <input id="leadFirst" type="text" placeholder="John" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;font-family:inherit" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border2)'">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Last Name</label>
+                <input id="leadLast" type="text" placeholder="Smith" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;font-family:inherit" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border2)'">
+              </div>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Email Address *</label>
+              <input id="leadEmail" type="email" placeholder="john@yourbusiness.com" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;font-family:inherit" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border2)'">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Phone Number *</label>
+              <input id="leadPhone" type="tel" placeholder="+44 7700 900000" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;font-family:inherit" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border2)'">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Industry</label>
+              <select id="leadIndustry" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;font-family:inherit;appearance:none">
+                <option value="">Select your industry...</option>
+                <option>Plumbing & Heating</option>
+                <option>Electrical</option>
+                <option>Dental Practice</option>
+                <option>Medical / GP</option>
+                <option>Estate Agent</option>
+                <option>Solicitor / Legal</option>
+                <option>Security / CCTV</option>
+                <option>Accountancy</option>
+                <option>Construction</option>
+                <option>Retail</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Message (optional)</label>
+              <textarea id="leadMessage" rows="3" placeholder="Tell us about your business and how many calls you receive..." style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;font-family:inherit;resize:vertical" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border2)'"></textarea>
+            </div>
+            <div id="leadError" style="display:none;background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);border-radius:8px;padding:10px;font-size:13px;color:#ff4466"></div>
+            <button onclick="submitLead()" id="leadBtn" class="btn btn-cyan" style="width:100%;padding:14px;font-size:15px;font-weight:700;border-radius:10px;border:none;cursor:pointer">
+              Get my free consultation →
+            </button>
+            <p style="font-size:11px;color:var(--dim);text-align:center">No spam. We'll only contact you about AiRingDesk. <a href="/privacy" style="color:var(--muted)">Privacy Policy</a></p>
+          </div>
+        </div>
+
+        <div id="leadSuccess" style="display:none;text-align:center;padding:20px 0">
+          <div style="font-size:48px;margin-bottom:16px">🎉</div>
+          <h3 style="font-size:20px;font-weight:700;margin-bottom:8px">Thank you!</h3>
+          <p style="color:var(--muted);font-size:14px;line-height:1.7">We've received your enquiry and will call you back within 1 business hour. Check your email for confirmation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div style="max-width:1200px;margin:0 auto;width:100%">
     <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;padding-bottom:40px;border-bottom:1px solid var(--border)">
@@ -1248,6 +1349,51 @@ if(localStorage.getItem('cookieConsent')){
 }
 
 // Scroll reveal
+
+async function submitLead() {
+  var biz = document.getElementById('leadBiz').value.trim();
+  var first = document.getElementById('leadFirst').value.trim();
+  var email = document.getElementById('leadEmail').value.trim();
+  var phone = document.getElementById('leadPhone').value.trim();
+  var last = document.getElementById('leadLast').value.trim();
+  var industry = document.getElementById('leadIndustry').value;
+  var message = document.getElementById('leadMessage').value.trim();
+  var errEl = document.getElementById('leadError');
+  var btn = document.getElementById('leadBtn');
+
+  errEl.style.display = 'none';
+  if (!biz || !first || !email || !phone) {
+    errEl.textContent = 'Please fill in all required fields.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (!email.includes('@')) {
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  try {
+    var resp = await fetch('/api/leads/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ business_name: biz, first_name: first, last_name: last, email, phone, industry, message })
+    });
+    var data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Failed');
+    document.getElementById('leadFormWrap').style.display = 'none';
+    document.getElementById('leadSuccess').style.display = 'block';
+  } catch(e) {
+    errEl.textContent = e.message || 'Something went wrong. Please try again.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Get my free consultation →';
+  }
+}
+
 const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')})},{threshold:.1});
 document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
 
