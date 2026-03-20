@@ -184,7 +184,7 @@ h2 em{font-style:italic;color:var(--cyan)}
 
 /* PRICING */
 #pricing{text-align:center}
-.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;max-width:960px;margin:0 auto}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;max-width:1100px;margin:0 auto}
 .plan{padding:36px 28px;border-radius:20px;border:1px solid var(--border);background:var(--surface);text-align:left;position:relative;transition:transform .3s,box-shadow .3s}
 .plan:hover{transform:translateY(-4px);box-shadow:0 30px 60px rgba(0,0,0,.4)}
 .plan.pop{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.04)}
@@ -905,32 +905,47 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     <span class="annual-badge">Save 2 months free</span>
   </div>
   <div class="plans reveal">
+    <!-- Essential Plan -->
     <div class="plan">
-      <!-- Essential Plan -->
-      <div style="background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:32px;display:flex;flex-direction:column">
-        <div class="plan-name">Essential</div>
-        <div style="margin:20px 0 8px">
-          <span style="font-size:42px;font-weight:800;letter-spacing:-2px">£29</span>
-          <span style="font-size:15px;color:var(--muted)">/month</span>
-        </div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:24px">Perfect for small businesses & sole traders</div>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:28px;flex:1">
-          <div style="display:flex;align-items:center;gap:10px;font-size:14px"><span style="color:var(--cyan)">✓</span> 150 calls/month</div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:14px"><span style="color:var(--cyan)">✓</span> AI receptionist (Amy)</div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:14px"><span style="color:var(--cyan)">✓</span> Email notifications</div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:14px"><span style="color:var(--cyan)">✓</span> Call transcripts & summaries</div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:14px"><span style="color:var(--cyan)">✓</span> 7-day free trial</div>
-          <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--muted)"><span>✗</span> Call transfers</div>
-        </div>
-        <button onclick="openModal('essential')" class="pcta pcta-g">Get started →</button>
+      <div class="plan-name">Essential</div>
+      <div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="29" data-annual="24">29</span><sub>/mo</sub></div>
+      <div class="price-note" style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px"></div>
+      <div class="plan-calls">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="#00e87a"><circle cx="12" cy="12" r="10"/></svg>
+        150 calls per month
       </div>
+      <div class="plan-feats">
+        <div class="pf">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          1 UK number
+        </div>
+        <div class="pf">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          AI answering 24/7
+        </div>
+        <div class="pf">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Email notifications
+        </div>
+        <div class="pf">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Call transcripts & summaries
+        </div>
+        <div class="pf">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Call transfers
+        </div>
+      </div>
+      <button onclick="openModal('essential')" class="pcta pcta-g">Get started →</button>
+    </div>
 
+    <div class="plan">
       <div class="plan-name">Starter</div>
       <div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="49" data-annual="41">49</span><sub>/mo</sub></div>
       <div class="price-note" style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px"></div>
       <div class="plan-calls">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="#00e87a"><circle cx="12" cy="12" r="10"/></svg>
-        200 calls per month
+        300 calls per month
       </div>
       <div class="plan-feats">
         <div class="pf">
@@ -952,6 +967,10 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
         <div class="pf">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           Call dashboard
+        </div>
+        <div class="pf">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Call transfers
         </div>
       </div>
       <button onclick="openModal('starter')" class="pcta pcta-g">Get started →</button>
