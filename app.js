@@ -414,12 +414,14 @@ Example: "Let me connect you with our team. [TRANSFER:billing]"`;
 }
 
 async function askClaude(client, session, userMessage) {
-  const history = JSON.parse(session.history || "[]");
+  let history = JSON.parse(session.history || "[]");
+  // Keep only last 6 messages to prevent history bloat and timeouts
+  if (history.length > 6) history = history.slice(-6);
   history.push({ role: "user", content: userMessage });
 
   const response = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 100,
+    max_tokens: 80,
     system: buildSystemPrompt(client),
     messages: history,
   });
@@ -479,7 +481,7 @@ app.post("/voice/incoming", async (req, res) => {
     greeting = `Thank you for calling ${client.business_name}. How can I help you today?`;
   }
 
-  const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "3", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
+  const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "5", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
   gather.say({ voice: "Polly.Amy-Neural" }, greeting);
   twiml.redirect("/voice/incoming");
 
@@ -500,14 +502,14 @@ app.post("/voice/speech", async (req, res) => {
   }
 
   if (!SpeechResult || SpeechResult.trim() === "") {
-    const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "3", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
+    const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "5", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
     gather.say({ voice: "Polly.Amy-Neural" }, "I'm sorry, I didn't catch that. Could you say that again?");
     return res.type("text/xml").send(twiml.toString());
   }
 
   try {
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('timeout')), 2500)
+      setTimeout(() => reject(new Error('timeout')), 8000)
     );
     const { reply, transferDept } = await Promise.race([
       askClaude(client, session, SpeechResult),
@@ -519,13 +521,13 @@ app.post("/voice/speech", async (req, res) => {
       twiml.pause({ length: 1 });
       twiml.redirect(`/voice/transfer?dept=${transferDept}&callSid=${CallSid}&clientId=${client.id}`);
     } else {
-      const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "3", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
+      const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "5", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
       gather.say({ voice: "Polly.Amy-Neural" }, reply);
       twiml.redirect("/voice/speech");
     }
   } catch (err) {
     console.error("Claude error:", err.message);
-    const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "3", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
+    const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "5", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
     const msg = err.message === 'timeout' ? "One moment please, let me just check that for you." : "I had a brief issue. Could you repeat that?";
     gather.say({ voice: "Polly.Amy-Neural" }, msg);
   }
