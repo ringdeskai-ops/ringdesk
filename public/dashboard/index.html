@@ -2488,6 +2488,11 @@ async function loadRevenue() {
 }
 function showPage(name) {
   if (name === 'incident-log') openIncidentLog();
+  if (name === 'admin-management') {
+    updateIncidentToggleUI();
+    var c = document.getElementById('incLogToggleCard');
+    if (c) c.style.display = currentUser && currentUser.role === 'superadmin' ? '' : 'none';
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.mob-nav-btn').forEach(b => b.classList.remove('active'));
