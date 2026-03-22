@@ -12,6 +12,14 @@
  */
 
 require("dotenv").config({ path: __dirname + "/.env" });
+
+// Global error handlers to prevent crashes
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err.message, err.stack);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason?.stack || reason);
+});
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -27,10 +35,16 @@ const app = express();
 app.use(express.json());
 
 const VoiceResponse = twilio.twiml.VoiceResponse;
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+const https = require('https');
+const anthropic = new Anthropic({ 
+  apiKey: process.env.ANTHROPIC_API_KEY,
+  httpAgent: new https.Agent({ keepAlive: false })
+});
 
 // ── Database setup (SQLite — swap for Postgres in prod) ───────────────────────
 const db = new Database(process.env.DB_PATH || require("path").join(__dirname, "ringdesk.db"));
+db.pragma("journal_mode = WAL");
+db.pragma("busy_timeout = 5000");
 db.exec(`
   CREATE TABLE IF NOT EXISTS clients (
     id TEXT PRIMARY KEY,
@@ -427,7 +441,7 @@ async function askClaude(client, session, userMessage) {
     max_tokens: 80,
     system: buildSystemPrompt(client),
     messages: history,
-  });
+  }, { timeout: 8000 });
 
   let reply = response.content[0]?.text || "Could you please repeat that?";
   const transferMatch = reply.match(/\[TRANSFER:(\w+)\]/);
@@ -478,7 +492,7 @@ app.post("/voice/incoming", async (req, res) => {
   const aiName = client.ai_name || "Aria";
   const greeting = `Thank you for calling ${client.business_name}. My name is ${aiName}, how can I help you today?`;
 
-  const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "5", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
+  const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB" });
   gather.say({ voice: "Polly.Amy-Neural" }, greeting);
   twiml.redirect("/voice/incoming");
 
@@ -493,157 +507,41 @@ app.post("/voice/speech", async (req, res) => {
   const twiml = new VoiceResponse();
 
   if (!client || !session) {
-    twiml.say("I'm sorry, something went wrong. Please call again.");
+    twiml.say("I am sorry, something went wrong. Please call again.");
     twiml.hangup();
     return res.type("text/xml").send(twiml.toString());
   }
 
   if (!SpeechResult || SpeechResult.trim() === "") {
-    const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "5", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
-    gather.say({ voice: "Polly.Amy-Neural" }, "I'm sorry, I didn't catch that. Could you say that again?");
+    const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB" });
+    gather.say({ voice: "Polly.Amy-Neural" }, "I am sorry, I did not catch that. Could you say that again?");
     return res.type("text/xml").send(twiml.toString());
   }
 
-  // Store pending speech so /voice/reply can pick it up
-  db.prepare("UPDATE call_sessions SET pending_speech = ? WHERE call_sid = ?").run(SpeechResult, CallSid);
-
-  // Respond to Twilio IMMEDIATELY — under 1 second
-  // Play a thinking sound then redirect to /voice/reply which has the Claude response ready
-  twiml.pause({ length: 1 });
-  twiml.redirect(`/voice/reply?callSid=${CallSid}&clientId=${client.id}`);
-  res.type("text/xml").send(twiml.toString());
-
-  // Process Claude in background (non-blocking)
-  askClaude(client, session, SpeechResult).then(({ reply, transferDept }) => {
-    db.prepare("UPDATE call_sessions SET pending_reply = ?, pending_transfer = ?, pending_speech = NULL WHERE call_sid = ?")
-      .run(reply, transferDept || null, CallSid);
-  }).catch(err => {
-    console.error("Claude error:", err.message);
-    db.prepare("UPDATE call_sessions SET pending_reply = ?, pending_speech = NULL WHERE call_sid = ?")
-      .run("One moment please, could you repeat that?", CallSid);
-  });
-});
-
-// Reply route — called after Claude has processed
-app.post("/voice/reply", async (req, res) => {
-  const { callSid, clientId } = req.query;
-  const twiml = new VoiceResponse();
-
-  // Poll for up to 8 seconds for Claude response
-  let reply = null;
-  let transferDept = null;
-  for (let i = 0; i < 16; i++) {
-    const session = db.prepare("SELECT pending_reply, pending_transfer FROM call_sessions WHERE call_sid = ?").get(callSid);
-    if (session && session.pending_reply) {
-      reply = session.pending_reply;
-      transferDept = session.pending_transfer;
-      db.prepare("UPDATE call_sessions SET pending_reply = NULL, pending_transfer = NULL WHERE call_sid = ?").run(callSid);
-      break;
-    }
-    await new Promise(r => setTimeout(r, 500));
-  }
-
-  if (!reply) {
-    reply = "I'm still looking into that. Could you give me just a moment more?";
-    twiml.say({ voice: "Polly.Amy-Neural" }, reply);
-    twiml.redirect(`/voice/reply?callSid=${callSid}&clientId=${clientId}`);
-    return res.type("text/xml").send(twiml.toString());
-  }
-
-  if (transferDept) {
-    twiml.say({ voice: "Polly.Amy-Neural" }, reply);
-    twiml.pause({ length: 1 });
-    twiml.redirect(`/voice/transfer?dept=${transferDept}&callSid=${callSid}&clientId=${clientId}`);
-  } else {
-    const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "5", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
-    gather.say({ voice: "Polly.Amy-Neural" }, reply);
-    twiml.redirect("/voice/speech");
-  }
-
-  res.type("text/xml").send(twiml.toString());
-});
-
-// Transfer
-app.post("/voice/transfer", async (req, res) => {
-  const { dept, callSid, clientId } = req.query;
-  const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(clientId);
-  const session = db.prepare("SELECT * FROM call_sessions WHERE call_sid = ?").get(callSid);
-  const twiml = new VoiceResponse();
-
-  const departments = JSON.parse(client?.departments || "{}");
-  const targetNumber = departments[dept] || departments.general;
-
-  // Generate summary async
-  if (session) {
-    const history = JSON.parse(session.history || "[]");
-    if (history.length > 2) {
-      anthropic.messages.create({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 100,
-        system: "Summarize this call in 2 sentences for a human agent. Include caller name, issue, key details.",
-        messages: [{ role: "user", content: history.map(m => `${m.role === "user" ? "Caller" : "AI"}: ${m.content}`).join("\n") }],
-      }).then(r => {
-        const summary = r.content[0]?.text || "";
-        db.prepare("UPDATE calls SET status = 'transferred', transferred_to = ?, summary = ? WHERE call_sid = ?")
-          .run(dept, summary, callSid);
-      }).catch(() => {});
-    }
-  }
-
-  if (!targetNumber) {
-    twiml.say({ voice: "Polly.Amy-Neural" }, "Our team is unavailable right now. Please leave a message after the tone.");
-    twiml.record({ action: "/voice/voicemail", maxLength: 120, playBeep: true, transcribe: true, transcribeCallback: "/voice/voicemail-transcript" });
-  } else {
-    twiml.say({ voice: "Polly.Amy-Neural" }, `Connecting you now. Please hold.`);
-    twiml.play({ loop: 2 }, "https://demo.twilio.com/docs/classic.mp3");
-    const dial = twiml.dial({ timeout: 25, action: "/voice/transfer-failed" });
-    dial.number(targetNumber);
-  }
-
-  res.type("text/xml").send(twiml.toString());
-});
-
-// Transfer failed → voicemail
-app.post("/voice/transfer-failed", (req, res) => {
-  const twiml = new VoiceResponse();
-  twiml.say({ voice: "Polly.Amy-Neural" }, "No agents are available. Please leave a message and we'll call you back.");
-  twiml.record({ action: "/voice/voicemail", maxLength: 120, playBeep: true, transcribe: true, transcribeCallback: "/voice/voicemail-transcript" });
-  res.type("text/xml").send(twiml.toString());
-});
-
-// Voicemail saved
-app.post("/voice/voicemail", (req, res) => {
-  const { CallSid, RecordingUrl } = req.body;
-  db.prepare("UPDATE calls SET status = 'voicemail', recording_url = ? WHERE call_sid = ?").run(RecordingUrl, CallSid);
-  const twiml = new VoiceResponse();
-  twiml.say({ voice: "Polly.Amy-Neural" }, "Your message has been saved. We'll call you back shortly. Goodbye!");
-  twiml.hangup();
-  res.type("text/xml").send(twiml.toString());
-});
-
-// Voicemail transcript
-app.post("/voice/voicemail-transcript", async (req, res) => {
-  const { CallSid, TranscriptionText } = req.body;
-  db.prepare("UPDATE calls SET summary = ? WHERE call_sid = ?").run(TranscriptionText, CallSid);
-  res.sendStatus(200);
-
-  // Send voicemail transcript email notification
   try {
-    const call = db.prepare("SELECT * FROM calls WHERE call_sid = ?").get(CallSid);
-    const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(call.client_id);
-    const notifyEmail = client.notify_email || client.email;
-    await sendBrevoEmail(
-      notifyEmail,
-      "Voicemail received — " + (client.business_name || "AiRingDesk"),
-      "<h2>New voicemail received</h2>" +
-        "<p><strong>From:</strong> " + (call.caller_number || "Unknown") + "</p>" +
-        "<p><strong>Transcript:</strong></p>" +
-        "<p style='background:#f5f5f5;padding:12px;border-radius:6px'>" + (TranscriptionText || "No transcript available") + "</p>" +
-        "<p>Log in to your dashboard to listen to the full recording.</p>" +
-        "<p><a href='https://airingdesk.com/dashboard'>View in dashboard</a></p>"
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('timeout')), 2500)
     );
-    console.log("Voicemail email sent to", notifyEmail);
-  } catch(e) { console.error("Voicemail email error:", e.message); }
+    const { reply, transferDept } = await Promise.race([
+      askClaude(client, session, SpeechResult),
+      timeoutPromise
+    ]);
+    if (transferDept) {
+      twiml.say({ voice: "Polly.Amy-Neural" }, reply);
+      twiml.pause({ length: 1 });
+      twiml.redirect("/voice/transfer?dept=" + transferDept + "&callSid=" + CallSid + "&clientId=" + client.id);
+    } else {
+      const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB" });
+      gather.say({ voice: "Polly.Amy-Neural" }, reply);
+      twiml.redirect("/voice/speech");
+    }
+  } catch (err) {
+    console.error("Claude error:", err.message);
+    const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB" });
+    gather.say({ voice: "Polly.Amy-Neural" }, "One moment please, could you repeat that?");
+  }
+
+  res.type("text/xml").send(twiml.toString());
 });
 
 // Call status callback
@@ -668,7 +566,7 @@ app.post("/voice/status", async (req, res) => {
           role: 'user',
           content: `Summarise this call clearly in plain text (no markdown, no asterisks). Include: caller name, reason for call, contact details given (phone, email, address, postcode), and what action is needed next. Keep it concise and professional.\n\nTranscript:\n${history.map(m => m.role + ': ' + m.content).join('\n')}`
         }]
-      });
+      }, { timeout: 10000 });
       summary = summaryResp.content[0]?.text || null;
     } catch(e) { console.error('Summary error:', e.message); }
   }
@@ -1075,8 +973,11 @@ async function provisionNumberAfterPayment(clientId, phoneNumber) {
 // ═══════════════════════════════════════════════════════════════════════════════
 // ── Brevo HTTP API email sender ───────────────────────────────────────────────
 async function sendBrevoEmail(to, subject, html) {
+  const controller = new AbortController();
+  const fetchTimeout = setTimeout(() => controller.abort(), 10000);
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
+    signal: controller.signal,
     headers: {
       'accept': 'application/json',
       'api-key': process.env.BREVO_API_KEY,
@@ -1089,6 +990,7 @@ async function sendBrevoEmail(to, subject, html) {
       htmlContent: html,
     }),
   });
+  clearTimeout(fetchTimeout);
   const data = await response.json();
   if (!response.ok) throw new Error(JSON.stringify(data));
   return data;
