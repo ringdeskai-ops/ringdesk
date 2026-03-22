@@ -30,7 +30,7 @@ const VoiceResponse = twilio.twiml.VoiceResponse;
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 // ── Database setup (SQLite — swap for Postgres in prod) ───────────────────────
-const db = new Database("ringdesk.db");
+const db = new Database(process.env.DB_PATH || require("path").join(__dirname, "ringdesk.db"));
 db.exec(`
   CREATE TABLE IF NOT EXISTS clients (
     id TEXT PRIMARY KEY,
@@ -393,7 +393,10 @@ app.post("/stripe-webhook", async (req, res) => {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function getClientByNumber(phoneNumber) {
-  return db.prepare("SELECT * FROM clients WHERE phone_number = ?").get(phoneNumber);
+  if (!phoneNumber) return null;
+  const clean = phoneNumber.trim().replace(/\s+/g, "");
+  const normalised = clean.startsWith("+") ? clean : "+" + clean;
+  return db.prepare("SELECT * FROM clients WHERE phone_number = ? OR phone_number = ?").get(normalised, clean);
 }
 
 function buildSystemPrompt(client) {
@@ -471,15 +474,9 @@ app.post("/voice/incoming", async (req, res) => {
     db.prepare("UPDATE clients SET calls_this_month = calls_this_month + 1 WHERE id = ?").run(client.id);
   }
 
-  // Get greeting from Claude
-  let greeting;
-  try {
-    const session = db.prepare("SELECT * FROM call_sessions WHERE call_sid = ?").get(CallSid);
-    const result = await askClaude(client, session, "[New call connected. Greet the caller warmly, introduce yourself, and ask how you can help. Max 20 words.]");
-    greeting = result.reply;
-  } catch {
-    greeting = `Thank you for calling ${client.business_name}. How can I help you today?`;
-  }
+  // Use instant static greeting — no Claude call on incoming to avoid delays
+  const aiName = client.ai_name || "Aria";
+  const greeting = `Thank you for calling ${client.business_name}. My name is ${aiName}, how can I help you today?`;
 
   const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "5", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
   gather.say({ voice: "Polly.Amy-Neural" }, greeting);
@@ -490,7 +487,7 @@ app.post("/voice/incoming", async (req, res) => {
 
 // Handle speech
 app.post("/voice/speech", async (req, res) => {
-  const { CallSid, To, SpeechResult, Confidence } = req.body;
+  const { CallSid, To, SpeechResult } = req.body;
   const client = getClientByNumber(To);
   const session = db.prepare("SELECT * FROM call_sessions WHERE call_sid = ?").get(CallSid);
   const twiml = new VoiceResponse();
@@ -507,29 +504,60 @@ app.post("/voice/speech", async (req, res) => {
     return res.type("text/xml").send(twiml.toString());
   }
 
-  try {
-    const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('timeout')), 8000)
-    );
-    const { reply, transferDept } = await Promise.race([
-      askClaude(client, session, SpeechResult),
-      timeoutPromise
-    ]);
+  // Store pending speech so /voice/reply can pick it up
+  db.prepare("UPDATE call_sessions SET pending_speech = ? WHERE call_sid = ?").run(SpeechResult, CallSid);
 
-    if (transferDept) {
-      twiml.say({ voice: "Polly.Amy-Neural" }, reply);
-      twiml.pause({ length: 1 });
-      twiml.redirect(`/voice/transfer?dept=${transferDept}&callSid=${CallSid}&clientId=${client.id}`);
-    } else {
-      const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "5", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
-      gather.say({ voice: "Polly.Amy-Neural" }, reply);
-      twiml.redirect("/voice/speech");
-    }
-  } catch (err) {
+  // Respond to Twilio IMMEDIATELY — under 1 second
+  // Play a thinking sound then redirect to /voice/reply which has the Claude response ready
+  twiml.pause({ length: 1 });
+  twiml.redirect(`/voice/reply?callSid=${CallSid}&clientId=${client.id}`);
+  res.type("text/xml").send(twiml.toString());
+
+  // Process Claude in background (non-blocking)
+  askClaude(client, session, SpeechResult).then(({ reply, transferDept }) => {
+    db.prepare("UPDATE call_sessions SET pending_reply = ?, pending_transfer = ?, pending_speech = NULL WHERE call_sid = ?")
+      .run(reply, transferDept || null, CallSid);
+  }).catch(err => {
     console.error("Claude error:", err.message);
+    db.prepare("UPDATE call_sessions SET pending_reply = ?, pending_speech = NULL WHERE call_sid = ?")
+      .run("One moment please, could you repeat that?", CallSid);
+  });
+});
+
+// Reply route — called after Claude has processed
+app.post("/voice/reply", async (req, res) => {
+  const { callSid, clientId } = req.query;
+  const twiml = new VoiceResponse();
+
+  // Poll for up to 8 seconds for Claude response
+  let reply = null;
+  let transferDept = null;
+  for (let i = 0; i < 16; i++) {
+    const session = db.prepare("SELECT pending_reply, pending_transfer FROM call_sessions WHERE call_sid = ?").get(callSid);
+    if (session && session.pending_reply) {
+      reply = session.pending_reply;
+      transferDept = session.pending_transfer;
+      db.prepare("UPDATE call_sessions SET pending_reply = NULL, pending_transfer = NULL WHERE call_sid = ?").run(callSid);
+      break;
+    }
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  if (!reply) {
+    reply = "I'm still looking into that. Could you give me just a moment more?";
+    twiml.say({ voice: "Polly.Amy-Neural" }, reply);
+    twiml.redirect(`/voice/reply?callSid=${callSid}&clientId=${clientId}`);
+    return res.type("text/xml").send(twiml.toString());
+  }
+
+  if (transferDept) {
+    twiml.say({ voice: "Polly.Amy-Neural" }, reply);
+    twiml.pause({ length: 1 });
+    twiml.redirect(`/voice/transfer?dept=${transferDept}&callSid=${callSid}&clientId=${clientId}`);
+  } else {
     const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "5", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
-    const msg = err.message === 'timeout' ? "One moment please, let me just check that for you." : "I had a brief issue. Could you repeat that?";
-    gather.say({ voice: "Polly.Amy-Neural" }, msg);
+    gather.say({ voice: "Polly.Amy-Neural" }, reply);
+    twiml.redirect("/voice/speech");
   }
 
   res.type("text/xml").send(twiml.toString());
@@ -594,10 +622,28 @@ app.post("/voice/voicemail", (req, res) => {
 });
 
 // Voicemail transcript
-app.post("/voice/voicemail-transcript", (req, res) => {
+app.post("/voice/voicemail-transcript", async (req, res) => {
   const { CallSid, TranscriptionText } = req.body;
   db.prepare("UPDATE calls SET summary = ? WHERE call_sid = ?").run(TranscriptionText, CallSid);
   res.sendStatus(200);
+
+  // Send voicemail transcript email notification
+  try {
+    const call = db.prepare("SELECT * FROM calls WHERE call_sid = ?").get(CallSid);
+    const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(call.client_id);
+    const notifyEmail = client.notify_email || client.email;
+    await sendBrevoEmail(
+      notifyEmail,
+      "Voicemail received — " + (client.business_name || "AiRingDesk"),
+      "<h2>New voicemail received</h2>" +
+        "<p><strong>From:</strong> " + (call.caller_number || "Unknown") + "</p>" +
+        "<p><strong>Transcript:</strong></p>" +
+        "<p style='background:#f5f5f5;padding:12px;border-radius:6px'>" + (TranscriptionText || "No transcript available") + "</p>" +
+        "<p>Log in to your dashboard to listen to the full recording.</p>" +
+        "<p><a href='https://airingdesk.com/dashboard'>View in dashboard</a></p>"
+    );
+    console.log("Voicemail email sent to", notifyEmail);
+  } catch(e) { console.error("Voicemail email error:", e.message); }
 });
 
 // Call status callback
