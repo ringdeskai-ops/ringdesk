@@ -6,3 +6,6 @@ ringdesk.db
 .env.backup
 *.key
 *.pem
+ringdesk.db*
+*.db-shm
+*.db-wal
