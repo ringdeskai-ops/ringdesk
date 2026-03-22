@@ -129,9 +129,9 @@ const STRIPE_PRICE_IDS = {
 
 // Register new client
 app.post("/api/auth/register", async (req, res) => {
-  const { business_name, email, password, referral_code } = req.body;
-  if (!business_name || !email || !password)
-    return res.status(400).json({ error: "All fields required" });
+  const { business_name, email, password, referral_code, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region } = req.body;
+  if (!business_name || !email || !password || !first_name || !last_name || !contact_phone || !country)
+    return res.status(400).json({ error: "All required fields must be completed" });
 
   const id = uuidv4();
   const password_hash = await bcrypt.hash(password, 12);
@@ -155,8 +155,8 @@ Answer general enquiries, take messages, and transfer to the right team when nee
 Keep responses under 40 words — this is a phone call.`;
 
   try {
-    db.prepare('INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role) VALUES (?, ?, ?, ?, ?, ?, ?, \'client\')')
-      .run(id, business_name, email, password_hash, stripeCustomerId, defaultPrompt, customerNumber);
+    db.prepare('INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region) VALUES (?, ?, ?, ?, ?, ?, ?, \'client\', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+      .run(id, business_name, email, password_hash, stripeCustomerId, defaultPrompt, customerNumber, first_name||'', last_name||'', contact_phone||'', address_line1||'', address_line2||'', city||'', county||'', postcode||'', country||'United Kingdom', region||'');
 
     const token = jwt.sign({ id, email, business_name, role: "client" }, process.env.JWT_SECRET, { expiresIn: "7d" });
     res.json({ token, client: { id, business_name, email, plan: "trial" } });
