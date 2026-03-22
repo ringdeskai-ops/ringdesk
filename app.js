@@ -462,9 +462,12 @@ app.post("/voice/incoming", async (req, res) => {
 
   // Create session + call record
   const callId = uuidv4();
-  db.prepare("INSERT INTO call_sessions (call_sid, client_id) VALUES (?, ?)").run(CallSid, client.id);
-  db.prepare("INSERT INTO calls (id, client_id, call_sid, caller_number) VALUES (?, ?, ?, ?)").run(callId, client.id, CallSid, From);
-  db.prepare("UPDATE clients SET calls_this_month = calls_this_month + 1 WHERE id = ?").run(client.id);
+  const existingSession = db.prepare("SELECT call_sid FROM call_sessions WHERE call_sid = ?").get(CallSid);
+  if (!existingSession) {
+    db.prepare("INSERT INTO call_sessions (call_sid, client_id) VALUES (?, ?)").run(CallSid, client.id);
+    db.prepare("INSERT INTO calls (id, client_id, call_sid, caller_number) VALUES (?, ?, ?, ?)").run(callId, client.id, CallSid, From);
+    db.prepare("UPDATE clients SET calls_this_month = calls_this_month + 1 WHERE id = ?").run(client.id);
+  }
 
   // Get greeting from Claude
   let greeting;
@@ -503,7 +506,13 @@ app.post("/voice/speech", async (req, res) => {
   }
 
   try {
-    const { reply, transferDept } = await askClaude(client, session, SpeechResult);
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('timeout')), 2500)
+    );
+    const { reply, transferDept } = await Promise.race([
+      askClaude(client, session, SpeechResult),
+      timeoutPromise
+    ]);
 
     if (transferDept) {
       twiml.say({ voice: "Polly.Amy-Neural" }, reply);
@@ -517,7 +526,8 @@ app.post("/voice/speech", async (req, res) => {
   } catch (err) {
     console.error("Claude error:", err.message);
     const gather = twiml.gather({ input: "speech", action: "/voice/speech", speechTimeout: "3", speechModel: "phone_call", enhanced: "true", actionOnEmptyResult: false, language: "en-GB" });
-    gather.say({ voice: "Polly.Amy-Neural" }, "I had a brief issue. Could you repeat that?");
+    const msg = err.message === 'timeout' ? "One moment please, let me just check that for you." : "I had a brief issue. Could you repeat that?";
+    gather.say({ voice: "Polly.Amy-Neural" }, msg);
   }
 
   res.type("text/xml").send(twiml.toString());

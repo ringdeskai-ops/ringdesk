@@ -39,6 +39,7 @@ module.exports = function(db, sendBrevoEmail) {
   // Get referral stats
   router.get('/stats', authRequired, (req, res) => {
     const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id);
+    if (!client) return res.status(404).json({ error: 'Client not found' });
     const settings = getSettings();
     const referrals = db.prepare('SELECT * FROM referrals WHERE referrer_id = ?').all(req.client.id);
     const active = referrals.filter(r => r.status === 'active').length;
