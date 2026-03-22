@@ -837,6 +837,17 @@ app.get('/invoice-preview/:id', (req, res) => {
   }
 });
 
+// Incident log — admin/superadmin only
+app.get("/admin/incident-log", (req, res) => {
+  const token = req.query.token;
+  if (!token) return res.redirect('/dashboard');
+  try {
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    if (!['admin','superadmin'].includes(user.role)) return res.status(403).send('Access denied');
+    res.sendFile(__dirname + '/public/admin/incident-log.html');
+  } catch (e) { res.redirect('/dashboard'); }
+});
+
 app.use("/api/admin", require("./routes/admin")(db, sendBrevoEmail));
 app.use("/api/referral", require("./routes/referral")(db, sendBrevoEmail));
 const invoiceRouter = require("./routes/invoice")(db);

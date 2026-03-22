@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AiRingDesk — Incident Log</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#060912;color:#e8f0f8;font-family:'Segoe UI',system-ui,sans-serif;padding:24px}
+.logo{font-size:20px;font-weight:800;margin-bottom:4px}
+.logo .ai{color:#00d4ff}.logo .ring{color:#f0f6ff}.logo .desk{color:#5a7a9a}
+h1{font-size:28px;font-weight:700;margin:16px 0 4px}
+.sub{color:#5a7a9a;font-size:14px;margin-bottom:32px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:40px}
+.card{background:#0c1520;border:1px solid #1a2d42;border-radius:10px;padding:16px;text-align:center}
+.card .n{font-size:32px;font-weight:800;color:#00d4ff;font-family:monospace}
+.card .l{font-size:11px;color:#5a7a9a;text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+.inc{background:#0c1520;border:1px solid #1a2d42;border-radius:12px;margin-bottom:14px;overflow:hidden}
+.inc-hdr{padding:16px 20px;cursor:pointer;display:flex;gap:12px;align-items:flex-start}
+.inc-num{font-family:monospace;font-size:11px;color:#2a3f55;min-width:26px}
+.inc-main{flex:1}
+.inc-title{font-size:14px;font-weight:600;margin-bottom:6px}
+.tags{display:flex;gap:6px;flex-wrap:wrap}
+.tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;font-family:monospace;text-transform:uppercase;letter-spacing:.05em}
+.t-crit{background:rgba(255,68,68,.12);color:#ff6666;border:1px solid rgba(255,68,68,.3)}
+.t-high{background:rgba(255,179,0,.1);color:#ffb300;border:1px solid rgba(255,179,0,.3)}
+.t-med{background:rgba(0,136,255,.1);color:#4da6ff;border:1px solid rgba(0,136,255,.3)}
+.t-fixed{background:rgba(0,230,118,.08);color:#00e676;border:1px solid rgba(0,230,118,.2)}
+.t-tag{background:rgba(0,212,255,.08);color:#00d4ff;border:1px solid rgba(0,212,255,.2)}
+.chv{color:#2a3f55;font-size:18px;transition:transform .2s}
+.inc-body{display:none;padding:0 20px 20px 58px;border-top:1px solid #1a2d42}
+.lbl{font-size:10px;color:#2a3f55;text-transform:uppercase;letter-spacing:.1em;font-family:monospace;margin:14px 0 5px}
+p{font-size:13px;color:#5a7a9a;line-height:1.6}
+pre{background:#040a10;border:1px solid #1a2d42;border-left:3px solid #00d4ff;border-radius:8px;padding:12px;font-size:11px;color:#a8d8ea;line-height:1.7;overflow-x:auto;white-space:pre-wrap;word-break:break-word;margin:6px 0 10px}
+.warn{background:rgba(255,179,0,.05);border:1px solid rgba(255,179,0,.2);border-radius:8px;padding:12px;margin-top:10px}
+.warn-t{font-size:10px;color:#ffb300;text-transform:uppercase;letter-spacing:.08em;font-family:monospace;margin-bottom:5px}
+footer{margin-top:48px;padding-top:20px;border-top:1px solid #1a2d42;font-family:monospace;font-size:11px;color:#2a3f55;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.back{display:inline-flex;align-items:center;gap:8px;color:#5a7a9a;text-decoration:none;font-size:13px;margin-bottom:24px;padding:8px 14px;background:#0c1520;border:1px solid #1a2d42;border-radius:8px}
+.back:hover{color:#00d4ff;border-color:rgba(0,212,255,.3)}
+</style>
+</head>
+<body>
+
+
+
+
+
+<div class="cards">
+  <div class="card"><div class="n">9</div><div class="l">Issues Fixed</div></div>
+  <div class="card"><div class="n" style="color:#ff6666">1</div><div class="l">Root DNS Issue</div></div>
+  <div class="card"><div class="n" style="color:#ffb300">3</div><div class="l">Credentials Rotated</div></div>
+  <div class="card"><div class="n" style="color:#00e676">4</div><div class="l">Code Fixes</div></div>
+  <div class="card"><div class="n" style="color:#a78bfa">2</div><div class="l">Config Fixes</div></div>
+</div>
+
+<div id="log"></div>
+
+<footer>
+  <span>AiRingDesk Incident Log · 22 March 2026</span>
+  <span>Internal use only · Admin access required</span>
+</footer>
+
+<script>
+const D=[
+  {n:'01',sev:'crit',tags:['Nginx','Plesk'],title:'Site Down — Phusion Passenger serving instead of Node app',
+   symptom:'Visiting airingdesk.com showed Phusion Passenger error page. PM2 showed Node app running fine on port 3000.',
+   cause:'Plesk Node.js extension injected PassengerEnabled on into Apache vhost. Traffic: Nginx → Apache(:7081) → Passenger(FAIL) instead of → Node(:3000).',
+   fix:'1. plesk ext nodejs --disable -domain airingdesk.com\n2. Add to /var/www/vhosts/system/airingdesk.com/conf/vhost_ssl.conf:\n   ProxyTimeout 30\n   ProxyPass / http://127.0.0.1:3000/\n   ProxyPassReverse / http://127.0.0.1:3000/\n3. systemctl restart httpd',
+   warn:'Never edit nginx.conf directly — Plesk regenerates it. Always use vhost_ssl.conf for overrides.'},
+  {n:'02',sev:'crit',tags:['Node.js','PM2'],title:'App Crash-Looping — Unhandled ETIMEDOUT killing process',
+   symptom:'PM2 restart counter hit 30+. Server running message repeated in logs with no requests served.',
+   cause:'Unhandled ETIMEDOUT errors from Anthropic API and Brevo email propagated as uncaught exceptions, killing the Node process.',
+   fix:"Add at top of app.js after dotenv:\nprocess.on('uncaughtException', (err) => console.error('Uncaught:', err.message, err.stack));\nprocess.on('unhandledRejection', (r) => console.error('Rejection:', r?.stack || r));",
+   warn:null},
+  {n:'03',sev:'crit',tags:['Security','Credentials'],title:'Exposed Credentials in Apache Config',
+   symptom:'Plesk Node.js extension injected SetEnv directives with live API keys into Apache config in plain text.',
+   cause:'Plesk copies .env values into Apache vhost as SetEnv directives when Node.js extension is enabled.',
+   fix:'1. Rotate Anthropic key: console.anthropic.com\n2. Rotate Twilio: console.twilio.com > Auth Tokens > Promote secondary\n3. New JWT: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"\n4. pm2 restart all --update-env',
+   warn:'Never commit .env to Git. Credentials must only live in .env files on the server.'},
+  {n:'04',sev:'high',tags:['Database','SQLite'],title:'SQLite UNIQUE Constraint Crash — Duplicate call_sid',
+   symptom:'SqliteError: UNIQUE constraint failed: call_sessions.call_sid — Twilio retried webhooks causing duplicate inserts.',
+   cause:'INSERT had no duplicate protection. Twilio retry sent same call_sid twice.',
+   fix:'In app.js ~line 465, wrap inserts in existence check:\n\nconst existing = db.prepare(\n  "SELECT call_sid FROM call_sessions WHERE call_sid = ?"\n).get(CallSid);\n\nif (!existing) {\n  // all INSERT statements here\n}',
+   warn:null},
+  {n:'05',sev:'med',tags:['Node.js','Bug'],title:'referral.js Null Pointer — Cannot read referral_code of undefined',
+   symptom:'TypeError: Cannot read properties of undefined (reading referral_code) in routes/referral.js:50',
+   cause:'DB query returned null but code accessed client.referral_code without null check.',
+   fix:"const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id);\nif (!client) return res.status(404).json({ error: 'Client not found' });",
+   warn:null},
+  {n:'06',sev:'crit',tags:['Node.js','API','Twilio'],title:'Call Drops — Network timeouts crashing Node (ETIMEDOUT)',
+   symptom:'Calls dropped mid-conversation. Error: read ETIMEDOUT at TCP.onStreamRead',
+   cause:'Anthropic API, summary generation, and Brevo email had no timeouts. Any hang killed the process.',
+   fix:'1. Disable keepAlive on Anthropic client:\n   new Anthropic({ httpAgent: new https.Agent({ keepAlive: false }) })\n\n2. Race Claude against 2.5s timeout:\n   const t = new Promise((_,r) => setTimeout(() => r(new Error("timeout")), 2500));\n   const { reply } = await Promise.race([askClaude(...), t]);\n\n3. Brevo fetch with AbortController (10s)\n4. anthropic.messages.create({...}, { timeout: 8000 })',
+   warn:null},
+  {n:'07',sev:'crit',tags:['Apache','Twilio'],title:'Call Drops — HTTP 502 on /voice/speech (10s response time)',
+   symptom:'Twilio error 11200: Got HTTP 502 response to /voice/speech. Request took 10,093ms.',
+   cause:'Apache default proxy timeout too short. Claude taking longer caused Apache to return 502 before Node could reply.',
+   fix:'In /var/www/vhosts/system/airingdesk.com/conf/vhost_ssl.conf:\n\nProxyTimeout 30\nProxyPass / http://127.0.0.1:3000/\nProxyPassReverse / http://127.0.0.1:3000/\n\nsystemctl restart httpd',
+   warn:'Twilio requires webhook response within 5s. The 2.5s Claude timeout (Inc #06) handles this — returns "please hold" if slow.'},
+  {n:'08',sev:'med',tags:['Database','Staging'],title:'Staging Using Wrong Database (/root/ringdesk.db)',
+   symptom:'SqliteError: no such column: email_notifications in staging even after adding the column.',
+   cause:'DB_PATH=ringdesk-staging.db is relative. PM2 started from /root/ so used /root/ringdesk.db instead of staging DB.',
+   fix:'Fix staging .env to use absolute path:\nDB_PATH=/var/www/vhosts/airingdesk.com/staging/ringdesk-staging.db\n\nOr add column to actual DB:\nsqlite3 /root/ringdesk.db "ALTER TABLE clients ADD COLUMN email_notifications INTEGER DEFAULT 1;"',
+   warn:null},
+  {n:'09',sev:'crit',tags:['DNS','Root Cause'],title:'DNS Split — Old IP causing intermittent call failures (ROOT CAUSE)',
+   symptom:'Twilio: Failed to connect to ip 87.106.74.65. Calls worked sometimes, failed others.',
+   cause:'airingdesk.com had TWO A records: 185.249.74.165 (correct) and 87.106.74.65 (old server). Twilio randomly got old IP.',
+   fix:'1. Check: dig airingdesk.com A +short\n   (Should show ONLY 185.249.74.165)\n\n2. In IONOS DNS panel:\n   - Delete A record @ pointing to 87.106.74.65\n   - Update A record www to 185.249.74.165\n\n3. Verify: dig airingdesk.com A +short',
+   warn:'After any server migration, remove old A records immediately. Always verify with: dig domain.com A +short'}
+];
+
+const SEV={crit:{cls:'t-crit',label:'Critical'},high:{cls:'t-high',label:'High'},med:{cls:'t-med',label:'Medium'}};
+
+document.getElementById('log').innerHTML = D.map((d,i)=>{
+  const s=SEV[d.sev];
+  const tags=d.tags.map(t=>'<span class="tag t-tag">'+t+'</span>').join('');
+  return '<div class="inc" id="i'+i+'">'
+    +'<div class="inc-hdr" onclick="tog('+i+')">'
+    +'<div class="inc-num">#'+d.n+'</div>'
+    +'<div class="inc-main">'
+    +'<div class="inc-title">'+d.title+'</div>'
+    +'<div class="tags"><span class="tag '+s.cls+'">'+s.label+'</span>'+tags+'<span class="tag t-fixed">Fixed</span></div>'
+    +'</div>'
+    +'<div class="chv" id="c'+i+'">›</div>'
+    +'</div>'
+    +'<div class="inc-body" id="b'+i+'">'
+    +'<div class="lbl">Symptom</div><p>'+d.symptom+'</p>'
+    +'<div class="lbl">Root Cause</div><p>'+d.cause+'</p>'
+    +'<div class="lbl">Fix</div><pre>'+d.fix+'</pre>'
+    +(d.warn?'<div class="warn"><div class="warn-t">⚠ Warning</div><p>'+d.warn+'</p></div>':'')
+    +'</div></div>';
+}).join('');
+
+function tog(i){
+  const b=document.getElementById('b'+i);
+  const c=document.getElementById('c'+i);
+  const open=b.style.display!=='none';
+  b.style.display=open?'none':'block';
+  c.style.transform=open?'':'rotate(90deg)';
+}
+</script>
+</body>
+</html>
