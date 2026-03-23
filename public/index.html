@@ -1480,6 +1480,10 @@ async function goStep2(){
     const r=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:biz,email,password:pass,referral_code:refCode,first_name:sFirst,last_name:sLast,contact_phone:sPhone,address_line1:document.getElementById('sAddr1').value.trim(),address_line2:document.getElementById('sAddr2').value.trim(),city:document.getElementById('sCity').value.trim(),postcode:document.getElementById('sPostcode').value.trim(),country:document.getElementById('sCountry').value,region:document.getElementById('sRegion').value.trim()})});
     const d=await r.json();
     if(!r.ok)throw new Error(d.error||'Registration failed.');
+    if(d.message){
+      document.querySelector('.modal').innerHTML='<div style="padding:40px;text-align:center"><div style="font-size:48px;margin-bottom:16px">✉️</div><h3 style="font-size:22px;font-weight:700;margin-bottom:12px;color:#f0f4f8">Check your email</h3><p style="color:#8896a8;font-size:14px;line-height:1.6;margin-bottom:24px">We sent a verification link to <strong style="color:#00d4ff">'+email+'</strong>.<br>Click the link to activate your account.</p><p style="color:#5a7a9a;font-size:12px">Once verified, you can log in and continue setup.</p><button onclick="closeModal()" style="margin-top:24px;background:#00d4ff;color:#020408;border:none;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:700;cursor:pointer">Got it →</button></div>';
+      return;
+    }
     tok=d.token;document.getElementById('sBizSum').textContent=biz;goStep(2);loadNums();
   }catch(e){showE(1,e.message)}
   finally{btn.disabled=false;bt.textContent='Continue — pick your number →'}

@@ -2255,11 +2255,15 @@ async function openCustomerDetail(clientId) {
   if (aiBtn) aiBtn.style.display = 'inline-block';
   document.getElementById('dPhone').textContent = customer.phone_number || '—';
   document.getElementById('dCustomerNumber').textContent = customer.customer_number || customer.admin_number || '—';
-  document.getElementById('dContactName').textContent = (customer.contact_name && customer.contact_surname) ? customer.contact_name + ' ' + customer.contact_surname : customer.contact_name || '—';
-  document.getElementById('dWorkPhone').textContent = customer.work_phone || '—';
+  // Contact name — use first_name/last_name if available, fall back to contact_name
+  var fullName = '';
+  if (customer.first_name || customer.last_name) fullName = ((customer.first_name||'') + ' ' + (customer.last_name||'')).trim();
+  else if (customer.contact_name) fullName = ((customer.contact_name||'') + ' ' + (customer.contact_surname||'')).trim();
+  document.getElementById('dContactName').textContent = fullName || '—';
+  document.getElementById('dWorkPhone').textContent = customer.contact_phone || customer.work_phone || '—';
   document.getElementById('dMobilePhone').textContent = customer.mobile_phone || '—';
   // Build address
-  var addrParts = [customer.address_line1, customer.address_line2, customer.city, customer.county, customer.postcode].filter(Boolean);
+  var addrParts = [customer.address_line1, customer.address_line2, customer.city, customer.county, customer.postcode, customer.region, customer.country].filter(Boolean);
   document.getElementById('dAddress').textContent = addrParts.length ? addrParts.join(', ') : '—';
   // Show WhatsApp button if customer has a contact number
   var waBtn = document.getElementById('detailWhatsAppBtn');
@@ -3102,8 +3106,11 @@ async function submitEditCustomer() {
   currentDetailCustomer.postcode = document.getElementById('ecPostcode').value;
   // Refresh display
   document.getElementById('dBusiness').textContent = currentDetailCustomer.business_name;
-  document.getElementById('dContactName').textContent = (currentDetailCustomer.contact_name + ' ' + currentDetailCustomer.contact_surname).trim() || '—';
-  document.getElementById('dWorkPhone').textContent = currentDetailCustomer.work_phone || '—';
+  var fullName2 = '';
+  if (currentDetailCustomer.first_name || currentDetailCustomer.last_name) fullName2 = ((currentDetailCustomer.first_name||'') + ' ' + (currentDetailCustomer.last_name||'')).trim();
+  else fullName2 = ((currentDetailCustomer.contact_name||'') + ' ' + (currentDetailCustomer.contact_surname||'')).trim();
+  document.getElementById('dContactName').textContent = fullName2 || '—';
+  document.getElementById('dWorkPhone').textContent = currentDetailCustomer.contact_phone || currentDetailCustomer.work_phone || '—';
   document.getElementById('dMobilePhone').textContent = currentDetailCustomer.mobile_phone || '—';
   var addrParts = [currentDetailCustomer.address_line1, currentDetailCustomer.address_line2, currentDetailCustomer.city, currentDetailCustomer.county, currentDetailCustomer.postcode].filter(Boolean);
   document.getElementById('dAddress').textContent = addrParts.length ? addrParts.join(', ') : '—';

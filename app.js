@@ -158,9 +158,16 @@ Keep responses under 40 words — this is a phone call.`;
     db.prepare('INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region) VALUES (?, ?, ?, ?, ?, ?, ?, \'client\', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
       .run(id, business_name, email, password_hash, stripeCustomerId, defaultPrompt, customerNumber, first_name||'', last_name||'', contact_phone||'', address_line1||'', address_line2||'', city||'', county||'', postcode||'', country||'United Kingdom', region||'');
 
-    const token = jwt.sign({ id, email, business_name, role: "client" }, process.env.JWT_SECRET, { expiresIn: "7d" });
-    res.json({ token, client: { id, business_name, email, plan: "trial" } });
-  sendWelcomeEmail(business_name, email);
+    // Generate email verification token
+    const verifyToken = require('crypto').randomBytes(32).toString('hex');
+    const verifyExpiry = Math.floor(Date.now() / 1000) + (24 * 60 * 60); // 24 hours
+    db.prepare("UPDATE clients SET email_verified = 0, verification_token = ?, verification_expires = ? WHERE id = ?").run(verifyToken, verifyExpiry, id);
+
+    // Send verification email
+    const verifyUrl = process.env.DASHBOARD_URL + '/verify-email?token=' + verifyToken;
+    sendVerificationEmail(business_name, email, verifyUrl);
+
+    res.json({ success: true, message: "Registration successful. Please check your email to verify your account." });
   } catch (err) {
     if (err.message.includes("UNIQUE")) return res.status(409).json({ error: "Email already registered" });
     res.status(500).json({ error: err.message });
@@ -175,6 +182,9 @@ app.post("/api/auth/login", async (req, res) => {
 
   const valid = await bcrypt.compare(password, client.password_hash);
   if (!valid) return res.status(401).json({ error: "Invalid credentials" });
+
+  if (client.email_verified === 0)
+    return res.status(403).json({ error: "Please verify your email before logging in. Check your inbox for the verification link." });
 
   const token = jwt.sign(
     { id: client.id, email: client.email, business_name: client.business_name, role: client.role || "client" },
@@ -848,6 +858,19 @@ app.get("/admin/incident-log", (req, res) => {
   } catch (e) { res.redirect('/dashboard'); }
 });
 
+// Email verification route
+app.get("/verify-email", (req, res) => {
+  const { token } = req.query;
+  if (!token) return res.redirect('/dashboard?error=invalid-token');
+  const client = db.prepare("SELECT * FROM clients WHERE verification_token = ?").get(token);
+  if (!client) return res.redirect('/?error=invalid-token');
+  const now = Math.floor(Date.now() / 1000);
+  if (client.verification_expires && client.verification_expires < now)
+    return res.redirect('/?error=token-expired');
+  db.prepare("UPDATE clients SET email_verified = 1, verification_token = NULL, verification_expires = NULL WHERE id = ?").run(client.id);
+  res.redirect('/dashboard?verified=true');
+});
+
 app.use("/api/admin", require("./routes/admin")(db, sendBrevoEmail));
 app.use("/api/referral", require("./routes/referral")(db, sendBrevoEmail));
 const invoiceRouter = require("./routes/invoice")(db);
@@ -1008,6 +1031,24 @@ async function sendBrevoEmail(to, subject, html) {
 }
 
 // ── Send welcome email to new customer ────────────────────────────────────────
+async function sendVerificationEmail(business_name, email, verifyUrl) {
+  try {
+    await sendBrevoEmail(email, 'Verify your AiRingDesk account', `
+      <div style="font-family:'Helvetica Neue',sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">
+        <div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>
+        <h2 style="font-size:22px;font-weight:700;margin-bottom:12px">Verify your email address</h2>
+        <p style="color:#8896a8;font-size:15px;line-height:1.6;margin-bottom:24px">Hi ${business_name}, thanks for registering! Please click the button below to verify your email address and activate your account.</p>
+        <a href="${verifyUrl}" style="display:inline-block;background:#00d4ff;color:#020408;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:15px;font-weight:700;margin-bottom:24px">Verify my email →</a>
+        <p style="color:#5a7a9a;font-size:13px;line-height:1.6">If you did not create this account, you can safely ignore this email.</p>
+        <p style="color:#5a7a9a;font-size:12px;margin-top:16px">Or copy this link: <a href="${verifyUrl}" style="color:#00d4ff">${verifyUrl}</a></p>
+      </div>
+    `);
+    console.log('✅ Verification email sent to ' + email);
+  } catch (err) {
+    console.error('❌ Verification email failed:', err.message);
+  }
+}
+
 async function sendWelcomeEmail(business_name, email) {
   try {
     await sendBrevoEmail(email, `Welcome to AiRingDesk, ${business_name}! 🎉`,
