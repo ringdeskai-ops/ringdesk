@@ -1,7 +1,7 @@
 {
   "name": "airingdesk-retell-app",
   "version": "1.0.0",
-  "description": "Retell AI and Twilio integration for IONOS VPS",
+  "description": "AiRingDesk — AI Receptionist Platform",
   "main": "app.js",
   "scripts": {
     "start": "node app.js"
