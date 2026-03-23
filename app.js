@@ -879,6 +879,91 @@ app.get("/admin/incident-log", (req, res) => {
   } catch (e) { res.redirect('/dashboard'); }
 });
 
+// Forgot password
+app.post("/api/auth/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: "Email required" });
+  const client = db.prepare("SELECT * FROM clients WHERE email = ?").get(email);
+  // Always return success to prevent email enumeration
+  res.json({ success: true });
+  if (!client) return;
+  const resetToken = require('crypto').randomBytes(32).toString('hex');
+  const resetExpiry = Math.floor(Date.now() / 1000) + (60 * 60); // 1 hour
+  db.prepare("UPDATE clients SET verification_token = ?, verification_expires = ? WHERE id = ?").run(resetToken, resetExpiry, client.id);
+  const resetUrl = process.env.DASHBOARD_URL + '/reset-password?token=' + resetToken;
+  try {
+    await sendBrevoEmail(email, 'Reset your AiRingDesk password', `
+      <div style="font-family:'Helvetica Neue',sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">
+        <div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>
+        <h2 style="font-size:22px;font-weight:700;margin-bottom:12px">Reset your password</h2>
+        <p style="color:#8896a8;font-size:15px;line-height:1.6;margin-bottom:24px">Hi ${client.business_name}, click the button below to reset your password. This link expires in 1 hour.</p>
+        <a href="${resetUrl}" style="display:inline-block;background:#00d4ff;color:#020408;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:15px;font-weight:700;margin-bottom:24px">Reset my password →</a>
+        <p style="color:#5a7a9a;font-size:13px">If you did not request this, you can safely ignore this email.</p>
+        <p style="color:#5a7a9a;font-size:12px;margin-top:16px">Or copy: <a href="${resetUrl}" style="color:#00d4ff">${resetUrl}</a></p>
+      </div>
+    `);
+  } catch(e) { console.error('Reset email failed:', e.message); }
+});
+
+// Reset password page
+app.get("/reset-password", (req, res) => {
+  const { token } = req.query;
+  if (!token) return res.redirect('/dashboard');
+  const client = db.prepare("SELECT * FROM clients WHERE verification_token = ?").get(token);
+  if (!client) return res.redirect('/dashboard?error=invalid-token');
+  const now = Math.floor(Date.now() / 1000);
+  if (client.verification_expires && client.verification_expires < now)
+    return res.redirect('/dashboard?error=token-expired');
+  res.send(`<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Reset Password — AiRingDesk</title>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{background:#060912;color:#f0f4f8;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}.card{background:#0c1520;border:1px solid #1a2d42;border-radius:16px;padding:40px;width:100%;max-width:420px}.logo{font-size:22px;font-weight:800;margin-bottom:24px}.logo .ai{color:#00d4ff}.logo .ring{color:#f0f6ff}.logo .desk{color:#5a7a9a}h2{font-size:20px;font-weight:700;margin-bottom:8px}p{color:#5a7a9a;font-size:14px;margin-bottom:24px}label{font-size:11px;color:#5a7a9a;text-transform:uppercase;letter-spacing:.08em;display:block;margin-bottom:6px}input{width:100%;background:#060912;border:1px solid #1a2d42;color:#f0f4f8;padding:12px 14px;border-radius:8px;font-size:14px;outline:none;margin-bottom:16px}button{width:100%;background:#00d4ff;color:#020408;border:none;padding:14px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer}.msg{display:none;padding:12px;border-radius:8px;font-size:13px;margin-top:12px;text-align:center}</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo"><span class="ai">Ai</span><span class="ring">Ring</span><span class="desk">Desk</span></div>
+  <h2>Set new password</h2>
+  <p>Enter your new password below.</p>
+  <label>New password</label>
+  <input type="password" id="p1" placeholder="Min. 8 characters"/>
+  <label>Confirm password</label>
+  <input type="password" id="p2" placeholder="Repeat new password"/>
+  <button onclick="doReset()">Update password →</button>
+  <div class="msg" id="msg"></div>
+</div>
+<script>
+async function doReset() {
+  var p1=document.getElementById('p1').value;
+  var p2=document.getElementById('p2').value;
+  var msg=document.getElementById('msg');
+  msg.style.display='block';
+  if(p1.length<8){msg.style.background='rgba(255,68,68,.1)';msg.style.color='#ff4466';msg.textContent='Password must be at least 8 characters.';return;}
+  if(p1!==p2){msg.style.background='rgba(255,68,68,.1)';msg.style.color='#ff4466';msg.textContent='Passwords do not match.';return;}
+  var r=await fetch('/api/auth/reset-password',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:''+new URLSearchParams(window.location.search).get('token')+'',password:p1})});
+  var d=await r.json();
+  if(r.ok){msg.style.background='rgba(0,230,118,.1)';msg.style.color='#00e676';msg.textContent='Password updated! Redirecting...';setTimeout(()=>window.location='/dashboard',2000);}
+  else{msg.style.background='rgba(255,68,68,.1)';msg.style.color='#ff4466';msg.textContent=d.error||'Something went wrong.';}
+}
+</script>
+</body>
+</html>`);
+});
+
+// Reset password API
+app.post("/api/auth/reset-password", async (req, res) => {
+  const { token, password } = req.body;
+  if (!token || !password || password.length < 8) return res.status(400).json({ error: "Invalid request" });
+  const client = db.prepare("SELECT * FROM clients WHERE verification_token = ?").get(token);
+  if (!client) return res.status(400).json({ error: "Invalid or expired token" });
+  const now = Math.floor(Date.now() / 1000);
+  if (client.verification_expires && client.verification_expires < now)
+    return res.status(400).json({ error: "Reset link has expired. Please request a new one." });
+  const hash = await bcrypt.hash(password, 12);
+  db.prepare("UPDATE clients SET password_hash = ?, verification_token = NULL, verification_expires = NULL WHERE id = ?").run(hash, client.id);
+  res.json({ success: true });
+});
+
 // Email verification route
 app.get("/verify-email", (req, res) => {
   const { token } = req.query;

@@ -298,6 +298,21 @@ tr:hover td{background:rgba(255,255,255,.015)}
       <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="loginPass" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
       <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign in →</button>
       <div class="auth-error" id="loginError"></div>
+      <p style="text-align:center;margin-top:12px;font-size:13px;color:var(--muted)"><a href="#" onclick="showForgotPassword()" style="color:var(--cyan);text-decoration:none">Forgot your password?</a></p>
+    </div>
+
+    <!-- Forgot Password form -->
+    <div id="forgotForm" style="display:none">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:32px;margin-bottom:8px">🔑</div>
+        <h3 style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:6px">Reset your password</h3>
+        <p style="font-size:13px;color:var(--muted)">Enter your email and we will send you a reset link</p>
+      </div>
+      <div class="form-group"><label class="form-label">Email address</label><input class="form-input" type="email" id="forgotEmail" placeholder="you@yourbusiness.com"/></div>
+      <button class="auth-btn" id="forgotBtn" onclick="doForgotPassword()">Send reset link →</button>
+      <div class="auth-error" id="forgotError"></div>
+      <div id="forgotSuccess" style="display:none;background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.3);border-radius:8px;padding:12px;margin-top:12px;font-size:13px;color:#00e676;text-align:center"></div>
+      <p style="text-align:center;margin-top:12px;font-size:13px;color:var(--muted)"><a href="#" onclick="showLoginForm()" style="color:var(--cyan);text-decoration:none">← Back to sign in</a></p>
     </div>
 
     <!-- Signup form -->
@@ -1870,6 +1885,37 @@ function switchTab(tab) {
   document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
   document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
   document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+}
+
+function showForgotPassword() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('forgotForm').style.display = 'block';
+  document.getElementById('forgotEmail').value = document.getElementById('loginEmail').value || '';
+}
+
+function showLoginForm() {
+  document.getElementById('forgotForm').style.display = 'none';
+  document.getElementById('loginForm').style.display = 'block';
+}
+
+async function doForgotPassword() {
+  var email = document.getElementById('forgotEmail').value.trim();
+  var btn = document.getElementById('forgotBtn');
+  var err = document.getElementById('forgotError');
+  var success = document.getElementById('forgotSuccess');
+  err.style.display = 'none'; success.style.display = 'none';
+  if (!email || !email.includes('@')) { err.textContent = 'Please enter a valid email address.'; err.style.display = 'block'; return; }
+  btn.disabled = true; btn.textContent = 'Sending...';
+  try {
+    var r = await fetch('/api/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+    success.style.display = 'block';
+    success.textContent = 'If that email exists, a reset link has been sent. Check your inbox.';
+    btn.textContent = 'Sent!';
+  } catch(e) {
+    err.textContent = 'Something went wrong. Please try again.';
+    err.style.display = 'block';
+    btn.disabled = false; btn.textContent = 'Send reset link →';
+  }
 }
 
 async function doLogin() {
