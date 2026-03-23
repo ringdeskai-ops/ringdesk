@@ -166,6 +166,7 @@ Keep responses under 40 words — this is a phone call.`;
     // Send verification email
     const verifyUrl = process.env.DASHBOARD_URL + '/verify-email?token=' + verifyToken;
     sendVerificationEmail(business_name, email, verifyUrl);
+    sendWelcomeEmail(business_name, email, referral_code, id);
 
     res.json({ success: true, message: "Registration successful. Please check your email to verify your account." });
   } catch (err) {
@@ -1155,7 +1156,7 @@ async function sendVerificationEmail(business_name, email, verifyUrl) {
   }
 }
 
-async function sendWelcomeEmail(business_name, email) {
+async function sendWelcomeEmail(business_name, email, referral_code, id) {
   try {
     await sendBrevoEmail(email, `Welcome to AiRingDesk, ${business_name}! 🎉`,
       `

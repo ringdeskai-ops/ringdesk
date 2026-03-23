@@ -317,11 +317,24 @@ tr:hover td{background:rgba(255,255,255,.015)}
 
     <!-- Signup form -->
     <div id="signupForm" style="display:none">
-      <div class="form-group"><label class="form-label">Business name</label><input class="form-input" type="text" id="signupBiz" placeholder="e.g. Smith Plumbing Ltd" autocomplete="organization"/></div>
-      <div class="form-group"><label class="form-label">Email address</label><input class="form-input" type="email" id="signupEmail" placeholder="you@yourbusiness.com"/></div>
-      <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="signupPass" placeholder="Min. 8 characters"/></div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:14px;text-align:center">7-day free trial · No card required</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="form-group" style="margin-bottom:0"><label class="form-label">First name *</label><input class="form-input" type="text" id="signupFirst" placeholder="John" autocomplete="given-name"/></div>
+        <div class="form-group" style="margin-bottom:0"><label class="form-label">Last name *</label><input class="form-input" type="text" id="signupLast" placeholder="Smith" autocomplete="family-name"/></div>
+      </div>
+      <div class="form-group"><label class="form-label">Business name *</label><input class="form-input" type="text" id="signupBiz" placeholder="e.g. Smith Plumbing Ltd" autocomplete="organization"/></div>
+      <div class="form-group"><label class="form-label">Contact phone *</label><input class="form-input" type="tel" id="signupPhone" placeholder="+44 7700 900000" autocomplete="tel"/></div>
+      <div class="form-group"><label class="form-label">Email address *</label><input class="form-input" type="email" id="signupEmail" placeholder="you@yourbusiness.com" autocomplete="email"/></div>
+      <div class="form-group"><label class="form-label">Password *</label><input class="form-input" type="password" id="signupPass" placeholder="Min. 8 characters" autocomplete="new-password"/></div>
+      <div class="form-group"><label class="form-label">Country *</label><select class="form-input" id="signupCountry" style="cursor:pointer"><option value="GB">🇬🇧 United Kingdom</option><option value="IE">🇮🇪 Ireland</option><option value="US">🇺🇸 United States</option><option value="AU">🇦🇺 Australia</option><option value="CA">🇨🇦 Canada</option><option value="DE">🇩🇪 Germany</option><option value="FR">🇫🇷 France</option><option value="NL">🇳🇱 Netherlands</option><option value="ES">🇪🇸 Spain</option><option value="IT">🇮🇹 Italy</option><option value="CH">🇨🇭 Switzerland</option><option value="NZ">🇳🇿 New Zealand</option><option value="SG">🇸🇬 Singapore</option><option value="AE">🇦🇪 UAE</option><option value="IN">🇮🇳 India</option><option value="ZA">🇿🇦 South Africa</option></select></div>
       <button class="auth-btn" id="signupBtn" onclick="doSignup()">Create account →</button>
       <div class="auth-error" id="signupError"></div>
+      <div id="signupSuccess" style="display:none;text-align:center;padding:20px 0">
+        <div style="font-size:40px;margin-bottom:12px">✉️</div>
+        <h3 style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px">Check your email</h3>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6" id="signupSuccessMsg"></p>
+        <button onclick="switchTab('login')" style="margin-top:20px;background:var(--cyan);color:#020408;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Go to Sign In →</button>
+      </div>
     </div>
 
     <div class="auth-footer">
@@ -1944,27 +1957,44 @@ async function doLogin() {
 }
 
 async function doSignup() {
+  const first = document.getElementById('signupFirst').value.trim();
+  const last = document.getElementById('signupLast').value.trim();
   const biz = document.getElementById('signupBiz').value.trim();
+  const phone = document.getElementById('signupPhone').value.trim();
   const email = document.getElementById('signupEmail').value.trim();
   const pass = document.getElementById('signupPass').value;
+  const country = document.getElementById('signupCountry').value;
   const btn = document.getElementById('signupBtn');
-  if (!biz || !email || !pass) return showAuthError('signupError', 'All fields are required.');
+  const errEl = document.getElementById('signupError');
+  if (!first) return showAuthError('signupError', 'Please enter your first name.');
+  if (!last) return showAuthError('signupError', 'Please enter your last name.');
+  if (!biz) return showAuthError('signupError', 'Please enter your business name.');
+  if (!phone) return showAuthError('signupError', 'Please enter your contact phone number.');
+  if (!email || !email.includes('@')) return showAuthError('signupError', 'Please enter a valid email address.');
   if (pass.length < 8) return showAuthError('signupError', 'Password must be at least 8 characters.');
-  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true; btn.textContent = 'Creating account...';
+  errEl.classList.remove('show');
   try {
-    const r = await fetch('/api/auth/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ business_name: biz, email, password: pass }) });
+    const r = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ business_name: biz, email, password: pass, first_name: first, last_name: last, contact_phone: phone, country })
+    });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Registration failed');
-    authToken = d.token;
-    try {
-      const payload = JSON.parse(atob(authToken.split('.')[1]));
-      currentUser = { ...d.client, role: payload.role || 'client' };
-    } catch(e) { currentUser = { ...d.client, role: 'client' }; }
-    localStorage.setItem('rd_token', authToken);
-    localStorage.setItem('rd_user', JSON.stringify(currentUser));
-    showDashboard();
-  } catch(e) { showAuthError('signupError', e.message); }
-  finally { btn.disabled = false; btn.textContent = 'Create account →'; }
+    // Show email verification message — hide form fields, show success panel
+    document.getElementById('signupFirst').closest('.form-group') && null;
+    const form = document.getElementById('signupForm');
+    const inputs = form.querySelectorAll('.form-group, .auth-btn, p');
+    inputs.forEach(el => el.style.display = 'none');
+    btn.style.display = 'none';
+    const msg = document.getElementById('signupSuccessMsg');
+    msg.innerHTML = 'We sent a verification link to <strong style="color:var(--cyan)">' + email + '</strong>.<br>Click the link to activate your account, then sign in.';
+    document.getElementById('signupSuccess').style.display = 'block';
+  } catch(e) {
+    showAuthError('signupError', e.message);
+    btn.disabled = false; btn.textContent = 'Create account →';
+  }
 }
 
 function showAuthError(id, msg) {
