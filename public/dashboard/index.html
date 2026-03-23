@@ -1898,6 +1898,7 @@ function switchTab(tab) {
   document.getElementById('signupTab').classList.toggle('active', tab === 'signup');
   document.getElementById('loginForm').style.display = tab === 'login' ? 'block' : 'none';
   document.getElementById('signupForm').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('forgotForm').style.display = 'none';
 }
 
 function showForgotPassword() {

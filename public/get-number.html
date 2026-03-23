@@ -5,11 +5,11 @@
   <link rel="shortcut icon" href="/favicon.svg">
   <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Get Your Phone Number — RingDesk</title>
+<title>Get Your Phone Number — AiRingDesk</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#060912;--surface:#0d1117;--border:#1a2332;--text:#f0f4f8;--muted:#8896a8;--dim:#3d4f63;--blue:#3b82f6;--blue-light:#60a5fa;--green:#10b981;--grad:linear-gradient(135deg,#3b82f6 0%,#8b5cf6 100%)}
+:root{--bg:#060912;--surface:#0d1117;--border:#1a2332;--text:#f0f4f8;--muted:#8896a8;--dim:#3d4f63;--blue:#3b82f6;--blue-light:#60a5fa;--green:#10b981;--grad:linear-gradient(135deg,#00d4ff 0%,#0099cc 100%)}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
 h1,h2,h3{font-family:'Sora',sans-serif}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:520px;box-shadow:0 40px 100px rgba(0,0,0,.6)}
@@ -45,7 +45,12 @@ h2{font-size:22px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
 </head>
 <body>
 <div class="card">
-  <span class="brand">RingDesk</span>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
+    <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
+    </div>
+    <div style="font-size:20px;font-weight:800;letter-spacing:-.5px;font-family:inherit"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>
+  </div>
   <h2>Get your phone number</h2>
   <p class="sub">Choose a number for your AI receptionist to answer 24/7.</p>
 
@@ -59,6 +64,10 @@ h2{font-size:22px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
       <option value="NL">🇳🇱 Netherlands</option>
     </select>
     <button class="refresh-btn" onclick="loadNumbers()">🔄 Refresh</button>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:16px">
+    <input id="citySearch" type="text" placeholder="Search by city name e.g. Manchester, Birmingham" onkeydown="if(event.key==='Enter')loadNumbers()" style="flex:1;background:#0d1117;border:1px solid #1a2332;border-radius:10px;padding:10px 14px;color:#f0f4f8;font-size:13px;outline:none;font-family:inherit"/>
+    <button onclick="loadNumbers()" style="background:var(--cyan,#00d4ff);color:#020408;border:none;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Search</button>
   </div>
 
   <div id="numberGrid" class="number-grid">
@@ -88,13 +97,16 @@ if (!token) {
 
 async function loadNumbers() {
   const country = document.getElementById('countrySelect').value;
+  const city = document.getElementById('citySearch').value.trim();
   const grid = document.getElementById('numberGrid');
   selectedNumber = null;
   updateSelected();
   grid.innerHTML = '<div class="loading"><div class="spinner" style="margin:0 auto 8px;border-top-color:var(--blue-light)"></div>Loading numbers...</div>';
 
   try {
-    const res = await fetch('/api/numbers/search?country=' + country, {
+    let url = '/api/numbers/search?country=' + country;
+    if (city) url += '&areaCode=' + encodeURIComponent(city);
+    const res = await fetch(url, {
       headers: { 'Authorization': 'Bearer ' + token }
     });
     const data = await res.json();

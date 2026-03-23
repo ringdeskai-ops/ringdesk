@@ -1006,7 +1006,13 @@ app.get('/api/numbers/search', authRequired, async (req, res) => {
     const countryMap = { GB: 'GB', US: 'US', CH: 'CH', DE: 'DE', FR: 'FR', NL: 'NL' };
     const isoCountry = countryMap[country] || 'GB';
     const searchParams = { limit: 10, voiceEnabled: true };
-    if (areaCode) searchParams.areaCode = areaCode;
+    if (areaCode) {
+      if (/^d+$/.test(areaCode)) {
+        searchParams.areaCode = areaCode;
+      } else {
+        searchParams.inLocality = areaCode;
+      }
+    }
 
     let numbers;
     if (isoCountry === 'GB') {
