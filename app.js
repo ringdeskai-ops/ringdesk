@@ -200,10 +200,31 @@ app.post("/api/auth/login", async (req, res) => {
 
 // Get client profile + stats
 app.get("/api/client/profile", authRequired, (req, res) => {
-  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, departments, calls_this_month, call_limit, created_at FROM clients WHERE id = ?").get(req.client.id);
+  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, departments, calls_this_month, call_limit, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number FROM clients WHERE id = ?").get(req.client.id);
   if (!client) return res.status(404).json({ error: "Not found" });
   client.departments = JSON.parse(client.departments || "{}");
   res.json(client);
+});
+
+// Update account details
+app.put("/api/client/account", authRequired, (req, res) => {
+  const { first_name, last_name, business_name, contact_phone, address_line1, address_line2, city, postcode, country, region } = req.body;
+  db.prepare("UPDATE clients SET first_name=?, last_name=?, business_name=?, contact_phone=?, address_line1=?, address_line2=?, city=?, postcode=?, country=?, region=? WHERE id=?")
+    .run(first_name||'', last_name||'', business_name||'', contact_phone||'', address_line1||'', address_line2||'', city||'', postcode||'', country||'', region||'', req.client.id);
+  res.json({ success: true });
+});
+
+// Change password
+app.post("/api/client/change-password", authRequired, async (req, res) => {
+  const { current_password, new_password } = req.body;
+  if (!current_password || !new_password || new_password.length < 8)
+    return res.status(400).json({ error: "Invalid request" });
+  const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(req.client.id);
+  const valid = await bcrypt.compare(current_password, client.password_hash);
+  if (!valid) return res.status(401).json({ error: "Current password is incorrect" });
+  const hash = await bcrypt.hash(new_password, 12);
+  db.prepare("UPDATE clients SET password_hash = ? WHERE id = ?").run(hash, req.client.id);
+  res.json({ success: true });
 });
 
 // Update AI settings

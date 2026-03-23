@@ -352,6 +352,10 @@ tr:hover td{background:rgba(255,255,255,.015)}
       </button>
 
       <div class="nav-section-label">Configure</div>
+      <button class="nav-btn" onclick="showPage('my-account')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        My Account
+      </button>
       <button class="nav-btn" onclick="showPage('settings')">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
         AI Settings
@@ -1693,6 +1697,96 @@ tr:hover td{background:rgba(255,255,255,.015)}
     </div>
 
 
+    <!-- My Account Page -->
+    <div class="page" id="page-my-account">
+      <div class="page-header" style="margin-bottom:24px">
+        <div>
+          <div class="page-title">My <em>Account</em></div>
+          <div class="page-sub">Your registered details and account information</div>
+        </div>
+        <button class="save-btn" id="saveAccountBtn" onclick="saveMyAccount()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save changes
+        </button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px">
+        <!-- Personal Details -->
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            Personal Details
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-group"><label class="form-label">First name</label><input class="form-input" type="text" id="accFirst" placeholder="John"/></div>
+            <div class="form-group"><label class="form-label">Last name</label><input class="form-input" type="text" id="accLast" placeholder="Smith"/></div>
+          </div>
+          <div class="form-group"><label class="form-label">Business name</label><input class="form-input" type="text" id="accBusiness" placeholder="Your business name"/></div>
+          <div class="form-group"><label class="form-label">Contact phone</label><input class="form-input" type="tel" id="accPhone" placeholder="+44 7700 900000"/></div>
+          <div class="form-group"><label class="form-label">Email address</label><input class="form-input" type="email" id="accEmail" disabled style="opacity:.6;cursor:not-allowed"/></div>
+          <p style="font-size:11px;color:var(--dim)">Email cannot be changed. Contact support if needed.</p>
+        </div>
+
+        <!-- Address -->
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Address
+          </div>
+          <div class="form-group"><label class="form-label">Address line 1</label><input class="form-input" type="text" id="accAddr1" placeholder="123 High Street"/></div>
+          <div class="form-group"><label class="form-label">Address line 2</label><input class="form-input" type="text" id="accAddr2" placeholder="Suite / Floor (optional)"/></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-group"><label class="form-label">City / Town</label><input class="form-input" type="text" id="accCity" placeholder="London"/></div>
+            <div class="form-group"><label class="form-label">Postcode</label><input class="form-input" type="text" id="accPostcode" placeholder="SW1A 1AA"/></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div class="form-group"><label class="form-label">Country</label><input class="form-input" type="text" id="accCountry" placeholder="United Kingdom"/></div>
+            <div class="form-group"><label class="form-label">Region / County</label><input class="form-input" type="text" id="accRegion" placeholder="Greater London"/></div>
+          </div>
+        </div>
+
+        <!-- Account Info -->
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Account Info
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:13px;color:var(--muted)">Customer ID</span>
+              <span style="font-size:13px;font-weight:600;color:var(--cyan)" id="accCustomerNumber">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:13px;color:var(--muted)">Plan</span>
+              <span style="font-size:13px;font-weight:600;color:var(--text)" id="accPlan">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
+              <span style="font-size:13px;color:var(--muted)">Member since</span>
+              <span style="font-size:13px;font-weight:600;color:var(--text)" id="accJoined">—</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;padding:10px 0">
+              <span style="font-size:13px;color:var(--muted)">AI Phone number</span>
+              <span style="font-size:13px;font-weight:600;color:var(--text)" id="accAiPhone">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="settings-card">
+          <div class="settings-card-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+            Change Password
+          </div>
+          <div class="form-group"><label class="form-label">Current password</label><input class="form-input" type="password" id="accCurrentPass" placeholder="Enter current password"/></div>
+          <div class="form-group"><label class="form-label">New password</label><input class="form-input" type="password" id="accNewPass" placeholder="Min. 8 characters"/></div>
+          <div class="form-group"><label class="form-label">Confirm new password</label><input class="form-input" type="password" id="accConfirmPass" placeholder="Repeat new password"/></div>
+          <button onclick="changePassword()" style="background:var(--cyan);color:#020408;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;width:100%">Update password</button>
+          <div id="accPassMsg" style="display:none;margin-top:8px;font-size:12px;padding:8px;border-radius:6px"></div>
+        </div>
+      </div>
+      <div id="accMsg" style="display:none;margin-top:16px;max-width:900px;padding:12px;border-radius:8px;font-size:13px"></div>
+    </div>
+
     <!-- Incident Log Page -->
     <div class="page" id="page-incident-log">
       <div class="page-header" style="margin-bottom:24px">
@@ -2492,6 +2586,7 @@ async function loadRevenue() {
 }
 function showPage(name) {
   if (name === 'incident-log') openIncidentLog();
+  if (name === 'my-account') loadMyAccount();
   if (name === 'admin-management') {
     updateIncidentToggleUI();
     var c = document.getElementById('incLogToggleCard');
@@ -3144,6 +3239,61 @@ function updateIncidentNavVisibility() {
   var isAdmin = currentUser && currentUser.role === 'admin';
   var allowed = localStorage.getItem('incidentLogAccess') === 'true';
   nav.style.display = (isSA || (isAdmin && allowed)) ? '' : 'none';
+}
+
+function loadMyAccount() {
+  if (!profile) return;
+  document.getElementById('accFirst').value = profile.first_name || '';
+  document.getElementById('accLast').value = profile.last_name || '';
+  document.getElementById('accBusiness').value = profile.business_name || '';
+  document.getElementById('accPhone').value = profile.contact_phone || '';
+  document.getElementById('accEmail').value = profile.email || '';
+  document.getElementById('accAddr1').value = profile.address_line1 || '';
+  document.getElementById('accAddr2').value = profile.address_line2 || '';
+  document.getElementById('accCity').value = profile.city || '';
+  document.getElementById('accPostcode').value = profile.postcode || '';
+  document.getElementById('accCountry').value = profile.country || '';
+  document.getElementById('accRegion').value = profile.region || '';
+  document.getElementById('accCustomerNumber').textContent = profile.customer_number || '-';
+  document.getElementById('accPlan').textContent = profile.plan || '-';
+  document.getElementById('accJoined').textContent = profile.created_at ? new Date(profile.created_at*1000).toLocaleDateString('en-GB') : '-';
+  document.getElementById('accAiPhone').textContent = profile.phone_number || 'Not assigned';
+}
+
+async function saveMyAccount() {
+  var btn = document.getElementById('saveAccountBtn');
+  var msg = document.getElementById('accMsg');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  var r = await api('/api/client/account', { method: 'PUT', body: {
+    first_name: document.getElementById('accFirst').value.trim(),
+    last_name: document.getElementById('accLast').value.trim(),
+    business_name: document.getElementById('accBusiness').value.trim(),
+    contact_phone: document.getElementById('accPhone').value.trim(),
+    address_line1: document.getElementById('accAddr1').value.trim(),
+    address_line2: document.getElementById('accAddr2').value.trim(),
+    city: document.getElementById('accCity').value.trim(),
+    postcode: document.getElementById('accPostcode').value.trim(),
+    country: document.getElementById('accCountry').value.trim(),
+    region: document.getElementById('accRegion').value.trim()
+  }});
+  msg.style.display = 'block';
+  if (r) { msg.style.background='rgba(0,230,118,.1)'; msg.style.border='1px solid rgba(0,230,118,.3)'; msg.style.color='#00e676'; msg.textContent='Account details saved successfully!'; setTimeout(function(){ msg.style.display='none'; }, 3000); }
+  else { msg.style.background='rgba(255,68,68,.1)'; msg.style.border='1px solid rgba(255,68,68,.3)'; msg.style.color='#ff4466'; msg.textContent='Failed to save. Please try again.'; }
+  btn.disabled = false; btn.textContent = 'Save changes';
+}
+
+async function changePassword() {
+  var current = document.getElementById('accCurrentPass').value;
+  var newPass = document.getElementById('accNewPass').value;
+  var confirm = document.getElementById('accConfirmPass').value;
+  var msg = document.getElementById('accPassMsg');
+  msg.style.display = 'block';
+  if (!current || !newPass || !confirm) { msg.style.background='rgba(255,68,68,.1)'; msg.style.color='#ff4466'; msg.textContent='Please fill in all password fields.'; return; }
+  if (newPass.length < 8) { msg.style.background='rgba(255,68,68,.1)'; msg.style.color='#ff4466'; msg.textContent='New password must be at least 8 characters.'; return; }
+  if (newPass !== confirm) { msg.style.background='rgba(255,68,68,.1)'; msg.style.color='#ff4466'; msg.textContent='Passwords do not match.'; return; }
+  var r = await api('/api/client/change-password', { method: 'POST', body: { current_password: current, new_password: newPass } });
+  if (r) { msg.style.background='rgba(0,230,118,.1)'; msg.style.color='#00e676'; msg.textContent='Password updated successfully!'; document.getElementById('accCurrentPass').value=''; document.getElementById('accNewPass').value=''; document.getElementById('accConfirmPass').value=''; }
+  else { msg.style.background='rgba(255,68,68,.1)'; msg.style.color='#ff4466'; msg.textContent='Current password is incorrect.'; }
 }
 
 function openIncidentLog() {
