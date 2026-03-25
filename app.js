@@ -153,7 +153,8 @@ app.post("/api/auth/register", async (req, res) => {
   const defaultPrompt = `You are ${business_name}'s AI receptionist. Be professional, warm, and helpful.
 Answer general enquiries, take messages, and transfer to the right team when needed.
 Keep responses under 40 words — this is a phone call.
-If the caller wants to leave a voicemail or message, or if no one is available, reply with exactly [VOICEMAIL] to transfer them to voicemail.`;
+If the caller wants to leave a voicemail or message, or if no one is available, reply with exactly [VOICEMAIL] to transfer them to voicemail.
+If the caller wants to book an appointment and you have collected their name, preferred date, time and email, reply with [BOOK:name|date|time|email] e.g. [BOOK:John Smith|2026-03-26|14:00|john@example.com]. Date must be YYYY-MM-DD format.`;
 
   try {
     db.prepare('INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region) VALUES (?, ?, ?, ?, ?, ?, ?, \'client\', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
@@ -592,6 +593,50 @@ app.post("/voice/speech", async (req, res) => {
       askClaude(client, session, SpeechResult),
       timeoutPromise
     ]);
+    // Handle booking trigger
+        const bookMatch = reply.match(/\[BOOK:([^|\]]+)\|([^|\]]+)\|([^|\]]+)\|([^\]]+)\]/);
+    if (bookMatch) {
+      const [, name, date, time, email] = bookMatch;
+      reply = reply.replace(/[BOOK:[^]]+]/, '').trim();
+      // Book appointment asynchronously
+      const clientData = db.prepare("SELECT * FROM clients WHERE id = ?").get(client.id);
+      if (clientData.google_calendar_connected && clientData.google_access_token) {
+        try {
+          const { google } = require('googleapis');
+          const oauth2Client = new google.auth.OAuth2(
+            process.env.GOOGLE_CLIENT_ID,
+            process.env.GOOGLE_CLIENT_SECRET,
+            process.env.GOOGLE_REDIRECT_URI
+          );
+          oauth2Client.setCredentials({
+            access_token: clientData.google_access_token,
+            refresh_token: clientData.google_refresh_token
+          });
+          const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+          const startDateTime = new Date(`${date}T${time}:00`);
+          const endDateTime = new Date(startDateTime.getTime() + 60 * 60000);
+          await calendar.events.insert({
+            calendarId: 'primary',
+            resource: {
+              summary: `Appointment - ${name}`,
+              description: `Booked via AiRingDesk AI receptionist`,
+              start: { dateTime: startDateTime.toISOString(), timeZone: 'Europe/London' },
+              end: { dateTime: endDateTime.toISOString(), timeZone: 'Europe/London' },
+              attendees: email ? [{ email }] : []
+            },
+            sendUpdates: 'all'
+          });
+          console.log(`✅ Appointment booked for ${name} on ${date} at ${time}`);
+          if (!reply) reply = `Perfect, I've booked your appointment for ${date} at ${time}. You'll receive a confirmation email shortly.`;
+        } catch(e) {
+          console.error('Booking error:', e.message);
+          if (!reply) reply = `I've noted your appointment request for ${date} at ${time}. Our team will confirm shortly.`;
+        }
+      } else {
+        if (!reply) reply = `I've noted your appointment request for ${date} at ${time}. Our team will confirm shortly.`;
+      }
+    }
+
     const voicemailMatch = reply.includes('[VOICEMAIL]');
     if (voicemailMatch) {
       let vmReply = reply.replace('[VOICEMAIL]', '').trim() || 'Please hold while I transfer you to voicemail.';
