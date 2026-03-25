@@ -559,7 +559,7 @@ app.post("/voice/incoming", async (req, res) => {
   const aiName = client.ai_name || "Aria";
   const greeting = `Thank you for calling ${client.business_name}. My name is ${aiName}, how can I help you today?`;
 
-  const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB" });
+  const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB", speechModel: "phone_call", enhanced: true });
   gather.say({ voice: "Polly.Amy-Neural" }, greeting);
   twiml.redirect("/voice/incoming");
 
@@ -580,7 +580,7 @@ app.post("/voice/speech", async (req, res) => {
   }
 
   if (!SpeechResult || SpeechResult.trim() === "") {
-    const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB" });
+    const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB", speechModel: "phone_call", enhanced: true });
     gather.say({ voice: "Polly.Amy-Neural" }, "I am sorry, I did not catch that. Could you say that again?");
     return res.type("text/xml").send(twiml.toString());
   }
@@ -589,7 +589,7 @@ app.post("/voice/speech", async (req, res) => {
     const timeoutPromise = new Promise((_, reject) => 
       setTimeout(() => reject(new Error('timeout')), 2500)
     );
-    const { reply, transferDept } = await Promise.race([
+    let { reply, transferDept } = await Promise.race([
       askClaude(client, session, SpeechResult),
       timeoutPromise
     ]);
@@ -597,11 +597,12 @@ app.post("/voice/speech", async (req, res) => {
         const bookMatch = reply.match(/\[BOOK:([^|\]]+)\|([^|\]]+)\|([^|\]]+)\|([^\]]+)\]/);
     if (bookMatch) {
       const [, name, date, time, email] = bookMatch;
-      reply = reply.replace(/[BOOK:[^]]+]/, '').trim();
+      reply = reply.replace(/\[BOOK:[^\]]+\]/, '').trim();
       // Book appointment asynchronously
       const clientData = db.prepare("SELECT * FROM clients WHERE id = ?").get(client.id);
       if (clientData.google_calendar_connected && clientData.google_access_token) {
-        try {
+        // Fire and forget — don't await to avoid Twilio timeout
+        (async () => { try {
           const { google } = require('googleapis');
           const oauth2Client = new google.auth.OAuth2(
             process.env.GOOGLE_CLIENT_ID,
@@ -627,11 +628,11 @@ app.post("/voice/speech", async (req, res) => {
             sendUpdates: 'all'
           });
           console.log(`✅ Appointment booked for ${name} on ${date} at ${time}`);
-          if (!reply) reply = `Perfect, I've booked your appointment for ${date} at ${time}. You'll receive a confirmation email shortly.`;
         } catch(e) {
           console.error('Booking error:', e.message);
-          if (!reply) reply = `I've noted your appointment request for ${date} at ${time}. Our team will confirm shortly.`;
         }
+        })();
+        if (!reply) reply = `Perfect, I've booked your appointment for ${date} at ${time}. You'll receive a confirmation email shortly.`;
       } else {
         if (!reply) reply = `I've noted your appointment request for ${date} at ${time}. Our team will confirm shortly.`;
       }
@@ -648,13 +649,13 @@ app.post("/voice/speech", async (req, res) => {
       twiml.pause({ length: 1 });
       twiml.redirect("/voice/transfer?dept=" + transferDept + "&callSid=" + CallSid + "&clientId=" + client.id);
     } else {
-      const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB" });
+      const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB", speechModel: "phone_call", enhanced: true });
       gather.say({ voice: "Polly.Amy-Neural" }, reply);
       twiml.redirect("/voice/speech");
     }
   } catch (err) {
     console.error("Claude error:", err.message);
-    const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB" });
+    const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB", speechModel: "phone_call", enhanced: true });
     gather.say({ voice: "Polly.Amy-Neural" }, "One moment please, could you repeat that?");
   }
 
