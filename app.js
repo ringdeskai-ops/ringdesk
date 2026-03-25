@@ -705,6 +705,19 @@ clientsWithoutCode.forEach(c => {
 });
 
 // ── Health & Admin ─────────────────────────────────────────────────────────────
+// ── Delete customer (superadmin only) ─────────────────────────────────────────
+app.delete("/api/admin/customer/:id", authRequired, (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  const { id } = req.params;
+  const customer = db.prepare("SELECT * FROM clients WHERE id = ?").get(id);
+  if (!customer) return res.status(404).json({ error: 'Customer not found' });
+  if (customer.role === 'superadmin') return res.status(403).json({ error: 'Cannot delete superadmin' });
+  db.prepare("DELETE FROM call_sessions WHERE client_id = ?").run(id);
+  db.prepare("DELETE FROM clients WHERE id = ?").run(id);
+  console.log(`🗑️ Customer deleted: ${customer.business_name} (${customer.email}) by ${req.client.email}`);
+  res.json({ success: true, message: `${customer.business_name} deleted` });
+});
+
 app.get("/health", (req, res) => res.json({ status: "ok", uptime: process.uptime(), clients: db.prepare("SELECT COUNT(*) as c FROM clients").get().c }));
 
 

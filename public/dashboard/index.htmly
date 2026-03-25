@@ -930,7 +930,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
             WhatsApp
           </button>
           <button onclick="cancelCustomerSubscription()" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">Cancel Sub</button>
-          <button onclick="deleteCustomer()" id="deleteCustomerBtn" class="superadmin-only" style="background:rgba(255,68,102,.2);border:1px solid rgba(255,68,102,.5);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700">🗑️ Delete</button>
+          <button onclick="event.stopPropagation() "deleteCustomerBtn" class="superadmin-only" style="background:rgba(255,68,102,.2);border:1px solid rgba(255,68,102,.5);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700">🗑️ Delete</button>
 
         </div>
       </div>
