@@ -774,6 +774,94 @@ clientsWithoutCode.forEach(c => {
 });
 
 // ── Health & Admin ─────────────────────────────────────────────────────────────
+// ── Google Calendar Integration ───────────────────────────────────────────────
+const { google } = require('googleapis');
+
+function getGoogleOAuthClient() {
+  return new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.GOOGLE_REDIRECT_URI
+  );
+}
+
+// Step 1: Redirect customer to Google OAuth
+app.get('/auth/google', async (req, res) => {
+  // Support token via query param for browser redirects
+  const token = req.query.token || req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No token' });
+  try {
+    const jwt = require('jsonwebtoken');
+    req.client = jwt.verify(token, process.env.JWT_SECRET);
+  } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
+  const oauth2Client = getGoogleOAuthClient();
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    prompt: 'consent',
+    scope: ['https://www.googleapis.com/auth/calendar.events'],
+    state: req.client.id
+  });
+  res.redirect(url);
+});
+
+// Step 2: Google callback — save tokens
+app.get('/auth/google/callback', async (req, res) => {
+  const { code, state } = req.query;
+  if (!code || !state) return res.redirect('/dashboard?error=google_auth_failed');
+  try {
+    const oauth2Client = getGoogleOAuthClient();
+    const { tokens } = await oauth2Client.getToken(code);
+    db.prepare("UPDATE clients SET google_access_token = ?, google_refresh_token = ?, google_calendar_connected = 1 WHERE id = ?")
+      .run(tokens.access_token, tokens.refresh_token || null, state);
+    console.log(`✅ Google Calendar connected for client ${state}`);
+    res.redirect('/dashboard?google=connected');
+  } catch(err) {
+    console.error('Google auth error:', err.message);
+    res.redirect('/dashboard?error=google_auth_failed');
+  }
+});
+
+// Step 3: Book appointment to Google Calendar
+app.post('/api/calendar/book', authRequired, async (req, res) => {
+  const { title, date, time, duration, description, attendee_email } = req.body;
+  const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(req.client.id);
+  if (!client.google_calendar_connected) return res.status(400).json({ error: 'Google Calendar not connected' });
+  try {
+    const oauth2Client = getGoogleOAuthClient();
+    oauth2Client.setCredentials({
+      access_token: client.google_access_token,
+      refresh_token: client.google_refresh_token
+    });
+    const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+    const startDateTime = new Date(`${date}T${time}:00`);
+    const endDateTime = new Date(startDateTime.getTime() + (duration || 60) * 60000);
+    const event = {
+      summary: title || 'Appointment',
+      description: description || '',
+      start: { dateTime: startDateTime.toISOString(), timeZone: 'Europe/London' },
+      end: { dateTime: endDateTime.toISOString(), timeZone: 'Europe/London' },
+      attendees: attendee_email ? [{ email: attendee_email }] : []
+    };
+    const result = await calendar.events.insert({ calendarId: 'primary', resource: event, sendUpdates: 'all' });
+    res.json({ success: true, eventId: result.data.id, eventLink: result.data.htmlLink });
+  } catch(err) {
+    console.error('Calendar booking error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Get calendar connection status
+app.get('/api/calendar/status', authRequired, (req, res) => {
+  const client = db.prepare("SELECT google_calendar_connected FROM clients WHERE id = ?").get(req.client.id);
+  res.json({ connected: !!client?.google_calendar_connected });
+});
+
+// Disconnect Google Calendar
+app.post('/api/calendar/disconnect', authRequired, (req, res) => {
+  db.prepare("UPDATE clients SET google_access_token = NULL, google_refresh_token = NULL, google_calendar_connected = 0 WHERE id = ?").run(req.client.id);
+  res.json({ success: true });
+});
+
 // ── Delete customer (superadmin only) ─────────────────────────────────────────
 app.delete("/api/admin/customer/:id", authRequired, (req, res) => {
   if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
