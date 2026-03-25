@@ -251,17 +251,28 @@ app.get("/api/calls", authRequired, (req, res) => {
 });
 
 // ── Voicemail recording proxy ─────────────────────────────────────────────────
-app.get("/api/calls/:id/recording", authRequired, async (req, res) => {
-  const call = db.prepare("SELECT * FROM calls WHERE id = ? AND client_id = ?").get(req.params.id, req.client.id);
+app.get("/api/calls/:id/recording", async (req, res) => {
+  // Support token via query param for audio element requests
+  let clientId = null;
+  const token = req.headers.authorization?.split(' ')[1] || req.query.token;
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const jwt = require('jsonwebtoken');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    clientId = decoded.id;
+  } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
+  const call = db.prepare("SELECT * FROM calls WHERE id = ? AND client_id = ?").get(req.params.id, clientId);
   if (!call) return res.status(404).json({ error: "Not found" });
   if (!call.recording_url) return res.status(404).json({ error: "No recording" });
   try {
     const accountSid = process.env.TWILIO_ACCOUNT_SID;
     const authToken = process.env.TWILIO_AUTH_TOKEN;
     const response = await fetch(call.recording_url + '.mp3', {
-      headers: { 'Authorization': 'Basic ' + Buffer.from(accountSid + ':' + authToken).toString('base64') }
+      headers: { 'Authorization': 'Basic ' + Buffer.from(accountSid + ':' + authToken).toString('base64') },
+      redirect: 'follow'
     });
-    if (!response.ok) return res.status(502).json({ error: 'Recording unavailable' });
+    console.log('Recording fetch status:', response.status, call.recording_url);
+    if (!response.ok) return res.status(502).json({ error: 'Recording unavailable - status: ' + response.status });
     res.setHeader('Content-Type', 'audio/mpeg');
     res.setHeader('Cache-Control', 'no-cache');
     const buffer = await response.arrayBuffer();

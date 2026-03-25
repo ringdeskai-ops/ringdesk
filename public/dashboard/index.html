@@ -2286,7 +2286,7 @@ function openCallDetail(id) {
   const audioErr = document.getElementById('voicemailError');
   if (selectedCall.status === 'voicemail' && selectedCall.recording_url) {
     playerEl.style.display = 'block';
-    audioEl.src = '/api/calls/' + selectedCall.id + '/recording';
+    audioEl.src = '/api/calls/' + selectedCall.id + '/recording?token=' + encodeURIComponent(authToken);
     audioEl.load();
     audioErr.style.display = 'none';
     audioEl.onerror = () => { audioErr.style.display = 'block'; audioErr.textContent = 'Recording unavailable or expired.'; };
