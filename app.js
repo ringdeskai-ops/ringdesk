@@ -152,7 +152,8 @@ app.post("/api/auth/register", async (req, res) => {
 
   const defaultPrompt = `You are ${business_name}'s AI receptionist. Be professional, warm, and helpful.
 Answer general enquiries, take messages, and transfer to the right team when needed.
-Keep responses under 40 words — this is a phone call.`;
+Keep responses under 40 words — this is a phone call.
+If the caller wants to leave a voicemail or message, or if no one is available, reply with exactly [VOICEMAIL] to transfer them to voicemail.`;
 
   try {
     db.prepare('INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region) VALUES (?, ?, ?, ?, ?, ?, ?, \'client\', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
@@ -591,7 +592,13 @@ app.post("/voice/speech", async (req, res) => {
       askClaude(client, session, SpeechResult),
       timeoutPromise
     ]);
-    if (transferDept) {
+    const voicemailMatch = reply.includes('[VOICEMAIL]');
+    if (voicemailMatch) {
+      let vmReply = reply.replace('[VOICEMAIL]', '').trim() || 'Please hold while I transfer you to voicemail.';
+      reply = vmReply;
+      twiml.say({ voice: "Polly.Amy-Neural" }, reply);
+      twiml.redirect("/voice/voicemail");
+    } else if (transferDept) {
       twiml.say({ voice: "Polly.Amy-Neural" }, reply);
       twiml.pause({ length: 1 });
       twiml.redirect("/voice/transfer?dept=" + transferDept + "&callSid=" + CallSid + "&clientId=" + client.id);
@@ -607,6 +614,35 @@ app.post("/voice/speech", async (req, res) => {
   }
 
   res.type("text/xml").send(twiml.toString());
+});
+
+// ── Voicemail recording route ─────────────────────────────────────────────────
+app.post("/voice/voicemail", (req, res) => {
+  const { CallSid, To } = req.body;
+  const twiml = new VoiceResponse();
+  twiml.say({ voice: "Polly.Amy-Neural" }, "Please leave your message after the tone. Press any key or hang up when done.");
+  twiml.record({
+    action: '/voice/voicemail-done',
+    method: 'POST',
+    maxLength: 120,
+    finishOnKey: '*',
+    playBeep: true,
+    recordingStatusCallback: '/voice/voicemail-done',
+    recordingStatusCallbackMethod: 'POST'
+  });
+  twiml.say({ voice: "Polly.Amy-Neural" }, "Thank you for your message. Goodbye.");
+  twiml.hangup();
+  res.type("text/xml").send(twiml.toString());
+});
+
+app.post("/voice/voicemail-done", (req, res) => {
+  const { CallSid, RecordingUrl, RecordingDuration } = req.body;
+  if (RecordingUrl && CallSid) {
+    db.prepare("UPDATE calls SET recording_url = ?, status = 'voicemail' WHERE call_sid = ?")
+      .run(RecordingUrl, CallSid);
+    console.log(`✅ Voicemail saved for ${CallSid}: ${RecordingUrl}`);
+  }
+  res.sendStatus(200);
 });
 
 // Call status callback
