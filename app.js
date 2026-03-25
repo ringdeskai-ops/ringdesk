@@ -154,7 +154,7 @@ app.post("/api/auth/register", async (req, res) => {
 Answer general enquiries, take messages, and transfer to the right team when needed.
 Keep responses under 40 words — this is a phone call.
 If the caller wants to leave a voicemail or message, or if no one is available, reply with exactly [VOICEMAIL] to transfer them to voicemail.
-If the caller wants to book an appointment and you have collected their name, preferred date, time and email, reply with [BOOK:name|date|time|email] e.g. [BOOK:John Smith|2026-03-26|14:00|john@example.com]. Date must be YYYY-MM-DD format.`;
+If the caller wants to book an appointment, collect their name, preferred date and time only. Then reply with [BOOK:name|YYYY-MM-DD|HH:MM|none] e.g. [BOOK:John Smith|2026-03-26|14:00|none]. Ask one question at a time. Confirm each answer before moving to next.`;
 
   try {
     db.prepare('INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region) VALUES (?, ?, ?, ?, ?, ?, ?, \'client\', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
@@ -587,7 +587,7 @@ app.post("/voice/speech", async (req, res) => {
 
   try {
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('timeout')), 2500)
+      setTimeout(() => reject(new Error('timeout')), 4000)
     );
     let { reply, transferDept } = await Promise.race([
       askClaude(client, session, SpeechResult),
