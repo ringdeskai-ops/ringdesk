@@ -250,6 +250,28 @@ app.get("/api/calls", authRequired, (req, res) => {
   res.json({ calls, total });
 });
 
+// ── Voicemail recording proxy ─────────────────────────────────────────────────
+app.get("/api/calls/:id/recording", authRequired, async (req, res) => {
+  const call = db.prepare("SELECT * FROM calls WHERE id = ? AND client_id = ?").get(req.params.id, req.client.id);
+  if (!call) return res.status(404).json({ error: "Not found" });
+  if (!call.recording_url) return res.status(404).json({ error: "No recording" });
+  try {
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const response = await fetch(call.recording_url + '.mp3', {
+      headers: { 'Authorization': 'Basic ' + Buffer.from(accountSid + ':' + authToken).toString('base64') }
+    });
+    if (!response.ok) return res.status(502).json({ error: 'Recording unavailable' });
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Cache-Control', 'no-cache');
+    const buffer = await response.arrayBuffer();
+    res.send(Buffer.from(buffer));
+  } catch(err) {
+    console.error('Recording proxy error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Get single call with full transcript
 app.get("/api/calls/:id", authRequired, (req, res) => {
   const call = db.prepare("SELECT * FROM calls WHERE id = ? AND client_id = ?").get(req.params.id, req.client.id);

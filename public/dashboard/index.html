@@ -1054,9 +1054,17 @@ tr:hover td{background:rgba(255,255,255,.015)}
                 <button onclick="extendSub(12)" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600">+12 mo</button>
               </div>
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
               <span style="font-size:12px;color:var(--muted)">Referral programme access</span>
               <div class="toggle" id="clientReferralToggle" onclick="toggleDetailReferral()"><div class="toggle-thumb"></div></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+              <div><span style="font-size:12px;color:var(--muted)">Voicemail recordings</span><div style="font-size:10px;color:var(--dim)">Customer can play back voicemails</div></div>
+              <div class="toggle" id="clientVoicemailToggle" onclick="toggleDetailFeature('voicemail_enabled','clientVoicemailToggle')"><div class="toggle-thumb"></div></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0">
+              <div><span style="font-size:12px;color:var(--muted)">Call recording</span><div style="font-size:10px;color:var(--dim)">Record and store all calls</div></div>
+              <div class="toggle" id="clientCallRecordingToggle" onclick="toggleDetailFeature('call_recording','clientCallRecordingToggle')"><div class="toggle-thumb"></div></div>
             </div>
           </div>
         </div>
@@ -1843,6 +1851,11 @@ tr:hover td{background:rgba(255,255,255,.015)}
         <div class="detail-summary-label">AI Summary</div>
         <div class="detail-summary-text" id="detailSummaryText"></div>
       </div>
+      <div id="voicemailPlayer" style="display:none;margin-bottom:16px;background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.2);border-radius:10px;padding:14px 16px">
+        <div style="font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:.06em;font-weight:700;margin-bottom:10px">📬 Voicemail Recording</div>
+        <audio id="voicemailAudio" controls style="width:100%;border-radius:6px;outline:none;accent-color:#ffb800"></audio>
+        <div id="voicemailError" style="display:none;font-size:12px;color:var(--red);margin-top:8px"></div>
+      </div>
       <div class="transcript-wrap" id="detailTranscript"></div>
       <div class="detail-actions">
         <button class="action-btn action-callback" id="callbackBtn" onclick="initiateCallback()">
@@ -2268,6 +2281,19 @@ function openCallDetail(id) {
     tw.innerHTML = `<div class="transcript-label">Full transcript</div>` +
       transcript.map(m => `<div class="t-msg t-${m.role==='user'?'caller':'ai'}"><div class="t-role">${m.role==='user'?'Caller':'Aria'}</div><div class="t-bubble">${m.content}</div></div>`).join('');
   } else { tw.innerHTML = ''; }
+  const playerEl = document.getElementById('voicemailPlayer');
+  const audioEl = document.getElementById('voicemailAudio');
+  const audioErr = document.getElementById('voicemailError');
+  if (selectedCall.status === 'voicemail' && selectedCall.recording_url) {
+    playerEl.style.display = 'block';
+    audioEl.src = '/api/calls/' + selectedCall.id + '/recording';
+    audioEl.load();
+    audioErr.style.display = 'none';
+    audioEl.onerror = () => { audioErr.style.display = 'block'; audioErr.textContent = 'Recording unavailable or expired.'; };
+  } else {
+    playerEl.style.display = 'none';
+    audioEl.src = '';
+  }
   document.getElementById('callbackBtn').style.display = selectedCall.caller_number ? 'flex' : 'none';
   document.getElementById('callDetail').classList.add('open');
 }
@@ -2471,6 +2497,10 @@ async function openCustomerDetail(clientId) {
     : 'Monthly (auto-renew)';
   const refToggle = document.getElementById('clientReferralToggle');
   refToggle.classList.toggle('on', customer.referral_programme_enabled !== 0);
+  const vmToggle = document.getElementById('clientVoicemailToggle');
+  if (vmToggle) vmToggle.classList.toggle('on', customer.voicemail_enabled !== 0);
+  const crToggle = document.getElementById('clientCallRecordingToggle');
+  if (crToggle) crToggle.classList.toggle('on', customer.call_recording !== 0);
 
   // Show provision button if no number
   var provBtn = document.getElementById('detailProvisionBtn');
@@ -2543,6 +2573,21 @@ async function extendSub(months) {
   if (data && data.success) {
     document.getElementById('dSubEnds').textContent = data.ends_date;
     showToast('Subscription extended by ' + months + ' month(s) until ' + data.ends_date, 'success');
+  }
+}
+
+async function toggleDetailFeature(feature, toggleId) {
+  if (!currentDetailCustomer) return;
+  const el = document.getElementById(toggleId);
+  const newVal = el.classList.contains('on') ? 0 : 1;
+  el.classList.toggle('on', newVal === 1);
+  try {
+    await api('/api/admin/toggle', { method: 'POST', body: { client_id: currentDetailCustomer.id, feature, value: newVal } });
+    currentDetailCustomer[feature] = newVal;
+    showToast(feature.replace('_', ' ') + ' ' + (newVal ? 'enabled' : 'disabled'), 'info');
+  } catch(e) {
+    el.classList.toggle('on', newVal === 0);
+    showToast('Failed to update', 'error');
   }
 }
 

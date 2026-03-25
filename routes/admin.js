@@ -61,7 +61,8 @@ module.exports = function(db, sendBrevoEmail) {
 
   router.post('/toggle', adminRequired, (req, res) => {
     const { client_id, feature, value } = req.body;
-    if (!['email_notifications'].includes(feature)) return res.status(400).json({ error: 'Invalid feature' });
+    const allowed = ['email_notifications', 'voicemail_enabled', 'call_recording'];
+    if (!allowed.includes(feature)) return res.status(400).json({ error: 'Invalid feature' });
     db.prepare('UPDATE clients SET ' + feature + ' = ? WHERE id = ?').run(value, client_id);
     res.json({ success: true });
   });
