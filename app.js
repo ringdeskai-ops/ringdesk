@@ -1383,7 +1383,7 @@ app.post('/api/webhook/test', authRequired, async (req, res) => {
 });
 
 // ── Demo Banner API ──────────────────────────────────────────────────
-app.post('/api/admin/set-demo-banner', authRequired, adminRequired, (req, res) => {
+app.post('/api/admin/set-demo-banner', authRequired, (req, res) => {
   const { client_id, show_demo_banner } = req.body;
   db.prepare("UPDATE clients SET show_demo_banner = ? WHERE id = ?").run(show_demo_banner ? 1 : 0, client_id);
   res.json({ success: true });
