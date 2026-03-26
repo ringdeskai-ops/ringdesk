@@ -203,7 +203,7 @@ app.post("/api/auth/login", async (req, res) => {
 
 // Get client profile + stats
 app.get("/api/client/profile", authRequired, (req, res) => {
-  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, ai_voice, ai_voice_language, departments, calls_this_month, call_limit, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number FROM clients WHERE id = ?").get(req.client.id);
+  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, ai_voice, ai_voice_language, departments, calls_this_month, call_limit, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number, show_demo_banner FROM clients WHERE id = ?").get(req.client.id);
   if (!client) return res.status(404).json({ error: "Not found" });
   client.departments = JSON.parse(client.departments || "{}");
   res.json(client);
@@ -1380,6 +1380,20 @@ app.post('/api/webhook/test', authRequired, async (req, res) => {
   } catch(err) {
     res.status(500).json({ error: 'Webhook delivery failed: ' + err.message });
   }
+});
+
+// ── Demo Banner API ──────────────────────────────────────────────────
+app.post('/api/admin/set-demo-banner', authRequired, adminRequired, (req, res) => {
+  const { client_id, show_demo_banner } = req.body;
+  db.prepare("UPDATE clients SET show_demo_banner = ? WHERE id = ?").run(show_demo_banner ? 1 : 0, client_id);
+  res.json({ success: true });
+});
+
+// ── Demo Banner API ──────────────────────────────────────────────────
+app.post('/api/admin/set-demo-banner', authRequired, adminRequired, (req, res) => {
+  const { client_id, show_demo_banner } = req.body;
+  db.prepare("UPDATE clients SET show_demo_banner = ? WHERE id = ?").run(show_demo_banner ? 1 : 0, client_id);
+  res.json({ success: true });
 });
 
 // ── Appointments API ──────────────────────────────────────────────────
