@@ -623,11 +623,20 @@ app.post("/voice/speech", async (req, res) => {
               description: `Booked via AiRingDesk AI receptionist`,
               start: { dateTime: startDateTime.toISOString(), timeZone: 'Europe/London' },
               end: { dateTime: endDateTime.toISOString(), timeZone: 'Europe/London' },
-              attendees: email ? [{ email }] : []
+              attendees: (email && email !== 'none' && email.includes('@')) ? [{ email }] : []
             },
             sendUpdates: 'all'
           });
           console.log(`✅ Appointment booked for ${name} on ${date} at ${time}`);
+          try {
+            const apptId = uuidv4();
+            const callRecord = db.prepare("SELECT id FROM calls WHERE call_sid = ?").get(CallSid);
+            const callerPhone = db.prepare("SELECT caller_number FROM calls WHERE call_sid = ?").get(CallSid)?.caller_number || null;
+            db.prepare(`INSERT INTO appointments (id, client_id, call_id, caller_name, caller_phone, date, time, google_event_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`).run(apptId, client.id, callRecord?.id || null, name, callerPhone, date, time, result?.data?.id || null);
+            console.log(`📅 Appointment saved to DB: ${name} on ${date} at ${time}`);
+          } catch(dbErr) {
+            console.error("Appointment DB save error:", dbErr.message);
+          }
         } catch(e) {
           console.error('Booking error:', e.message);
         }
@@ -1206,6 +1215,38 @@ app.use('/dashboard', (req, res, next) => {
 app.get('/dashboard/*', (req, res) => res.sendFile(__dirname + '/public/dashboard/index.html'));
 
 const PORT = process.env.PORT || 3000;
+// ── Appointments API ──────────────────────────────────────────────────
+app.get('/api/appointments', authRequired, (req, res) => {
+  const appointments = db.prepare(`
+    SELECT a.*, c.caller_number, c.summary
+    FROM appointments a
+    LEFT JOIN calls c ON a.call_id = c.id
+    WHERE a.client_id = ?
+    ORDER BY a.date DESC, a.time DESC
+  `).all(req.client.id);
+  res.json({ appointments });
+});
+
+app.post('/api/appointments/status', authRequired, (req, res) => {
+  const { appointment_id, status } = req.body;
+    return res.status(400).json({ error: 'Invalid status' });
+  db.prepare('UPDATE appointments SET status = ? WHERE id = ? AND client_id = ?')
+    .run(status, appointment_id, req.client.id);
+  res.json({ success: true });
+});
+
+app.get('/api/admin/appointments/:clientId', authRequired, (req, res) => {
+    return res.status(403).json({ error: 'Admin only' });
+  const appointments = db.prepare(`
+    SELECT a.*, c.caller_number, c.summary
+    FROM appointments a
+    LEFT JOIN calls c ON a.call_id = c.id
+    WHERE a.client_id = ?
+    ORDER BY a.date DESC, a.time DESC
+  `).all(req.params.clientId);
+  res.json({ appointments });
+});
+
 app.listen(PORT, () => console.log(`\n🚀 RingDesk server running on port ${PORT}\n`));
 
 // ═══════════════════════════════════════════════════════════════════════════════

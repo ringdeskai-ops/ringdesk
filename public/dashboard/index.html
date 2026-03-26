@@ -378,6 +378,11 @@ tr:hover td{background:rgba(255,255,255,.015)}
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         Leads
       </button>
+      <button class="nav-btn" onclick="showPage('appointments')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Appointments
+        <span class="nav-badge" id="apptBadge" style="display:none">0</span>
+      </button>
 
       <div class="nav-section-label">Configure</div>
       <button class="nav-btn" onclick="showPage('my-account')">
@@ -723,6 +728,22 @@ tr:hover td{background:rgba(255,255,255,.015)}
             </tbody>
           </table>
         </div>
+      </div>
+    </div>
+
+    <!-- ── APPOINTMENTS PAGE ── -->
+    <div class="page" id="page-appointments">
+      <div class="page-header"><div><div class="page-title">AI <em>Appointments</em></div><div class="page-sub">Bookings made by your AI receptionist during calls</div></div><div class="header-actions"><button class="btn-sm btn-ghost-sm" onclick="loadAppointments()">Refresh</button></div></div>
+      <div class="stats-row" style="margin-bottom:20px">
+        <div class="stat-card" style="--c:rgba(0,212,255,.3)"><div class="stat-val" id="apptTotal" style="color:var(--cyan)">0</div><div class="stat-label">Total bookings</div></div>
+        <div class="stat-card" style="--c:rgba(255,184,0,.3)"><div class="stat-val" id="apptPending" style="color:var(--amber)">0</div><div class="stat-label">Pending</div></div>
+        <div class="stat-card" style="--c:rgba(0,232,122,.3)"><div class="stat-val" id="apptConfirmed" style="color:var(--green)">0</div><div class="stat-label">Confirmed</div></div>
+        <div class="stat-card" style="--c:rgba(255,68,102,.3)"><div class="stat-val" id="apptCancelled" style="color:var(--red)">0</div><div class="stat-label">Cancelled</div></div>
+      </div>
+      <div id="apptNoCalendar" style="display:none;background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.2);border-radius:12px;padding:16px 20px;margin-bottom:20px;align-items:center;gap:14px"><div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--text)">Google Calendar not connected</div><div style="font-size:12px;color:var(--muted)">Connect Google Calendar in AI Settings so your AI can automatically book appointments.</div></div><button onclick="showPage('settings')" style="background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);color:var(--amber);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600">Connect Calendar</button></div>
+      <div class="table-card">
+        <div class="table-header"><div><div class="table-title">All Appointments</div><div class="table-sub">Booked automatically by your AI receptionist</div></div><div class="table-actions"><button class="filter-btn active" onclick="filterAppts('all',this)">All</button><button class="filter-btn" onclick="filterAppts('pending',this)">Pending</button><button class="filter-btn" onclick="filterAppts('confirmed',this)">Confirmed</button><button class="filter-btn" onclick="filterAppts('cancelled',this)">Cancelled</button><button class="filter-btn" onclick="filterAppts('completed',this)">Completed</button></div></div>
+        <div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Date</th><th>Time</th><th>Phone</th><th>AI Summary</th><th>Status</th><th>Booked</th><th>Actions</th></tr></thead><tbody id="apptsTableBody"><tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Loading appointments...</td></tr></tbody></table></div>
       </div>
     </div>
 
@@ -2816,6 +2837,7 @@ function showPage(name) {
   closeDetail();
   if (name === 'calls') renderCalls();
   if (name === 'leads') { renderLeads(); loadWebsiteLeads(); }
+  if (name === 'appointments') loadAppointments();
   if (name === 'customers') loadCustomers();
   if (name === 'subscriptions') { loadCustomers(); }
   if (name === 'revenue') loadRevenue();
@@ -2838,6 +2860,82 @@ function fmtTimeAgo(ts) {
   return `${Math.floor(diff/86400)}d ago`;
 }
 
+
+// ── APPOINTMENTS ──────────────────────────────────────────────────────
+let allAppointments = [];
+let currentApptFilter = 'all';
+
+async function loadAppointments() {
+  const data = await api('/api/appointments');
+  if (!data) return;
+  allAppointments = data.appointments || [];
+  document.getElementById('apptTotal').textContent = allAppointments.length;
+  document.getElementById('apptPending').textContent = allAppointments.filter(function(a) { return a.status === 'pending'; }).length;
+  document.getElementById('apptConfirmed').textContent = allAppointments.filter(function(a) { return a.status === 'confirmed'; }).length;
+  document.getElementById('apptCancelled').textContent = allAppointments.filter(function(a) { return a.status === 'cancelled'; }).length;
+  var pending = allAppointments.filter(function(a) { return a.status === 'pending'; }).length;
+  var badge = document.getElementById('apptBadge');
+  if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? 'inline-block' : 'none'; }
+  var calStatus = await api('/api/calendar/status');
+  var warn = document.getElementById('apptNoCalendar');
+  if (warn) warn.style.display = (calStatus && calStatus.connected) ? 'none' : 'flex';
+  renderAppointments();
+}
+
+function renderAppointments() {
+  var filtered = currentApptFilter === 'all' ? allAppointments : allAppointments.filter(function(a) { return a.status === currentApptFilter; });
+  var sc = {
+    pending:   { bg:'rgba(255,184,0,.1)',  color:'var(--amber)', border:'rgba(255,184,0,.2)' },
+    confirmed: { bg:'rgba(0,232,122,.1)',  color:'var(--green)', border:'rgba(0,232,122,.2)' },
+    cancelled: { bg:'rgba(255,68,102,.1)', color:'var(--red)',   border:'rgba(255,68,102,.2)' },
+    completed: { bg:'rgba(0,212,255,.1)',  color:'var(--cyan)',  border:'rgba(0,212,255,.2)' }
+  };
+  var tbody = document.getElementById('apptsTableBody');
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">' + (allAppointments.length === 0 ? 'No appointments yet. Your AI books them automatically during calls.' : 'No appointments match this filter.') + '</td></tr>';
+    return;
+  }
+  tbody.innerHTML = filtered.map(function(a) {
+    var s = sc[a.status] || sc.pending;
+    var dateFormatted = a.date ? new Date(a.date + 'T12:00:00').toLocaleDateString('en-GB', {weekday:'short',day:'numeric',month:'short',year:'numeric'}) : '—';
+    var phone = a.caller_phone || a.caller_number || '—';
+    return '<tr>'
+      + '<td><div style="font-size:13px;font-weight:600;color:var(--text)">' + (a.caller_name || 'Unknown') + '</div></td>'
+      + '<td><div style="font-size:13px;font-weight:600;color:var(--text)">' + dateFormatted + '</div></td>'
+      + '<td><div style="font-size:13px;font-weight:700;color:var(--cyan)">' + (a.time || '—') + '</div></td>'
+      + '<td style="font-size:12px;color:var(--muted)">' + phone + '</td>'
+      + '<td><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--muted)">' + (a.summary || '—') + '</div></td>'
+      + '<td><span style="display:inline-flex;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;background:' + s.bg + ';color:' + s.color + ';border:1px solid ' + s.border + '">' + a.status + '</span></td>'
+      + '<td style="font-size:11px;color:var(--muted)">' + fmtDate(a.created_at) + '</td>'
+      + '<td><div style="display:flex;gap:5px;flex-wrap:wrap">'
+      + (a.status !== 'confirmed'  ? '<button onclick="updateApptStatus(\'' + a.id + '\',\'confirmed\')"  style="background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);color:var(--green);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">Confirm</button>' : '')
+      + (a.status !== 'completed'  ? '<button onclick="updateApptStatus(\'' + a.id + '\',\'completed\')"  style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cyan);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">Done</button>' : '')
+      + (a.status !== 'cancelled'  ? '<button onclick="updateApptStatus(\'' + a.id + '\',\'cancelled\')"  style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">Cancel</button>' : '')
+      + (phone !== '—' ? '<a href="tel:' + phone + '" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">Call</a>' : '')
+      + '</div></td>'
+      + '</tr>';
+  }).join('');
+}
+
+function filterAppts(filter, btn) {
+  currentApptFilter = filter;
+  document.querySelectorAll('#page-appointments .filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderAppointments();
+}
+
+async function updateApptStatus(id, status) {
+  var data = await api('/api/appointments/status', { method: 'POST', body: { appointment_id: id, status: status } });
+  if (data && data.success) {
+    var a = allAppointments.find(function(x) { return x.id === id; });
+    if (a) a.status = status;
+    renderAppointments();
+    document.getElementById('apptPending').textContent   = allAppointments.filter(function(a) { return a.status === 'pending'; }).length;
+    document.getElementById('apptConfirmed').textContent = allAppointments.filter(function(a) { return a.status === 'confirmed'; }).length;
+    document.getElementById('apptCancelled').textContent = allAppointments.filter(function(a) { return a.status === 'cancelled'; }).length;
+    showToast('Appointment ' + status, status === 'confirmed' ? 'success' : status === 'cancelled' ? 'error' : 'info');
+  }
+}
 
 // ── REFERRAL ──────────────────────────────────────────────────────────
 let refData = null;
