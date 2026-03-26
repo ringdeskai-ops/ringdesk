@@ -405,6 +405,10 @@ tr:hover td{background:rgba(255,255,255,.015)}
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
         Referrals
       </button>
+      <button class="nav-btn" onclick="showPage('help')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Help &amp; Guide
+      </button>
 
       <!-- Super admin only -->
       <div id="adminNav" style="display:none">
@@ -900,7 +904,217 @@ tr:hover td{background:rgba(255,255,255,.015)}
       </div>
     </div>
 
-    <!-- ── ADMIN: CUSTOMERS ── -->
+        <!-- ── HELP & GUIDE PAGE ── -->
+    <div class="page" id="page-help">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Help <em>&amp; Guide</em></div>
+          <div class="page-sub">Everything you need to get the most out of AiRingDesk</div>
+        </div>
+        <a href="mailto:hello@airingdesk.com" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;display:flex;align-items:center;gap:6px">Contact Support</a>
+      </div>
+
+      <div style="background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,102,255,.06));border:1px solid rgba(0,212,255,.2);border-radius:16px;padding:24px;margin-bottom:24px">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(0,212,255,.1);border:2px solid rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🚀</div>
+          <div style="flex:1"><div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px">Get live in under 15 minutes</div><div style="font-size:13px;color:var(--muted)">Follow these 4 steps and your AI receptionist will be answering calls automatically</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:20px">
+          <div style="background:rgba(0,0,0,.2);border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--cyan);color:#020408;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">1</div>
+            <div><div style="font-size:13px;font-weight:600;color:var(--text)">Get your phone number</div><a href="/get-number" style="font-size:11px;color:var(--cyan);text-decoration:none">Pick a number →</a></div>
+          </div>
+          <div style="background:rgba(0,0,0,.2);border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--amber);color:#020408;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">2</div>
+            <div><div style="font-size:13px;font-weight:600;color:var(--text)">Write your AI script</div><a href="#" onclick="showPage('settings')" style="font-size:11px;color:var(--amber);text-decoration:none">AI Settings →</a></div>
+          </div>
+          <div style="background:rgba(0,0,0,.2);border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--green);color:#020408;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">3</div>
+            <div><div style="font-size:13px;font-weight:600;color:var(--text)">Set up notifications</div><a href="#" onclick="showPage('notifications')" style="font-size:11px;color:var(--green);text-decoration:none">Notifications →</a></div>
+          </div>
+          <div style="background:rgba(0,0,0,.2);border-radius:10px;padding:14px;display:flex;align-items:center;gap:10px">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--purple);color:#020408;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0">4</div>
+            <div><div style="font-size:13px;font-weight:600;color:var(--text)">Test your AI</div><div style="font-size:11px;color:var(--purple)">Call your number ✅</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px">
+
+        <div class="table-card">
+          <div onclick="toggleGuide('guide-ai')" style="padding:18px 22px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:36px;height:36px;border-radius:9px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:16px">🤖</div>
+              <div><div style="font-size:14px;font-weight:700;color:var(--text)">AI Script Setup</div><div style="font-size:12px;color:var(--muted)">How to write the perfect AI receptionist script</div></div>
+            </div>
+            <span id="guide-ai-arrow" style="color:var(--muted);font-size:18px;transition:transform .2s">▼</span>
+          </div>
+          <div id="guide-ai" style="display:none;border-top:1px solid var(--border);padding:22px">
+            <div style="background:rgba(0,0,0,.3);border:2px dashed rgba(0,212,255,.2);border-radius:12px;padding:32px;text-align:center;margin-bottom:20px">
+              <div style="font-size:32px;margin-bottom:8px">▶️</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">Video Tutorial: Setting Up Your AI Script</div>
+              <div style="font-size:12px;color:var(--muted)">Coming soon — subscribe to our YouTube channel for updates</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--cyan)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 1 — Go to AI Settings</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Click AI Settings in the sidebar. Here you can set your AI receptionist name and write your script.</div></div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--cyan)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 2 — Give your AI a name</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Choose a professional name like Sophie, Aria or Emma. This is what callers will hear when they call.</div></div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--cyan)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 3 — Write your script</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Include your business name, opening hours, top 5 FAQs, how to handle different callers, and what to do if someone needs urgent help. Keep it under 300 words for best results.</div></div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--cyan)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 4 — Set transfer numbers</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Add phone numbers for Sales, Support, Billing and Manager. When a caller asks to speak to someone, the AI will transfer them automatically.</div></div>
+            </div>
+            <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:16px;margin-bottom:16px">
+              <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Common Questions</div>
+              <div style="font-size:13px;color:var(--muted);line-height:1.9"><strong style="color:var(--text)">How long should my script be?</strong><br>Between 100-300 words. Too short and the AI wont know enough. Too long and responses slow down.<br><br><strong style="color:var(--text)">Can I change the script anytime?</strong><br>Yes — changes take effect immediately on the next call.<br><br><strong style="color:var(--text)">What language should I write it in?</strong><br>English only currently.</div>
+            </div>
+            <button onclick="showPage('settings')" style="background:var(--cyan);color:#020408;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Go to AI Settings →</button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div onclick="toggleGuide('guide-notif')" style="padding:18px 22px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:36px;height:36px;border-radius:9px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.2);display:flex;align-items:center;justify-content:center;font-size:16px">📧</div>
+              <div><div style="font-size:14px;font-weight:700;color:var(--text)">Email Notifications</div><div style="font-size:12px;color:var(--muted)">Get notified after every call with full transcript</div></div>
+            </div>
+            <span id="guide-notif-arrow" style="color:var(--muted);font-size:18px;transition:transform .2s">▼</span>
+          </div>
+          <div id="guide-notif" style="display:none;border-top:1px solid var(--border);padding:22px">
+            <div style="background:rgba(0,0,0,.3);border:2px dashed rgba(0,232,122,.2);border-radius:12px;padding:32px;text-align:center;margin-bottom:20px">
+              <div style="font-size:32px;margin-bottom:8px">▶️</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">Video Tutorial: Setting Up Email Notifications</div>
+              <div style="font-size:12px;color:var(--muted)">Coming soon</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--green)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 1 — Go to Notifications</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Click Notifications in the sidebar. Toggle on the alerts you want to receive.</div></div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--green)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 2 — Enable call notifications</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Turn on Call notifications to receive an email after every completed call with full transcript and AI summary.</div></div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--green)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 3 — Send a test email</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Scroll down and click Send test email to confirm notifications are working. Check your spam folder if you dont see it.</div></div>
+            </div>
+            <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:16px;margin-bottom:16px">
+              <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Common Questions</div>
+              <div style="font-size:13px;color:var(--muted);line-height:1.9"><strong style="color:var(--text)">I am not receiving emails — what do I do?</strong><br>Check your spam folder first. Add hello@airingdesk.com to your contacts. Then send a test email from the Notifications page.<br><br><strong style="color:var(--text)">Which email address do notifications go to?</strong><br>They go to the email address you registered with. Update it in My Account.<br><br><strong style="color:var(--text)">Can I get a daily summary instead of per-call emails?</strong><br>Yes — enable the Daily Summary toggle in the Notifications page.</div>
+            </div>
+            <button onclick="showPage('notifications')" style="background:var(--green);color:#020408;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Go to Notifications →</button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div onclick="toggleGuide('guide-cal')" style="padding:18px 22px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:36px;height:36px;border-radius:9px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);display:flex;align-items:center;justify-content:center;font-size:16px">📅</div>
+              <div><div style="font-size:14px;font-weight:700;color:var(--text)">Google Calendar Integration</div><div style="font-size:12px;color:var(--muted)">Let your AI book appointments directly into your calendar</div></div>
+            </div>
+            <span id="guide-cal-arrow" style="color:var(--muted);font-size:18px;transition:transform .2s">▼</span>
+          </div>
+          <div id="guide-cal" style="display:none;border-top:1px solid var(--border);padding:22px">
+            <div style="background:rgba(0,0,0,.3);border:2px dashed rgba(167,139,250,.2);border-radius:12px;padding:32px;text-align:center;margin-bottom:20px">
+              <div style="font-size:32px;margin-bottom:8px">▶️</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">Video Tutorial: Connecting Google Calendar</div>
+              <div style="font-size:12px;color:var(--muted)">Coming soon</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--purple)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 1 — Go to AI Settings</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Scroll down to the Google Calendar section and click Connect Google Calendar.</div></div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--purple)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 2 — Sign in with Google</div><div style="font-size:13px;color:var(--muted);line-height:1.7">You will be redirected to Google. Sign in with the Google account that has the calendar you want appointments booked into.</div></div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--purple)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 3 — Allow calendar access</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Grant AiRingDesk permission to create calendar events. We only create events — we never read, edit or delete your existing calendar data.</div></div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--purple)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 4 — Update your AI script</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Add booking instructions to your AI script. The AI will automatically book appointments into your calendar during calls.</div></div>
+            </div>
+            <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:16px;margin-bottom:16px">
+              <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Common Questions</div>
+              <div style="font-size:13px;color:var(--muted);line-height:1.9"><strong style="color:var(--text)">Which calendar does it book into?</strong><br>It books into your primary Google Calendar by default.<br><br><strong style="color:var(--text)">Will callers receive a confirmation email?</strong><br>Yes — if the AI captures their email during the call, Google Calendar will send them an invite automatically.<br><br><strong style="color:var(--text)">What if I disconnect my calendar?</strong><br>Existing appointments are not affected. New bookings will be saved to your Appointments dashboard but not added to Google Calendar until you reconnect.</div>
+            </div>
+            <button onclick="showPage('settings')" style="background:var(--purple);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Go to AI Settings →</button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div onclick="toggleGuide('guide-appt')" style="padding:18px 22px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:36px;height:36px;border-radius:9px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.2);display:flex;align-items:center;justify-content:center;font-size:16px">🗓️</div>
+              <div><div style="font-size:14px;font-weight:700;color:var(--text)">Managing Appointments</div><div style="font-size:12px;color:var(--muted)">How to view, confirm and manage AI-booked appointments</div></div>
+            </div>
+            <span id="guide-appt-arrow" style="color:var(--muted);font-size:18px;transition:transform .2s">▼</span>
+          </div>
+          <div id="guide-appt" style="display:none;border-top:1px solid var(--border);padding:22px">
+            <div style="background:rgba(0,0,0,.3);border:2px dashed rgba(0,232,122,.2);border-radius:12px;padding:32px;text-align:center;margin-bottom:20px">
+              <div style="font-size:32px;margin-bottom:8px">▶️</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">Video Tutorial: Managing Appointments</div>
+              <div style="font-size:12px;color:var(--muted)">Coming soon</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--green)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">How appointments are created</div><div style="font-size:13px;color:var(--muted);line-height:1.7">When a caller asks to book, your AI collects their name, date and time, then automatically saves it to your Appointments page and Google Calendar if connected.</div></div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--green)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Archive vs Delete</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Archive hides the appointment from your view but keeps it on record. Delete removes it from your view. Deleted appointments are never permanently lost — contact support to restore them.</div></div>
+            </div>
+            <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:16px;margin-bottom:16px">
+              <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Common Questions</div>
+              <div style="font-size:13px;color:var(--muted);line-height:1.9"><strong style="color:var(--text)">I accidentally deleted an appointment — can I get it back?</strong><br>Yes — contact support at hello@airingdesk.com and we can restore it.<br><br><strong style="color:var(--text)">Why is my appointment not in Google Calendar?</strong><br>Make sure Google Calendar is connected in AI Settings before the call is made.</div>
+            </div>
+            <button onclick="showPage('appointments')" style="background:var(--green);color:#020408;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Go to Appointments →</button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div onclick="toggleGuide('guide-calls')" style="padding:18px 22px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:36px;height:36px;border-radius:9px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:16px">📞</div>
+              <div><div style="font-size:14px;font-weight:700;color:var(--text)">Call Logs &amp; Leads</div><div style="font-size:12px;color:var(--muted)">Understanding your call history and lead tracking</div></div>
+            </div>
+            <span id="guide-calls-arrow" style="color:var(--muted);font-size:18px;transition:transform .2s">▼</span>
+          </div>
+          <div id="guide-calls" style="display:none;border-top:1px solid var(--border);padding:22px">
+            <div style="background:rgba(0,0,0,.3);border:2px dashed rgba(0,212,255,.2);border-radius:12px;padding:32px;text-align:center;margin-bottom:20px">
+              <div style="font-size:32px;margin-bottom:8px">▶️</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">Video Tutorial: Reading Your Call Logs</div>
+              <div style="font-size:12px;color:var(--muted)">Coming soon</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--cyan)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Reading call logs</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Every call is recorded with caller name, number, duration, AI summary and full transcript. Click any call to view full details and play voicemails.</div></div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--cyan)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Following up on leads</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Go to Leads to see all callers who enquired. Click Call back to call them directly from your dashboard.</div></div>
+            </div>
+            <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:16px;margin-bottom:16px">
+              <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Common Questions</div>
+              <div style="font-size:13px;color:var(--muted);line-height:1.9"><strong style="color:var(--text)">Can I export my call logs?</strong><br>Yes — click Export CSV on the Call Logs page.<br><br><strong style="color:var(--text)">Why does the caller name show as Unknown?</strong><br>The AI captures the name during the call. If the caller hung up before giving their name it will show as Unknown.</div>
+            </div>
+            <button onclick="showPage('calls')" style="background:var(--cyan);color:#020408;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Go to Call Logs →</button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div onclick="toggleGuide('guide-billing')" style="padding:18px 22px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:36px;height:36px;border-radius:9px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.2);display:flex;align-items:center;justify-content:center;font-size:16px">💳</div>
+              <div><div style="font-size:14px;font-weight:700;color:var(--text)">Billing &amp; Plans</div><div style="font-size:12px;color:var(--muted)">Managing your subscription and payments</div></div>
+            </div>
+            <span id="guide-billing-arrow" style="color:var(--muted);font-size:18px;transition:transform .2s">▼</span>
+          </div>
+          <div id="guide-billing" style="display:none;border-top:1px solid var(--border);padding:22px">
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--green)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Your free trial</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Your 7-day free trial includes 50 calls. No payment is taken until your trial ends. You can upgrade or cancel anytime.</div></div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--green)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Upgrading your plan</div><div style="font-size:13px;color:var(--muted);line-height:1.7">Go to Billing in the sidebar and click Upgrade on any plan. You will be taken to our secure Stripe payment page.</div></div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--green)"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Cancelling your subscription</div><div style="font-size:13px;color:var(--muted);line-height:1.7">You can cancel anytime from the Billing page. Your service remains active until end of billing period.</div></div>
+            </div>
+            <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:16px;margin-bottom:16px">
+              <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Common Questions</div>
+              <div style="font-size:13px;color:var(--muted);line-height:1.9"><strong style="color:var(--text)">When will I be charged?</strong><br>At the end of your 7-day free trial, then monthly on the same date.<br><br><strong style="color:var(--text)">What happens if I go over my call limit?</strong><br>Your AI will stop answering calls until the next billing period. Upgrade your plan to get more calls.<br><br><strong style="color:var(--text)">Can I get a refund?</strong><br>Contact hello@airingdesk.com — we offer refunds if there was a technical failure on our part.</div>
+            </div>
+            <button onclick="showPage('billing')" style="background:var(--green);color:#020408;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Go to Billing →</button>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div style="padding:22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:36px;height:36px;border-radius:9px;background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.2);display:flex;align-items:center;justify-content:center;font-size:16px">💬</div>
+              <div><div style="font-size:14px;font-weight:700;color:var(--text)">Still need help?</div><div style="font-size:12px;color:var(--muted)">Our UK support team is available Mon-Fri 9am-6pm GMT</div></div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <a href="mailto:hello@airingdesk.com" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">Email Support</a>
+              <a href="https://wa.me/447429037336" target="_blank" style="background:rgba(37,211,102,.08);border:1px solid rgba(37,211,102,.25);color:#25d366;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none">WhatsApp Support</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+<!-- ── ADMIN: CUSTOMERS ── -->
     <div class="page" id="page-customers">
       <div class="page-header">
         <div>
@@ -2838,6 +3052,7 @@ function showPage(name) {
   if (name === 'calls') renderCalls();
   if (name === 'leads') { renderLeads(); loadWebsiteLeads(); }
   if (name === 'appointments') loadAppointments();
+  if (name === 'help') {}
   if (name === 'customers') loadCustomers();
   if (name === 'subscriptions') { loadCustomers(); }
   if (name === 'revenue') loadRevenue();
@@ -2973,6 +3188,19 @@ async function restoreAppt(id) {
     if (a) { a.client_deleted = 0; a.client_archived = 0; }
     renderAppointments();
     showToast('Appointment restored', 'success');
+  }
+}
+
+// ── HELP GUIDE ───────────────────────────────────────────────────────
+function toggleGuide(id) {
+  var el = document.getElementById(id);
+  var arrow = document.getElementById(id + '-arrow');
+  if (el.style.display === 'none' || el.style.display === '') {
+    el.style.display = 'block';
+    if (arrow) arrow.style.transform = 'rotate(180deg)';
+  } else {
+    el.style.display = 'none';
+    if (arrow) arrow.style.transform = 'rotate(0deg)';
   }
 }
 
