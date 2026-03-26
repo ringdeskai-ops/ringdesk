@@ -1143,6 +1143,157 @@ select option{background-color:#0c1520;color:#f0f6ff}
         </div>
 
         <div class="table-card">
+          <div onclick="toggleGuide('guide-webhook')" style="padding:18px 22px;cursor:pointer;display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:36px;height:36px;border-radius:9px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:16px">🔗</div>
+              <div><div style="font-size:14px;font-weight:700;color:var(--text)">Webhook / CRM Integration</div><div style="font-size:12px;color:var(--muted)">Connect AiRingDesk to Zoho, HubSpot, Salesforce, Zapier and more</div></div>
+            </div>
+            <span id="guide-webhook-arrow" style="color:var(--muted);font-size:18px;transition:transform .2s">▼</span>
+          </div>
+          <div id="guide-webhook" style="display:none;border-top:1px solid var(--border);padding:22px">
+            <div style="background:rgba(0,0,0,.3);border:2px dashed rgba(0,212,255,.2);border-radius:12px;padding:32px;text-align:center;margin-bottom:20px">
+              <div style="font-size:32px;margin-bottom:8px">▶️</div>
+              <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">Video Tutorial: Connecting Your CRM</div>
+              <div style="font-size:12px;color:var(--muted)">Coming soon</div>
+            </div>
+            <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:10px;padding:14px 16px;margin-bottom:16px">
+              <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:6px">What is the webhook?</div>
+              <div style="font-size:13px;color:var(--muted);line-height:1.7">After every call, AiRingDesk automatically sends the call data (caller name, number, AI summary, transcript) to your CRM or automation tool. This creates leads, contacts or tasks automatically — no manual data entry needed.</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--cyan)">
+                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 1 — Get your webhook URL</div>
+                <div style="font-size:13px;color:var(--muted);line-height:1.7">
+                  Choose your integration method:<br><br>
+                  <strong style="color:var(--text)">Zoho CRM via Zoho Flow:</strong> Go to flow.zoho.com → Create Flow → Webhook trigger → Copy the URL<br><br>
+                  <strong style="color:var(--text)">Zapier:</strong> Go to zapier.com → Create Zap → Trigger: Webhooks by Zapier → Catch Hook → Copy URL<br><br>
+                  <strong style="color:var(--text)">HubSpot:</strong> Use Zapier or Make.com as a bridge → HubSpot action<br><br>
+                  <strong style="color:var(--text)">Make (Integromat):</strong> Create scenario → Webhooks module → Custom webhook → Copy URL
+                </div>
+              </div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--cyan)">
+                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 2 — Add URL to AI Settings</div>
+                <div style="font-size:13px;color:var(--muted);line-height:1.7">Go to AI Settings → Webhook / CRM Integration → paste your webhook URL → click Save webhook.</div>
+              </div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--cyan)">
+                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 3 — Send a test</div>
+                <div style="font-size:13px;color:var(--muted);line-height:1.7">Click Send test in AI Settings. This sends a sample call payload to your webhook URL so you can map the fields in your CRM.</div>
+              </div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--cyan)">
+                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 4 — Map the fields in your CRM</div>
+                <div style="font-size:13px;color:var(--muted);line-height:1.7">
+                  AiRingDesk sends these fields after every call:<br><br>
+                  <code style="background:rgba(0,212,255,.08);padding:2px 6px;border-radius:4px;font-size:12px">caller_name</code> — Name of the caller<br>
+                  <code style="background:rgba(0,212,255,.08);padding:2px 6px;border-radius:4px;font-size:12px">caller_number</code> — Caller phone number<br>
+                  <code style="background:rgba(0,212,255,.08);padding:2px 6px;border-radius:4px;font-size:12px">summary</code> — AI summary of the call<br>
+                  <code style="background:rgba(0,212,255,.08);padding:2px 6px;border-radius:4px;font-size:12px">status</code> — completed / voicemail / transferred<br>
+                  <code style="background:rgba(0,212,255,.08);padding:2px 6px;border-radius:4px;font-size:12px">duration</code> — Call duration in seconds<br>
+                  <code style="background:rgba(0,212,255,.08);padding:2px 6px;border-radius:4px;font-size:12px">transcript</code> — Full conversation transcript<br>
+                  <code style="background:rgba(0,212,255,.08);padding:2px 6px;border-radius:4px;font-size:12px">business_name</code> — Your business name
+                </div>
+              </div>
+              <div style="background:var(--surface2);border-radius:10px;padding:14px 16px;border-left:3px solid var(--cyan)">
+                <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">Step 5 — Turn on your flow/zap</div>
+                <div style="font-size:13px;color:var(--muted);line-height:1.7">Make sure your Zoho Flow, Zap or Make scenario is turned ON. Now every completed call will automatically create a lead in your CRM.</div>
+              </div>
+            </div>
+            <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15);border-radius:10px;padding:16px;margin-bottom:16px">
+              <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">Common Questions</div>
+              <div style="font-size:13px;color:var(--muted);line-height:1.9">
+                <strong style="color:var(--text)">Which CRMs are supported?</strong><br>Any CRM that accepts webhooks — Zoho CRM, HubSpot, Salesforce, Pipedrive, Monday, Notion, and more via Zapier or Make.<br><br>
+                <strong style="color:var(--text)">What is the secret key for?</strong><br>Optional security feature. If set, we sign every webhook with HMAC-SHA256. Your CRM can verify the signature using the X-AiRingDesk-Signature header.<br><br>
+                <strong style="color:var(--text)">How quickly is data sent after a call?</strong><br>Within seconds of the call ending. The webhook fires automatically as part of our call completion process.<br><br>
+                <strong style="color:var(--text)">What if my webhook URL changes?</strong><br>Just update it in AI Settings and click Save. The new URL will be used from the next call onwards.
+              </div>
+            </div>
+            <button onclick="showPage('settings')" style="background:var(--cyan);color:#020408;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Go to AI Settings →</button>
+
+            <!-- CRM compatibility list -->
+            <div style="margin-top:20px">
+              <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px">Compatible CRMs &amp; Tools by Industry</div>
+              <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px">
+
+                <div style="background:var(--surface2);border-radius:10px;padding:16px;border:1px solid var(--border)">
+                  <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">💇 Salons &amp; Beauty Parlours</div>
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Fresha</strong> — via Zapier webhook</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Treatwell</strong> — via Make webhook</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Vagaro</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">SimplyBook.me</strong> — direct webhook</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">HubSpot CRM</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Google Sheets</strong> — via Zapier/Make</div>
+                  </div>
+                </div>
+
+                <div style="background:var(--surface2);border-radius:10px;padding:16px;border:1px solid var(--border)">
+                  <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">🔒 Security Firms</div>
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Zoho CRM</strong> — direct webhook ⭐</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Salesforce</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Pipedrive</strong> — direct webhook</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Monday.com</strong> — direct webhook</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">ServiceM8</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Airtable</strong> — direct webhook</div>
+                  </div>
+                </div>
+
+                <div style="background:var(--surface2);border-radius:10px;padding:16px;border:1px solid var(--border)">
+                  <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">🏥 Medical &amp; Dental</div>
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Dentally</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Cliniko</strong> — direct webhook</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Jane App</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">HubSpot CRM</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Google Sheets</strong> — via Make</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Notion</strong> — via Zapier</div>
+                  </div>
+                </div>
+
+                <div style="background:var(--surface2);border-radius:10px;padding:16px;border:1px solid var(--border)">
+                  <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">🏠 Estate Agents</div>
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Salesforce</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Pipedrive</strong> — direct webhook</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Zoho CRM</strong> — direct webhook</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Reapit</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Street.co.uk</strong> — via Make</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">HubSpot CRM</strong> — via Zapier</div>
+                  </div>
+                </div>
+
+                <div style="background:var(--surface2);border-radius:10px;padding:16px;border:1px solid var(--border)">
+                  <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">🔧 Trades (Plumbers, Electricians)</div>
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">ServiceM8</strong> — via Zapier ⭐</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Jobber</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Tradify</strong> — via Make</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Commusoft</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Google Sheets</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Airtable</strong> — direct webhook</div>
+                  </div>
+                </div>
+
+                <div style="background:var(--surface2);border-radius:10px;padding:16px;border:1px solid var(--border)">
+                  <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">⚖️ Solicitors &amp; Legal</div>
+                  <div style="display:flex;flex-direction:column;gap:6px">
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Clio</strong> — via Zapier ⭐</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Salesforce</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">HubSpot CRM</strong> — via Zapier</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Pipedrive</strong> — direct webhook</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Zoho CRM</strong> — direct webhook</div>
+                    <div style="font-size:12px;color:var(--muted)"><span style="color:var(--green)">✓</span> <strong style="color:var(--text)">Notion</strong> — via Zapier</div>
+                  </div>
+                </div>
+
+              </div>
+              <div style="margin-top:14px;padding:12px 16px;background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:8px;font-size:12px;color:var(--muted)">
+                ⭐ = Recommended for this industry &nbsp;|&nbsp; Need a specific integration? Contact <a href="mailto:hello@airingdesk.com" style="color:var(--cyan)">hello@airingdesk.com</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card">
           <div style="padding:22px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
             <div style="display:flex;align-items:center;gap:12px">
               <div style="width:36px;height:36px;border-radius:9px;background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.2);display:flex;align-items:center;justify-content:center;font-size:16px">💬</div>
