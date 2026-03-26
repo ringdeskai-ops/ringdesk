@@ -1351,11 +1351,21 @@ app.post('/api/webhook/test', authRequired, async (req, res) => {
   if (!client.webhook_url) return res.status(400).json({ error: 'No webhook URL set' });
   try {
     const testPayload = {
-      event: 'test',
-      message: 'This is a test webhook from AiRingDesk',
+      event: 'call.completed',
+      call_id: 'test-' + Date.now(),
+      caller_name: 'Test Caller',
+      caller_number: '+447700900000',
+      status: 'completed',
+      duration: 65,
+      summary: 'Test call from AiRingDesk. Caller enquired about services.',
+      transcript: [
+        { role: 'user', content: 'Hello I would like some information' },
+        { role: 'assistant', content: 'Of course, how can I help you today?' }
+      ],
+      started_at: Math.floor(Date.now() / 1000) - 65,
+      ended_at: Math.floor(Date.now() / 1000),
       business_name: client.business_name,
-      ai_number: client.phone_number,
-      timestamp: Math.floor(Date.now() / 1000)
+      ai_number: client.phone_number
     };
     const body = JSON.stringify(testPayload);
     const headers = { 'Content-Type': 'application/json', 'User-Agent': 'AiRingDesk-Webhook/1.0', 'X-AiRingDesk-Event': 'test' };
