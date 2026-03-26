@@ -157,7 +157,7 @@ If the caller wants to leave a voicemail or message, or if no one is available, 
 If the caller wants to book an appointment, collect their name, preferred date and time only. Then reply with [BOOK:name|YYYY-MM-DD|HH:MM|none] e.g. [BOOK:John Smith|2026-03-26|14:00|none]. Ask one question at a time. Confirm each answer before moving to next.`;
 
   try {
-    db.prepare('INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region) VALUES (?, ?, ?, ?, ?, ?, ?, \'client\', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+    db.prepare('INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, voicemail_enabled, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, call_recording, show_demo_banner) VALUES (?, ?, ?, ?, ?, ?, ?, \'client\', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1, 0, 0, 0, 0, 0, 1)')
       .run(id, business_name, email, password_hash, stripeCustomerId, defaultPrompt, customerNumber, first_name||'', last_name||'', contact_phone||'', address_line1||'', address_line2||'', city||'', county||'', postcode||'', country||'United Kingdom', region||'');
 
     // Generate email verification token
@@ -366,7 +366,36 @@ app.post("/stripe-webhook", async (req, res) => {
     const limit = PLAN_LIMITS[plan]?.calls || 200;
     db.prepare("UPDATE clients SET plan = ?, plan_status = 'active', stripe_subscription_id = ?, call_limit = ? WHERE id = ?")
       .run(plan, session.subscription, limit, client_id);
-    console.log(`Client ${client_id} upgraded to ${plan}`);
+
+    // Auto-set feature flags based on plan
+    const planFeatures = {
+      essential:     { voicemail_enabled:0, feature_email:1, feature_appointments:0, feature_ai_settings:0, feature_voice_selector:0, feature_crm:0, call_recording:0, show_demo_banner:1 },
+      starter:       { voicemail_enabled:1, feature_email:1, feature_appointments:0, feature_ai_settings:0, feature_voice_selector:0, feature_crm:0, call_recording:0, show_demo_banner:1 },
+      professional:  { voicemail_enabled:1, feature_email:1, feature_appointments:1, feature_ai_settings:1, feature_voice_selector:0, feature_crm:0, call_recording:0, show_demo_banner:1 },
+      business:      { voicemail_enabled:1, feature_email:1, feature_appointments:1, feature_ai_settings:1, feature_voice_selector:1, feature_crm:1, call_recording:1, show_demo_banner:1 },
+    };
+    const features = planFeatures[plan] || planFeatures.essential;
+    db.prepare(`UPDATE clients SET
+      voicemail_enabled = ?,
+      feature_email = ?,
+      feature_appointments = ?,
+      feature_ai_settings = ?,
+      feature_voice_selector = ?,
+      feature_crm = ?,
+      call_recording = ?,
+      show_demo_banner = ?
+      WHERE id = ?`).run(
+        features.voicemail_enabled,
+        features.feature_email,
+        features.feature_appointments,
+        features.feature_ai_settings,
+        features.feature_voice_selector,
+        features.feature_crm,
+        features.call_recording,
+        features.show_demo_banner,
+        client_id
+      );
+    console.log(`Client ${client_id} upgraded to ${plan} — features auto-set`);
   }
 
   if (event.type === "customer.subscription.deleted") {
@@ -915,8 +944,8 @@ app.get('/auth/google/login/callback', async (req, res) => {
 
       const defaultPrompt = `You are ${business_name}'s AI receptionist. Be professional, warm, and helpful. Keep responses under 40 words. If the caller wants to leave a voicemail, reply with exactly [VOICEMAIL].`;
 
-      db.prepare(`INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, email_verified)
-        VALUES (?, ?, ?, ?, ?, ?, ?, 'client', ?, ?, 1)`)
+      db.prepare(`INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, email_verified, voicemail_enabled, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, call_recording, show_demo_banner)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'client', ?, ?, 1, 0, 1, 0, 0, 0, 0, 0, 1)`)
         .run(id, business_name, email, password_hash, stripeCustomerId, defaultPrompt, customerNumber, given_name||'', family_name||'');
 
       client = db.prepare("SELECT * FROM clients WHERE id = ?").get(id);
