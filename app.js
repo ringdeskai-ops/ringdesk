@@ -203,7 +203,7 @@ app.post("/api/auth/login", async (req, res) => {
 
 // Get client profile + stats
 app.get("/api/client/profile", authRequired, (req, res) => {
-  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, ai_voice, ai_voice_language, departments, calls_this_month, call_limit, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number, show_demo_banner FROM clients WHERE id = ?").get(req.client.id);
+  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, ai_voice, ai_voice_language, departments, calls_this_month, call_limit, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number, show_demo_banner, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, voicemail_enabled, call_recording FROM clients WHERE id = ?").get(req.client.id);
   if (!client) return res.status(404).json({ error: "Not found" });
   client.departments = JSON.parse(client.departments || "{}");
   res.json(client);
