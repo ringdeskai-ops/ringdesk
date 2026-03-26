@@ -203,7 +203,7 @@ app.post("/api/auth/login", async (req, res) => {
 
 // Get client profile + stats
 app.get("/api/client/profile", authRequired, (req, res) => {
-  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, departments, calls_this_month, call_limit, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number FROM clients WHERE id = ?").get(req.client.id);
+  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, ai_voice, ai_voice_language, departments, calls_this_month, call_limit, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number FROM clients WHERE id = ?").get(req.client.id);
   if (!client) return res.status(404).json({ error: "Not found" });
   client.departments = JSON.parse(client.departments || "{}");
   res.json(client);
@@ -232,9 +232,9 @@ app.post("/api/client/change-password", authRequired, async (req, res) => {
 
 // Update AI settings
 app.put("/api/client/settings", authRequired, (req, res) => {
-  const { ai_name, ai_prompt, departments } = req.body;
-  db.prepare("UPDATE clients SET ai_name = ?, ai_prompt = ?, departments = ? WHERE id = ?")
-    .run(ai_name, ai_prompt, JSON.stringify(departments || {}), req.client.id);
+  const { ai_name, ai_prompt, departments, ai_voice, ai_voice_language } = req.body;
+  db.prepare("UPDATE clients SET ai_name = ?, ai_prompt = ?, departments = ?, ai_voice = ?, ai_voice_language = ? WHERE id = ?")
+    .run(ai_name, ai_prompt, JSON.stringify(departments || {}), ai_voice || 'Google.en-GB-Neural2-C', ai_voice_language || 'en-GB', req.client.id);
   res.json({ success: true });
 });
 
@@ -560,7 +560,7 @@ app.post("/voice/incoming", async (req, res) => {
   const greeting = `Thank you for calling ${client.business_name}. My name is ${aiName}, how can I help you today?`;
 
   const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB", speechModel: "phone_call", enhanced: true });
-  gather.say({ voice: "Polly.Amy-Neural" }, greeting);
+  gather.say({ voice: client.ai_voice || 'Google.en-GB-Neural2-C', language: client.ai_voice_language || 'en-GB' }, greeting);
   twiml.redirect("/voice/incoming");
 
   res.type("text/xml").send(twiml.toString());
@@ -581,7 +581,7 @@ app.post("/voice/speech", async (req, res) => {
 
   if (!SpeechResult || SpeechResult.trim() === "") {
     const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB", speechModel: "phone_call", enhanced: true });
-    gather.say({ voice: "Polly.Amy-Neural" }, "I am sorry, I did not catch that. Could you say that again?");
+    gather.say({ voice: client.ai_voice || 'Google.en-GB-Neural2-C', language: client.ai_voice_language || 'en-GB' }, "I am sorry, I did not catch that. Could you say that again?");
     return res.type("text/xml").send(twiml.toString());
   }
 
@@ -651,21 +651,21 @@ app.post("/voice/speech", async (req, res) => {
     if (voicemailMatch) {
       let vmReply = reply.replace('[VOICEMAIL]', '').trim() || 'Please hold while I transfer you to voicemail.';
       reply = vmReply;
-      twiml.say({ voice: "Polly.Amy-Neural" }, reply);
+      twiml.say({ voice: client.ai_voice || 'Google.en-GB-Neural2-C', language: client.ai_voice_language || 'en-GB' }, reply);
       twiml.redirect("/voice/voicemail");
     } else if (transferDept) {
-      twiml.say({ voice: "Polly.Amy-Neural" }, reply);
+      twiml.say({ voice: client.ai_voice || 'Google.en-GB-Neural2-C', language: client.ai_voice_language || 'en-GB' }, reply);
       twiml.pause({ length: 1 });
       twiml.redirect("/voice/transfer?dept=" + transferDept + "&callSid=" + CallSid + "&clientId=" + client.id);
     } else {
       const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB", speechModel: "phone_call", enhanced: true });
-      gather.say({ voice: "Polly.Amy-Neural" }, reply);
+      gather.say({ voice: client.ai_voice || 'Google.en-GB-Neural2-C', language: client.ai_voice_language || 'en-GB' }, reply);
       twiml.redirect("/voice/speech");
     }
   } catch (err) {
     console.error("Claude error:", err.message);
     const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB", speechModel: "phone_call", enhanced: true });
-    gather.say({ voice: "Polly.Amy-Neural" }, "One moment please, could you repeat that?");
+    gather.say({ voice: client.ai_voice || 'Google.en-GB-Neural2-C', language: client.ai_voice_language || 'en-GB' }, "One moment please, could you repeat that?");
   }
 
   res.type("text/xml").send(twiml.toString());
@@ -675,7 +675,7 @@ app.post("/voice/speech", async (req, res) => {
 app.post("/voice/voicemail", (req, res) => {
   const { CallSid, To } = req.body;
   const twiml = new VoiceResponse();
-  twiml.say({ voice: "Polly.Amy-Neural" }, "Please leave your message after the tone. Press any key or hang up when done.");
+  twiml.say({ voice: 'Google.en-GB-Neural2-C' }, "Please leave your message after the tone. Press any key or hang up when done.");
   twiml.record({
     action: '/voice/voicemail-done',
     method: 'POST',
@@ -685,7 +685,7 @@ app.post("/voice/voicemail", (req, res) => {
     recordingStatusCallback: '/voice/voicemail-done',
     recordingStatusCallbackMethod: 'POST'
   });
-  twiml.say({ voice: "Polly.Amy-Neural" }, "Thank you for your message. Goodbye.");
+  twiml.say({ voice: 'Google.en-GB-Neural2-C' }, "Thank you for your message. Goodbye.");
   twiml.hangup();
   res.type("text/xml").send(twiml.toString());
 });

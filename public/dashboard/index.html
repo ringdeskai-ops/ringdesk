@@ -796,6 +796,86 @@ select option{background-color:#0c1520;color:#f0f6ff}
           </div>
           <div class="settings-card">
             <div class="settings-card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              AI Voice
+            </div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">Choose the voice and language your AI receptionist speaks in. Supports 15+ languages including Tamil, Hindi, Arabic and Chinese.</p>
+            <div class="form-group">
+              <label class="form-label">Voice & Language</label>
+              <select class="form-input" id="settingsVoice" onchange="updateVoicePreview()" style="cursor:pointer">
+                <optgroup label="🇬🇧 British English">
+                  <option value="Google.en-GB-Neural2-C|en-GB">British English — Female (Sophie)</option>
+                  <option value="Google.en-GB-Neural2-B|en-GB">British English — Male (James)</option>
+                  <option value="Google.en-GB-Neural2-A|en-GB">British English — Female Alt</option>
+                  <option value="Google.en-GB-Neural2-D|en-GB">British English — Male Alt</option>
+                </optgroup>
+                <optgroup label="🇺🇸 American English">
+                  <option value="Google.en-US-Neural2-F|en-US">American English — Female</option>
+                  <option value="Google.en-US-Neural2-D|en-US">American English — Male</option>
+                  <option value="Google.en-US-Neural2-C|en-US">American English — Female Alt</option>
+                </optgroup>
+                <optgroup label="🇦🇺 Australian English">
+                  <option value="Google.en-AU-Neural2-A|en-AU">Australian English — Female</option>
+                  <option value="Google.en-AU-Neural2-B|en-AU">Australian English — Male</option>
+                </optgroup>
+                <optgroup label="🇮🇳 Indian English">
+                  <option value="Google.en-IN-Neural2-A|en-IN">Indian English — Female</option>
+                  <option value="Google.en-IN-Neural2-B|en-IN">Indian English — Male</option>
+                </optgroup>
+                <optgroup label="🇮🇳 Tamil (India)">
+                  <option value="Google.ta-IN-Neural2-A|ta-IN">Tamil — Female</option>
+                  <option value="Google.ta-IN-Neural2-B|ta-IN">Tamil — Male</option>
+                </optgroup>
+                <optgroup label="🇮🇳 Hindi (India)">
+                  <option value="Google.hi-IN-Neural2-A|hi-IN">Hindi — Female</option>
+                  <option value="Google.hi-IN-Neural2-B|hi-IN">Hindi — Male</option>
+                </optgroup>
+                <optgroup label="🇸🇦 Arabic">
+                  <option value="Google.ar-XA-Neural2-A|ar-XA">Arabic — Female</option>
+                  <option value="Google.ar-XA-Neural2-B|ar-XA">Arabic — Male</option>
+                  <option value="Google.ar-XA-Neural2-C|ar-XA">Arabic — Female Alt</option>
+                </optgroup>
+                <optgroup label="🇨🇳 Chinese (Mandarin)">
+                  <option value="Google.cmn-CN-Neural2-A|cmn-CN">Chinese Mandarin — Female</option>
+                  <option value="Google.cmn-CN-Neural2-B|cmn-CN">Chinese Mandarin — Male</option>
+                  <option value="Google.cmn-CN-Neural2-C|cmn-CN">Chinese Mandarin — Female Alt</option>
+                </optgroup>
+                <optgroup label="🇩🇪 German">
+                  <option value="Google.de-DE-Neural2-A|de-DE">German — Female</option>
+                  <option value="Google.de-DE-Neural2-B|de-DE">German — Male</option>
+                </optgroup>
+                <optgroup label="🇫🇷 French">
+                  <option value="Google.fr-FR-Neural2-A|fr-FR">French — Female</option>
+                  <option value="Google.fr-FR-Neural2-B|fr-FR">French — Male</option>
+                </optgroup>
+                <optgroup label="🇪🇸 Spanish">
+                  <option value="Google.es-ES-Neural2-A|es-ES">Spanish — Female</option>
+                  <option value="Google.es-ES-Neural2-B|es-ES">Spanish — Male</option>
+                </optgroup>
+                <optgroup label="🇧🇷 Portuguese (Brazil)">
+                  <option value="Google.pt-BR-Neural2-A|pt-BR">Portuguese — Female</option>
+                  <option value="Google.pt-BR-Neural2-B|pt-BR">Portuguese — Male</option>
+                </optgroup>
+                <optgroup label="🇯🇵 Japanese">
+                  <option value="Google.ja-JP-Neural2-B|ja-JP">Japanese — Female</option>
+                  <option value="Google.ja-JP-Neural2-C|ja-JP">Japanese — Male</option>
+                </optgroup>
+                <optgroup label="🇰🇷 Korean">
+                  <option value="Google.ko-KR-Neural2-A|ko-KR">Korean — Female</option>
+                  <option value="Google.ko-KR-Neural2-B|ko-KR">Korean — Male</option>
+                </optgroup>
+                <optgroup label="🇿🇦 South African English">
+                  <option value="Google.en-ZA-Neural2-A|en-ZA">South African English — Female</option>
+                </optgroup>
+              </select>
+            </div>
+            <div id="voicePreview" style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--muted)">
+              🔊 Selected: <span id="voicePreviewText" style="color:var(--cyan)">British English — Female (Sophie)</span>
+            </div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-title">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
               AI Script & Personality
             </div>
@@ -2538,6 +2618,18 @@ async function loadProfile() {
   document.getElementById('getNumberBtn').style.display = hasPhone ? 'none' : 'flex';
   // Settings
   document.getElementById('settingsAiName').value = profile.ai_name || 'Aria';
+  // Set voice selector
+  var voiceSel = document.getElementById('settingsVoice');
+  if (voiceSel && profile.ai_voice) {
+    var voiceKey = profile.ai_voice + '|' + (profile.ai_voice_language || 'en-GB');
+    for (var i = 0; i < voiceSel.options.length; i++) {
+      if (voiceSel.options[i].value === voiceKey) {
+        voiceSel.selectedIndex = i;
+        break;
+      }
+    }
+    updateVoicePreview();
+  }
   document.getElementById('settingsPrompt').value = profile.ai_prompt || '';
   const depts = profile.departments || {};
   ['sales','support','billing','manager','general'].forEach(d => {
@@ -2795,10 +2887,13 @@ async function saveSettings() {
   });
   btn.innerHTML = '<span class="spinner" style="border-top-color:#020408"></span>';
   try {
+    var voiceVal = document.getElementById('settingsVoice').value.split('|');
     await api('/api/client/settings', { method: 'PUT', body: {
       ai_name: document.getElementById('settingsAiName').value,
       ai_prompt: document.getElementById('settingsPrompt').value,
-      departments: depts
+      departments: depts,
+      ai_voice: voiceVal[0] || 'Google.en-GB-Neural2-C',
+      ai_voice_language: voiceVal[1] || 'en-GB'
     }});
     btn.classList.add('saved');
     btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved!';
@@ -3385,6 +3480,15 @@ async function restoreAppt(id) {
     renderAppointments();
     showToast('Appointment restored', 'success');
   }
+}
+
+// ── VOICE PREVIEW ────────────────────────────────────────────────────
+function updateVoicePreview() {
+  var sel = document.getElementById('settingsVoice');
+  if (!sel) return;
+  var opt = sel.options[sel.selectedIndex];
+  var preview = document.getElementById('voicePreviewText');
+  if (preview && opt) preview.textContent = opt.text;
 }
 
 // ── HELP GUIDE ───────────────────────────────────────────────────────
