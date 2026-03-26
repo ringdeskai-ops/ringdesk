@@ -2883,6 +2883,7 @@ async function loadAppointments() {
 }
 
 function renderAppointments() {
+  var isAdmin = currentUser && ['admin','superadmin'].includes(currentUser.role);
   var filtered = currentApptFilter === 'all' ? allAppointments : allAppointments.filter(function(a) { return a.status === currentApptFilter; });
   var sc = {
     pending:   { bg:'rgba(255,184,0,.1)',  color:'var(--amber)', border:'rgba(255,184,0,.2)' },
@@ -2899,20 +2900,27 @@ function renderAppointments() {
     var s = sc[a.status] || sc.pending;
     var dateFormatted = a.date ? new Date(a.date + 'T12:00:00').toLocaleDateString('en-GB', {weekday:'short',day:'numeric',month:'short',year:'numeric'}) : '—';
     var phone = a.caller_phone || a.caller_number || '—';
+    var deletedBadge = a.client_deleted ? ' <span style="font-size:10px;background:rgba(255,68,102,.1);color:var(--red);padding:2px 6px;border-radius:4px;margin-left:4px">deleted</span>' : '';
+    var archivedBadge = (a.client_archived && !a.client_deleted) ? ' <span style="font-size:10px;background:rgba(255,184,0,.1);color:var(--amber);padding:2px 6px;border-radius:4px;margin-left:4px">archived</span>' : '';
+    var adminActions = isAdmin
+      ? (a.status !== 'confirmed' ? '<button onclick="updateApptStatus(\'' + a.id + '\',\'confirmed\')" style="background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);color:var(--green);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">Confirm</button>' : '')
+        + (a.status !== 'completed' ? '<button onclick="updateApptStatus(\'' + a.id + '\',\'completed\')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cyan);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">Done</button>' : '')
+        + (a.status !== 'cancelled' ? '<button onclick="updateApptStatus(\'' + a.id + '\',\'cancelled\')" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">Cancel</button>' : '')
+        + ((a.client_deleted || a.client_archived) ? '<button onclick="restoreAppt(\'' + a.id + '\')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cyan);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">Restore</button>' : '')
+      : '';
+    var clientActions = !isAdmin
+      ? (!a.client_archived ? '<button onclick="archiveAppt(\'' + a.id + '\')" style="background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);color:var(--amber);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">Archive</button>' : '')
+        + '<button onclick="deleteAppt(\'' + a.id + '\')" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">Delete</button>'
+      : '';
     return '<tr>'
-      + '<td><div style="font-size:13px;font-weight:600;color:var(--text)">' + (a.caller_name || 'Unknown') + '</div></td>'
+      + '<td><div style="font-size:13px;font-weight:600;color:var(--text)">' + (a.caller_name || 'Unknown') + deletedBadge + archivedBadge + '</div></td>'
       + '<td><div style="font-size:13px;font-weight:600;color:var(--text)">' + dateFormatted + '</div></td>'
       + '<td><div style="font-size:13px;font-weight:700;color:var(--cyan)">' + (a.time || '—') + '</div></td>'
       + '<td style="font-size:12px;color:var(--muted)">' + phone + '</td>'
       + '<td><div style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;color:var(--muted)">' + (a.summary || '—') + '</div></td>'
       + '<td><span style="display:inline-flex;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;background:' + s.bg + ';color:' + s.color + ';border:1px solid ' + s.border + '">' + a.status + '</span></td>'
       + '<td style="font-size:11px;color:var(--muted)">' + fmtDate(a.created_at) + '</td>'
-      + '<td><div style="display:flex;gap:5px;flex-wrap:wrap">'
-      + (a.status !== 'confirmed'  ? '<button onclick="updateApptStatus(\'' + a.id + '\',\'confirmed\')"  style="background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);color:var(--green);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">Confirm</button>' : '')
-      + (a.status !== 'completed'  ? '<button onclick="updateApptStatus(\'' + a.id + '\',\'completed\')"  style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);color:var(--cyan);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">Done</button>' : '')
-      + (a.status !== 'cancelled'  ? '<button onclick="updateApptStatus(\'' + a.id + '\',\'cancelled\')"  style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600">Cancel</button>' : '')
-      + (phone !== '—' ? '<a href="tel:' + phone + '" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">Call</a>' : '')
-      + '</div></td>'
+      + '<td><div style="display:flex;gap:5px;flex-wrap:wrap">' + adminActions + clientActions + (phone !== '—' ? '<a href="tel:' + phone + '" style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:var(--text);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">Call</a>' : '') + '</div></td>'
       + '</tr>';
   }).join('');
 }
@@ -2934,6 +2942,37 @@ async function updateApptStatus(id, status) {
     document.getElementById('apptConfirmed').textContent = allAppointments.filter(function(a) { return a.status === 'confirmed'; }).length;
     document.getElementById('apptCancelled').textContent = allAppointments.filter(function(a) { return a.status === 'cancelled'; }).length;
     showToast('Appointment ' + status, status === 'confirmed' ? 'success' : status === 'cancelled' ? 'error' : 'info');
+  }
+}
+
+async function archiveAppt(id) {
+  var data = await api('/api/appointments/archive', { method: 'POST', body: { appointment_id: id } });
+  if (data && data.success) {
+    var a = allAppointments.find(function(x) { return x.id === id; });
+    if (a) a.client_archived = 1;
+    renderAppointments();
+    showToast('Appointment archived', 'info');
+  }
+}
+
+async function deleteAppt(id) {
+  if (!confirm('Delete this appointment? Admins can still see and restore it.')) return;
+  var data = await api('/api/appointments/delete', { method: 'POST', body: { appointment_id: id } });
+  if (data && data.success) {
+    allAppointments = allAppointments.filter(function(x) { return x.id !== id; });
+    renderAppointments();
+    document.getElementById('apptTotal').textContent = allAppointments.length;
+    showToast('Appointment deleted', 'error');
+  }
+}
+
+async function restoreAppt(id) {
+  var data = await api('/api/appointments/restore', { method: 'POST', body: { appointment_id: id } });
+  if (data && data.success) {
+    var a = allAppointments.find(function(x) { return x.id === id; });
+    if (a) { a.client_deleted = 0; a.client_archived = 0; }
+    renderAppointments();
+    showToast('Appointment restored', 'success');
   }
 }
 

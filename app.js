@@ -1217,25 +1217,50 @@ app.get('/dashboard/*', (req, res) => res.sendFile(__dirname + '/public/dashboar
 const PORT = process.env.PORT || 3000;
 // ── Appointments API ──────────────────────────────────────────────────
 app.get('/api/appointments', authRequired, (req, res) => {
-  const appointments = db.prepare(`
-    SELECT a.*, c.caller_number, c.summary
-    FROM appointments a
-    LEFT JOIN calls c ON a.call_id = c.id
-    WHERE a.client_id = ?
-    ORDER BY a.date DESC, a.time DESC
-  `).all(req.client.id);
+  const isAdmin = ['admin','superadmin'].includes(req.client.role);
+  const query = isAdmin
+    ? `SELECT a.*, c.caller_number, c.summary FROM appointments a LEFT JOIN calls c ON a.call_id = c.id WHERE a.client_id = ? ORDER BY a.date DESC, a.time DESC`
+    : `SELECT a.*, c.caller_number, c.summary FROM appointments a LEFT JOIN calls c ON a.call_id = c.id WHERE a.client_id = ? AND a.client_deleted = 0 ORDER BY a.date DESC, a.time DESC`;
+  const appointments = db.prepare(query).all(req.client.id);
   res.json({ appointments });
 });
 
 app.post('/api/appointments/status', authRequired, (req, res) => {
+  const isAdmin = ['admin','superadmin'].includes(req.client.role);
+  if (!isAdmin) return res.status(403).json({ error: 'Admin only' });
   const { appointment_id, status } = req.body;
+  if (!['pending','confirmed','cancelled','completed'].includes(status))
     return res.status(400).json({ error: 'Invalid status' });
   db.prepare('UPDATE appointments SET status = ? WHERE id = ? AND client_id = ?')
     .run(status, appointment_id, req.client.id);
   res.json({ success: true });
 });
 
+app.post('/api/appointments/archive', authRequired, (req, res) => {
+  const { appointment_id } = req.body;
+  db.prepare('UPDATE appointments SET client_archived = 1 WHERE id = ? AND client_id = ?')
+    .run(appointment_id, req.client.id);
+  res.json({ success: true });
+});
+
+app.post('/api/appointments/delete', authRequired, (req, res) => {
+  const { appointment_id } = req.body;
+  db.prepare('UPDATE appointments SET client_deleted = 1 WHERE id = ? AND client_id = ?')
+    .run(appointment_id, req.client.id);
+  res.json({ success: true });
+});
+
+app.post('/api/appointments/restore', authRequired, (req, res) => {
+  if (!['admin','superadmin'].includes(req.client.role))
+    return res.status(403).json({ error: 'Admin only' });
+  const { appointment_id } = req.body;
+  db.prepare('UPDATE appointments SET client_deleted = 0, client_archived = 0 WHERE id = ?')
+    .run(appointment_id);
+  res.json({ success: true });
+});
+
 app.get('/api/admin/appointments/:clientId', authRequired, (req, res) => {
+  if (!['admin','superadmin'].includes(req.client.role))
     return res.status(403).json({ error: 'Admin only' });
   const appointments = db.prepare(`
     SELECT a.*, c.caller_number, c.summary
