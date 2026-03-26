@@ -129,7 +129,8 @@ h2 em{font-style:italic;color:var(--cyan)}
 .trust-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
 .trust-desc{font-size:11px;color:var(--muted)}
 .trust-divider{width:1px;background:var(--border);flex-shrink:0;margin:8px 0}
-@media(max-width:768px){.trust-divider{display:none}.trust-item{min-width:140px;padding:16px 12px}}
+@media(max-width:768px){
+  #mobileSignIn{display:inline-flex !important}.trust-divider{display:none}.trust-item{min-width:140px;padding:16px 12px}}
 
 /* HOW */
 #how{background:var(--surface)}
@@ -499,6 +500,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     <a href="#contact" class="nav-link">Contact</a>
     <a href="/dashboard" class="btn btn-ghost" style="padding:7px 16px;font-size:13px">Sign in</a>
     <button onclick="openModal('starter')" class="btn btn-cyan" style="padding:7px 16px;font-size:13px">Start free trial</button>
+    <a href="/dashboard" class="btn btn-ghost" style="padding:7px 16px;font-size:13px;display:none" id="mobileSignIn">Sign in</a>
     <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
       <span></span><span></span><span></span>
     </button>
