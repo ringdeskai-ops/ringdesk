@@ -745,6 +745,19 @@ app.post("/voice/status", async (req, res) => {
       }
     }
   } catch(err) { console.error('Email notification error:', err.message); }
+
+  // Deliver webhook if configured
+  try {
+    const webhookCall = db.prepare("SELECT * FROM calls WHERE call_sid = ?").get(CallSid);
+    if (webhookCall) {
+      const webhookClient = db.prepare("SELECT * FROM clients WHERE id = ?").get(webhookCall.client_id);
+      if (webhookClient && webhookClient.webhook_url) {
+        let webhookTranscript = [];
+        try { webhookTranscript = JSON.parse(webhookCall.transcript || '[]'); } catch {}
+        deliverWebhook(webhookClient, webhookCall, webhookTranscript);
+      }
+    }
+  } catch(err) { console.error('Webhook error:', err.message); }
   res.sendStatus(200);
 });
 
@@ -1320,6 +1333,45 @@ app.use('/dashboard', (req, res, next) => {
 app.get('/dashboard/*', (req, res) => res.sendFile(__dirname + '/public/dashboard/index.html'));
 
 const PORT = process.env.PORT || 3000;
+// ── Webhook API ──────────────────────────────────────────────────────────
+app.get('/api/webhook/settings', authRequired, (req, res) => {
+  const client = db.prepare("SELECT webhook_url, webhook_secret FROM clients WHERE id = ?").get(req.client.id);
+  res.json({ webhook_url: client.webhook_url || '', webhook_secret: client.webhook_secret || '' });
+});
+
+app.post('/api/webhook/settings', authRequired, (req, res) => {
+  const { webhook_url, webhook_secret } = req.body;
+  db.prepare("UPDATE clients SET webhook_url = ?, webhook_secret = ? WHERE id = ?")
+    .run(webhook_url || null, webhook_secret || null, req.client.id);
+  res.json({ success: true });
+});
+
+app.post('/api/webhook/test', authRequired, async (req, res) => {
+  const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(req.client.id);
+  if (!client.webhook_url) return res.status(400).json({ error: 'No webhook URL set' });
+  try {
+    const testPayload = {
+      event: 'test',
+      message: 'This is a test webhook from AiRingDesk',
+      business_name: client.business_name,
+      ai_number: client.phone_number,
+      timestamp: Math.floor(Date.now() / 1000)
+    };
+    const body = JSON.stringify(testPayload);
+    const headers = { 'Content-Type': 'application/json', 'User-Agent': 'AiRingDesk-Webhook/1.0', 'X-AiRingDesk-Event': 'test' };
+    if (client.webhook_secret) {
+      const crypto = require('crypto');
+      headers['X-AiRingDesk-Signature'] = 'sha256=' + crypto.createHmac('sha256', client.webhook_secret).update(body).digest('hex');
+    }
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(), 10000);
+    const response = await fetch(client.webhook_url, { method: 'POST', headers, body, signal: controller.signal });
+    res.json({ success: true, status: response.status, message: 'Test webhook delivered — HTTP ' + response.status });
+  } catch(err) {
+    res.status(500).json({ error: 'Webhook delivery failed: ' + err.message });
+  }
+});
+
 // ── Appointments API ──────────────────────────────────────────────────
 app.get('/api/appointments', authRequired, (req, res) => {
   const isAdmin = ['admin','superadmin'].includes(req.client.role);
@@ -1586,6 +1638,54 @@ async function sendWelcomeEmail(business_name, email, referral_code, id) {
     }
   } catch (err) {
     console.error(`❌ Welcome email failed:`, err.message);
+  }
+}
+
+// ── Webhook delivery ─────────────────────────────────────────────────────────────
+async function deliverWebhook(client, call, transcript) {
+  if (!client.webhook_url) return;
+  try {
+    const payload = {
+      event: 'call.completed',
+      call_id: call.id,
+      caller_name: call.caller_name || null,
+      caller_number: call.caller_number || null,
+      status: call.status,
+      duration: call.duration || 0,
+      summary: call.summary || null,
+      transcript: transcript || [],
+      started_at: call.started_at,
+      ended_at: call.ended_at,
+      business_name: client.business_name,
+      ai_number: client.phone_number
+    };
+
+    const body = JSON.stringify(payload);
+    const headers = {
+      'Content-Type': 'application/json',
+      'User-Agent': 'AiRingDesk-Webhook/1.0',
+      'X-AiRingDesk-Event': 'call.completed',
+    };
+
+    // Add HMAC signature if webhook secret is set
+    if (client.webhook_secret) {
+      const crypto = require('crypto');
+      const sig = crypto.createHmac('sha256', client.webhook_secret).update(body).digest('hex');
+      headers['X-AiRingDesk-Signature'] = 'sha256=' + sig;
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    const response = await fetch(client.webhook_url, {
+      method: 'POST',
+      headers,
+      body,
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    console.log('✅ Webhook delivered to ' + client.webhook_url + ' — status: ' + response.status);
+  } catch(err) {
+    console.error('❌ Webhook delivery failed:', err.message);
   }
 }
 

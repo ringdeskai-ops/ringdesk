@@ -834,6 +834,28 @@ select option{background-color:#0c1520;color:#f0f6ff}
 
           <div class="settings-card">
             <div class="settings-card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+              Webhook / CRM Integration
+            </div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">Send call data to your CRM, Zapier, or any webhook URL after every call. Works with HubSpot, Salesforce, Pipedrive, Make and more.</p>
+            <div class="form-group">
+              <label class="form-label">Webhook URL</label>
+              <input class="form-input" type="url" id="webhookUrl" placeholder="https://hooks.zapier.com/hooks/catch/..."/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Secret key (optional)</label>
+              <input class="form-input" type="text" id="webhookSecret" placeholder="Used to verify webhook signature"/>
+              <p style="font-size:11px;color:var(--dim);margin-top:4px">We sign every webhook with HMAC-SHA256 using this secret. Check the X-AiRingDesk-Signature header to verify.</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button onclick="saveWebhook()" style="background:var(--cyan);color:#020408;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Save webhook</button>
+              <button onclick="testWebhook()" style="background:rgba(255,255,255,.06);border:1px solid var(--border2);color:var(--text);padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Send test</button>
+            </div>
+            <div id="webhookMsg" style="display:none;margin-top:10px;font-size:12px;padding:8px 12px;border-radius:6px"></div>
+          </div>
+
+          <div class="settings-card">
+            <div class="settings-card-title">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
               Your Phone Number
             </div>
@@ -3074,6 +3096,7 @@ function showPage(name) {
   if (name === 'calls') renderCalls();
   if (name === 'leads') { renderLeads(); loadWebsiteLeads(); }
   if (name === 'appointments') loadAppointments();
+  if (name === 'settings') loadWebhookSettings();
   if (name === 'help') {}
   if (name === 'customers') loadCustomers();
   if (name === 'subscriptions') { loadCustomers(); }
@@ -3223,6 +3246,57 @@ function toggleGuide(id) {
   } else {
     el.style.display = 'none';
     if (arrow) arrow.style.transform = 'rotate(0deg)';
+  }
+}
+
+// ── WEBHOOK ───────────────────────────────────────────────────────────
+async function loadWebhookSettings() {
+  var data = await api('/api/webhook/settings');
+  if (!data) return;
+  document.getElementById('webhookUrl').value = data.webhook_url || '';
+  document.getElementById('webhookSecret').value = data.webhook_secret || '';
+}
+
+async function saveWebhook() {
+  var url = document.getElementById('webhookUrl').value.trim();
+  var secret = document.getElementById('webhookSecret').value.trim();
+  var msg = document.getElementById('webhookMsg');
+  if (url && !url.startsWith('http')) {
+    msg.style.display = 'block';
+    msg.style.background = 'rgba(255,68,102,.1)';
+    msg.style.color = 'var(--red)';
+    msg.textContent = 'Webhook URL must start with https://';
+    return;
+  }
+  var data = await api('/api/webhook/settings', { method: 'POST', body: { webhook_url: url, webhook_secret: secret } });
+  msg.style.display = 'block';
+  if (data && data.success) {
+    msg.style.background = 'rgba(0,232,122,.1)';
+    msg.style.color = 'var(--green)';
+    msg.textContent = '✅ Webhook settings saved!';
+    setTimeout(function() { msg.style.display = 'none'; }, 3000);
+  } else {
+    msg.style.background = 'rgba(255,68,102,.1)';
+    msg.style.color = 'var(--red)';
+    msg.textContent = '❌ Failed to save webhook settings';
+  }
+}
+
+async function testWebhook() {
+  var msg = document.getElementById('webhookMsg');
+  msg.style.display = 'block';
+  msg.style.background = 'rgba(0,212,255,.1)';
+  msg.style.color = 'var(--cyan)';
+  msg.textContent = 'Sending test webhook...';
+  var data = await api('/api/webhook/test', { method: 'POST', body: {} });
+  if (data && data.success) {
+    msg.style.background = 'rgba(0,232,122,.1)';
+    msg.style.color = 'var(--green)';
+    msg.textContent = '✅ ' + data.message;
+  } else {
+    msg.style.background = 'rgba(255,68,102,.1)';
+    msg.style.color = 'var(--red)';
+    msg.textContent = '❌ ' + (data && data.error ? data.error : 'Test failed');
   }
 }
 
