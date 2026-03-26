@@ -1367,14 +1367,14 @@ select option{background-color:#0c1520;color:#f0f6ff}
           </div>
         </div>
         <div class="header-actions">
-          <button id="detailProvisionBtn" onclick="openProvisionModal(currentDetailCustomer.id, currentDetailCustomer.business_name)" style="display:none;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);color:var(--amber);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">📞 Assign Number</button>
-          <button id="detailEditAiBtn" onclick="openEditAiModal(currentDetailCustomer.id, currentDetailCustomer.business_name, currentDetailCustomer.ai_name, currentDetailCustomer.ai_prompt, currentDetailCustomer.departments)" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">🤖 Edit AI</button>
+          <button id="detailProvisionBtn" onclick="event.stopPropagation();openProvisionModal(currentDetailCustomer.id, currentDetailCustomer.business_name)" style="display:none;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);color:var(--amber);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">📞 Assign Number</button>
+          <button id="detailEditAiBtn" onclick="event.stopPropagation();openEditAiModal(currentDetailCustomer.id, currentDetailCustomer.business_name, currentDetailCustomer.ai_name, currentDetailCustomer.ai_prompt, currentDetailCustomer.departments)" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">🤖 Edit AI</button>
           <button id="detailWhatsAppBtn" onclick="whatsappCustomer()" style="display:none;background:rgba(37,211,102,.1);border:1px solid rgba(37,211,102,.3);color:#25d366;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="#25d366" style="margin-right:4px;vertical-align:middle"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.136.564 4.14 1.534 5.876L0 24l6.29-1.51A11.94 11.94 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.002-1.366l-.36-.214-3.733.897.944-3.627-.235-.374A9.818 9.818 0 012.182 12C2.182 6.58 6.58 2.182 12 2.182S21.818 6.58 21.818 12 17.42 21.818 12 21.818z"/></svg>
             WhatsApp
           </button>
           <button onclick="cancelCustomerSubscription()" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">Cancel Sub</button>
-          <button onclick="deleteCustomer()" id="deleteCustomerBtn" class="superadmin-only" style="background:rgba(255,68,102,.2);border:1px solid rgba(255,68,102,.5);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700">🗑️ Delete</button>
+          <button onmousedown="event.stopPropagation();event.preventDefault();deleteCustomer();" id="deleteCustomerBtn" class="superadmin-only" style="background:rgba(255,68,102,.2);border:1px solid rgba(255,68,102,.5);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700">🗑️ Delete</button>
 
         </div>
       </div>
@@ -2910,7 +2910,7 @@ async function openCustomerDetail(clientId) {
   var provBtn = document.getElementById('detailProvisionBtn');
   var aiBtn = document.getElementById('detailEditAiBtn');
   if (provBtn) provBtn.style.display = customer.phone_number ? 'none' : 'inline-block';
-  if (aiBtn) aiBtn.style.display = 'inline-block';
+  if (aiBtn) aiBtn.style.display = 'inline-flex';
   document.getElementById('dPhone').textContent = customer.phone_number || '—';
   document.getElementById('dCustomerNumber').textContent = customer.customer_number || customer.admin_number || '—';
   // Contact name — use first_name/last_name if available, fall back to contact_name
@@ -3167,8 +3167,8 @@ function loadSubscriptions(customers) {
 
 function deleteCustomer() {
   if (!currentDetailCustomer) return;
-  document.getElementById('deleteConfirmName').textContent = currentDetailCustomer.business_name;
-  document.getElementById('deleteConfirmModal').style.display = 'flex';
+  if (!confirm('Delete ' + currentDetailCustomer.business_name + '?\n\nThis will permanently delete the customer account and all their call history. This cannot be undone.')) return;
+  confirmDeleteCustomer();
 }
 
 async function confirmDeleteCustomer() {
@@ -3743,6 +3743,7 @@ let editAiClientId = null;
 function openEditAiModal(clientId, clientName, aiName, aiPrompt, departments) {
   editAiClientId = clientId;
   document.getElementById('editAiClientName').textContent = clientName;
+  editAiClientId = clientId;
   document.getElementById('editAiName').value = aiName || '';
   document.getElementById('editAiPrompt').value = aiPrompt || '';
   var depts = departments || {};
@@ -3752,11 +3753,11 @@ function openEditAiModal(clientId, clientName, aiName, aiPrompt, departments) {
   document.getElementById('editDeptManager').value = depts.manager || '';
   document.getElementById('editAiError').style.display = 'none';
   document.getElementById('editAiModal').style.display = 'flex';
-  document.getElementById('dangerZone').style.pointerEvents = 'none';
+  // dangerZone removed
 }
 function closeEditAiModal() {
   document.getElementById('editAiModal').style.display = 'none';
-  document.getElementById('dangerZone').style.pointerEvents = 'auto';
+  // dangerZone removed
 }
 async function submitEditAi() {
   var departments = {
@@ -4206,7 +4207,7 @@ function showToast(msg, type) {
     </div>
 
     <!-- ── EDIT AI SETTINGS MODAL ── -->
-    <div id="editAiModal" onclick="if(event.target===this)closeEditAiModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center">
+    <div id="editAiModal" onclick="if(event.target===this)closeEditAiModal()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;align-items:center;justify-content:center">
       <div style="background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:28px;width:100%;max-width:560px;margin:20px;max-height:90vh;overflow-y:auto">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
           <div style="font-size:18px;font-weight:700">Edit AI Settings — <span id="editAiClientName" style="color:var(--cyan)"></span></div>
