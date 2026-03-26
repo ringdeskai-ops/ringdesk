@@ -111,9 +111,10 @@ function authRequired(req, res, next) {
 // ── Plan limits ────────────────────────────────────────────────────────────────
 const PLAN_LIMITS = {
   trial:        { calls: 50,    price: 0 },
-  starter:      { calls: 200,   price: 4900  },  // pence
+  essential:    { calls: 150,   price: 2900  },  // pence
+  starter:      { calls: 300,   price: 4900  },
   professional: { calls: 1000,  price: 14900 },
-  business:     { calls: 99999, price: 34900 },
+  business:     { calls: 5000,  price: 34900 },
 };
 
 const STRIPE_PRICE_IDS = {
@@ -570,8 +571,11 @@ app.post("/voice/incoming", async (req, res) => {
 
   // Check call limit
   if (client.calls_this_month >= client.call_limit && client.plan !== "business") {
-    twiml.say(`Thank you for calling ${client.business_name}. We are unable to take your call right now. Please try again later.`);
+    const voice = client.ai_voice || 'Google.en-GB-Neural2-C';
+    const lang = client.ai_voice_language || 'en-GB';
+    twiml.say({ voice, language: lang }, `Thank you for calling ${client.business_name}. We have reached our maximum calls for this month. Please call back next month or try our other contact methods. Goodbye.`);
     twiml.hangup();
+    console.log(`📵 Call blocked - ${client.email} has used ${client.calls_this_month}/${client.call_limit} calls`);
     return res.type("text/xml").send(twiml.toString());
   }
 
@@ -582,6 +586,31 @@ app.post("/voice/incoming", async (req, res) => {
     db.prepare("INSERT INTO call_sessions (call_sid, client_id) VALUES (?, ?)").run(CallSid, client.id);
     db.prepare("INSERT INTO calls (id, client_id, call_sid, caller_number) VALUES (?, ?, ?, ?)").run(callId, client.id, CallSid, From);
     db.prepare("UPDATE clients SET calls_this_month = calls_this_month + 1 WHERE id = ?").run(client.id);
+
+    // Send 80% usage warning email
+    const updatedClient = db.prepare("SELECT calls_this_month, call_limit, email, business_name, plan FROM clients WHERE id = ?").get(client.id);
+    if (updatedClient && updatedClient.call_limit > 0) {
+      const usagePct = (updatedClient.calls_this_month / updatedClient.call_limit) * 100;
+      if (usagePct >= 80 && usagePct < 81) {
+        const planNames = { essential:'Essential', starter:'Starter', professional:'Professional', business:'Business' };
+        const nextPlan = { essential:'Starter', starter:'Professional', professional:'Business', business:null };
+        const next = nextPlan[updatedClient.plan];
+        const warningHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
+          + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+          + '<h2 style="font-size:20px;margin-bottom:16px">⚠️ You've used 80% of your monthly calls</h2>'
+          + '<p style="color:#8896a8;line-height:1.7">Hi ' + updatedClient.business_name + ', you've used <strong style="color:#ffb800">' + updatedClient.calls_this_month + ' of ' + updatedClient.call_limit + ' calls</strong> this month on your ' + planNames[updatedClient.plan] + ' plan.</p>'
+          + '<div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin:24px 0">'
+          + '<p style="color:#f0f4f8;font-size:15px;font-weight:700;margin-bottom:8px">What happens when you reach your limit?</p>'
+          + '<p style="color:#8896a8;font-size:13px">Your AI receptionist will stop answering calls until your next billing period.</p>'
+          + '</div>'
+          + (next ? '<p style="color:#8896a8;line-height:1.7">Upgrade to <strong style="color:#00d4ff">' + planNames[next] + '</strong> to get more calls and avoid any interruption to your service.</p>'
+            + '<a href="https://airingdesk.com/dashboard" style="display:inline-block;background:#00d4ff;color:#020408;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-top:8px">Upgrade my plan →</a>' : '')
+          + '<p style="color:#8896a8;font-size:13px;margin-top:24px">AiRingDesk Team · hello@airingdesk.com</p></div>';
+        sendBrevoEmail(updatedClient.email, '⚠️ You've used 80% of your AiRingDesk call limit', warningHtml)
+          .catch(e => console.error('Usage warning email error:', e.message));
+        console.log('📧 80% usage warning sent to:', updatedClient.email);
+      }
+    }
   }
 
   // Use instant static greeting — no Claude call on incoming to avoid delays
