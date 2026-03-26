@@ -840,6 +840,111 @@ function getGoogleOAuthClient() {
   );
 }
 
+// ── Google OAuth LOGIN (separate from Calendar OAuth) ─────────────────
+app.get('/auth/google/login', (req, res) => {
+  const loginRedirectUri = process.env.DASHBOARD_URL + '/auth/google/login/callback';
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    loginRedirectUri
+  );
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    prompt: 'select_account',
+    scope: [
+      'https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/userinfo.profile'
+    ]
+  });
+  res.redirect(url);
+});
+
+app.get('/auth/google/login/callback', async (req, res) => {
+  const { code, error } = req.query;
+  if (error || !code) return res.redirect('/dashboard?error=google_login_failed');
+  try {
+    const loginRedirectUri = process.env.DASHBOARD_URL + '/auth/google/login/callback';
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      loginRedirectUri
+    );
+    const { tokens } = await oauth2Client.getToken(code);
+    oauth2Client.setCredentials(tokens);
+
+    // Get user info from Google
+    const { google } = require('googleapis');
+    const people = google.oauth2({ version: 'v2', auth: oauth2Client });
+    const userInfo = await people.userinfo.get();
+    const { email, name, given_name, family_name, picture } = userInfo.data;
+
+    if (!email) return res.redirect('/dashboard?error=google_login_failed');
+
+    // Check if user exists
+    let client = db.prepare("SELECT * FROM clients WHERE email = ?").get(email);
+
+    if (!client) {
+      // Auto-register new client
+      const { v4: uuidv4 } = require('uuid');
+      const id = uuidv4();
+      const randomPass = require('crypto').randomBytes(32).toString('hex');
+      const password_hash = await require('bcryptjs').hash(randomPass, 12);
+      const lastCust = db.prepare("SELECT customer_number FROM clients WHERE role = 'client' AND customer_number IS NOT NULL ORDER BY created_at DESC LIMIT 1").get();
+      const custNextNum = lastCust && lastCust.customer_number ? (parseInt(lastCust.customer_number.replace('ARD-','')) || 0) + 1 : 1;
+      const customerNumber = 'ARD-' + String(custNextNum).padStart(5, '0');
+      const business_name = name || email.split('@')[0];
+
+      let stripeCustomerId = null;
+      try {
+        const customer = stripe ? await stripe.customers.create({ email, name: business_name }) : { id: null };
+        stripeCustomerId = customer.id;
+      } catch(e) { console.error('Stripe error:', e.message); }
+
+      const defaultPrompt = `You are ${business_name}'s AI receptionist. Be professional, warm, and helpful. Keep responses under 40 words. If the caller wants to leave a voicemail, reply with exactly [VOICEMAIL].`;
+
+      db.prepare(`INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, email_verified)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 'client', ?, ?, 1)`)
+        .run(id, business_name, email, password_hash, stripeCustomerId, defaultPrompt, customerNumber, given_name||'', family_name||'');
+
+      client = db.prepare("SELECT * FROM clients WHERE id = ?").get(id);
+      console.log('✅ New client auto-registered via Google:', email);
+
+      // Send welcome email
+      try { sendWelcomeEmail(business_name, email, null, id); } catch(e) {}
+    }
+
+    // Check account is active
+    if (client.email_verified === 0)
+      db.prepare("UPDATE clients SET email_verified = 1 WHERE id = ?").run(client.id);
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: client.id, email: client.email, business_name: client.business_name, role: client.role || 'client' },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // Redirect to dashboard with token
+    res.send(`<!DOCTYPE html>
+<html><head><title>Signing in...</title></head>
+<body style="background:#020408;color:#f0f6ff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0">
+<div style="text-align:center">
+  <div style="font-size:24px;font-weight:800;margin-bottom:16px"><span style="color:#00d4ff">Ai</span><span>Ring</span><span style="color:#5a7a9a">Desk</span></div>
+  <div style="color:#5a7a9a;margin-bottom:8px">Signing you in...</div>
+</div>
+<script>
+  localStorage.setItem('rd_token', ${JSON.stringify(token)});
+  localStorage.setItem('rd_user', JSON.stringify(${JSON.stringify(JSON.stringify({ id: client.id, business_name: client.business_name, email: client.email, plan: client.plan, phone_number: client.phone_number, role: client.role || 'client' }))}));
+  window.location.href = '/dashboard';
+</script>
+</body></html>`);
+
+  } catch(err) {
+    console.error('Google login error:', err.message, err.stack);
+    res.redirect('/dashboard?error=google_login_failed');
+  }
+});
+
 // Step 1: Redirect customer to Google OAuth
 app.get('/auth/google', async (req, res) => {
   // Support token via query param for browser redirects
