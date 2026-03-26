@@ -260,6 +260,10 @@ tr:hover td{background:rgba(255,255,255,.015)}
   .settings-grid{grid-template-columns:1fr}
 }
 
+/* Select dark theme fix */
+select.form-input,select{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-color:#080e18;color:#f0f6ff}
+select option{background-color:#0c1520;color:#f0f6ff}
+
 /* Scrollbar */
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
@@ -326,7 +330,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
       <div class="form-group"><label class="form-label">Contact phone *</label><input class="form-input" type="tel" id="signupPhone" placeholder="+44 7700 900000" autocomplete="tel"/></div>
       <div class="form-group"><label class="form-label">Email address *</label><input class="form-input" type="email" id="signupEmail" placeholder="you@yourbusiness.com" autocomplete="email"/></div>
       <div class="form-group"><label class="form-label">Password *</label><input class="form-input" type="password" id="signupPass" placeholder="Min. 8 characters" autocomplete="new-password"/></div>
-      <div class="form-group"><label class="form-label">Country *</label><select class="form-input" id="signupCountry" style="cursor:pointer"><option value="GB">🇬🇧 United Kingdom</option><option value="IE">🇮🇪 Ireland</option><option value="US">🇺🇸 United States</option><option value="AU">🇦🇺 Australia</option><option value="CA">🇨🇦 Canada</option><option value="DE">🇩🇪 Germany</option><option value="FR">🇫🇷 France</option><option value="NL">🇳🇱 Netherlands</option><option value="ES">🇪🇸 Spain</option><option value="IT">🇮🇹 Italy</option><option value="CH">🇨🇭 Switzerland</option><option value="NZ">🇳🇿 New Zealand</option><option value="SG">🇸🇬 Singapore</option><option value="AE">🇦🇪 UAE</option><option value="IN">🇮🇳 India</option><option value="ZA">🇿🇦 South Africa</option></select></div>
+      <div class="form-group"><label class="form-label">Country *</label><select class="form-input" id="signupCountry" style="cursor:pointer;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-color:#080e18;background-image:url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"%235a7a9a\" stroke-width=\"2\"><polyline points=\"6 9 12 15 18 9\"/></svg>');background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;color:#f0f6ff;border:1px solid rgba(255,255,255,0.10);"><option value="GB">🇬🇧 United Kingdom</option><option value="IE">🇮🇪 Ireland</option><option value="US">🇺🇸 United States</option><option value="AU">🇦🇺 Australia</option><option value="CA">🇨🇦 Canada</option><option value="DE">🇩🇪 Germany</option><option value="FR">🇫🇷 France</option><option value="NL">🇳🇱 Netherlands</option><option value="ES">🇪🇸 Spain</option><option value="IT">🇮🇹 Italy</option><option value="CH">🇨🇭 Switzerland</option><option value="NZ">🇳🇿 New Zealand</option><option value="SG">🇸🇬 Singapore</option><option value="AE">🇦🇪 UAE</option><option value="IN">🇮🇳 India</option><option value="ZA">🇿🇦 South Africa</option></select></div>
       <button class="auth-btn" id="signupBtn" onclick="doSignup()">Create account →</button>
       <div class="auth-error" id="signupError"></div>
       <div id="signupSuccess" style="display:none;text-align:center;padding:20px 0">
@@ -3940,7 +3944,7 @@ function showToast(msg, type) {
         </div>
         <div style="margin-bottom:16px;font-size:13px;color:var(--muted)">Assign a phone number to <strong id="provisionClientName" style="color:var(--text)"></strong></div>
         <div style="display:flex;gap:8px;margin-bottom:12px">
-          <select id="provisionCountry" onchange="searchProvisionNumbers()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:13px;outline:none;flex:1">
+          <select id="provisionCountry" onchange="searchProvisionNumbers()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:13px;outline:none;flex:1;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"%235a7a9a\" stroke-width=\"2\"><polyline points=\"6 9 12 15 18 9\"/></svg>');background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;">
             <option value="GB">🇬🇧 United Kingdom</option>
             <option value="US">🇺🇸 United States</option>
             <option value="CH">🇨🇭 Switzerland</option>
