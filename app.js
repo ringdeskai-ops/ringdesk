@@ -606,7 +606,7 @@ app.post("/voice/incoming", async (req, res) => {
           + (next ? '<p style="color:#8896a8;line-height:1.7">Upgrade to <strong style="color:#00d4ff">' + planNames[next] + '</strong> to get more calls and avoid any interruption to your service.</p>'
             + '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">'
             + '<a href="https://airingdesk.com/dashboard#billing" style="display:inline-block;background:#00d4ff;color:#020408;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700">Upgrade to ' + planNames[next] + ' →</a>'
-            + '<a href="https://airingdesk.com/dashboard" style="display:inline-block;background:transparent;border:1px solid #1a2332;color:#8896a8;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">View my usage</a>'
+            + '<a href="https://airingdesk.com/dashboard?page=billing" style="display:inline-block;background:transparent;border:1px solid #1a2332;color:#8896a8;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">View my usage</a>'
             + '</div>' : '')
           + '<p style="color:#8896a8;font-size:13px;margin-top:24px">AiRingDesk Team · hello@airingdesk.com</p></div>';
         sendBrevoEmail(updatedClient.email, '⚠️ You have used 80% of your AiRingDesk call limit', warningHtml)
@@ -1495,7 +1495,7 @@ app.post('/api/admin/test-usage-email', authRequired, async (req, res) => {
       + (next ? '<p style="color:#8896a8;line-height:1.7">Upgrade to <strong style="color:#00d4ff">' + planNames[next] + '</strong> to get more calls and avoid any interruption.</p>'
         + '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">'
         + '<a href="https://airingdesk.com/dashboard#billing" style="display:inline-block;background:#00d4ff;color:#020408;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700">Upgrade to ' + planNames[next] + ' →</a>'
-        + '<a href="https://airingdesk.com/dashboard" style="display:inline-block;background:transparent;border:1px solid #1a2332;color:#8896a8;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">View my usage</a>'
+        + '<a href="https://airingdesk.com/dashboard?page=billing" style="display:inline-block;background:transparent;border:1px solid #1a2332;color:#8896a8;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">View my usage</a>'
         + '</div>' : '')
       + '<p style="color:#8896a8;font-size:13px;margin-top:24px">AiRingDesk Team · hello@airingdesk.com</p></div>';
     await sendBrevoEmail(client.email, '[TEST] ⚠️ You have used 80% of your AiRingDesk call limit', warningHtml);

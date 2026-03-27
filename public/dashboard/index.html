@@ -2646,6 +2646,10 @@ async function api(path, opts = {}) {
     setTimeout(() => showToast('Google Calendar connection failed', 'error'), 1000);
     window.history.replaceState({}, '', '/dashboard');
   }
+  if (params.get('page') === 'billing') {
+    setTimeout(() => showPage('billing'), 1000);
+    window.history.replaceState({}, '', '/dashboard');
+  }
 })();
 
 async function loadProfile() {
@@ -3331,7 +3335,7 @@ function loadSubscriptions(customers) {
       <td><span style="font-size:11px;padding:3px 9px;border-radius:100px;font-weight:700;background:${planColors[c.plan]||'var(--dim)'}20;color:${planColors[c.plan]||'var(--dim)'};">${c.plan}</span></td>
       <td><span style="font-size:11px;padding:3px 9px;border-radius:100px;font-weight:700;background:${statusColors[c.plan_status]||'var(--dim)'}20;color:${statusColors[c.plan_status]||'var(--dim)'};">${c.plan_status||'—'}</span></td>
       <td style="font-size:14px;font-weight:700;color:var(--green)">£${planRevenue[c.plan]||0}</td>
-      <td style="font-size:12px;color:var(--muted)">${c.calls_this_month||0}/${c.call_limit||50}</td>
+      <td><span style="font-size:12px;color:var(--muted)">${c.calls_this_month||0}/${c.call_limit||50}</span>${usageBadge(c.calls_this_month||0, c.call_limit||50)}</td>
       <td style="font-size:12px;color:var(--muted)">${c.created_at ? new Date(c.created_at*1000).toLocaleDateString('en-GB') : '—'}</td>
       <td><div class="toggle ${c.plan_status!=='cancelled'?'on':''}" onclick="toggleSubFromList('${c.id}',this)"><div class="toggle-thumb"></div></div></td>
       <td><button class="btn-sm btn-cyan-sm" onclick="openCustomerDetail('${c.id}')">Manage</button></td>
