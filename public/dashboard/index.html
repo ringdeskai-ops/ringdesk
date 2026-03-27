@@ -1056,6 +1056,19 @@ select option{background-color:#0c1520;color:#f0f6ff}
           <div class="page-sub" id="billingCurrentPlan">Current plan: loading...</div>
         </div>
       </div>
+      <!-- Cancellation / reactivation banners — shown by JS -->
+      <div id="billingCancellingBanner" style="display:none;margin-bottom:20px;padding:16px 20px;background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.2);border-radius:12px;display:none;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--amber)">⏳ Cancellation pending</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px">Your plan stays active until the end of your billing period. You can reactivate anytime.</div>
+        </div>
+        <button onclick="reactivateSubscription()" style="background:var(--cyan);color:#020408;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">Reactivate →</button>
+      </div>
+      <div id="billingCancelledBanner" style="display:none;margin-bottom:20px;padding:20px 24px;background:rgba(255,68,102,.05);border:1px solid rgba(255,68,102,.2);border-radius:12px">
+        <div style="font-size:16px;font-weight:700;color:var(--red);margin-bottom:6px">Your subscription has ended</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Your AI receptionist is paused. Reactivate to start answering calls again — your settings and call history are saved.</div>
+        <button onclick="reactivateSubscription()" style="background:var(--cyan);color:#020408;border:none;padding:11px 24px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Reactivate my account →</button>
+      </div>
       <div class="billing-grid" id="billingPlans">
         <!-- Populated by JS -->
       </div>
@@ -2496,6 +2509,36 @@ select option{background-color:#0c1520;color:#f0f6ff}
 
 </div>
 
+<!-- ── RETENTION MODAL ── -->
+<div id="retentionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:32px;max-width:480px;width:100%;position:relative">
+    <button onclick="closeRetentionModal()" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--muted);width:28px;height:28px;border-radius:7px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">×</button>
+    <div style="font-size:22px;font-weight:800;margin-bottom:6px">Before you go...</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">We would love to help. Can we offer you one of these instead?</div>
+    <!-- Option 1: Discount -->
+    <div id="retentionDiscount" style="padding:16px;border:1px solid rgba(0,212,255,.2);border-radius:12px;margin-bottom:12px;cursor:pointer;transition:all .2s;background:rgba(0,212,255,.03)" onmouseover="this.style.borderColor='rgba(0,212,255,.5)'" onmouseout="this.style.borderColor='rgba(0,212,255,.2)'">
+      <div style="font-size:14px;font-weight:700;color:var(--cyan);margin-bottom:4px">🎁 Get 1 month at 50% off</div>
+      <div style="font-size:12px;color:var(--muted)">Stay on your current plan at half price for the next month. No commitment.</div>
+      <button onclick="applyRetentionDiscount()" style="margin-top:12px;width:100%;padding:10px;border-radius:8px;border:none;background:var(--cyan);color:#020408;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body)">Apply 50% discount →</button>
+    </div>
+    <!-- Option 2: Downgrade -->
+    <div style="padding:16px;border:1px solid var(--border2);border-radius:12px;margin-bottom:20px;background:rgba(255,255,255,.02)">
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">📉 Downgrade to a smaller plan</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Keep your AI receptionist at a lower price.</div>
+      <select id="downgradeSelect" style="width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:8px;font-size:13px;margin-bottom:10px;font-family:var(--font-body)">
+        <option value="essential">Essential — £29/mo (150 calls)</option>
+        <option value="starter">Starter — £49/mo (300 calls)</option>
+        <option value="professional">Professional — £149/mo (1,000 calls)</option>
+      </select>
+      <button onclick="applyDowngrade()" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body)">Switch to this plan →</button>
+    </div>
+    <!-- Still cancel -->
+    <div style="text-align:center">
+      <button onclick="confirmCancellation()" style="background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;text-decoration:underline;font-family:var(--font-body)">No thanks, cancel my subscription</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────
 const API = '';  // same origin
@@ -2768,6 +2811,11 @@ async function loadProfile() {
   if (pct > 80) fill.classList.add('warning');
   // Billing plans
   renderBillingPlans(profile.plan);
+  // Show cancellation/cancelled banners
+  const cancellingBanner = document.getElementById('billingCancellingBanner');
+  const cancelledBanner = document.getElementById('billingCancelledBanner');
+  if (cancellingBanner) cancellingBanner.style.display = profile.plan_status === 'cancelling' ? 'flex' : 'none';
+  if (cancelledBanner) cancelledBanner.style.display = profile.plan_status === 'cancelled' ? 'block' : 'none';
   // Admin
   if (['superadmin','admin'].includes(currentUser?.role)) {
     loadCustomers();
@@ -2912,6 +2960,7 @@ function renderBillingPlans(currentPlan) {
         ${currentPlan===p.id?'disabled':''}>
         ${currentPlan===p.id?'Current plan':'Upgrade →'}
       </button>
+      ${currentPlan===p.id && currentPlan!=='trial'?'<button onclick="showRetentionModal()" style="width:100%;margin-top:8px;padding:9px;border-radius:8px;border:1px solid rgba(255,68,102,.3);background:transparent;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body)">Cancel plan</button>':''} 
     </div>
   `).join('');
 }
@@ -3478,6 +3527,80 @@ function showPage(name) {
   if (name === 'admin-management') loadAdminManagement(); // Static page, no loading needed
   if (name === 'referral') loadReferral();
   if (name === 'billing') { loadBillingInvoices(); renderBillingPlans(currentUser && currentUser.plan); }
+}
+
+// ── CANCELLATION FLOW ────────────────────────────────────────────────────────
+function showRetentionModal() {
+  const modal = document.getElementById('retentionModal');
+  modal.style.display = 'flex';
+  // Pre-select a plan one tier below current
+  const tiers = ['essential','starter','professional','business'];
+  const currentIdx = tiers.indexOf(profile.plan);
+  const downgradeSelect = document.getElementById('downgradeSelect');
+  if (currentIdx > 0) downgradeSelect.value = tiers[currentIdx - 1];
+  // Hide current plan from downgrade options
+  Array.from(downgradeSelect.options).forEach(o => {
+    o.style.display = o.value === profile.plan ? 'none' : '';
+  });
+}
+
+function closeRetentionModal() {
+  document.getElementById('retentionModal').style.display = 'none';
+}
+
+async function applyRetentionDiscount() {
+  try {
+    const d = await api('/api/billing/discount', { method: 'POST', body: { percent_off: 50 } });
+    if (d && d.ok) {
+      closeRetentionModal();
+      alert('✅ 50% discount applied to your next invoice! Thank you for staying with us.');
+    } else {
+      alert('Could not apply discount. Please contact hello@airingdesk.com');
+    }
+  } catch(e) { alert('Could not apply discount. Please contact hello@airingdesk.com'); }
+}
+
+async function applyDowngrade() {
+  const plan = document.getElementById('downgradeSelect').value;
+  const planNames = {essential:'Essential £29',starter:'Starter £49',professional:'Professional £149'};
+  if (!confirm('Switch to ' + (planNames[plan]||plan) + '/mo? This takes effect at your next billing date.')) return;
+  try {
+    const d = await api('/api/billing/checkout', { method: 'POST', body: { plan } });
+    if (d && d.url) { closeRetentionModal(); window.location.href = d.url; }
+  } catch(e) { alert('Could not process. Please contact hello@airingdesk.com'); }
+}
+
+async function confirmCancellation() {
+  closeRetentionModal();
+  if (!confirm('Are you sure you want to cancel? Your AI receptionist will stop answering calls at the end of your billing period.')) return;
+  try {
+    const d = await api('/api/billing/cancel', { method: 'POST' });
+    if (d && d.ok) {
+      profile.plan_status = 'cancelling';
+      document.getElementById('billingCancellingBanner').style.display = 'flex';
+      document.getElementById('billingCancelledBanner').style.display = 'none';
+      renderBillingPlans(profile.plan);
+      alert('Your cancellation has been scheduled. You keep full access until the end of your billing period.');
+    } else {
+      alert('Could not process cancellation. Please contact hello@airingdesk.com');
+    }
+  } catch(e) { alert('Could not process cancellation. Please contact hello@airingdesk.com'); }
+}
+
+async function reactivateSubscription() {
+  if (!confirm('Reactivate your subscription? Your AI receptionist will continue without interruption.')) return;
+  try {
+    const d = await api('/api/billing/reactivate', { method: 'POST' });
+    if (d && d.ok) {
+      profile.plan_status = 'active';
+      document.getElementById('billingCancellingBanner').style.display = 'none';
+      document.getElementById('billingCancelledBanner').style.display = 'none';
+      renderBillingPlans(profile.plan);
+      alert('✅ Your subscription has been reactivated! Welcome back.');
+    } else {
+      alert('Could not reactivate. Please contact hello@airingdesk.com');
+    }
+  } catch(e) { alert('Could not reactivate. Please contact hello@airingdesk.com'); }
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────
