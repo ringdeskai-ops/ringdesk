@@ -401,7 +401,7 @@ app.post("/api/billing/discount", authRequired, async (req, res) => {
     await sendBrevoEmail(client.email,
       'Your 50% discount has been applied — AiRingDesk',
       '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
-      + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+      + '<div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div></div>'
       + '<div style="display:inline-block;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);border-radius:100px;padding:6px 16px;font-size:13px;font-weight:700;color:#00e87a;margin-bottom:16px">🎁 Discount applied</div>'
       + '<h2 style="font-size:20px;margin-bottom:12px">50% off your next invoice</h2>'
       + '<p style="color:#8896a8;line-height:1.7">Hi ' + client.business_name + ', we have applied a 50% discount to your next invoice. Thank you for staying with AiRingDesk — we really appreciate it.</p>'
@@ -486,7 +486,7 @@ if (event.type === "customer.subscription.deleted") {
         const memberDays = sub.created_at ? Math.floor((Date.now() - sub.created_at * 1000) / (1000*60*60*24)) : '?';
         const reactivateUrl = (process.env.DASHBOARD_URL || 'https://airingdesk.com') + '/dashboard';
         const cancelHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
-          + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+          + '<div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div></div>'
           + '<h2 style="font-size:20px;margin-bottom:16px">Your subscription has ended</h2>'
           + '<p style="color:#8896a8;line-height:1.7">Hi ' + sub.business_name + ', your AiRingDesk ' + (planNames[sub.plan]||'') + ' subscription has now ended. Thank you for being with us since ' + joinedDate + '.</p>'
           + '<div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin:24px 0">'
@@ -500,7 +500,7 @@ if (event.type === "customer.subscription.deleted") {
           + '<p style="color:#3d4f63;font-size:12px;margin-top:24px;border-top:1px solid #1a2332;padding-top:16px">AiRingDesk &middot; hello@airingdesk.com</p></div>';
         await sendBrevoEmail(sub.email, 'Your AiRingDesk subscription has ended', cancelHtml);
         const winbackHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
-          + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+          + '<div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div></div>'
           + '<h2 style="font-size:20px;margin-bottom:8px">We would love to have you back</h2>'
           + '<p style="color:#8896a8;line-height:1.7;margin-bottom:24px">Hi ' + sub.business_name + ', your AI receptionist is ready to start answering calls again the moment you reactivate. No setup needed — everything is exactly as you left it.</p>'
           + '<div style="background:#0d1117;border:1px solid rgba(0,212,255,.15);border-radius:12px;padding:20px;margin-bottom:24px">'
@@ -700,7 +700,7 @@ app.post("/voice/incoming", async (req, res) => {
         const nextPlan = { essential:'Starter', starter:'Professional', professional:'Business', business:null };
         const next = nextPlan[updatedClient.plan];
         const warningHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
-          + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+          + '<div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div></div>'
           + '<h2 style="font-size:20px;margin-bottom:16px">⚠️ You have used 80% of your monthly calls</h2>'
           + '<p style="color:#8896a8;line-height:1.7">Hi ' + updatedClient.business_name + ', you have used <strong style="color:#ffb800">' + updatedClient.calls_this_month + ' of ' + updatedClient.call_limit + ' calls</strong> this month on your ' + planNames[updatedClient.plan] + ' plan.</p>'
           + '<div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin:24px 0">'
@@ -723,7 +723,7 @@ app.post("/voice/incoming", async (req, res) => {
         const nextPlan = { essential:'Starter', starter:'Professional', professional:'Business', business:null };
         const next = nextPlan[updatedClient.plan];
         const limitHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
-          + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+          + '<div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div></div>'
           + '<h2 style="font-size:20px;margin-bottom:16px;color:#ff4466">🚫 You have reached your monthly call limit</h2>'
           + '<p style="color:#8896a8;line-height:1.7">Hi ' + updatedClient.business_name + ', you have used all <strong style="color:#ff4466">' + updatedClient.call_limit + ' calls</strong> on your ' + planNames[updatedClient.plan] + ' plan this month.</p>'
           + '<div style="background:#0d1117;border:1px solid rgba(255,68,102,.3);border-radius:12px;padding:20px;margin:24px 0">'
@@ -1432,7 +1432,7 @@ app.post("/api/auth/forgot-password", async (req, res) => {
   try {
     await sendBrevoEmail(email, 'Reset your AiRingDesk password', `
       <div style="font-family:'Helvetica Neue',sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">
-        <div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>
+        <div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div></div>
         <h2 style="font-size:22px;font-weight:700;margin-bottom:12px">Reset your password</h2>
         <p style="color:#8896a8;font-size:15px;line-height:1.6;margin-bottom:24px">Hi ${client.business_name}, click the button below to reset your password. This link expires in 1 hour.</p>
         <a href="${resetUrl}" style="display:inline-block;background:#00d4ff;color:#020408;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:15px;font-weight:700;margin-bottom:24px">Reset my password →</a>
@@ -1590,7 +1590,7 @@ app.post('/api/invoice/send/:invoiceId', authRequired, async (req, res) => {
     const invoiceUrl = process.env.DASHBOARD_URL + '/invoice-preview/' + invoice.id;
     const downloadUrl = process.env.DASHBOARD_URL + '/api/invoice/download/' + invoice.id;
     const emailHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
-      + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+      + '<div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div></div>'
       + '<h2 style="font-size:20px;margin-bottom:8px">Your Invoice ' + invoice.invoice_number + '</h2>'
       + '<p style="color:#8896a8;line-height:1.7">Hi ' + client.business_name + ', please find your invoice details below.</p>'
       + '<div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin:24px 0">'
@@ -1628,7 +1628,7 @@ app.post('/api/admin/test-usage-email', authRequired, async (req, res) => {
 
   if (type === '80') {
     const warningHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
-      + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+      + '<div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div></div>'
       + '<h2 style="font-size:20px;margin-bottom:16px">⚠️ You have used 80% of your monthly calls</h2>'
       + '<p style="color:#8896a8;line-height:1.7">Hi ' + client.business_name + ', you have used <strong style="color:#ffb800">120 of 150 calls</strong> this month on your ' + planNames[client.plan] + ' plan.</p>'
       + '<div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin:24px 0">'
@@ -1646,7 +1646,7 @@ app.post('/api/admin/test-usage-email', authRequired, async (req, res) => {
 
   } else if (type === '100') {
     const limitHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
-      + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+      + '<div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div></div>'
       + '<h2 style="font-size:20px;margin-bottom:16px;color:#ff4466">🚫 You have reached your monthly call limit</h2>'
       + '<p style="color:#8896a8;line-height:1.7">Hi ' + client.business_name + ', you have used all <strong style="color:#ff4466">' + client.call_limit + ' calls</strong> on your ' + planNames[client.plan] + ' plan this month.</p>'
       + '<div style="background:#0d1117;border:1px solid rgba(255,68,102,.3);border-radius:12px;padding:20px;margin:24px 0">'
@@ -1890,7 +1890,7 @@ async function sendVerificationEmail(business_name, email, verifyUrl) {
   try {
     await sendBrevoEmail(email, 'Verify your AiRingDesk account', `
       <div style="font-family:'Helvetica Neue',sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">
-        <div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>
+        <div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div></div>
         <h2 style="font-size:22px;font-weight:700;margin-bottom:12px">Verify your email address</h2>
         <p style="color:#8896a8;font-size:15px;line-height:1.6;margin-bottom:24px">Hi ${business_name}, thanks for registering! Please click the button below to verify your email address and activate your account.</p>
         <a href="${verifyUrl}" style="display:inline-block;background:#00d4ff;color:#020408;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:15px;font-weight:700;margin-bottom:24px">Verify my email →</a>
@@ -1909,7 +1909,7 @@ async function sendWelcomeEmail(business_name, email, referral_code, id) {
     await sendBrevoEmail(email, `Welcome to AiRingDesk, ${business_name}! 🎉`,
       `
         <div style="font-family:'Helvetica Neue',sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">
-          <div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>
+          <div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div></div>
           <h1 style="font-size:22px;font-weight:700;margin-bottom:12px">Welcome aboard, ${business_name}! 🎉</h1>
           <p style="color:#8896a8;font-size:15px;line-height:1.7;margin-bottom:20px">
             Your AI receptionist is ready to go. You have a <strong style="color:#10b981">7-day free trial</strong> — no charge until your trial ends.
