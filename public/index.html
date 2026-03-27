@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="shortcut icon" href="/favicon.svg">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2">
+  <link rel="shortcut icon" href="/favicon.svg?v=2">
+  <link rel="apple-touch-icon" href="/favicon.svg?v=2">
   <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>AiRingDesk — AI Receptionist for Your Business</title>
@@ -129,7 +130,7 @@ h2 em{font-style:italic;color:var(--cyan)}
 .trust-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
 .trust-desc{font-size:11px;color:var(--muted)}
 .trust-divider{width:1px;background:var(--border);flex-shrink:0;margin:8px 0}
-@media(max-width:768px){
+@media(max-width:768px){#hero{padding:80px 20px 40px;min-height:auto}.contact-grid{grid-template-columns:1fr!important;gap:32px!important}
   #mobileSignIn{display:inline-flex !important}.trust-divider{display:none}.trust-item{min-width:140px;padding:16px 12px}}
 
 /* HOW */
@@ -504,9 +505,10 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     <a href="/dashboard" class="btn btn-ghost" style="padding:7px 16px;font-size:13px">Sign in</a>
     <button onclick="openModal('starter')" class="btn btn-cyan" style="padding:7px 16px;font-size:13px">Start free trial</button>
     <a href="/dashboard" class="btn btn-ghost" style="padding:7px 16px;font-size:13px;display:none" id="mobileSignIn">Sign in</a>
-    <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
+  </div>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
   </div>
 </nav>
 
@@ -906,7 +908,8 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
       <div class="price-note" style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px"></div>
       <div class="plan-calls">150 calls per month</div>
       <div class="plan-feats">
-        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>1 UK phone number</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>1 UK phone number included</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Divert existing number to AI</div>
         <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI answering 24/7</div>
         <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Email notifications</div>
         <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call transcripts & summaries</div>
@@ -965,6 +968,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     </div>
   </div>
   <p style="font-size:13px;color:var(--dim);margin-top:24px;text-align:center">All plans include a 7-day free trial. No credit card required to start.</p>
+  <p style="font-size:12px;color:var(--dim);margin-top:10px;text-align:center">📞 <strong style="color:var(--muted)">Keep your existing number.</strong> Simply divert your current business number to your AiRingDesk number — your customers call the same number as always.</p>
 </section>
 
 <!-- TESTIMONIALS -->
@@ -1065,7 +1069,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 <!-- LEAD CAPTURE SECTION -->
 <section id="contact" style="background:var(--surface);padding:80px clamp(20px,5vw,60px)">
   <div style="max-width:1100px;margin:0 auto">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center" class="contact-grid">
 
       <!-- Left: Copy -->
       <div class="reveal">
