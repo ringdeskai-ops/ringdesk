@@ -3236,8 +3236,8 @@ async function loadCustomerInvoices(customer) {
       + '<td><span style="font-size:11px;padding:2px 8px;border-radius:100px;font-weight:700;background:rgba(0,232,122,.1);color:var(--green)">PAID</span></td>'
       + '<td style="display:flex;gap:5px">'
       + '<a href="/invoice-preview/' + inv.id + '" target="_blank" style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">View</a>'
-      + '<a href="#" onclick="downloadInvoice(event,'' + inv.id + '')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">PDF</a>'
-      + '<a href="#" onclick="sendInvoiceEmail(event,'' + inv.id + '')" style="background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);color:var(--green);padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">Send</a>'
+      + '<a href="#" onclick="downloadInvoice(event,\'' + inv.id + '\')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">PDF</a>'
+      + '<a href="#" onclick="sendInvoiceEmail(event,\'' + inv.id + '\')" style="background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);color:var(--green);padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">Send</a>'
       + '</td>'
       + '</tr>';
   }).join('');
@@ -3466,7 +3466,7 @@ function showPage(name) {
   });
   closeDetail();
   if (name === 'calls') renderCalls();
-  if (name === 'leads') { renderLeads(); loadWebsiteLeads(); }
+  if (name === 'leads') { renderLeads(); }
   if (name === 'appointments') loadAppointments();
   if (name === 'settings') loadWebhookSettings();
   if (name === 'help') {}
