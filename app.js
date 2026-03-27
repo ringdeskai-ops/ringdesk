@@ -604,11 +604,43 @@ app.post("/voice/incoming", async (req, res) => {
           + '<p style="color:#8896a8;font-size:13px">Your AI receptionist will stop answering calls until your next billing period.</p>'
           + '</div>'
           + (next ? '<p style="color:#8896a8;line-height:1.7">Upgrade to <strong style="color:#00d4ff">' + planNames[next] + '</strong> to get more calls and avoid any interruption to your service.</p>'
-            + '<a href="https://airingdesk.com/dashboard" style="display:inline-block;background:#00d4ff;color:#020408;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;margin-top:8px">Upgrade my plan →</a>' : '')
+            + '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">'
+            + '<a href="https://airingdesk.com/dashboard#billing" style="display:inline-block;background:#00d4ff;color:#020408;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700">Upgrade to ' + planNames[next] + ' →</a>'
+            + '<a href="https://airingdesk.com/dashboard" style="display:inline-block;background:transparent;border:1px solid #1a2332;color:#8896a8;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">View my usage</a>'
+            + '</div>' : '')
           + '<p style="color:#8896a8;font-size:13px;margin-top:24px">AiRingDesk Team · hello@airingdesk.com</p></div>';
         sendBrevoEmail(updatedClient.email, '⚠️ You have used 80% of your AiRingDesk call limit', warningHtml)
           .catch(e => console.error('Usage warning email error:', e.message));
         console.log('📧 80% usage warning sent to:', updatedClient.email);
+      }
+      // Send 100% limit reached email
+      if (usagePct >= 100 && usagePct < 101) {
+        const planNames = { essential:'Essential', starter:'Starter', professional:'Professional', business:'Business' };
+        const nextPlan = { essential:'Starter', starter:'Professional', professional:'Business', business:null };
+        const next = nextPlan[updatedClient.plan];
+        const limitHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
+          + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+          + '<h2 style="font-size:20px;margin-bottom:16px;color:#ff4466">🚫 You have reached your monthly call limit</h2>'
+          + '<p style="color:#8896a8;line-height:1.7">Hi ' + updatedClient.business_name + ', you have used all <strong style="color:#ff4466">' + updatedClient.call_limit + ' calls</strong> on your ' + planNames[updatedClient.plan] + ' plan this month.</p>'
+          + '<div style="background:#0d1117;border:1px solid rgba(255,68,102,.3);border-radius:12px;padding:20px;margin:24px 0">'
+          + '<p style="color:#f0f4f8;font-size:15px;font-weight:700;margin-bottom:8px">Your AI receptionist is now offline</p>'
+          + '<p style="color:#8896a8;font-size:13px">Callers will hear a message that you have reached your call limit. Upgrade now to restore service immediately.</p>'
+          + '</div>'
+          + (next ? '<p style="color:#8896a8;line-height:1.7;margin-bottom:16px">Upgrade to <strong style="color:#00d4ff">' + planNames[next] + '</strong> to restore your AI receptionist immediately.</p>'
+            + '<div style="display:flex;gap:12px;flex-wrap:wrap">'
+            + '<a href="https://airingdesk.com/dashboard#billing" style="display:inline-block;background:#ff4466;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700">Restore service now →</a>'
+            + '<a href="https://airingdesk.com/dashboard" style="display:inline-block;background:transparent;border:1px solid #1a2332;color:#8896a8;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">View my account</a>'
+            + '</div>' : '<p style="color:#8896a8">Your service will resume automatically on your next billing date.</p>')
+          + '<p style="color:#8896a8;font-size:13px;margin-top:24px">Need help? Reply to this email or contact hello@airingdesk.com</p>'
+          + '<p style="color:#8896a8;font-size:13px">AiRingDesk Team</p></div>';
+        sendBrevoEmail(updatedClient.email, '🚫 Your AiRingDesk call limit has been reached', limitHtml)
+          .catch(e => console.error('Limit email error:', e.message));
+        // Also notify superadmin
+        sendBrevoEmail(process.env.NOTIFY_EMAIL,
+          '[AiRingDesk] Call limit reached: ' + updatedClient.business_name,
+          '<p><strong>' + updatedClient.business_name + '</strong> (' + updatedClient.email + ') has reached their ' + updatedClient.call_limit + ' call limit on the ' + planNames[updatedClient.plan] + ' plan.</p><p><a href="https://airingdesk.com/dashboard">View in admin →</a></p>'
+        ).catch(e => {});
+        console.log('📧 100% limit email sent to:', updatedClient.email);
       }
     }
   }
@@ -1437,6 +1469,57 @@ app.post('/api/webhook/test', authRequired, async (req, res) => {
     res.json({ success: true, status: response.status, message: 'Test webhook delivered — HTTP ' + response.status });
   } catch(err) {
     res.status(500).json({ error: 'Webhook delivery failed: ' + err.message });
+  }
+});
+
+// ── Test usage emails ────────────────────────────────────────────────
+app.post('/api/admin/test-usage-email', authRequired, async (req, res) => {
+  const { type, client_id } = req.body; // '80' or '100'
+  const targetId = client_id || req.client.id;
+  const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(targetId);
+  if (!client) return res.status(404).json({ error: 'Not found' });
+
+  const planNames = { trial:'Trial', essential:'Essential', starter:'Starter', professional:'Professional', business:'Business' };
+  const nextPlan = { trial:'Essential', essential:'Starter', starter:'Professional', professional:'Business', business:null };
+  const next = nextPlan[client.plan];
+
+  if (type === '80') {
+    const warningHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
+      + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+      + '<h2 style="font-size:20px;margin-bottom:16px">⚠️ You have used 80% of your monthly calls</h2>'
+      + '<p style="color:#8896a8;line-height:1.7">Hi ' + client.business_name + ', you have used <strong style="color:#ffb800">120 of 150 calls</strong> this month on your ' + planNames[client.plan] + ' plan.</p>'
+      + '<div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin:24px 0">'
+      + '<p style="color:#f0f4f8;font-size:15px;font-weight:700;margin-bottom:8px">What happens when you reach your limit?</p>'
+      + '<p style="color:#8896a8;font-size:13px">Your AI receptionist will stop answering calls until your next billing period.</p>'
+      + '</div>'
+      + (next ? '<p style="color:#8896a8;line-height:1.7">Upgrade to <strong style="color:#00d4ff">' + planNames[next] + '</strong> to get more calls and avoid any interruption.</p>'
+        + '<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:16px">'
+        + '<a href="https://airingdesk.com/dashboard#billing" style="display:inline-block;background:#00d4ff;color:#020408;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700">Upgrade to ' + planNames[next] + ' →</a>'
+        + '<a href="https://airingdesk.com/dashboard" style="display:inline-block;background:transparent;border:1px solid #1a2332;color:#8896a8;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">View my usage</a>'
+        + '</div>' : '')
+      + '<p style="color:#8896a8;font-size:13px;margin-top:24px">AiRingDesk Team · hello@airingdesk.com</p></div>';
+    await sendBrevoEmail(client.email, '[TEST] ⚠️ You have used 80% of your AiRingDesk call limit', warningHtml);
+    res.json({ success: true, message: '80% warning email sent to ' + client.email });
+
+  } else if (type === '100') {
+    const limitHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
+      + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+      + '<h2 style="font-size:20px;margin-bottom:16px;color:#ff4466">🚫 You have reached your monthly call limit</h2>'
+      + '<p style="color:#8896a8;line-height:1.7">Hi ' + client.business_name + ', you have used all <strong style="color:#ff4466">' + client.call_limit + ' calls</strong> on your ' + planNames[client.plan] + ' plan this month.</p>'
+      + '<div style="background:#0d1117;border:1px solid rgba(255,68,102,.3);border-radius:12px;padding:20px;margin:24px 0">'
+      + '<p style="color:#f0f4f8;font-size:15px;font-weight:700;margin-bottom:8px">Your AI receptionist is now offline</p>'
+      + '<p style="color:#8896a8;font-size:13px">Callers will hear a message that you have reached your call limit. Upgrade now to restore service immediately.</p>'
+      + '</div>'
+      + (next ? '<p style="color:#8896a8;line-height:1.7;margin-bottom:16px">Upgrade to <strong style="color:#00d4ff">' + planNames[next] + '</strong> to restore your AI receptionist immediately.</p>'
+        + '<div style="display:flex;gap:12px;flex-wrap:wrap">'
+        + '<a href="https://airingdesk.com/dashboard#billing" style="display:inline-block;background:#ff4466;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700">Restore service now →</a>'
+        + '<a href="https://airingdesk.com/dashboard" style="display:inline-block;background:transparent;border:1px solid #1a2332;color:#8896a8;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600">View my account</a>'
+        + '</div>' : '')
+      + '<p style="color:#8896a8;font-size:13px;margin-top:24px">AiRingDesk Team · hello@airingdesk.com</p></div>';
+    await sendBrevoEmail(client.email, '[TEST] 🚫 Your AiRingDesk call limit has been reached', limitHtml);
+    res.json({ success: true, message: '100% limit email sent to ' + client.email });
+  } else {
+    res.status(400).json({ error: 'Invalid type. Use 80 or 100' });
   }
 });
 

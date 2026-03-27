@@ -1470,6 +1470,8 @@ select option{background-color:#0c1520;color:#f0f6ff}
           </button>
           <button onclick="cancelCustomerSubscription()" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">Cancel Sub</button>
           <button onmousedown="event.stopPropagation();event.preventDefault();deleteCustomer();" id="deleteCustomerBtn" class="superadmin-only" style="background:rgba(255,68,102,.2);border:1px solid rgba(255,68,102,.5);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700">🗑️ Delete</button>
+          <button onclick="sendTestUsageEmail('80')" class="superadmin-only" style="background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);color:var(--amber);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600">Test 80%</button>
+          <button onclick="sendTestUsageEmail('100')" class="superadmin-only" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600">Test 100%</button>
 
         </div>
       </div>
@@ -3003,6 +3005,14 @@ async function loadCustomers() {
   document.getElementById('csCancelled').textContent = allCustomers.filter(c => c.plan_status === 'cancelled').length;
 }
 
+function usageBadge(used, limit) {
+  var pct = limit ? (used/limit)*100 : 0;
+  if (pct >= 100) return ' <span style="font-size:10px;padding:2px 6px;border-radius:100px;font-weight:700;background:rgba(255,68,102,.15);color:var(--red)">LIMIT</span>';
+  if (pct >= 80) return ' <span style="font-size:10px;padding:2px 6px;border-radius:100px;font-weight:700;background:rgba(255,184,0,.15);color:var(--amber)">80%+</span>';
+  if (pct >= 60) return ' <span style="font-size:10px;padding:2px 6px;border-radius:100px;font-weight:700;background:rgba(255,184,0,.08);color:var(--amber)">60%+</span>';
+  return '';
+}
+
 function renderCustomers(customers) {
   document.getElementById('customerCount').textContent = `${customers.length} total customers`;
   const planColors = {trial:'var(--dim)',starter:'var(--green)',professional:'var(--cyan)',business:'var(--purple)'};
@@ -3016,7 +3026,7 @@ function renderCustomers(customers) {
       <td style="font-size:12px;color:var(--muted)">${c.phone_number||'—'}</td>
       <td><span style="font-size:11px;padding:3px 9px;border-radius:100px;font-weight:700;background:${planColors[c.plan]||'var(--dim)'}20;color:${planColors[c.plan]||'var(--dim)'};">${c.plan}</span></td>
       <td><span style="font-size:11px;padding:3px 9px;border-radius:100px;font-weight:700;background:${statusColors[c.plan_status]||'var(--dim)'}20;color:${statusColors[c.plan_status]||'var(--dim)'};">${c.plan_status||'—'}</span></td>
-      <td style="font-size:12px;color:var(--muted)">${c.calls_this_month||0}/${c.call_limit||50}</td>
+      <td><span style="font-size:12px;color:var(--muted)">${c.calls_this_month||0}/${c.call_limit||50}</span>${usageBadge(c.calls_this_month||0, c.call_limit||50)}</td>
       <td style="font-size:12px;color:var(--muted)">${c.created_at ? new Date(c.created_at*1000).toLocaleDateString('en-GB') : '—'}</td>
       <td onclick="event.stopPropagation()"><div class="toggle ${c.email_notifications?'on':''}" onclick="toggleCustomerFeature('${c.id}','email_notifications',this)"><div class="toggle-thumb"></div></div></td>
       <td onclick="event.stopPropagation()"><div class="toggle ${c.plan_status!=='cancelled'?'on':''}" onclick="toggleCustomerActive('${c.id}',this)"><div class="toggle-thumb"></div></div></td>
@@ -3549,6 +3559,20 @@ async function restoreAppt(id) {
     renderAppointments();
     showToast('Appointment restored', 'success');
   }
+}
+
+// ── TEST USAGE EMAILS ────────────────────────────────────────────────
+async function sendTestUsageEmail(type) {
+  if (!currentDetailCustomer) return;
+  var token = localStorage.getItem('rd_token');
+  var r = await fetch('/api/admin/test-usage-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify({ type: type, client_id: currentDetailCustomer.id })
+  });
+  var data = await r.json();
+  if (data.success) showToast(data.message, 'success');
+  else showToast(data.error || 'Failed', 'error');
 }
 
 // ── DEMO BANNER TOGGLE ───────────────────────────────────────────────
