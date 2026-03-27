@@ -3480,7 +3480,7 @@ function showPage(name) {
   if (name === 'compliance') {}
   if (name === 'admin-management') loadAdminManagement(); // Static page, no loading needed
   if (name === 'referral') loadReferral();
-  if (name === 'billing') { loadBilling(); loadBillingInvoices(); }
+  if (name === 'billing') { loadBillingInvoices(); renderBillingPlans(currentUser && currentUser.plan); }
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────
@@ -3934,10 +3934,28 @@ async function loadBillingInvoices() {
       + '<td style="font-size:13px;color:var(--green)">'+(inv.discount>0?'-£'+(inv.discount/100).toFixed(2):'—')+'</td>'
       + '<td style="font-size:14px;font-weight:700;color:var(--cyan)">£'+(inv.final_amount/100).toFixed(2)+'</td>'
       + '<td><span style="font-size:11px;padding:2px 8px;border-radius:100px;font-weight:700;background:rgba(0,232,122,.1);color:var(--green)">PAID</span></td>'
-      + '<td><a href="#" onclick="downloadInvoice(event,\'' + inv.id + '\')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:5px 12px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none">PDF</a></td>'
+      + '<td style="display:flex;gap:5px">'
+      + '<a href="/invoice-preview/' + inv.id + '" target="_blank" style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:5px 9px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">View</a>'
+      + '<a href="#" onclick="downloadInvoice(event,\'" + inv.id + "\')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:5px 9px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">PDF</a>'
+      + '<a href="#" onclick="sendInvoiceEmail(event,\'" + inv.id + "\')" style="background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);color:var(--green);padding:5px 9px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">Send</a>'
+      + '</td>'
       + '</tr>';
   }
   tbody.innerHTML = rows;
+}
+
+async function sendInvoiceEmail(e, invoiceId) {
+  e.preventDefault();
+  var token = localStorage.getItem('rd_token') || '';
+  try {
+    var resp = await fetch('/api/invoice/send/' + invoiceId, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    var data = await resp.json();
+    if (data.success) showToast('✅ Invoice sent to your email', 'success');
+    else showToast(data.error || 'Failed to send', 'error');
+  } catch(e) { showToast('Failed to send invoice', 'error'); }
 }
 
 async function downloadInvoice(e, invoiceId) {

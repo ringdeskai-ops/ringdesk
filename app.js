@@ -1476,6 +1476,45 @@ app.post('/api/webhook/test', authRequired, async (req, res) => {
   }
 });
 
+// ── Send invoice email ───────────────────────────────────────────────
+app.post('/api/invoice/send/:invoiceId', authRequired, async (req, res) => {
+  try {
+    const invoice = db.prepare('SELECT * FROM invoices WHERE id = ?').get(req.params.invoiceId);
+    if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
+    if (invoice.client_id !== req.client.id && req.client.role !== 'superadmin' && req.client.role !== 'admin')
+      return res.status(403).json({ error: 'Forbidden' });
+    const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(invoice.client_id);
+    const planNames = { trial:'Trial', essential:'Essential', starter:'Starter', professional:'Professional', business:'Business' };
+    const ps = new Date(invoice.period_start*1000).toLocaleDateString('en-GB');
+    const pe = new Date(invoice.period_end*1000).toLocaleDateString('en-GB');
+    const invoiceUrl = process.env.DASHBOARD_URL + '/invoice-preview/' + invoice.id;
+    const downloadUrl = process.env.DASHBOARD_URL + '/api/invoice/download/' + invoice.id;
+    const emailHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
+      + '<div style="font-size:28px;font-weight:800;margin-bottom:24px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
+      + '<h2 style="font-size:20px;margin-bottom:8px">Your Invoice ' + invoice.invoice_number + '</h2>'
+      + '<p style="color:#8896a8;line-height:1.7">Hi ' + client.business_name + ', please find your invoice details below.</p>'
+      + '<div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin:24px 0">'
+      + '<div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:#8896a8">Invoice</span><span style="color:#f0f4f8;font-weight:700">' + invoice.invoice_number + '</span></div>'
+      + '<div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:#8896a8">Plan</span><span style="color:#f0f4f8">' + (planNames[invoice.plan]||invoice.plan) + '</span></div>'
+      + '<div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:#8896a8">Period</span><span style="color:#f0f4f8">' + ps + ' — ' + pe + '</span></div>'
+      + '<div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:#8896a8">Amount</span><span style="color:#f0f4f8">£' + (invoice.amount/100).toFixed(2) + '</span></div>'
+      + (invoice.discount > 0 ? '<div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="color:#8896a8">Discount</span><span style="color:#00e87a">-£' + (invoice.discount/100).toFixed(2) + '</span></div>' : '')
+      + '<div style="display:flex;justify-content:space-between;border-top:1px solid #1a2332;padding-top:12px;margin-top:4px"><span style="color:#f0f4f8;font-weight:700">Total Paid</span><span style="color:#00d4ff;font-size:18px;font-weight:800">£' + (invoice.final_amount/100).toFixed(2) + '</span></div>'
+      + '</div>'
+      + '<div style="display:flex;gap:12px;flex-wrap:wrap">'
+      + '<a href="' + invoiceUrl + '" style="background:#00d4ff;color:#020408;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px">View Invoice</a>'
+      + '<a href="' + downloadUrl + '" style="background:transparent;border:1px solid #1a2332;color:#8896a8;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px">Download PDF</a>'
+      + '</div>'
+      + '<p style="color:#8896a8;font-size:13px;margin-top:24px">Thank you for your business!</p>'
+      + '<p style="color:#8896a8;font-size:13px">AiRingDesk Team · hello@airingdesk.com</p></div>';
+    await sendBrevoEmail(client.email, 'Your AiRingDesk Invoice ' + invoice.invoice_number, emailHtml);
+    res.json({ success: true });
+  } catch(e) {
+    console.error('Send invoice error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // ── Test usage emails ────────────────────────────────────────────────
 app.post('/api/admin/test-usage-email', authRequired, async (req, res) => {
   const { type, client_id } = req.body; // '80' or '100'
