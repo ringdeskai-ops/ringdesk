@@ -3217,33 +3217,30 @@ async function openCustomerDetail(clientId) {
 
 async function loadCustomerInvoices(customer) {
   const tbody = document.getElementById('invoiceTableBody');
-  // Show simulated invoice history based on plan
-  const planRevenue = {trial:0,starter:49,professional:149,business:349};
-  const amount = planRevenue[customer.plan] || 0;
-
-  if (!customer.stripe_subscription_id || amount === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted)">No payment history — on free trial</td></tr>';
-    return;
-  }
-
-  // Load from API
-  const data = await api(`/api/admin/invoices/${customer.id}`);
+  if (!tbody) return;
+  const data = await api('/api/invoice/client/' + customer.id);
   const invoices = data?.invoices || [];
-
   if (!invoices.length) {
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted)">No invoices yet</td></tr>';
     return;
   }
-
-  tbody.innerHTML = invoices.map(inv => `
-    <tr>
-      <td style="font-size:12px;color:var(--muted)">${inv.date}</td>
-      <td style="font-size:13px">${inv.description}</td>
-      <td style="font-size:13px;font-weight:700;color:var(--green)">£${inv.amount}</td>
-      <td><span style="font-size:11px;padding:2px 8px;border-radius:100px;font-weight:700;background:${inv.status==='paid'?'rgba(0,232,122,.1)':'rgba(255,68,102,.1)'};color:${inv.status==='paid'?'var(--green)':'var(--red)'}">${inv.status}</span></td>
-      <td>${inv.url ? `<a href="${inv.url}" target="_blank" style="color:var(--cyan);font-size:12px">Download</a>` : '—'}</td>
-    </tr>
-  `).join('');
+  const planNames = {trial:'Trial',essential:'Essential',starter:'Starter',professional:'Professional',business:'Business'};
+  tbody.innerHTML = invoices.map(inv => {
+    const dt = inv.created_at ? new Date(inv.created_at*1000).toLocaleDateString('en-GB') : '-';
+    const ps = inv.period_start ? new Date(inv.period_start*1000).toLocaleDateString('en-GB') : '-';
+    const pe = inv.period_end ? new Date(inv.period_end*1000).toLocaleDateString('en-GB') : '-';
+    return '<tr>'
+      + '<td style="font-size:12px;color:var(--muted)">' + dt + '</td>'
+      + '<td><span style="font-size:11px;font-weight:700;color:var(--cyan)">' + inv.invoice_number + '</span><span style="font-size:11px;color:var(--muted);margin-left:6px">' + ps + ' - ' + pe + '</span></td>'
+      + '<td style="font-size:13px;font-weight:700;color:var(--green)">£' + (inv.final_amount/100).toFixed(2) + '</td>'
+      + '<td><span style="font-size:11px;padding:2px 8px;border-radius:100px;font-weight:700;background:rgba(0,232,122,.1);color:var(--green)">PAID</span></td>'
+      + '<td style="display:flex;gap:5px">'
+      + '<a href="/invoice-preview/' + inv.id + '" target="_blank" style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">View</a>'
+      + '<a href="#" onclick="downloadInvoice(event,'' + inv.id + '')" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">PDF</a>'
+      + '<a href="#" onclick="sendInvoiceEmail(event,'' + inv.id + '')" style="background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);color:var(--green);padding:4px 9px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">Send</a>'
+      + '</td>'
+      + '</tr>';
+  }).join('');
 }
 
 
