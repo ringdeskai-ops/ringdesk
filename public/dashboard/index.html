@@ -607,6 +607,45 @@ select option{background-color:#0c1520;color:#f0f6ff}
         </a>
       </div>
 
+      <!-- Usage graph card -->
+      <div id="usageCard" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--text)">Call Usage</div>
+            <div style="font-size:12px;color:var(--muted)" id="usageResetText">This billing period</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:20px">
+            <!-- Circular progress -->
+            <div style="position:relative;width:80px;height:80px;flex-shrink:0">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+                <circle id="usageRing" cx="40" cy="40" r="32" fill="none" stroke="#00d4ff" stroke-width="8"
+                  stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="201"
+                  transform="rotate(-90 40 40)" style="transition:stroke-dashoffset .8s ease,stroke .4s"/>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                <div style="font-size:14px;font-weight:800;color:var(--text)" id="usagePct">0%</div>
+              </div>
+            </div>
+            <!-- Stats -->
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="font-size:12px;color:var(--muted)">Used <span id="usageUsed" style="color:var(--text);font-weight:700">0</span> of <span id="usageLimit" style="color:var(--text);font-weight:700">0</span> calls</div>
+              <div style="font-size:12px;color:var(--green);font-weight:700"><span id="usageLeft">0</span> calls remaining</div>
+              <div style="font-size:11px;color:var(--dim)" id="usageDays"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Bar chart -->
+        <div style="margin-top:8px">
+          <div style="font-size:11px;color:var(--dim);margin-bottom:8px">Daily calls — last 30 days</div>
+          <div id="usageBarChart" style="display:flex;align-items:flex-end;gap:2px;height:60px;overflow:hidden"></div>
+          <div style="display:flex;justify-content:space-between;margin-top:4px">
+            <div style="font-size:10px;color:var(--dim)" id="usageChartStart"></div>
+            <div style="font-size:10px;color:var(--dim)">Today</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Two column layout -->
       <div style="display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start" id="overviewGrid">
         <!-- Recent calls -->
@@ -2663,6 +2702,9 @@ async function loadProfile() {
   document.getElementById('getNumberBtn').style.display = hasPhone ? 'none' : 'flex';
   // Settings
   document.getElementById('settingsAiName').value = profile.ai_name || 'Aria';
+  // Update usage widget with fresh profile data
+  var cachedStats = window._lastStats || {};
+  updateUsageWidget(cachedStats, profile);
   // Show/hide demo banner
   var demoBanner = document.getElementById('demoBanner');
   if (demoBanner) demoBanner.style.display = profile.show_demo_banner !== 0 ? 'flex' : 'none';
@@ -2736,10 +2778,14 @@ async function loadProfile() {
 async function loadStats() {
   const s = await api('/api/stats');
   if (!s) return;
+  window._lastStats = s;
   document.getElementById('statTotal').textContent = s.total_calls || 0;
   document.getElementById('statMonth').textContent = s.calls_this_month || 0;
   document.getElementById('statTransferred').textContent = s.transferred || 0;
   document.getElementById('statVoicemail').textContent = s.voicemails || 0;
+  // Update usage widget
+  var profile = JSON.parse(localStorage.getItem('rd_user') || '{}');
+  updateUsageWidget(s, profile);
   // Mini chart
   renderMiniChart(s.calls_by_day || []);
 }
@@ -3586,6 +3632,66 @@ async function toggleClientDemoBanner() {
   var enabled = el.classList.contains('on') ? 1 : 0;
   await api('/api/admin/set-demo-banner', { method: 'POST', body: { client_id: currentDetailCustomer.id, show_demo_banner: enabled } });
   showToast(enabled ? 'Demo banner enabled' : 'Demo banner disabled', 'success');
+}
+
+// ── USAGE WIDGET ─────────────────────────────────────────────────────
+function updateUsageWidget(stats, profile) {
+  var used = profile.calls_this_month || 0;
+  var limit = profile.call_limit || 50;
+  var left = Math.max(0, limit - used);
+  var pct = limit ? Math.min(100, Math.round((used / limit) * 100)) : 0;
+
+  // Update ring
+  var ring = document.getElementById('usageRing');
+  var pctEl = document.getElementById('usagePct');
+  var usedEl = document.getElementById('usageUsed');
+  var limitEl = document.getElementById('usageLimit');
+  var leftEl = document.getElementById('usageLeft');
+  if (!ring) return;
+
+  var circumference = 201;
+  var offset = circumference - (pct / 100) * circumference;
+  ring.style.strokeDashoffset = offset;
+  ring.style.stroke = pct >= 100 ? '#ff4466' : pct >= 80 ? '#ffb800' : '#00d4ff';
+  pctEl.textContent = pct + '%';
+  pctEl.style.color = pct >= 100 ? 'var(--red)' : pct >= 80 ? 'var(--amber)' : 'var(--text)';
+  usedEl.textContent = used;
+  limitEl.textContent = limit;
+  leftEl.textContent = left;
+  leftEl.style.color = pct >= 100 ? 'var(--red)' : pct >= 80 ? 'var(--amber)' : 'var(--green)';
+
+  // Days until reset (monthly)
+  var now = new Date();
+  var resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  var daysLeft = Math.ceil((resetDate - now) / (1000 * 60 * 60 * 24));
+  document.getElementById('usageDays').textContent = daysLeft + ' days until reset';
+
+  // Bar chart
+  var byDay = (stats && stats.calls_by_day) || [];
+  var chart = document.getElementById('usageBarChart');
+  var startEl = document.getElementById('usageChartStart');
+  if (!chart) return;
+
+  // Build last 30 days
+  var days = [];
+  for (var i = 29; i >= 0; i--) {
+    var d = new Date();
+    d.setDate(d.getDate() - i);
+    var key = d.toISOString().split('T')[0];
+    var found = byDay.find(function(b) { return b.day === key; });
+    days.push({ date: key, count: found ? found.count : 0 });
+  }
+
+  var maxCount = Math.max(1, Math.max.apply(null, days.map(function(d) { return d.count; })));
+  if (startEl) startEl.textContent = new Date(days[0].date).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+
+  chart.innerHTML = days.map(function(d, i) {
+    var h = Math.max(2, Math.round((d.count / maxCount) * 60));
+    var isToday = i === 29;
+    var color = isToday ? '#00d4ff' : 'rgba(0,212,255,0.3)';
+    var title = d.date + ': ' + d.count + ' call' + (d.count !== 1 ? 's' : '');
+    return '<div title="' + title + '" style="flex:1;height:' + h + 'px;background:' + color + ';border-radius:2px 2px 0 0;min-width:2px;cursor:default"></div>';
+  }).join('');
 }
 
 // ── VOICE PREVIEW ────────────────────────────────────────────────────
