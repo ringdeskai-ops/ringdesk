@@ -3660,15 +3660,18 @@ function updateUsageWidget(stats, profile) {
   leftEl.textContent = left;
   leftEl.style.color = pct >= 100 ? 'var(--red)' : pct >= 80 ? 'var(--amber)' : 'var(--green)';
 
-  // Days until reset based on billing cycle day
+  // Billing period dates
   var now = new Date();
   var cycleDay = profile.billing_cycle_day || 1;
+  var periodStart = profile.billing_period_start ? new Date(profile.billing_period_start * 1000) : new Date(now.getFullYear(), now.getMonth(), cycleDay);
   var resetDate = new Date(now.getFullYear(), now.getMonth(), cycleDay);
   if (resetDate <= now) resetDate = new Date(now.getFullYear(), now.getMonth() + 1, cycleDay);
   var daysLeft = Math.ceil((resetDate - now) / (1000 * 60 * 60 * 24));
+  var startStr = periodStart.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
   var resetStr = resetDate.toLocaleDateString('en-GB', { day:'numeric', month:'short' });
   document.getElementById('usageDays').textContent = daysLeft + ' days until reset (' + resetStr + ')';
-  document.getElementById('usageResetText').textContent = 'Resets ' + resetStr + ' each month';
+  document.getElementById('usageResetText').textContent = startStr + ' — ' + resetStr;
+  document.getElementById('usageChartStart').textContent = startStr;
 
   // Bar chart
   var byDay = (stats && stats.calls_by_day) || [];

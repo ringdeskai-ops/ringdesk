@@ -204,7 +204,7 @@ app.post("/api/auth/login", async (req, res) => {
 
 // Get client profile + stats
 app.get("/api/client/profile", authRequired, (req, res) => {
-  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, ai_voice, ai_voice_language, departments, calls_this_month, call_limit, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number, show_demo_banner, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, voicemail_enabled, call_recording, billing_cycle_day FROM clients WHERE id = ?").get(req.client.id);
+  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, ai_voice, ai_voice_language, departments, calls_this_month, call_limit, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number, show_demo_banner, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, voicemail_enabled, call_recording, billing_cycle_day, billing_period_start FROM clients WHERE id = ?").get(req.client.id);
   if (!client) return res.status(404).json({ error: "Not found" });
   client.departments = JSON.parse(client.departments || "{}");
   res.json(client);
@@ -365,8 +365,10 @@ app.post("/stripe-webhook", async (req, res) => {
   if (event.type === "checkout.session.completed") {
     const { client_id, plan } = session.metadata;
     const limit = PLAN_LIMITS[plan]?.calls || 200;
-    db.prepare("UPDATE clients SET plan = ?, plan_status = 'active', stripe_subscription_id = ?, call_limit = ? WHERE id = ?")
-      .run(plan, session.subscription, limit, client_id);
+    const periodStart = Math.floor(Date.now() / 1000);
+    const cycleDay = new Date().getDate();
+    db.prepare("UPDATE clients SET plan = ?, plan_status = 'active', stripe_subscription_id = ?, call_limit = ?, billing_period_start = ?, billing_cycle_day = ? WHERE id = ?")
+      .run(plan, session.subscription, limit, periodStart, cycleDay, client_id);
 
     // Auto-set feature flags based on plan
     const planFeatures = {
@@ -448,7 +450,8 @@ app.post("/stripe-webhook", async (req, res) => {
       const sub = db.prepare("SELECT * FROM clients WHERE stripe_subscription_id = ?").get(invoice.subscription);
       if (sub) {
         const cycleDay = invoice.period_start ? new Date(invoice.period_start * 1000).getDate() : 1;
-        db.prepare("UPDATE clients SET plan_status = 'active', calls_this_month = 0, billing_cycle_day = ? WHERE id = ?").run(cycleDay, sub.id);
+        const periodStart = invoice.period_start || Math.floor(Date.now() / 1000);
+        db.prepare("UPDATE clients SET plan_status = 'active', calls_this_month = 0, billing_cycle_day = ?, billing_period_start = ? WHERE id = ?").run(cycleDay, periodStart, sub.id);
         console.log("Payment succeeded - client " + sub.id + " plan activated, calls reset, cycle day: " + cycleDay);
         // Send payment confirmation email with invoice
         const planNames = { trial:"Trial", starter:"Starter", professional:"Professional", business:"Business" };
