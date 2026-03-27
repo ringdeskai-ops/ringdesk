@@ -2842,10 +2842,10 @@ function renderMiniChart(data) {
 
 function renderBillingPlans(currentPlan) {
   const plans = [
-    {id:'essential',name:'Essential',price:'29',calls:'150/mo',feats:['AI answering 24/7','Voicemail + transcripts','Email notifications','Call dashboard']},
-    {id:'starter',name:'Starter',price:'49',calls:'300/mo',feats:['Everything in Essential','SMS follow-up','Smart call transfers','Priority support'],popular:true},
-    {id:'professional',name:'Professional',price:'149',calls:'1,000/mo',feats:['Everything in Starter','Google Calendar booking','Custom AI personality','Dedicated number']},
-    {id:'business',name:'Business',price:'349',calls:'Unlimited',feats:['Everything in Pro','2 phone numbers','Custom voice & branding','Dedicated manager']}
+    {id:'essential',name:'Essential',price:'29',calls:'150/mo',feats:['1 UK phone number','AI answering 24/7','Email notifications','Call transcripts & summaries','Call transfers']},
+    {id:'starter',name:'Starter',price:'49',calls:'300/mo',feats:['Everything in Essential','Voicemail + recordings','Call dashboard & leads','Referral programme'],popular:true},
+    {id:'professional',name:'Professional',price:'149',calls:'1,000/mo',feats:['Everything in Starter','Appointment booking','Custom AI personality & script','Google Calendar integration','Priority support']},
+    {id:'business',name:'Business',price:'349',calls:'5,000/mo',feats:['Everything in Professional','AI voice & language selector','CRM & webhook integration','Call recording','2 phone numbers','Dedicated account manager']}
   ];
   document.getElementById('billingPlans').innerHTML = plans.map(p => `
     <div class="billing-plan ${currentPlan===p.id?'current':''}">
