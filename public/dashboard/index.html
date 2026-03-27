@@ -637,7 +637,7 @@ select option{background-color:#0c1520;color:#f0f6ff}
         </div>
         <!-- Bar chart -->
         <div style="margin-top:8px">
-          <div style="font-size:11px;color:var(--dim);margin-bottom:8px">Daily calls — last 30 days</div>
+          <div style="font-size:11px;color:var(--dim);margin-bottom:8px" id="usageChartLabel">Daily calls — this billing period</div>
           <div id="usageBarChart" style="display:flex;align-items:flex-end;gap:2px;height:60px;overflow:hidden"></div>
           <div style="display:flex;justify-content:space-between;margin-top:4px">
             <div style="font-size:10px;color:var(--dim)" id="usageChartStart"></div>
@@ -3673,24 +3673,29 @@ function updateUsageWidget(stats, profile) {
   document.getElementById('usageResetText').textContent = startStr + ' — ' + resetStr;
   document.getElementById('usageChartStart').textContent = startStr;
 
-  // Bar chart
+  // Bar chart - show from billing period start to today
   var byDay = (stats && stats.calls_by_day) || [];
   var chart = document.getElementById('usageBarChart');
   var startEl = document.getElementById('usageChartStart');
   if (!chart) return;
 
-  // Build last 30 days
+  // Build days from period start to today
   var days = [];
-  for (var i = 29; i >= 0; i--) {
-    var d = new Date();
-    d.setDate(d.getDate() - i);
+  var chartStart = new Date(periodStart);
+  chartStart.setHours(0,0,0,0);
+  var today = new Date();
+  today.setHours(0,0,0,0);
+  var diffDays = Math.max(1, Math.ceil((today - chartStart) / (1000 * 60 * 60 * 24))) + 1;
+  for (var i = 0; i < diffDays; i++) {
+    var d = new Date(chartStart);
+    d.setDate(d.getDate() + i);
     var key = d.toISOString().split('T')[0];
     var found = byDay.find(function(b) { return b.day === key; });
     days.push({ date: key, count: found ? found.count : 0 });
   }
 
   var maxCount = Math.max(1, Math.max.apply(null, days.map(function(d) { return d.count; })));
-  if (startEl) startEl.textContent = new Date(days[0].date).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+  if (startEl) startEl.textContent = startStr;
 
   chart.innerHTML = days.map(function(d, i) {
     var h = Math.max(2, Math.round((d.count / maxCount) * 60));
