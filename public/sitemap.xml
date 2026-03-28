@@ -1499,4 +1499,19 @@
   <url><loc>https://airingdesk.com/locations/southampton/hythe</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://airingdesk.com/locations/southampton/netley</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://airingdesk.com/locations/southampton/bitterne</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://airingdesk.com/industries/gyms</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/car-garages</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/opticians</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/physiotherapy</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/mortgage-brokers</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/insurance-brokers</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/childcare</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/driving-schools</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/pest-control</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/cleaning</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/landscaping</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/removals</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/locksmiths</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/boiler-heating</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://airingdesk.com/industries/window-door</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
 </urlset>
