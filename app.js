@@ -136,6 +136,94 @@ const STRIPE_PRICE_IDS = {
 
 
 
+
+// ============================================================
+// SAFETY & COMPLIANCE ROUTES
+// ============================================================
+
+// Log ToS acceptance
+app.post('/api/auth/accept-tos', authRequired, (req, res) => {
+  const now = Math.floor(Date.now() / 1000);
+  const ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || '').split(',')[0].trim();
+  const ua = req.headers['user-agent'] || '';
+  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  
+  db.prepare('UPDATE clients SET tos_accepted=1, tos_accepted_at=?, tos_accepted_ip=? WHERE id=?')
+    .run(now, ip, req.client.id);
+  
+  db.prepare('INSERT INTO tos_acceptances (client_id, email, ip_address, user_agent, tos_version, accepted_at) VALUES (?, ?, ?, ?, ?, ?)')
+    .run(req.client.id, client.email, ip, ua.substring(0,200), '1.0', now);
+  
+  res.json({ success: true, accepted_at: now });
+});
+
+// Suspend customer number (superadmin only)
+app.post('/api/admin/suspend/:clientId', authRequired, (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  const { reason } = req.body;
+  const now = Math.floor(Date.now() / 1000);
+  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.params.clientId);
+  if (!client) return res.status(404).json({ error: 'Client not found' });
+  
+  db.prepare('UPDATE clients SET suspended=1, suspended_at=?, suspended_reason=? WHERE id=?')
+    .run(now, reason || 'Suspended by admin', req.params.clientId);
+  
+  // Log the action
+  db.prepare('UPDATE number_assignments SET status=?, released_at=?, released_by=?, release_reason=? WHERE client_id=? AND status=?')
+    .run('suspended', now, req.client.email, reason || 'Suspended by admin', req.params.clientId, 'active');
+  
+  console.log('⚠️ Customer suspended:', client.business_name, '| Reason:', reason);
+  res.json({ success: true, message: 'Customer suspended' });
+});
+
+// Reactivate customer (superadmin only)
+app.post('/api/admin/unsuspend/:clientId', authRequired, (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  db.prepare('UPDATE clients SET suspended=0, suspended_at=NULL, suspended_reason=NULL WHERE id=?')
+    .run(req.params.clientId);
+  db.prepare('UPDATE number_assignments SET status=? WHERE client_id=? AND status=?')
+    .run('active', req.params.clientId, 'suspended');
+  res.json({ success: true, message: 'Customer reactivated' });
+});
+
+// Get number assignment audit log (superadmin only)
+app.get('/api/admin/number-audit', authRequired, (req, res) => {
+  if (!['admin','superadmin'].includes(req.client.role)) return res.status(403).json({ error: 'Forbidden' });
+  const assignments = db.prepare('SELECT na.*, c.email, c.contact_phone FROM number_assignments na LEFT JOIN clients c ON na.client_id = c.id ORDER BY na.assigned_at DESC LIMIT 100').all();
+  res.json({ assignments });
+});
+
+// Release/reclaim a number (superadmin only)
+app.post('/api/admin/release-number/:clientId', authRequired, async (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  const { reason } = req.body;
+  const now = Math.floor(Date.now() / 1000);
+  const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.params.clientId);
+  if (!client || !client.phone_number) return res.status(404).json({ error: 'No number found' });
+  
+  try {
+    // Release from Twilio
+    const numbers = await twilioClient.incomingPhoneNumbers.list({ phoneNumber: client.phone_number });
+    if (numbers.length > 0) {
+      await twilioClient.incomingPhoneNumbers(numbers[0].sid).remove();
+    }
+    
+    // Update audit log
+    db.prepare('UPDATE number_assignments SET status=?, released_at=?, released_by=?, release_reason=? WHERE client_id=? AND status=?')
+      .run('released', now, req.client.email, reason || 'Released by admin', req.params.clientId, 'active');
+    
+    // Clear number from client
+    db.prepare('UPDATE clients SET phone_number=NULL WHERE id=?').run(req.params.clientId);
+    
+    console.log('📵 Number released:', client.phone_number, 'from', client.business_name);
+    res.json({ success: true, message: 'Number released from Twilio' });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+
 // ============================================================
 // LEAD SCORING ENGINE
 // ============================================================
@@ -907,6 +995,13 @@ app.post("/voice/incoming", async (req, res) => {
 
   if (!client) {
     twiml.say("Sorry, this number is not configured. Goodbye.");
+    twiml.hangup();
+    return res.type("text/xml").send(twiml.toString());
+  }
+
+  // Check if account is suspended
+  if (client.suspended) {
+    twiml.say({ voice: 'Google.en-GB-Neural2-C' }, "Sorry, this service is temporarily unavailable. Please try again later.");
     twiml.hangup();
     return res.type("text/xml").send(twiml.toString());
   }
@@ -5040,6 +5135,13 @@ app.post('/api/numbers/provision', authRequired, async (req, res) => {
       const defaultPrompt = 'You are ' + (client.ai_name || 'Aria') + ', the professional AI receptionist for ' + client.business_name + '. Answer all calls warmly and professionally. Take messages with caller name and contact number. Help with general enquiries about the business.';
       db.prepare('UPDATE clients SET ai_prompt = ? WHERE id = ?').run(defaultPrompt, client.id);
     }
+
+    // Log number assignment for audit trail
+    const assignIp = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || '').split(',')[0].trim();
+    const assignNow = Math.floor(Date.now() / 1000);
+    db.prepare('INSERT INTO number_assignments (client_id, business_name, email, phone_number, assigned_at, assigned_ip, status, address_line1, city, postcode, country, twilio_bundle_sid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
+      .run(client.id, client.business_name, client.email, phoneNumber, assignNow, assignIp, 'active',
+        client.address_line1||'', client.city||'', client.postcode||'', client.country||'GB', bundleSid||'');
 
     console.log('Provisioned ' + phoneNumber + ' for ' + client.business_name);
     res.json({ success: true, phoneNumber, message: 'Your AI receptionist is now live!' });
