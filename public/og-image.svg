@@ -1,0 +1,47 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#020408"/>
+      <stop offset="100%" stop-color="#0c1520"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#0066ff" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <!-- Grid pattern -->
+  <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse">
+    <path d="M 64 0 L 0 0 0 64" fill="none" stroke="rgba(0,212,255,0.04)" stroke-width="1"/>
+  </pattern>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <!-- Logo icon -->
+  <rect x="60" y="60" width="72" height="72" rx="18" fill="rgba(0,212,255,0.1)" stroke="rgba(0,212,255,0.3)" stroke-width="1.5"/>
+  <path d="M96 108.92v3a1.95 1.95 0 01-2.12 1.94 19.3 19.3 0 01-8.42-2.99 19 19 0 01-5.85-5.85 19.3 19.3 0 01-2.99-8.46A1.95 1.95 0 0178.55 95H81.5a1.95 1.95 0 011.95 1.68c.123.94.352 1.86.683 2.74a1.95 1.95 0 01-.44 2.06l-1.24 1.24a15.6 15.6 0 005.85 5.85l1.24-1.24a1.95 1.95 0 012.06-.44c.878.33 1.8.56 2.74.683A1.95 1.95 0 0196 108.88z" fill="#00d4ff"/>
+  <!-- Logo text -->
+  <text x="152" y="103" font-family="Arial Black, sans-serif" font-size="48" font-weight="900" fill="#00d4ff">Ai</text>
+  <text x="210" y="103" font-family="Arial Black, sans-serif" font-size="48" font-weight="900" fill="#f0f6ff">Ring</text>
+  <text x="330" y="103" font-family="Arial Black, sans-serif" font-size="48" font-weight="900" fill="#5a7a9a">Desk</text>
+  <!-- Tagline -->
+  <text x="152" y="126" font-family="Arial, sans-serif" font-size="16" fill="#5a7a9a" letter-spacing="2">YOUR 24/7 AI CALL DESK</text>
+  <!-- Main headline -->
+  <text x="60" y="260" font-family="Arial Black, sans-serif" font-size="72" font-weight="900" fill="#f0f6ff">Never Miss</text>
+  <text x="60" y="350" font-family="Arial Black, sans-serif" font-size="72" font-weight="900" fill="#00d4ff">a Customer Call</text>
+  <!-- Subtext -->
+  <text x="60" y="420" font-family="Arial, sans-serif" font-size="28" fill="#5a7a9a">AI receptionist for UK businesses · Answers 24/7 · From £29/mo</text>
+  <!-- Features row -->
+  <rect x="60" y="490" width="220" height="48" rx="10" fill="rgba(0,212,255,0.08)" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+  <text x="170" y="520" font-family="Arial, sans-serif" font-size="18" fill="#00d4ff" text-anchor="middle">✓ Live in 10 min</text>
+  <rect x="300" y="490" width="200" height="48" rx="10" fill="rgba(0,212,255,0.08)" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+  <text x="400" y="520" font-family="Arial, sans-serif" font-size="18" fill="#00d4ff" text-anchor="middle">✓ No setup fees</text>
+  <rect x="520" y="490" width="220" height="48" rx="10" fill="rgba(0,212,255,0.08)" stroke="rgba(0,212,255,0.2)" stroke-width="1"/>
+  <text x="630" y="520" font-family="Arial, sans-serif" font-size="18" fill="#00d4ff" text-anchor="middle">✓ Cancel anytime</text>
+  <!-- Right side decoration -->
+  <circle cx="1050" cy="315" r="200" fill="rgba(0,212,255,0.03)" stroke="rgba(0,212,255,0.08)" stroke-width="1"/>
+  <circle cx="1050" cy="315" r="140" fill="rgba(0,212,255,0.04)" stroke="rgba(0,212,255,0.1)" stroke-width="1"/>
+  <circle cx="1050" cy="315" r="80" fill="rgba(0,212,255,0.06)" stroke="rgba(0,212,255,0.15)" stroke-width="1"/>
+  <text x="1050" y="300" font-family="Arial Black, sans-serif" font-size="32" fill="#00d4ff" text-anchor="middle">24/7</text>
+  <text x="1050" y="340" font-family="Arial, sans-serif" font-size="18" fill="#5a7a9a" text-anchor="middle">AI Answering</text>
+</svg>

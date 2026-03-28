@@ -425,6 +425,22 @@ app.post("/api/billing/discount", authRequired, async (req, res) => {
   }
 });
 });
+// Static assets
+app.use('/assets', require('express').static(__dirname + '/public/assets'));
+app.get('/og-image.svg', (req, res) => res.sendFile(__dirname + '/public/og-image.svg'));
+app.get('/og-image.jpg', (req, res) => res.sendFile(__dirname + '/public/og-image.jpg'));
+app.get('/favicon.svg', (req, res) => res.sendFile(__dirname + '/public/favicon.svg'));
+
+// SEO: Sitemap and robots.txt
+app.get('/sitemap.xml', (req, res) => {
+  res.setHeader('Content-Type', 'application/xml');
+  res.sendFile(__dirname + '/public/sitemap.xml');
+});
+app.get('/robots.txt', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
+  res.sendFile(__dirname + '/public/robots.txt');
+});
+
 // Stripe webhook — subscription events
 app.post("/stripe-webhook", async (req, res) => {
   const sig = req.headers["stripe-signature"];
@@ -1409,12 +1425,13 @@ app.get('/invoice-preview/:id', (req, res) => {
 // Incident log — admin/superadmin only
 app.get("/admin/incident-log", (req, res) => {
   const token = req.query.token;
-  if (!token) return res.redirect('/dashboard');
+  const deny = '<div style="font-family:sans-serif;background:#060912;color:#5a7a9a;height:100vh;display:flex;align-items:center;justify-content:center;font-size:14px">Access denied — superadmin only</div>';
+  if (!token) return res.status(403).send(deny);
   try {
     const user = jwt.verify(token, process.env.JWT_SECRET);
-    if (!['admin','superadmin'].includes(user.role)) return res.status(403).send('Access denied');
+    if (!['admin','superadmin'].includes(user.role)) return res.status(403).send(deny);
     res.sendFile(__dirname + '/public/admin/incident-log.html');
-  } catch (e) { res.redirect('/dashboard'); }
+  } catch (e) { res.status(403).send(deny); }
 });
 
 // Forgot password
