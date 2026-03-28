@@ -474,6 +474,10 @@ select option{background-color:#0c1520;color:#f0f6ff}
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
           System Health
         </button>
+        <button class="nav-btn superadmin-only" id="navAnalytics" onclick="showPage('analytics')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Analytics
+        </button>
       </div>
     </nav>
 
@@ -3590,6 +3594,8 @@ function showPage(name) {
   if (name === 'incident-log') loadIncidents();
   if (name === 'system-health') startHealthAutoRefresh();
   else stopHealthAutoRefresh();
+  if (name === 'analytics') startAnalyticsRefresh();
+  else stopAnalyticsRefresh();
   if (name === 'my-account') loadMyAccount();
   if (name === 'admin-management') {
     updateIncidentToggleUI();
@@ -4991,6 +4997,177 @@ function quickResolve(id) {
   .catch(function(err){ console.error(err); });
 }
 
+
+// ============================================================
+// ANALYTICS DASHBOARD
+// ============================================================
+var analyticsRefreshTimer = null;
+
+function loadAnalytics() {
+  var token = localStorage.getItem('rd_token');
+  if (!token) return;
+  document.getElementById('analyticsUpdated').textContent = 'Loading...';
+  fetch('/api/admin/analytics', { headers: { 'Authorization': 'Bearer ' + token } })
+  .then(function(r){ return r.json(); })
+  .then(function(data){ renderAnalytics(data); document.getElementById('analyticsUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString(); })
+  .catch(function(err){ console.error('Analytics error:', err); document.getElementById('analyticsUpdated').textContent = 'Error loading'; });
+}
+
+function renderAnalytics(data) {
+  // Stats
+  document.getElementById('statTodayTotal').textContent = data.today.total || 0;
+  document.getElementById('statTodayUnique').textContent = data.today.unique || 0;
+  document.getElementById('statWeekTotal').textContent = data.week.total || 0;
+  document.getElementById('statWeekUnique').textContent = data.week.unique || 0;
+  document.getElementById('statMonthTotal').textContent = data.month.total || 0;
+  document.getElementById('statMonthUnique').textContent = data.month.unique || 0;
+
+  // Live visitors
+  var liveCount = data.live.count || 0;
+  document.getElementById('liveVisitorCount').textContent = liveCount + ' visitor' + (liveCount !== 1 ? 's' : '') + ' online now';
+  var liveBanner = document.getElementById('liveVisitorsBanner');
+  if (liveCount > 0) {
+    liveBanner.style.background = 'rgba(0,232,122,.06)';
+    liveBanner.style.borderColor = 'rgba(0,232,122,.2)';
+  }
+
+  var liveList = document.getElementById('liveVisitorsList');
+  if (!data.live.visitors || data.live.visitors.length === 0) {
+    liveList.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">No live visitors right now</div>';
+  } else {
+    liveList.innerHTML = data.live.visitors.map(function(v){
+      var flag = v.country_code ? '&#x1F1;' + String.fromCodePoint(v.country_code.charCodeAt(0) + 127397) + '&#x1F1;' + String.fromCodePoint(v.country_code.charCodeAt(1) + 127397) : '🌍';
+      var ago = Math.floor((Date.now()/1000 - v.visited_at));
+      var agoStr = ago < 60 ? ago + 's ago' : Math.floor(ago/60) + 'm ago';
+      return '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px">'
+        + '<div style="width:7px;height:7px;border-radius:50%;background:#00e87a;flex-shrink:0"></div>'
+        + '<div style="flex:1"><div style="font-weight:600;color:var(--text)">' + (v.city || 'Unknown') + ', ' + (v.country || 'Unknown') + '</div>'
+        + '<div style="color:var(--muted)">' + (v.page || '/') + '</div></div>'
+        + '<div style="color:var(--dim);text-align:right"><div>' + (v.device || 'unknown') + '</div><div>' + agoStr + '</div></div></div>';
+    }).join('');
+  }
+
+  // Top Countries
+  var countriesList = document.getElementById('topCountriesList');
+  if (!data.topCountries || data.topCountries.length === 0) {
+    countriesList.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">No data yet</div>';
+  } else {
+    var maxC = data.topCountries[0].visits;
+    countriesList.innerHTML = data.topCountries.map(function(c){
+      var pct = Math.round((c.visits / maxC) * 100);
+      return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--text);font-weight:600">' + (c.country || 'Unknown') + '</span><span style="color:var(--muted)">' + c.visits + '</span></div>'
+        + '<div style="background:var(--surface2);border-radius:4px;height:4px"><div style="background:var(--cyan);height:4px;border-radius:4px;width:' + pct + '%"></div></div></div>';
+    }).join('');
+  }
+
+  // Top Cities
+  var citiesList = document.getElementById('topCitiesList');
+  if (!data.topCities || data.topCities.length === 0) {
+    citiesList.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">No data yet</div>';
+  } else {
+    var maxCi = data.topCities[0].visits;
+    citiesList.innerHTML = data.topCities.map(function(c){
+      var pct = Math.round((c.visits / maxCi) * 100);
+      return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--text);font-weight:600">' + (c.city || 'Unknown') + ', ' + (c.country || '') + '</span><span style="color:var(--muted)">' + c.visits + '</span></div>'
+        + '<div style="background:var(--surface2);border-radius:4px;height:4px"><div style="background:var(--green);height:4px;border-radius:4px;width:' + pct + '%"></div></div></div>';
+    }).join('');
+  }
+
+  // Traffic Sources
+  var sourcesList = document.getElementById('trafficSourcesList');
+  if (!data.sources || data.sources.length === 0) {
+    sourcesList.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">No data yet</div>';
+  } else {
+    var maxS = data.sources[0].visits;
+    var sourceIcons = {Direct:'🔗', Google:'🔍', Bing:'🔍', Facebook:'📘', 'Twitter/X':'🐦', LinkedIn:'💼', Other:'🌐'};
+    sourcesList.innerHTML = data.sources.map(function(s){
+      var pct = Math.round((s.visits / maxS) * 100);
+      var icon = sourceIcons[s.source] || '🌐';
+      return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--text);font-weight:600">' + icon + ' ' + s.source + '</span><span style="color:var(--muted)">' + s.visits + '</span></div>'
+        + '<div style="background:var(--surface2);border-radius:4px;height:4px"><div style="background:#a78bfa;height:4px;border-radius:4px;width:' + pct + '%"></div></div></div>';
+    }).join('');
+  }
+
+  // Top Pages
+  var pagesList = document.getElementById('topPagesList');
+  if (!data.topPages || data.topPages.length === 0) {
+    pagesList.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">No data yet</div>';
+  } else {
+    var maxP = data.topPages[0].views;
+    pagesList.innerHTML = data.topPages.map(function(p){
+      var pct = Math.round((p.views / maxP) * 100);
+      return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:var(--text);font-weight:600;word-break:break-all">' + (p.page || '/') + '</span><span style="color:var(--muted);flex-shrink:0;margin-left:8px">' + p.views + '</span></div>'
+        + '<div style="background:var(--surface2);border-radius:4px;height:4px"><div style="background:var(--cyan);height:4px;border-radius:4px;width:' + pct + '%"></div></div></div>';
+    }).join('');
+  }
+
+  // Devices
+  var deviceIcons = {desktop:'🖥️', mobile:'📱', tablet:'📟', unknown:'❓'};
+  var devicesList = document.getElementById('devicesList');
+  if (!data.devices || data.devices.length === 0) {
+    devicesList.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">No data yet</div>';
+  } else {
+    var totalD = data.devices.reduce(function(a,b){ return a + b.count; }, 0);
+    devicesList.innerHTML = data.devices.map(function(d){
+      var pct = Math.round((d.count / totalD) * 100);
+      return '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>' + (deviceIcons[d.device]||'❓') + ' ' + d.device + '</span><span style="color:var(--muted)">' + pct + '%</span></div>'
+        + '<div style="background:var(--surface2);border-radius:4px;height:6px"><div style="background:var(--cyan);height:6px;border-radius:4px;width:' + pct + '%"></div></div></div>';
+    }).join('');
+  }
+
+  // Browsers
+  var browserIcons = {Chrome:'🟡', Firefox:'🦊', Safari:'🍎', Edge:'🔵', Opera:'🔴', Other:'🌐'};
+  var browsersList = document.getElementById('browsersList');
+  if (!data.browsers || data.browsers.length === 0) {
+    browsersList.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">No data yet</div>';
+  } else {
+    var totalB = data.browsers.reduce(function(a,b){ return a + b.count; }, 0);
+    browsersList.innerHTML = data.browsers.map(function(b){
+      var pct = Math.round((b.count / totalB) * 100);
+      return '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>' + (browserIcons[b.browser]||'🌐') + ' ' + b.browser + '</span><span style="color:var(--muted)">' + pct + '%</span></div>'
+        + '<div style="background:var(--surface2);border-radius:4px;height:6px"><div style="background:var(--green);height:6px;border-radius:4px;width:' + pct + '%"></div></div></div>';
+    }).join('');
+  }
+
+  // Recent Visitors Table
+  var recentTable = document.getElementById('recentVisitorsTable');
+  if (!data.recentVisitors || data.recentVisitors.length === 0) {
+    recentTable.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">No visitors yet — visit your website to start tracking!</div>';
+  } else {
+    var rows = data.recentVisitors.map(function(v){
+      var date = new Date(v.visited_at * 1000).toLocaleString('en-GB');
+      return '<tr style="border-bottom:1px solid var(--border)">'
+        + '<td style="padding:10px 16px;font-size:12px;color:var(--muted);font-family:monospace">' + (v.ip || '-') + '</td>'
+        + '<td style="padding:10px 16px;font-size:12px;color:var(--text)">' + (v.city || '-') + ', ' + (v.country || '-') + '</td>'
+        + '<td style="padding:10px 16px;font-size:12px;color:var(--muted);word-break:break-all;max-width:200px">' + (v.page || '/') + '</td>'
+        + '<td style="padding:10px 16px;font-size:12px;color:var(--muted)">' + (v.device || '-') + '</td>'
+        + '<td style="padding:10px 16px;font-size:12px;color:var(--muted)">' + (v.browser || '-') + '</td>'
+        + '<td style="padding:10px 16px;font-size:12px;color:var(--muted)">' + (v.os || '-') + '</td>'
+        + '<td style="padding:10px 16px;font-size:12px;color:var(--dim);white-space:nowrap">' + date + '</td>'
+        + '</tr>';
+    }).join('');
+    recentTable.innerHTML = '<table style="width:100%;border-collapse:collapse">'
+      + '<thead><tr style="border-bottom:1px solid var(--border)">'
+      + '<th style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:left">IP</th>'
+      + '<th style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:left">Location</th>'
+      + '<th style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:left">Page</th>'
+      + '<th style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:left">Device</th>'
+      + '<th style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:left">Browser</th>'
+      + '<th style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:left">OS</th>'
+      + '<th style="padding:10px 16px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;text-align:left">Time</th>'
+      + '</tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+}
+
+function startAnalyticsRefresh() {
+  loadAnalytics();
+  analyticsRefreshTimer = setInterval(loadAnalytics, 30000);
+}
+
+function stopAnalyticsRefresh() {
+  if (analyticsRefreshTimer) { clearInterval(analyticsRefreshTimer); analyticsRefreshTimer = null; }
+}
+
 </script>
 <div id="toast"></div><div id="toast"></div>
 <!-- MODALS -->
@@ -5218,5 +5395,129 @@ function quickResolve(id) {
   </div>
 </div>
 
+
+    <!-- ANALYTICS PAGE -->
+    <div class="page" id="page-analytics">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Website Analytics</h1>
+          <p class="page-sub">Live visitor tracking, traffic sources and site performance</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div id="analyticsUpdated" style="font-size:12px;color:var(--muted)">Not loaded</div>
+          <button onclick="loadAnalytics()" style="background:var(--cyan);color:#020408;border:none;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">↻ Refresh</button>
+        </div>
+      </div>
+
+      <!-- Live Visitors Banner -->
+      <div id="liveVisitorsBanner" style="background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.2);border-radius:12px;padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:12px">
+        <div style="width:10px;height:10px;border-radius:50%;background:#00e87a;animation:pulse 2s infinite;flex-shrink:0"></div>
+        <div style="font-size:14px;font-weight:600;color:#00e87a" id="liveVisitorCount">0 visitors online now</div>
+        <div style="font-size:12px;color:var(--muted);margin-left:8px">Last 5 minutes</div>
+      </div>
+
+      <!-- Stats Row -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:24px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--cyan)" id="statTodayTotal">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Today Views</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--green)" id="statTodayUnique">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Today Unique</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--cyan)" id="statWeekTotal">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Week Views</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--green)" id="statWeekUnique">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Week Unique</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--cyan)" id="statMonthTotal">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Month Views</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--green)" id="statMonthUnique">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Month Unique</div>
+        </div>
+      </div>
+
+      <!-- Main Grid -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+
+        <!-- Live Visitors -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700">🌍 Live Visitors</div>
+          <div id="liveVisitorsList" style="padding:12px 20px;max-height:300px;overflow-y:auto">
+            <div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">No live visitors</div>
+          </div>
+        </div>
+
+        <!-- Top Countries -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700">🌐 Top Countries</div>
+          <div id="topCountriesList" style="padding:12px 20px;max-height:300px;overflow-y:auto">
+            <div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Top Cities -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700">🏙️ Top Cities</div>
+          <div id="topCitiesList" style="padding:12px 20px;max-height:300px;overflow-y:auto">
+            <div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Traffic Sources -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700">🔍 Traffic Sources</div>
+          <div id="trafficSourcesList" style="padding:12px 20px;max-height:300px;overflow-y:auto">
+            <div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">Loading...</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Top Pages & Devices Row -->
+      <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;margin-bottom:16px">
+
+        <!-- Top Pages -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700">📄 Top Pages Today</div>
+          <div id="topPagesList" style="padding:12px 20px;max-height:300px;overflow-y:auto">
+            <div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Devices -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700">📱 Devices</div>
+          <div id="devicesList" style="padding:12px 20px">
+            <div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">Loading...</div>
+          </div>
+        </div>
+
+        <!-- Browsers -->
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+          <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700">🌐 Browsers</div>
+          <div id="browsersList" style="padding:12px 20px">
+            <div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">Loading...</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Recent Visitors Table -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700">👥 Recent Visitors</div>
+        <div id="recentVisitorsTable" style="overflow-x:auto">
+          <div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">Loading...</div>
+        </div>
+      </div>
+
+    </div>
 </body>
 </html>

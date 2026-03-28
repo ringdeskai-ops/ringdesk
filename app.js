@@ -134,6 +134,90 @@ const STRIPE_PRICE_IDS = {
 //  AUTH ROUTES
 // ═══════════════════════════════════════════════════════════════════════════════
 
+
+// ============================================================
+// VISITOR TRACKING MIDDLEWARE
+// ============================================================
+const SKIP_TRACKING = ['/api/', '/auth/', '/voice/', '/sms/', '/webhook', '/favicon', '/og-image', '/robots', '/sitemap', '/assets/'];
+
+function detectDevice(ua) {
+  if (!ua) return 'unknown';
+  if (/mobile|android|iphone|ipad|ipod/i.test(ua)) return 'mobile';
+  if (/tablet|ipad/i.test(ua)) return 'tablet';
+  return 'desktop';
+}
+
+function detectBrowser(ua) {
+  if (!ua) return 'unknown';
+  if (/edg/i.test(ua)) return 'Edge';
+  if (/chrome/i.test(ua)) return 'Chrome';
+  if (/firefox/i.test(ua)) return 'Firefox';
+  if (/safari/i.test(ua)) return 'Safari';
+  if (/opera/i.test(ua)) return 'Opera';
+  return 'Other';
+}
+
+function detectOS(ua) {
+  if (!ua) return 'unknown';
+  if (/windows/i.test(ua)) return 'Windows';
+  if (/mac os/i.test(ua)) return 'macOS';
+  if (/android/i.test(ua)) return 'Android';
+  if (/iphone|ipad/i.test(ua)) return 'iOS';
+  if (/linux/i.test(ua)) return 'Linux';
+  return 'Other';
+}
+
+// In-memory cache for IP geolocation (avoid hitting API too often)
+const geoCache = new Map();
+
+async function getGeoData(ip) {
+  // Skip private/local IPs
+  if (!ip || ip === '127.0.0.1' || ip === '::1' || ip.startsWith('192.168.') || ip.startsWith('10.') || ip.startsWith('172.')) {
+    return { country: 'Local', country_code: 'LO', region: 'Local', city: 'Local', lat: 0, lon: 0, isp: 'Local' };
+  }
+  if (geoCache.has(ip)) return geoCache.get(ip);
+  try {
+    const res = await fetch('http://ip-api.com/json/' + ip + '?fields=country,countryCode,regionName,city,lat,lon,isp,status');
+    const data = await res.json();
+    if (data.status === 'success') {
+      const geo = { country: data.country, country_code: data.countryCode, region: data.regionName, city: data.city, lat: data.lat, lon: data.lon, isp: data.isp };
+      geoCache.set(ip, geo);
+      // Clear cache after 1 hour
+      setTimeout(() => geoCache.delete(ip), 3600000);
+      return geo;
+    }
+  } catch(e) {}
+  return { country: 'Unknown', country_code: 'XX', region: 'Unknown', city: 'Unknown', lat: 0, lon: 0, isp: 'Unknown' };
+}
+
+app.use(async (req, res, next) => {
+  // Skip non-page requests
+  const skip = SKIP_TRACKING.some(p => req.path.startsWith(p)) || req.path.includes('.');
+  if (skip) return next();
+
+  // Get real IP (behind proxy)
+  const ip = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || '').split(',')[0].trim();
+  const ua = req.headers['user-agent'] || '';
+  const referrer = req.headers['referer'] || req.headers['referrer'] || '';
+  const page = req.path;
+
+  // Log async — don't block the request
+  next();
+
+  // Track in background
+  setImmediate(async () => {
+    try {
+      const geo = await getGeoData(ip);
+      db.prepare(`INSERT INTO visitor_logs (ip, country, country_code, region, city, lat, lon, isp, page, referrer, user_agent, device, browser, os)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+        .run(ip, geo.country, geo.country_code, geo.region, geo.city, geo.lat, geo.lon, geo.isp, page, referrer, ua.substring(0, 200), detectDevice(ua), detectBrowser(ua), detectOS(ua));
+    } catch(e) {
+      // Silent fail — never break requests for analytics
+    }
+  });
+});
+
+
 // Register new client
 app.post("/api/auth/register", async (req, res) => {
   const { business_name, email, password, referral_code, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region } = req.body;
@@ -4060,6 +4144,73 @@ app.delete('/api/admin/incidents/:id', (req, res) => {
   } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
   db.prepare("DELETE FROM incidents WHERE id = ?").run(req.params.id);
   res.json({ success: true });
+});
+
+
+
+// ============================================================
+// ANALYTICS API
+// ============================================================
+app.get('/api/admin/analytics', (req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const user = jwt.verify(auth.replace('Bearer ', ''), process.env.JWT_SECRET);
+    if (!['admin','superadmin'].includes(user.role)) return res.status(403).json({ error: 'Forbidden' });
+  } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
+
+  const now = Math.floor(Date.now() / 1000);
+  const fiveMinAgo = now - 300;
+  const todayStart = now - 86400;
+  const weekStart = now - 604800;
+  const monthStart = now - 2592000;
+
+  // Live visitors (last 5 mins)
+  const liveVisitors = db.prepare("SELECT ip, country, country_code, city, region, page, device, browser, visited_at FROM visitor_logs WHERE visited_at > ? ORDER BY visited_at DESC LIMIT 50").all(fiveMinAgo);
+
+  // Today stats
+  const todayTotal = db.prepare("SELECT COUNT(*) as count FROM visitor_logs WHERE visited_at > ?").get(todayStart);
+  const todayUnique = db.prepare("SELECT COUNT(DISTINCT ip) as count FROM visitor_logs WHERE visited_at > ?").get(todayStart);
+
+  // Week stats
+  const weekTotal = db.prepare("SELECT COUNT(*) as count FROM visitor_logs WHERE visited_at > ?").get(weekStart);
+  const weekUnique = db.prepare("SELECT COUNT(DISTINCT ip) as count FROM visitor_logs WHERE visited_at > ?").get(weekStart);
+
+  // Month stats
+  const monthTotal = db.prepare("SELECT COUNT(*) as count FROM visitor_logs WHERE visited_at > ?").get(monthStart);
+  const monthUnique = db.prepare("SELECT COUNT(DISTINCT ip) as count FROM visitor_logs WHERE visited_at > ?").get(monthStart);
+
+  // Top pages today
+  const topPages = db.prepare("SELECT page, COUNT(*) as views FROM visitor_logs WHERE visited_at > ? GROUP BY page ORDER BY views DESC LIMIT 10").all(todayStart);
+
+  // Top countries
+  const topCountries = db.prepare("SELECT country, country_code, COUNT(*) as visits FROM visitor_logs WHERE visited_at > ? GROUP BY country ORDER BY visits DESC LIMIT 10").all(monthStart);
+
+  // Top cities
+  const topCities = db.prepare("SELECT city, region, country, COUNT(*) as visits FROM visitor_logs WHERE visited_at > ? AND city != 'Unknown' AND city != 'Local' GROUP BY city ORDER BY visits DESC LIMIT 10").all(monthStart);
+
+  // Device breakdown
+  const devices = db.prepare("SELECT device, COUNT(*) as count FROM visitor_logs WHERE visited_at > ? GROUP BY device ORDER BY count DESC").all(monthStart);
+
+  // Browser breakdown
+  const browsers = db.prepare("SELECT browser, COUNT(*) as count FROM visitor_logs WHERE visited_at > ? GROUP BY browser ORDER BY count DESC").all(monthStart);
+
+  // Hourly traffic today
+  const hourly = db.prepare("SELECT strftime('%H', datetime(visited_at, 'unixepoch')) as hour, COUNT(*) as visits FROM visitor_logs WHERE visited_at > ? GROUP BY hour ORDER BY hour").all(todayStart);
+
+  // Traffic sources
+  const sources = db.prepare("SELECT CASE WHEN referrer = '' OR referrer IS NULL THEN 'Direct' WHEN referrer LIKE '%google%' THEN 'Google' WHEN referrer LIKE '%bing%' THEN 'Bing' WHEN referrer LIKE '%facebook%' THEN 'Facebook' WHEN referrer LIKE '%twitter%' OR referrer LIKE '%x.com%' THEN 'Twitter/X' WHEN referrer LIKE '%linkedin%' THEN 'LinkedIn' ELSE 'Other' END as source, COUNT(*) as visits FROM visitor_logs WHERE visited_at > ? GROUP BY source ORDER BY visits DESC").all(monthStart);
+
+  // Recent visitors
+  const recentVisitors = db.prepare("SELECT ip, country, country_code, city, region, page, device, browser, os, referrer, visited_at FROM visitor_logs ORDER BY visited_at DESC LIMIT 100").all();
+
+  res.json({
+    live: { visitors: liveVisitors, count: liveVisitors.length },
+    today: { total: todayTotal.count, unique: todayUnique.count },
+    week: { total: weekTotal.count, unique: weekUnique.count },
+    month: { total: monthTotal.count, unique: monthUnique.count },
+    topPages, topCountries, topCities, devices, browsers, hourly, sources, recentVisitors
+  });
 });
 
 
