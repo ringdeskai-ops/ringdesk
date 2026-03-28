@@ -1525,6 +1525,8 @@ select option{background-color:#0c1520;color:#f0f6ff}
             WhatsApp
           </button>
           <button onclick="cancelCustomerSubscription()" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">Cancel Sub</button>
+          <button onclick="suspendCustomer()" id="suspendCustomerBtn" class="superadmin-only" style="background:rgba(255,140,0,.1);border:1px solid rgba(255,140,0,.3);color:#ff8c00;padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">⚠️ Suspend</button>
+          <button onclick="releaseCustomerNumber()" id="releaseNumberBtn" class="superadmin-only" style="display:none;background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600">📵 Release Number</button>
           <button onmousedown="event.stopPropagation();event.preventDefault();deleteCustomer();" id="deleteCustomerBtn" class="superadmin-only" style="background:rgba(255,68,102,.2);border:1px solid rgba(255,68,102,.5);color:var(--red);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700">🗑️ Delete</button>
           <button onclick="sendTestUsageEmail('80')" class="superadmin-only" style="background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);color:var(--amber);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600">Test 80%</button>
           <button onclick="sendTestUsageEmail('100')" class="superadmin-only" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:8px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600">Test 100%</button>
@@ -3451,6 +3453,24 @@ async function openCustomerDetail(clientId) {
   // Show provision btn if no number, always show AI edit btn
   var provBtn = document.getElementById('detailProvisionBtn');
   var aiBtn = document.getElementById('detailEditAiBtn');
+  // Suspend button
+  var suspBtn = document.getElementById('suspendCustomerBtn');
+  if (suspBtn) {
+    if (customer.suspended) {
+      suspBtn.textContent = '✅ Unsuspend';
+      suspBtn.style.color = '#00e87a';
+      suspBtn.style.borderColor = 'rgba(0,232,122,.3)';
+      suspBtn.style.background = 'rgba(0,232,122,.1)';
+    } else {
+      suspBtn.textContent = '⚠️ Suspend';
+      suspBtn.style.color = '#ff8c00';
+      suspBtn.style.borderColor = 'rgba(255,140,0,.3)';
+      suspBtn.style.background = 'rgba(255,140,0,.1)';
+    }
+  }
+  // Release number button
+  var relBtn = document.getElementById('releaseNumberBtn');
+  if (relBtn) relBtn.style.display = customer.phone_number ? 'inline-flex' : 'none';
   if (provBtn) provBtn.style.display = customer.phone_number ? 'none' : 'inline-block';
   if (aiBtn) aiBtn.style.display = 'inline-flex';
   document.getElementById('dPhone').textContent = customer.phone_number || '—';
@@ -5472,6 +5492,45 @@ function startLeadIntelRefresh() {
 function stopLeadIntelRefresh() {
   if (leadIntelTimer) { clearInterval(leadIntelTimer); leadIntelTimer = null; }
 }
+
+
+// ============================================================
+// SAFETY — SUSPEND / RELEASE NUMBER
+// ============================================================
+async function suspendCustomer() {
+  if (!currentDetailCustomer) return;
+  var isSuspended = currentDetailCustomer.suspended;
+  var action = isSuspended ? 'unsuspend' : 'suspend';
+  var reason = isSuspended ? '' : prompt('Reason for suspension:');
+  if (!isSuspended && !reason) return;
+  if (!confirm((isSuspended ? 'Reactivate' : 'Suspend') + ' ' + currentDetailCustomer.business_name + '?')) return;
+  
+  try {
+    var url = isSuspended ? '/api/admin/unsuspend/' + currentDetailCustomer.id : '/api/admin/suspend/' + currentDetailCustomer.id;
+    var r = await api(url, { method: 'POST', body: { reason } });
+    showToast(isSuspended ? 'Customer reactivated' : 'Customer suspended', isSuspended ? 'success' : 'warning');
+    currentDetailCustomer.suspended = isSuspended ? 0 : 1;
+    var btn = document.getElementById('suspendCustomerBtn');
+    if (btn) { btn.textContent = isSuspended ? '⚠️ Suspend' : '✅ Unsuspend'; btn.style.color = isSuspended ? '#ff8c00' : '#00e87a'; btn.style.borderColor = isSuspended ? 'rgba(255,140,0,.3)' : 'rgba(0,232,122,.3)'; }
+    loadCustomers();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function releaseCustomerNumber() {
+  if (!currentDetailCustomer || !currentDetailCustomer.phone_number) return;
+  var reason = prompt('Reason for releasing number ' + currentDetailCustomer.phone_number + ':');
+  if (!reason) return;
+  if (!confirm('Release ' + currentDetailCustomer.phone_number + ' from Twilio? This cannot be undone.')) return;
+  
+  try {
+    await api('/api/admin/release-number/' + currentDetailCustomer.id, { method: 'POST', body: { reason } });
+    showToast('Number released from Twilio', 'success');
+    currentDetailCustomer.phone_number = null;
+    document.getElementById('releaseNumberBtn').style.display = 'none';
+    loadCustomers();
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
 
 </script>
 <div id="toast"></div><div id="toast"></div>
