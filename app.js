@@ -4092,14 +4092,14 @@ app.get('/api/admin/health', async (req, res) => {
   try {
     const clients = db.prepare("SELECT id, business_name, phone_number, plan, plan_status FROM clients WHERE role = 'client' AND phone_number IS NOT NULL AND phone_number != ''").all();
     for (const client of clients) {
-      const lastCall = db.prepare("SELECT created_at, duration FROM call_sessions WHERE client_id = ? ORDER BY created_at DESC LIMIT 1").get(client.id);
+      const lastCall = db.prepare("SELECT started_at FROM call_sessions WHERE client_id = ? ORDER BY started_at DESC LIMIT 1").get(client.id);
       results.customers.push({
         id: client.id,
         name: client.business_name,
         number: client.phone_number,
         plan: client.plan,
         plan_status: client.plan_status,
-        last_call: lastCall ? lastCall.created_at : null,
+        last_call: lastCall ? lastCall.started_at : null,
         status: client.plan_status === 'active' || client.plan_status === 'trial' ? 'ok' : 'warning'
       });
     }
