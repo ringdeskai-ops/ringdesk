@@ -1279,6 +1279,14 @@ app.get('/industries/plumbers', (req, res) => res.sendFile(__dirname + '/public/
 app.get('/industries/estate-agents', (req, res) => res.sendFile(__dirname + '/public/industries/estate-agents.html'));
 app.get('/industries/solicitors', (req, res) => res.sendFile(__dirname + '/public/industries/solicitors.html'));
 app.get('/industries/medical', (req, res) => res.sendFile(__dirname + '/public/industries/medical.html'));
+app.get('/industries/builders', (req, res) => res.sendFile(__dirname + '/public/industries/builders.html'));
+app.get('/industries/electricians', (req, res) => res.sendFile(__dirname + '/public/industries/electricians.html'));
+app.get('/industries/salons', (req, res) => res.sendFile(__dirname + '/public/industries/salons.html'));
+app.get('/industries/restaurants', (req, res) => res.sendFile(__dirname + '/public/industries/restaurants.html'));
+app.get('/industries/accountants', (req, res) => res.sendFile(__dirname + '/public/industries/accountants.html'));
+app.get('/industries/letting-agents', (req, res) => res.sendFile(__dirname + '/public/industries/letting-agents.html'));
+app.get('/industries/handymen', (req, res) => res.sendFile(__dirname + '/public/industries/handymen.html'));
+app.get('/industries/veterinary', (req, res) => res.sendFile(__dirname + '/public/industries/veterinary.html'));
 // ── Lead management routes ───────────────────────────────────────────
 app.get('/api/leads', authRequired, (req, res) => {
   const leads = db.prepare('SELECT * FROM leads ORDER BY created_at DESC').all();
