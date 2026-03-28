@@ -91,7 +91,13 @@ db.exec(`
 `);
 
 // ── Middleware ─────────────────────────────────────────────────────────────────
-app.use(cors({ origin: process.env.DASHBOARD_URL || "*" }));
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (crawlers, curl, etc) and all origins for public routes
+    callback(null, true);
+  },
+  credentials: true
+}));
 app.use("/stripe-webhook", bodyParser.raw({ type: "application/json" }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
