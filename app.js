@@ -1103,6 +1103,101 @@ app.post("/voice/speech", async (req, res) => {
   res.type("text/xml").send(twiml.toString());
 });
 
+
+// ── Call Transfer Route ───────────────────────────────────────────────────────
+app.post("/voice/transfer", async (req, res) => {
+  const { dept, callSid, clientId } = req.query;
+  const twiml = new VoiceResponse();
+
+  try {
+    const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(clientId);
+    if (!client) {
+      twiml.say({ voice: 'Google.en-GB-Neural2-C' }, "I'm sorry, I couldn't complete the transfer. Please call back.");
+      twiml.hangup();
+      return res.type("text/xml").send(twiml.toString());
+    }
+
+    // Get transfer number based on department
+    let transferNumber = null;
+    
+    // Check departments JSON field first
+    if (client.departments) {
+      try {
+        const depts = JSON.parse(client.departments);
+        transferNumber = depts[dept] || depts['general'] || null;
+      } catch(e) {}
+    }
+
+    // Fallback chain: work_phone → mobile_phone → contact_phone → admin_number
+    if (!transferNumber) transferNumber = client.work_phone || client.mobile_phone || client.contact_phone || client.admin_number || null;
+
+    if (!transferNumber) {
+      // No transfer number configured — go to voicemail
+      twiml.say({ voice: client.ai_voice || 'Google.en-GB-Neural2-C', language: 'en-GB' }, 
+        "I'm sorry, our team is unavailable right now. Let me take a message for you.");
+      twiml.redirect("/voice/voicemail");
+      return res.type("text/xml").send(twiml.toString());
+    }
+
+    // Update call status
+    db.prepare("UPDATE calls SET status = 'transferred', transferred_to = ? WHERE call_sid = ?")
+      .run(transferNumber, callSid);
+
+    // Announce transfer
+    const deptNames = { sales: 'our sales team', support: 'our support team', billing: 'our billing team', manager: 'a manager', general: 'our team' };
+    const deptName = deptNames[dept] || 'our team';
+
+    twiml.say({ voice: client.ai_voice || 'Google.en-GB-Neural2-C', language: 'en-GB' },
+      'Please hold while I connect you with ' + deptName + '.');
+    twiml.pause({ length: 1 });
+
+    // Dial the transfer number with timeout fallback to voicemail
+    const dial = twiml.dial({
+      action: '/voice/transfer-complete?clientId=' + clientId + '&callSid=' + callSid,
+      method: 'POST',
+      timeout: 20,
+      callerId: client.phone_number || req.body.To
+    });
+    dial.number(transferNumber);
+
+    console.log('📞 Transferring call ' + callSid + ' to ' + transferNumber + ' (dept: ' + dept + ')');
+
+  } catch(err) {
+    console.error('Transfer error:', err.message);
+    twiml.say({ voice: 'Google.en-GB-Neural2-C' }, "I'm sorry, the transfer failed. Please try again.");
+    twiml.hangup();
+  }
+
+  res.type("text/xml").send(twiml.toString());
+});
+
+// ── Transfer complete / no answer fallback ────────────────────────────────────
+app.post("/voice/transfer-complete", async (req, res) => {
+  const { clientId, callSid } = req.query;
+  const { DialCallStatus } = req.body;
+  const twiml = new VoiceResponse();
+
+  try {
+    const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(clientId);
+    const voice = (client && client.ai_voice) || 'Google.en-GB-Neural2-C';
+
+    if (DialCallStatus === 'completed') {
+      // Call was answered and completed
+      twiml.hangup();
+    } else {
+      // No answer — offer voicemail
+      twiml.say({ voice, language: 'en-GB' },
+        "Our team is unavailable right now. Please leave a message and we will call you back.");
+      twiml.redirect('/voice/voicemail');
+    }
+  } catch(err) {
+    twiml.hangup();
+  }
+
+  res.type("text/xml").send(twiml.toString());
+});
+
+
 // ── Voicemail recording route ─────────────────────────────────────────────────
 app.post("/voice/voicemail", (req, res) => {
   const { CallSid, To } = req.body;
