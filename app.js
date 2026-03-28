@@ -3997,6 +3997,120 @@ app.get("/admin/incident-log", (req, res) => {
   } catch (e) { res.status(403).send(deny); }
 });
 
+
+// ============================================================
+// SYSTEM HEALTH MONITOR
+// ============================================================
+app.get('/api/admin/health', async (req, res) => {
+  // Verify superadmin token
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const token = auth.replace('Bearer ', '');
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    if (!['admin','superadmin'].includes(user.role)) return res.status(403).json({ error: 'Forbidden' });
+  } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
+
+  const results = { timestamp: new Date().toISOString(), services: {}, customers: [] };
+  const start = Date.now();
+
+  // 1. Database
+  try {
+    const testQuery = db.prepare("SELECT COUNT(*) as count FROM clients").get();
+    results.services.database = { status: 'ok', message: testQuery.count + ' clients in DB', latency: Date.now() - start };
+  } catch(e) {
+    results.services.database = { status: 'error', message: e.message };
+  }
+
+  // 2. Server
+  const used = process.memoryUsage();
+  results.services.server = {
+    status: 'ok',
+    message: 'PM2 online · ' + Math.round(used.heapUsed/1024/1024) + 'MB heap',
+    uptime: Math.floor(process.uptime()) + 's',
+    latency: Date.now() - start
+  };
+
+  // 3. Twilio
+  try {
+    const t0 = Date.now();
+    const account = await twilioClient.api.accounts(process.env.TWILIO_ACCOUNT_SID).fetch();
+    results.services.twilio = {
+      status: account.status === 'active' ? 'ok' : 'warning',
+      message: 'Account ' + account.status,
+      latency: Date.now() - t0
+    };
+  } catch(e) {
+    results.services.twilio = { status: 'error', message: e.message };
+  }
+
+  // 4. Anthropic Claude
+  try {
+    const t0 = Date.now();
+    const response = await fetch('https://api.anthropic.com/v1/models', {
+      headers: { 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' }
+    });
+    results.services.anthropic = {
+      status: response.ok ? 'ok' : 'error',
+      message: response.ok ? 'Claude API responding' : 'HTTP ' + response.status,
+      latency: Date.now() - t0
+    };
+  } catch(e) {
+    results.services.anthropic = { status: 'error', message: e.message };
+  }
+
+  // 5. Stripe
+  try {
+    const t0 = Date.now();
+    const balance = await stripe.balance.retrieve();
+    results.services.stripe = {
+      status: 'ok',
+      message: 'Stripe API responding',
+      latency: Date.now() - t0
+    };
+  } catch(e) {
+    results.services.stripe = { status: 'error', message: e.message };
+  }
+
+  // 6. Brevo Email
+  try {
+    const t0 = Date.now();
+    const brevoRes = await fetch('https://api.brevo.com/v3/account', {
+      headers: { 'api-key': process.env.BREVO_API_KEY }
+    });
+    const brevoData = await brevoRes.json();
+    results.services.brevo = {
+      status: brevoRes.ok ? 'ok' : 'error',
+      message: brevoRes.ok ? 'Email API responding · ' + (brevoData.email || '') : 'HTTP ' + brevoRes.status,
+      latency: Date.now() - t0
+    };
+  } catch(e) {
+    results.services.brevo = { status: 'error', message: e.message };
+  }
+
+  // 7. Customer phone lines
+  try {
+    const clients = db.prepare("SELECT id, business_name, phone_number, plan, plan_status FROM clients WHERE role = 'client' AND phone_number IS NOT NULL AND phone_number != ''").all();
+    for (const client of clients) {
+      const lastCall = db.prepare("SELECT created_at, duration FROM call_sessions WHERE client_id = ? ORDER BY created_at DESC LIMIT 1").get(client.id);
+      results.customers.push({
+        id: client.id,
+        name: client.business_name,
+        number: client.phone_number,
+        plan: client.plan,
+        plan_status: client.plan_status,
+        last_call: lastCall ? lastCall.created_at : null,
+        status: client.plan_status === 'active' || client.plan_status === 'trial' ? 'ok' : 'warning'
+      });
+    }
+  } catch(e) {
+    results.customers = [];
+  }
+
+  results.total_latency = Date.now() - start;
+  res.json(results);
+});
+
 // Forgot password
 app.post("/api/auth/forgot-password", async (req, res) => {
   const { email } = req.body;

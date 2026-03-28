@@ -470,6 +470,10 @@ select option{background-color:#0c1520;color:#f0f6ff}
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           Incident Log
         </button>
+        <button class="nav-btn superadmin-only" id="navSystemHealth" onclick="showPage('system-health')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          System Health
+        </button>
       </div>
     </nav>
 
@@ -2448,6 +2452,46 @@ select option{background-color:#0c1520;color:#f0f6ff}
     </div>
 
     <!-- Incident Log Page -->
+    
+    <!-- SYSTEM HEALTH PAGE -->
+    <div class="page" id="page-system-health">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">System Health</h1>
+          <p class="page-sub">Live monitoring of all AiRingDesk services</p>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div id="healthLastUpdated" style="font-size:12px;color:var(--muted)">Not loaded</div>
+          <button onclick="loadHealthData()" class="btn-primary" style="padding:8px 16px;font-size:13px">↻ Refresh</button>
+        </div>
+      </div>
+
+      <!-- Overall Status Banner -->
+      <div id="healthBanner" style="padding:14px 20px;border-radius:12px;margin-bottom:24px;display:flex;align-items:center;gap:12px;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.2)">
+        <div id="healthBannerDot" style="width:10px;height:10px;border-radius:50%;background:#00e87a;flex-shrink:0"></div>
+        <div id="healthBannerText" style="font-size:14px;font-weight:600;color:#00e87a">All systems operational</div>
+        <div id="healthBannerSub" style="font-size:12px;color:var(--muted);margin-left:auto"></div>
+      </div>
+
+      <!-- Services Grid -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:32px" id="servicesGrid">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Customer Lines -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden">
+        <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <div style="font-size:15px;font-weight:700">Customer Phone Lines</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Live status of all active customer numbers</div>
+          </div>
+          <div id="customerLineCount" style="font-size:12px;color:var(--muted)"></div>
+        </div>
+        <div id="customerLinesTable" style="padding:16px 24px">
+          <div style="text-align:center;color:var(--muted);padding:40px;font-size:14px">Click refresh to load customer lines</div>
+        </div>
+      </div>
+    </div>
     <div class="page" id="page-incident-log">
       <div class="page-header" style="margin-bottom:24px">
         <div>
@@ -3500,6 +3544,8 @@ async function loadRevenue() {
 }
 function showPage(name) {
   if (name === 'incident-log') openIncidentLog();
+  if (name === 'system-health') startHealthAutoRefresh();
+  else stopHealthAutoRefresh();
   if (name === 'my-account') loadMyAccount();
   if (name === 'admin-management') {
     updateIncidentToggleUI();
@@ -4590,6 +4636,150 @@ async function changePassword() {
   if (r) { msg.style.background='rgba(0,230,118,.1)'; msg.style.color='#00e676'; msg.textContent='Password updated successfully!'; document.getElementById('accCurrentPass').value=''; document.getElementById('accNewPass').value=''; document.getElementById('accConfirmPass').value=''; }
   else { msg.style.background='rgba(255,68,68,.1)'; msg.style.color='#ff4466'; msg.textContent='Current password is incorrect.'; }
 }
+
+
+// ============================================================
+// SYSTEM HEALTH MONITOR
+// ============================================================
+let healthAutoRefresh = null;
+
+function loadHealthData() {
+  const token = localStorage.getItem('rd_token');
+  if (!token) return;
+  document.getElementById('healthLastUpdated').textContent = 'Loading...';
+  
+  fetch('/api/admin/health', {
+    headers: { 'Authorization': 'Bearer ' + token }
+  })
+  .then(r => r.json())
+  .then(data => {
+    renderHealthDashboard(data);
+    document.getElementById('healthLastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  })
+  .catch(err => {
+    document.getElementById('healthLastUpdated').textContent = 'Error loading data';
+    console.error('Health check failed:', err);
+  });
+}
+
+function renderHealthDashboard(data) {
+  const services = data.services;
+  
+  // Overall status
+  const hasError = Object.values(services).some(s => s.status === 'error');
+  const hasWarning = Object.values(services).some(s => s.status === 'warning');
+  const banner = document.getElementById('healthBanner');
+  const dot = document.getElementById('healthBannerDot');
+  const text = document.getElementById('healthBannerText');
+  const sub = document.getElementById('healthBannerSub');
+  
+  if (hasError) {
+    banner.style.background = 'rgba(255,68,68,.06)';
+    banner.style.borderColor = 'rgba(255,68,68,.2)';
+    dot.style.background = '#ff4444';
+    text.style.color = '#ff4444';
+    text.textContent = 'System issues detected';
+  } else if (hasWarning) {
+    banner.style.background = 'rgba(255,184,0,.06)';
+    banner.style.borderColor = 'rgba(255,184,0,.2)';
+    dot.style.background = '#ffb800';
+    text.style.color = '#ffb800';
+    text.textContent = 'Some services need attention';
+  } else {
+    banner.style.background = 'rgba(0,232,122,.06)';
+    banner.style.borderColor = 'rgba(0,232,122,.2)';
+    dot.style.background = '#00e87a';
+    text.style.color = '#00e87a';
+    text.textContent = 'All systems operational';
+  }
+  sub.textContent = 'Response time: ' + data.total_latency + 'ms';
+
+  // Service cards
+  const serviceConfig = {
+    server:    { label: 'Server', icon: '🖥️' },
+    database:  { label: 'Database', icon: '🗄️' },
+    twilio:    { label: 'Twilio', icon: '📞' },
+    anthropic: { label: 'Claude AI', icon: '🤖' },
+    stripe:    { label: 'Stripe', icon: '💳' },
+    brevo:     { label: 'Brevo Email', icon: '📧' },
+  };
+
+  const grid = document.getElementById('servicesGrid');
+  grid.innerHTML = '';
+  
+  for (const [key, cfg] of Object.entries(serviceConfig)) {
+    const svc = services[key] || { status: 'unknown', message: 'No data' };
+    const color = svc.status === 'ok' ? '#00e87a' : svc.status === 'warning' ? '#ffb800' : svc.status === 'error' ? '#ff4444' : '#5a7a9a';
+    const bgColor = svc.status === 'ok' ? 'rgba(0,232,122,.06)' : svc.status === 'warning' ? 'rgba(255,184,0,.06)' : svc.status === 'error' ? 'rgba(255,68,68,.06)' : 'rgba(90,122,154,.06)';
+    const label = svc.status === 'ok' ? 'Operational' : svc.status === 'warning' ? 'Warning' : svc.status === 'error' ? 'Error' : 'Unknown';
+    
+    grid.innerHTML += `
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;border-left:3px solid ${color}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:20px">${cfg.icon}</span>
+            <div style="font-size:14px;font-weight:700">${cfg.label}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:20px;background:${bgColor};border:1px solid ${color}33">
+            <div style="width:6px;height:6px;border-radius:50%;background:${color}"></div>
+            <div style="font-size:11px;font-weight:700;color:${color}">${label}</div>
+          </div>
+        </div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">${svc.message || ''}</div>
+        ${svc.latency ? `<div style="font-size:11px;color:var(--dim)">Response: ${svc.latency}ms</div>` : ''}
+        ${svc.uptime ? `<div style="font-size:11px;color:var(--dim)">Uptime: ${svc.uptime}</div>` : ''}
+      </div>`;
+  }
+
+  // Customer lines
+  const table = document.getElementById('customerLinesTable');
+  document.getElementById('customerLineCount').textContent = data.customers.length + ' active lines';
+  
+  if (data.customers.length === 0) {
+    table.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;font-size:14px">No active customer lines found</div>';
+    return;
+  }
+
+  let rows = '';
+  for (const c of data.customers) {
+    const color = c.status === 'ok' ? '#00e87a' : '#ffb800';
+    const lastCall = c.last_call ? new Date(c.last_call * 1000).toLocaleString() : 'No calls yet';
+    rows += `
+      <div style="display:grid;grid-template-columns:1fr 160px 120px 120px 160px;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);align-items:center;font-size:13px">
+        <div>
+          <div style="font-weight:600">${c.name}</div>
+          <div style="font-size:11px;color:var(--muted)">${c.number}</div>
+        </div>
+        <div style="font-size:12px;color:var(--muted)">${c.plan || '-'}</div>
+        <div style="font-size:12px;color:var(--muted)">${c.plan_status || '-'}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:7px;height:7px;border-radius:50%;background:${color};flex-shrink:0"></div>
+          <div style="font-size:11px;color:${color};font-weight:600">${c.status === 'ok' ? 'Active' : 'Warning'}</div>
+        </div>
+        <div style="font-size:11px;color:var(--dim)">${lastCall}</div>
+      </div>`;
+  }
+
+  table.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 160px 120px 120px 160px;gap:12px;padding:8px 0 12px;border-bottom:1px solid var(--border);margin-bottom:4px">
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Business</div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Plan</div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Status</div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Line</div>
+      <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Last Call</div>
+    </div>
+    ${rows}`;
+}
+
+function startHealthAutoRefresh() {
+  loadHealthData();
+  healthAutoRefresh = setInterval(loadHealthData, 30000);
+}
+
+function stopHealthAutoRefresh() {
+  if (healthAutoRefresh) { clearInterval(healthAutoRefresh); healthAutoRefresh = null; }
+}
+
 
 function openIncidentLog() {
   var token = localStorage.getItem('rd_token');
