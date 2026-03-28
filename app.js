@@ -135,6 +135,130 @@ const STRIPE_PRICE_IDS = {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 
+
+// ============================================================
+// LEAD SCORING ENGINE
+// ============================================================
+const crypto = require('crypto');
+
+function getSessionId(ip, ua) {
+  return crypto.createHash('md5').update(ip + ua + new Date().toDateString()).digest('hex');
+}
+
+function extractInterests(page) {
+  const interests = { industry: null, location: null, points: 0, action: 'page_view' };
+  
+  if (page === '/') { interests.points = 1; interests.action = 'homepage'; }
+  else if (page === '/#pricing' || page.includes('pricing')) { interests.points = 15; interests.action = 'pricing_view'; }
+  else if (page.startsWith('/industries/')) {
+    const ind = page.replace('/industries/', '').split('/')[0];
+    interests.industry = ind;
+    interests.points = 5;
+    interests.action = 'industry_view';
+  }
+  else if (page.startsWith('/locations/')) {
+    const parts = page.replace('/locations/', '').split('/');
+    interests.location = parts[0];
+    if (parts[1]) { interests.industry = parts[1]; interests.points = 10; interests.action = 'combo_view'; }
+    else { interests.points = 5; interests.action = 'location_view'; }
+  }
+  else if (page === '/contact') { interests.points = 10; interests.action = 'contact_view'; }
+  else if (page === '/about') { interests.points = 3; interests.action = 'about_view'; }
+  else { interests.points = 1; interests.action = 'page_view'; }
+  
+  return interests;
+}
+
+function getLeadStatus(score) {
+  if (score >= 61) return 'hot';
+  if (score >= 41) return 'warm_hot';
+  if (score >= 21) return 'warm';
+  return 'cold';
+}
+
+async function trackLeadAction(ip, ua, page, referrer, geo) {
+  try {
+    const sessionId = getSessionId(ip, ua);
+    const now = Math.floor(Date.now() / 1000);
+    const interests = extractInterests(page);
+    
+    // Get or create session
+    let session = db.prepare("SELECT * FROM visitor_sessions WHERE session_id = ?").get(sessionId);
+    
+    if (!session) {
+      // New session — check if returning visitor (same IP today)
+      const returning = db.prepare("SELECT COUNT(*) as count FROM visitor_sessions WHERE ip = ? AND first_seen > ?").get(ip, now - 86400);
+      const returnBonus = returning.count > 0 ? 10 : 0;
+      
+      db.prepare(`INSERT INTO visitor_sessions (session_id, ip, country, country_code, region, city, page_views, score, industry_interest, location_interest, status, device, browser, referrer, first_seen, last_seen)
+        VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+        .run(sessionId, ip, geo.country, geo.country_code, geo.region, geo.city,
+          interests.points + returnBonus,
+          interests.industry, interests.location,
+          getLeadStatus(interests.points + returnBonus),
+          geo.device || 'unknown', geo.browser || 'unknown', referrer, now, now);
+    } else {
+      // Update existing session
+      let newScore = session.score + interests.points;
+      
+      // Bonus for multiple page views in session
+      if (session.page_views >= 3) newScore += 5;
+      if (session.page_views >= 5) newScore += 5;
+      
+      // Update industry/location interest (keep most specific)
+      const newIndustry = interests.industry || session.industry_interest;
+      const newLocation = interests.location || session.location_interest;
+      
+      db.prepare(`UPDATE visitor_sessions SET last_seen=?, page_views=page_views+1, score=?, industry_interest=?, location_interest=?, status=? WHERE session_id=?`)
+        .run(now, newScore, newIndustry, newLocation, getLeadStatus(newScore), sessionId);
+      
+      session = db.prepare("SELECT * FROM visitor_sessions WHERE session_id = ?").get(sessionId);
+      
+      // Send alert if score crosses hot threshold and not alerted yet
+      if (session.score >= 40 && !session.alerted) {
+        db.prepare("UPDATE visitor_sessions SET alerted=1 WHERE session_id=?").run(sessionId);
+        // Send alert email to admin
+        sendLeadAlert(session, page);
+      }
+    }
+    
+    // Log the action
+    db.prepare("INSERT INTO lead_actions (session_id, ip, action, page, points) VALUES (?, ?, ?, ?, ?)")
+      .run(sessionId, ip, interests.action, page, interests.points);
+      
+  } catch(e) {
+    // Silent fail
+  }
+}
+
+async function sendLeadAlert(session, currentPage) {
+  try {
+    const industryName = session.industry_interest ? session.industry_interest.replace(/-/g,' ') : 'Unknown';
+    const locationName = session.location_interest ? session.location_interest.replace(/-/g,' ') : 'Unknown';
+    const subject = '🔥 Hot Lead Alert — ' + session.city + ', ' + session.country + ' (' + session.score + ' points)';
+    const html = `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#060912;color:#f0f6ff;padding:32px;border-radius:12px">
+      <div style="font-size:24px;font-weight:800;margin-bottom:4px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>
+      <div style="font-size:10px;color:#5a7a9a;letter-spacing:.06em;margin-bottom:24px">YOUR 24/7 AI CALL DESK</div>
+      <div style="background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);border-radius:10px;padding:20px;margin-bottom:20px">
+        <div style="font-size:20px;font-weight:800;color:#ffb800;margin-bottom:8px">🔥 Hot Lead Detected!</div>
+        <div style="font-size:14px;color:#5a7a9a">A visitor has reached a score of <strong style="color:#ffb800">\${session.score} points</strong></div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:20px">
+        <tr><td style="padding:8px 0;color:#5a7a9a;font-size:13px;border-bottom:1px solid #1a2d42">Location</td><td style="padding:8px 0;font-size:13px;font-weight:600;border-bottom:1px solid #1a2d42">\${session.city}, \${session.region}, \${session.country}</td></tr>
+        <tr><td style="padding:8px 0;color:#5a7a9a;font-size:13px;border-bottom:1px solid #1a2d42">Industry Interest</td><td style="padding:8px 0;font-size:13px;font-weight:600;color:#00d4ff;border-bottom:1px solid #1a2d42">\${industryName}</td></tr>
+        <tr><td style="padding:8px 0;color:#5a7a9a;font-size:13px;border-bottom:1px solid #1a2d42">Location Interest</td><td style="padding:8px 0;font-size:13px;font-weight:600;color:#00d4ff;border-bottom:1px solid #1a2d42">\${locationName}</td></tr>
+        <tr><td style="padding:8px 0;color:#5a7a9a;font-size:13px;border-bottom:1px solid #1a2d42">Page Views</td><td style="padding:8px 0;font-size:13px;font-weight:600;border-bottom:1px solid #1a2d42">\${session.page_views}</td></tr>
+        <tr><td style="padding:8px 0;color:#5a7a9a;font-size:13px;border-bottom:1px solid #1a2d42">Device</td><td style="padding:8px 0;font-size:13px;font-weight:600;border-bottom:1px solid #1a2d42">\${session.device}</td></tr>
+        <tr><td style="padding:8px 0;color:#5a7a9a;font-size:13px">Last Page</td><td style="padding:8px 0;font-size:13px;font-weight:600">\${currentPage}</td></tr>
+      </table>
+      <a href="https://airingdesk.com/dashboard" style="display:inline-block;background:#00d4ff;color:#020408;padding:12px 24px;border-radius:8px;font-weight:700;text-decoration:none;font-size:14px">View in Dashboard →</a>
+    </div>`;
+    
+    await sendBrevoEmail('hello@airingdesk.com', 'AiRingDesk', 'hello@airingdesk.com', subject, html);
+  } catch(e) {}
+}
+
+
 // ============================================================
 // VISITOR TRACKING MIDDLEWARE
 // ============================================================
@@ -208,11 +332,19 @@ app.use(async (req, res, next) => {
   setImmediate(async () => {
     try {
       const geo = await getGeoData(ip);
+      const device = detectDevice(ua);
+      const browser = detectBrowser(ua);
+      const os = detectOS(ua);
+      
+      // Log page view
       db.prepare(`INSERT INTO visitor_logs (ip, country, country_code, region, city, lat, lon, isp, page, referrer, user_agent, device, browser, os)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
-        .run(ip, geo.country, geo.country_code, geo.region, geo.city, geo.lat, geo.lon, geo.isp, page, referrer, ua.substring(0, 200), detectDevice(ua), detectBrowser(ua), detectOS(ua));
+        .run(ip, geo.country, geo.country_code, geo.region, geo.city, geo.lat, geo.lon, geo.isp, page, referrer, ua.substring(0, 200), device, browser, os);
+      
+      // Lead scoring
+      await trackLeadAction(ip, ua, page, referrer, { ...geo, device, browser });
     } catch(e) {
-      // Silent fail — never break requests for analytics
+      // Silent fail
     }
   });
 });
@@ -4146,6 +4278,66 @@ app.delete('/api/admin/incidents/:id', (req, res) => {
   res.json({ success: true });
 });
 
+
+
+
+// ============================================================
+// LEAD INTELLIGENCE API
+// ============================================================
+app.get('/api/admin/leads-intelligence', (req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const user = jwt.verify(auth.replace('Bearer ', ''), process.env.JWT_SECRET);
+    if (!['admin','superadmin'].includes(user.role)) return res.status(403).json({ error: 'Forbidden' });
+  } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
+
+  const now = Math.floor(Date.now() / 1000);
+  const todayStart = now - 86400;
+  const weekStart = now - 604800;
+
+  // Hot leads
+  const hotLeads = db.prepare("SELECT * FROM visitor_sessions WHERE score >= 40 ORDER BY score DESC LIMIT 50").all();
+
+  // All leads today
+  const todayLeads = db.prepare("SELECT * FROM visitor_sessions WHERE last_seen > ? ORDER BY score DESC LIMIT 100").all(todayStart);
+
+  // All leads this week
+  const weekLeads = db.prepare("SELECT * FROM visitor_sessions WHERE last_seen > ? ORDER BY score DESC").all(weekStart);
+
+  // Top industries of interest
+  const topIndustries = db.prepare("SELECT industry_interest as industry, COUNT(*) as count, AVG(score) as avg_score FROM visitor_sessions WHERE industry_interest IS NOT NULL AND industry_interest != '' AND last_seen > ? GROUP BY industry_interest ORDER BY count DESC LIMIT 10").all(weekStart);
+
+  // Top locations of interest  
+  const topLocations = db.prepare("SELECT location_interest as location, COUNT(*) as count, AVG(score) as avg_score FROM visitor_sessions WHERE location_interest IS NOT NULL AND location_interest != '' AND last_seen > ? GROUP BY location_interest ORDER BY count DESC LIMIT 10").all(weekStart);
+
+  // Score distribution
+  const scoreStats = {
+    hot: db.prepare("SELECT COUNT(*) as count FROM visitor_sessions WHERE score >= 61").get().count,
+    warm_hot: db.prepare("SELECT COUNT(*) as count FROM visitor_sessions WHERE score >= 41 AND score < 61").get().count,
+    warm: db.prepare("SELECT COUNT(*) as count FROM visitor_sessions WHERE score >= 21 AND score < 41").get().count,
+    cold: db.prepare("SELECT COUNT(*) as count FROM visitor_sessions WHERE score < 21").get().count,
+  };
+
+  // Recent actions for hot leads
+  const recentActions = db.prepare("SELECT la.*, vs.city, vs.country, vs.score FROM lead_actions la JOIN visitor_sessions vs ON la.session_id = vs.session_id WHERE vs.score >= 20 ORDER BY la.created_at DESC LIMIT 50").all();
+
+  res.json({ hotLeads, todayLeads, weekLeads, topIndustries, topLocations, scoreStats, recentActions });
+});
+
+// Update lead notes
+app.put('/api/admin/leads-intelligence/:sessionId', (req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const user = jwt.verify(auth.replace('Bearer ', ''), process.env.JWT_SECRET);
+    if (!['admin','superadmin'].includes(user.role)) return res.status(403).json({ error: 'Forbidden' });
+  } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
+  const { notes, name, email, phone } = req.body;
+  db.prepare("UPDATE visitor_sessions SET notes=?, name=?, email=?, phone=? WHERE session_id=?")
+    .run(notes, name, email, phone, req.params.sessionId);
+  res.json({ success: true });
+});
 
 
 // ============================================================
