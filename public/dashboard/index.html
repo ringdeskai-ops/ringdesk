@@ -4876,7 +4876,7 @@ function filterIncidents(filter) {
   currentIncidentFilter = filter;
   ['all','open','investigating','resolved','critical'].forEach(function(f){
     var btn = document.getElementById('iFilter_' + f);
-    if(btn){ btn.style.background = f===filter ? 'var(--cyan)' : ''; btn.style.color = f===filter ? '#020408' : 'var(--text)'; }
+    if(btn){ btn.style.background = f===filter ? 'var(--cyan)' : '#0c1520'; btn.style.color = f===filter ? '#020408' : '#f0f6ff'; btn.style.border = f===filter ? 'none' : '1px solid rgba(255,255,255,.2)'; }
   });
   renderIncidents();
 }
