@@ -2499,7 +2499,51 @@ select option{background-color:#0c1520;color:#f0f6ff}
           <div class="page-sub" style="font-size:14px;color:var(--muted)">Server maintenance reference — all known issues and fixes</div>
         </div>
       </div>
-      <iframe id="incidentLogFrame" src="" style="width:100%;height:calc(100vh - 160px);border:none;border-radius:12px;background:#0c1520"></iframe>
+      <!-- Incident Log v2 Live -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;flex:1;margin-right:16px">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:800;color:var(--cyan)" id="statTotal">-</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Total</div></div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:800;color:#ff4444" id="statOpen">-</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Open</div></div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:800;color:#ffb800" id="statInvestigating">-</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Investigating</div></div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:800;color:#00e87a" id="statResolved">-</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Resolved</div></div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center"><div style="font-size:24px;font-weight:800;color:#ff4444" id="statCritical">-</div><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px">Critical</div></div>
+        </div>
+        <button onclick="showNewIncidentModal()" style="background:var(--cyan);color:#020408;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">+ New Incident</button>
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <button id="iFilter_all" onclick="filterIncidents('all')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:var(--cyan);color:#020408;border:none;cursor:pointer;font-family:inherit">All</button>
+        <button id="iFilter_open" onclick="filterIncidents('open')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:#0c1520;color:#f0f6ff;border:1px solid rgba(255,255,255,.2);cursor:pointer;font-family:inherit">Open</button>
+        <button id="iFilter_investigating" onclick="filterIncidents('investigating')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:#0c1520;color:#f0f6ff;border:1px solid rgba(255,255,255,.2);cursor:pointer;font-family:inherit">Investigating</button>
+        <button id="iFilter_resolved" onclick="filterIncidents('resolved')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:#0c1520;color:#f0f6ff;border:1px solid rgba(255,255,255,.2);cursor:pointer;font-family:inherit">Resolved</button>
+        <button id="iFilter_critical" onclick="filterIncidents('critical')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:#0c1520;color:#f0f6ff;border:1px solid rgba(255,255,255,.2);cursor:pointer;font-family:inherit">Critical</button>
+      </div>
+      <div id="incidentsList"><div style="text-align:center;color:var(--muted);padding:60px;font-size:14px">Loading incidents...</div></div>
+      <!-- New/Edit Incident Modal -->
+      <div id="newIncidentModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:2000;align-items:center;justify-content:center">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:640px;width:90%;max-height:90vh;overflow-y:auto">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+            <h2 style="font-size:18px;font-weight:700" id="incidentModalTitle">New Incident</h2>
+            <button onclick="closeIncidentModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:20px">✕</button>
+          </div>
+          <input type="hidden" id="incidentEditId" value="">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div><label style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px">Title *</label><input id="incidentTitle" type="text" placeholder="e.g. Twilio calls dropping" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:inherit;outline:none"/></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><label style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px">Severity</label><select id="incidentSeverity" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:inherit;outline:none"><option value="critical">Critical</option><option value="high">High</option><option value="medium" selected>Medium</option><option value="low">Low</option></select></div>
+              <div><label style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px">Status</label><select id="incidentStatus" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:inherit;outline:none"><option value="open">Open</option><option value="investigating">Investigating</option><option value="resolved">Resolved</option></select></div>
+            </div>
+            <div><label style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px">Tags (comma separated)</label><input id="incidentTags" type="text" placeholder="e.g. Twilio,Node.js" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:inherit;outline:none"/></div>
+            <div><label style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px">Symptom</label><textarea id="incidentSymptom" rows="2" placeholder="What did you observe?" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:inherit;resize:vertical;outline:none"></textarea></div>
+            <div><label style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px">Root Cause</label><textarea id="incidentCause" rows="2" placeholder="What caused this?" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:inherit;resize:vertical;outline:none"></textarea></div>
+            <div><label style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px">Fix</label><textarea id="incidentFix" rows="3" placeholder="How was it fixed?" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:inherit;resize:vertical;outline:none"></textarea></div>
+            <div><label style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:5px">Warning / Notes</label><textarea id="incidentWarning" rows="2" placeholder="Any warnings?" style="width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:10px 14px;color:var(--text);font-size:14px;font-family:inherit;resize:vertical;outline:none"></textarea></div>
+            <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px">
+              <button onclick="closeIncidentModal()" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit">Cancel</button>
+              <button onclick="saveIncident()" id="saveIncidentBtn" style="background:var(--cyan);color:#020408;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit">Save Incident</button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -3543,7 +3587,7 @@ async function loadRevenue() {
     `).join('');
 }
 function showPage(name) {
-  if (name === 'incident-log') openIncidentLog();
+  if (name === 'incident-log') loadIncidents();
   if (name === 'system-health') startHealthAutoRefresh();
   else stopHealthAutoRefresh();
   if (name === 'my-account') loadMyAccount();
@@ -4799,6 +4843,154 @@ function showToast(msg, type) {
   t.appendChild(el);
   setTimeout(function(){ el.remove(); }, 3500);
 }
+
+// ============================================================
+// INCIDENT LOG v2
+// ============================================================
+var allIncidents = [];
+var currentIncidentFilter = 'all';
+
+function loadIncidents() {
+  var token = localStorage.getItem('rd_token');
+  if (!token) return;
+  fetch('/api/admin/incidents', { headers: { 'Authorization': 'Bearer ' + token } })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    allIncidents = data.incidents || [];
+    updateIncidentStats();
+    renderIncidents();
+  })
+  .catch(function(err){ console.error('Failed to load incidents:', err); });
+}
+
+function updateIncidentStats() {
+  var el = function(id){ return document.getElementById(id); };
+  if(el('statTotal')) el('statTotal').textContent = allIncidents.length;
+  if(el('statOpen')) el('statOpen').textContent = allIncidents.filter(function(i){ return i.status==='open'; }).length;
+  if(el('statInvestigating')) el('statInvestigating').textContent = allIncidents.filter(function(i){ return i.status==='investigating'; }).length;
+  if(el('statResolved')) el('statResolved').textContent = allIncidents.filter(function(i){ return i.status==='resolved'; }).length;
+  if(el('statCritical')) el('statCritical').textContent = allIncidents.filter(function(i){ return i.severity==='critical'; }).length;
+}
+
+function filterIncidents(filter) {
+  currentIncidentFilter = filter;
+  ['all','open','investigating','resolved','critical'].forEach(function(f){
+    var btn = document.getElementById('iFilter_' + f);
+    if(btn){ btn.style.background = f===filter ? 'var(--cyan)' : ''; btn.style.color = f===filter ? '#020408' : 'var(--text)'; }
+  });
+  renderIncidents();
+}
+
+function renderIncidents() {
+  var filtered = allIncidents;
+  if(currentIncidentFilter === 'open') filtered = allIncidents.filter(function(i){ return i.status==='open'; });
+  else if(currentIncidentFilter === 'investigating') filtered = allIncidents.filter(function(i){ return i.status==='investigating'; });
+  else if(currentIncidentFilter === 'resolved') filtered = allIncidents.filter(function(i){ return i.status==='resolved'; });
+  else if(currentIncidentFilter === 'critical') filtered = allIncidents.filter(function(i){ return i.severity==='critical'; });
+
+  var list = document.getElementById('incidentsList');
+  if(!list) return;
+  if(filtered.length === 0){ list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:60px;font-size:14px">No incidents found</div>'; return; }
+
+  var sevColors = {critical:'#ff4444',high:'#ffb800',medium:'#4da6ff',low:'#00e87a'};
+  var statusColors = {open:'#ff4444',investigating:'#ffb800',resolved:'#00e87a'};
+
+  list.innerHTML = filtered.map(function(inc, idx){
+    var sevColor = sevColors[inc.severity] || '#5a7a9a';
+    var statusColor = statusColors[inc.status] || '#5a7a9a';
+    var tags = inc.tags ? inc.tags.split(',').map(function(t){ return '<span style="font-size:10px;padding:2px 7px;border-radius:4px;background:rgba(0,212,255,.08);color:#00d4ff;border:1px solid rgba(0,212,255,.2);font-family:monospace">' + t.trim() + '</span>'; }).join('') : '';
+    var date = inc.created_at ? new Date(inc.created_at * 1000).toLocaleDateString('en-GB') : '';
+    var resolveBtn = inc.status !== 'resolved' ? '<button onclick="event.stopPropagation();quickResolve(' + inc.id + ')" style="background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);border-radius:6px;padding:4px 10px;font-size:11px;color:#00e87a;cursor:pointer;font-family:inherit">Resolve</button>' : '';
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;margin-bottom:12px;overflow:hidden;border-left:3px solid ' + sevColor + '">'
+      + '<div style="padding:16px 20px;cursor:pointer;display:flex;gap:12px;align-items:flex-start" onclick="toggleIncidentBody(' + idx + ')">'
+      + '<div style="font-family:monospace;font-size:11px;color:var(--dim);min-width:28px;margin-top:2px">#' + String(inc.id).padStart(2,'0') + '</div>'
+      + '<div style="flex:1"><div style="font-size:14px;font-weight:600;margin-bottom:8px">' + inc.title + '</div>'
+      + '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">'
+      + '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(255,68,68,.1);color:' + sevColor + ';border:1px solid ' + sevColor + '44;text-transform:uppercase">' + inc.severity + '</span>'
+      + '<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;background:rgba(0,232,122,.08);color:' + statusColor + ';border:1px solid ' + statusColor + '44;text-transform:uppercase">' + inc.status + '</span>'
+      + tags + '<span style="font-size:11px;color:var(--dim);margin-left:auto">' + date + '</span></div></div>'
+      + '<div style="display:flex;gap:8px;flex-shrink:0">'
+      + '<button onclick="event.stopPropagation();editIncident(' + inc.id + ')" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);border-radius:6px;padding:4px 10px;font-size:11px;color:#00d4ff;cursor:pointer;font-family:inherit">Edit</button>'
+      + resolveBtn + '</div></div>'
+      + '<div id="incBody_' + idx + '" style="display:none;padding:0 20px 20px 60px;border-top:1px solid var(--border)">'
+      + (inc.symptom ? '<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;font-family:monospace;margin:14px 0 5px">Symptom</div><p style="font-size:13px;color:var(--muted);line-height:1.6">' + inc.symptom + '</p>' : '')
+      + (inc.cause ? '<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;font-family:monospace;margin:14px 0 5px">Root Cause</div><p style="font-size:13px;color:var(--muted);line-height:1.6">' + inc.cause + '</p>' : '')
+      + (inc.fix ? '<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;font-family:monospace;margin:14px 0 5px">Fix</div><pre style="background:#040a10;border:1px solid var(--border);border-left:3px solid #00d4ff;border-radius:8px;padding:12px;font-size:11px;color:#a8d8ea;line-height:1.7;overflow-x:auto;white-space:pre-wrap;word-break:break-word">' + inc.fix + '</pre>' : '')
+      + (inc.warning ? '<div style="background:rgba(255,179,0,.05);border:1px solid rgba(255,179,0,.2);border-radius:8px;padding:12px;margin-top:10px"><div style="font-size:10px;color:#ffb300;text-transform:uppercase;letter-spacing:.08em;font-family:monospace;margin-bottom:5px">Warning</div><p style="font-size:13px;color:var(--muted)">' + inc.warning + '</p></div>' : '')
+      + '</div></div>';
+  }).join('');
+}
+
+function toggleIncidentBody(idx) {
+  var body = document.getElementById('incBody_' + idx);
+  if(body) body.style.display = body.style.display === 'none' ? 'block' : 'none';
+}
+
+function showNewIncidentModal() {
+  document.getElementById('incidentModalTitle').textContent = 'New Incident';
+  document.getElementById('incidentEditId').value = '';
+  ['incidentTitle','incidentTags','incidentSymptom','incidentCause','incidentFix','incidentWarning'].forEach(function(id){ document.getElementById(id).value = ''; });
+  document.getElementById('incidentSeverity').value = 'medium';
+  document.getElementById('incidentStatus').value = 'open';
+  document.getElementById('newIncidentModal').style.display = 'flex';
+}
+
+function editIncident(id) {
+  var inc = allIncidents.find(function(i){ return i.id === id; });
+  if(!inc) return;
+  document.getElementById('incidentModalTitle').textContent = 'Edit Incident';
+  document.getElementById('incidentEditId').value = id;
+  document.getElementById('incidentTitle').value = inc.title || '';
+  document.getElementById('incidentSeverity').value = inc.severity || 'medium';
+  document.getElementById('incidentStatus').value = inc.status || 'open';
+  document.getElementById('incidentTags').value = inc.tags || '';
+  document.getElementById('incidentSymptom').value = inc.symptom || '';
+  document.getElementById('incidentCause').value = inc.cause || '';
+  document.getElementById('incidentFix').value = inc.fix || '';
+  document.getElementById('incidentWarning').value = inc.warning || '';
+  document.getElementById('newIncidentModal').style.display = 'flex';
+}
+
+function closeIncidentModal() { document.getElementById('newIncidentModal').style.display = 'none'; }
+
+function saveIncident() {
+  var token = localStorage.getItem('rd_token');
+  var editId = document.getElementById('incidentEditId').value;
+  var body = {
+    title: document.getElementById('incidentTitle').value.trim(),
+    severity: document.getElementById('incidentSeverity').value,
+    status: document.getElementById('incidentStatus').value,
+    tags: document.getElementById('incidentTags').value.trim(),
+    symptom: document.getElementById('incidentSymptom').value.trim(),
+    cause: document.getElementById('incidentCause').value.trim(),
+    fix: document.getElementById('incidentFix').value.trim(),
+    warning: document.getElementById('incidentWarning').value.trim()
+  };
+  if(!body.title){ alert('Title is required'); return; }
+  var url = editId ? '/api/admin/incidents/' + editId : '/api/admin/incidents';
+  var method = editId ? 'PUT' : 'POST';
+  document.getElementById('saveIncidentBtn').textContent = 'Saving...';
+  fetch(url, { method: method, headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify(body) })
+  .then(function(r){ return r.json(); })
+  .then(function(data){ if(data.success){ closeIncidentModal(); loadIncidents(); } else { alert('Error: ' + (data.error||'Unknown')); } })
+  .catch(function(){ alert('Error saving incident'); })
+  .finally(function(){ document.getElementById('saveIncidentBtn').textContent = 'Save Incident'; });
+}
+
+function quickResolve(id) {
+  var token = localStorage.getItem('rd_token');
+  var inc = allIncidents.find(function(i){ return i.id === id; });
+  if(!inc) return;
+  fetch('/api/admin/incidents/' + id, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+    body: JSON.stringify(Object.assign({}, inc, {status:'resolved'}))
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(){ loadIncidents(); })
+  .catch(function(err){ console.error(err); });
+}
+
 </script>
 <div id="toast"></div><div id="toast"></div>
 <!-- MODALS -->

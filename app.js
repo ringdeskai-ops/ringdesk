@@ -3998,6 +3998,71 @@ app.get("/admin/incident-log", (req, res) => {
 });
 
 
+
+// ============================================================
+// INCIDENT LOG v2 — LIVE DB SYSTEM
+// ============================================================
+
+// Get all incidents
+app.get('/api/admin/incidents', (req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const user = jwt.verify(auth.replace('Bearer ', ''), process.env.JWT_SECRET);
+    if (!['admin','superadmin'].includes(user.role)) return res.status(403).json({ error: 'Forbidden' });
+  } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
+  const incidents = db.prepare("SELECT * FROM incidents ORDER BY created_at DESC").all();
+  res.json({ incidents });
+});
+
+// Create incident
+app.post('/api/admin/incidents', (req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+  let user;
+  try {
+    user = jwt.verify(auth.replace('Bearer ', ''), process.env.JWT_SECRET);
+    if (!['admin','superadmin'].includes(user.role)) return res.status(403).json({ error: 'Forbidden' });
+  } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
+  const { title, severity, symptom, cause, fix, warning, tags } = req.body;
+  if (!title) return res.status(400).json({ error: 'Title required' });
+  const now = Math.floor(Date.now() / 1000);
+  const result = db.prepare("INSERT INTO incidents (title, severity, status, symptom, cause, fix, warning, tags, created_at, updated_at, created_by) VALUES (?, ?, 'open', ?, ?, ?, ?, ?, ?, ?, ?)")
+    .run(title, severity || 'medium', symptom || '', cause || '', fix || '', warning || '', tags || '', now, now, user.email || user.id);
+  const incident = db.prepare("SELECT * FROM incidents WHERE id = ?").get(result.lastInsertRowid);
+  res.json({ success: true, incident });
+});
+
+// Update incident
+app.put('/api/admin/incidents/:id', (req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const user = jwt.verify(auth.replace('Bearer ', ''), process.env.JWT_SECRET);
+    if (!['admin','superadmin'].includes(user.role)) return res.status(403).json({ error: 'Forbidden' });
+  } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
+  const { title, severity, status, symptom, cause, fix, warning, tags } = req.body;
+  const now = Math.floor(Date.now() / 1000);
+  const resolved_at = status === 'resolved' ? now : null;
+  db.prepare("UPDATE incidents SET title=?, severity=?, status=?, symptom=?, cause=?, fix=?, warning=?, tags=?, updated_at=?, resolved_at=? WHERE id=?")
+    .run(title, severity, status, symptom, cause, fix, warning, tags, now, resolved_at, req.params.id);
+  const incident = db.prepare("SELECT * FROM incidents WHERE id = ?").get(req.params.id);
+  res.json({ success: true, incident });
+});
+
+// Delete incident
+app.delete('/api/admin/incidents/:id', (req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const user = jwt.verify(auth.replace('Bearer ', ''), process.env.JWT_SECRET);
+    if (user.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
+  db.prepare("DELETE FROM incidents WHERE id = ?").run(req.params.id);
+  res.json({ success: true });
+});
+
+
 // ============================================================
 // SYSTEM HEALTH MONITOR
 // ============================================================
