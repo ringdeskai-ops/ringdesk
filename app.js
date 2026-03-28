@@ -5009,7 +5009,17 @@ app.post('/api/numbers/provision', authRequired, async (req, res) => {
       }
     }
 
-    // Step 2: Purchase from Twilio - webhook points to our Express app (Claude AI answers)
+    // Step 2: Determine bundle SID based on number type
+    let bundleSid = null;
+    if (phoneNumber.startsWith('+44800') || phoneNumber.startsWith('+443')) {
+      bundleSid = process.env.TWILIO_BUNDLE_UK_TOLLFREE;
+    } else if (phoneNumber.startsWith('+447')) {
+      bundleSid = process.env.TWILIO_BUNDLE_UK_MOBILE;
+    } else {
+      bundleSid = process.env.TWILIO_BUNDLE_UK_LOCAL;
+    }
+
+    // Step 3: Purchase from Twilio - webhook points to our Express app (Claude AI answers)
     const provisionParams = {
       phoneNumber,
       voiceUrl: process.env.DASHBOARD_URL + '/voice/incoming',
@@ -5018,6 +5028,7 @@ app.post('/api/numbers/provision', authRequired, async (req, res) => {
       statusCallbackMethod: 'POST',
     };
     if (addressSid) provisionParams.addressSid = addressSid;
+    if (bundleSid) provisionParams.bundleSid = bundleSid;
 
     await twilioClient.incomingPhoneNumbers.create(provisionParams);
 
@@ -5074,7 +5085,17 @@ async function provisionNumberAfterPayment(clientId, phoneNumber) {
       } catch(e) { console.error('Address creation failed:', e.message); }
     }
 
-    // Step 2: Purchase from Twilio
+    // Step 2: Determine bundle SID
+    let bundleSid = null;
+    if (phoneNumber.startsWith('+44800') || phoneNumber.startsWith('+443')) {
+      bundleSid = process.env.TWILIO_BUNDLE_UK_TOLLFREE;
+    } else if (phoneNumber.startsWith('+447')) {
+      bundleSid = process.env.TWILIO_BUNDLE_UK_MOBILE;
+    } else {
+      bundleSid = process.env.TWILIO_BUNDLE_UK_LOCAL;
+    }
+
+    // Step 3: Purchase from Twilio
     const params = {
       phoneNumber,
       voiceUrl: process.env.DASHBOARD_URL + '/voice/incoming',
@@ -5083,6 +5104,7 @@ async function provisionNumberAfterPayment(clientId, phoneNumber) {
       statusCallbackMethod: 'POST',
     };
     if (addressSid) params.addressSid = addressSid;
+    if (bundleSid) params.bundleSid = bundleSid;
     await twilioClient.incomingPhoneNumbers.create(params);
 
     // Save to DB - AI answering starts immediately!
