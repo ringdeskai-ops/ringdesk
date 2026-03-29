@@ -985,6 +985,43 @@ select option{background-color:#0c1520;color:#f0f6ff}
             </button>
           </div>
 
+          <!-- SMS Notifications Settings -->
+          <div class="settings-card" id="settings-sms-card">
+            <div class="settings-card-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+              SMS Notifications
+              <span style="margin-left:8px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:rgba(255,184,0,.1);color:var(--amber);border:1px solid rgba(255,184,0,.3)">ADD-ON</span>
+            </div>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.6">Receive SMS alerts on your mobile when calls come in. Set your mobile number below to receive notifications.</p>
+            <div style="background:rgba(255,184,0,.05);border:1px solid rgba(255,184,0,.2);border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:var(--amber)">
+              ⚡ SMS Notifications is a paid add-on. Contact us at <a href="mailto:hello@airingdesk.com" style="color:var(--cyan)">hello@airingdesk.com</a> to activate. ~4p per SMS sent.
+            </div>
+            <div class="form-group">
+              <label class="form-label">SMS Alert Number</label>
+              <input class="form-input" type="tel" id="smsAlertNumber" placeholder="+44 7700 900000" style="margin-bottom:6px"/>
+              <div style="font-size:11px;color:var(--muted)">Your mobile number to receive SMS alerts. Must be a UK mobile number.</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                <div><div style="font-size:13px;color:var(--text)">Missed call SMS</div><div style="font-size:11px;color:var(--muted)">Alert when caller hangs up without leaving a message</div></div>
+                <div class="toggle" id="smsToggleMissed" onclick="toggleClientSms('sms_missed_call','smsToggleMissed')"><div class="toggle-thumb"></div></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                <div><div style="font-size:13px;color:var(--text)">Voicemail SMS</div><div style="font-size:11px;color:var(--muted)">Alert when a new voicemail is received</div></div>
+                <div class="toggle" id="smsToggleVoicemail" onclick="toggleClientSms('sms_voicemail','smsToggleVoicemail')"><div class="toggle-thumb"></div></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
+                <div><div style="font-size:13px;color:var(--text)">After-call summary SMS</div><div style="font-size:11px;color:var(--muted)">SMS with AI summary after each completed call</div></div>
+                <div class="toggle" id="smsToggleAfterCall" onclick="toggleClientSms('sms_after_call','smsToggleAfterCall')"><div class="toggle-thumb"></div></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0">
+                <div><div style="font-size:13px;color:var(--text)">Appointment SMS</div><div style="font-size:11px;color:var(--muted)">Alert when AI books a new appointment</div></div>
+                <div class="toggle" id="smsToggleAppointment" onclick="toggleClientSms('sms_appointment','smsToggleAppointment')"><div class="toggle-thumb"></div></div>
+              </div>
+            </div>
+            <button onclick="saveSmsSettings()" style="margin-top:16px;background:var(--cyan);color:#020408;border:none;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">💾 Save SMS Settings</button>
+          </div>
+
           <div class="settings-card" id="settings-crm-card">
             <div class="settings-card-title">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
@@ -3122,6 +3159,7 @@ async function loadProfile() {
     updateVoicePreview();
   }
   document.getElementById('settingsPrompt').value = profile.ai_prompt || '';
+  loadSmsSettings(profile);
   const depts = profile.departments || {};
   ['sales','support','billing','manager','general'].forEach(d => {
     const el = document.getElementById('dept-' + d);
@@ -5664,6 +5702,46 @@ async function toggleSmsFeature(feature, toggleId) {
   } catch(e) {
     showToast('Error updating SMS setting', 'error');
   }
+}
+
+
+// ============================================================
+// CLIENT SMS SETTINGS
+// ============================================================
+function toggleClientSms(feature, toggleId) {
+  var el = document.getElementById(toggleId);
+  if (el) el.classList.toggle('on');
+}
+
+async function saveSmsSettings() {
+  var token = localStorage.getItem('rd_token');
+  var alertNumber = document.getElementById('smsAlertNumber').value.trim();
+  var body = {
+    sms_missed_call: document.getElementById('smsToggleMissed').classList.contains('on') ? 1 : 0,
+    sms_voicemail: document.getElementById('smsToggleVoicemail').classList.contains('on') ? 1 : 0,
+    sms_after_call: document.getElementById('smsToggleAfterCall').classList.contains('on') ? 1 : 0,
+    sms_appointment: document.getElementById('smsToggleAppointment').classList.contains('on') ? 1 : 0,
+    sms_from_number: alertNumber
+  };
+  try {
+    await fetch('/api/client/sms-settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify(body)
+    });
+    showToast('SMS settings saved!', 'success');
+  } catch(e) {
+    showToast('Error saving SMS settings', 'error');
+  }
+}
+
+function loadSmsSettings(profile) {
+  var el = function(id){ return document.getElementById(id); };
+  if (el('smsAlertNumber')) el('smsAlertNumber').value = profile.contact_phone || profile.sms_from_number || '';
+  if (el('smsToggleMissed')) el('smsToggleMissed').classList.toggle('on', !!profile.sms_missed_call);
+  if (el('smsToggleVoicemail')) el('smsToggleVoicemail').classList.toggle('on', !!profile.sms_voicemail);
+  if (el('smsToggleAfterCall')) el('smsToggleAfterCall').classList.toggle('on', !!profile.sms_after_call);
+  if (el('smsToggleAppointment')) el('smsToggleAppointment').classList.toggle('on', !!profile.sms_appointment);
 }
 
 </script>

@@ -171,6 +171,14 @@ app.post('/sms/incoming', async (req, res) => {
     .run(client.id, 'outbound', To, From, reply, 'sent', 'auto_reply');
 });
 
+app.put('/api/client/sms-settings', authRequired, (req, res) => {
+  const { sms_missed_call, sms_voicemail, sms_appointment, sms_after_call, sms_from_number } = req.body;
+  db.prepare('UPDATE clients SET sms_missed_call=?, sms_voicemail=?, sms_appointment=?, sms_after_call=?, sms_from_number=?, contact_phone=? WHERE id=?')
+    .run(sms_missed_call?1:0, sms_voicemail?1:0, sms_appointment?1:0, sms_after_call?1:0,
+        sms_from_number||'', sms_from_number||'', req.client.id);
+  res.json({ success: true });
+});
+
 app.put('/api/admin/sms-settings/:clientId', authRequired, (req, res) => {
   if (!['admin','superadmin'].includes(req.client.role)) return res.status(403).json({ error: 'Forbidden' });
   const { sms_missed_call, sms_voicemail, sms_appointment, sms_after_call } = req.body;
@@ -563,7 +571,7 @@ app.post("/api/auth/login", async (req, res) => {
 
 // Get client profile + stats
 app.get("/api/client/profile", authRequired, (req, res) => {
-  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, ai_voice, ai_voice_language, departments, calls_this_month, call_limit, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number, show_demo_banner, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, voicemail_enabled, call_recording, billing_cycle_day, billing_period_start, signup_completed, cancel_at_period_end, address_type FROM clients WHERE id = ?").get(req.client.id);
+  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, ai_voice, ai_voice_language, departments, calls_this_month, call_limit, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number, show_demo_banner, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, voicemail_enabled, call_recording, billing_cycle_day, billing_period_start, signup_completed, cancel_at_period_end, address_type, sms_missed_call, sms_voicemail, sms_after_call, sms_appointment, sms_from_number FROM clients WHERE id = ?").get(req.client.id);
   if (!client) return res.status(404).json({ error: "Not found" });
   client.departments = JSON.parse(client.departments || "{}");
   res.json(client);
