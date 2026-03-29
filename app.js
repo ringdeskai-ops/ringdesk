@@ -639,7 +639,7 @@ app.post("/api/billing/checkout", authRequired, async (req, res) => {
   const session = await stripe.checkout.sessions.create({
     customer: client.stripe_customer_id,
     mode: "subscription",
-    subscription_data: { trial_period_days: 7 },
+    subscription_data: { trial_period_days: 14 },
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
     success_url: `${process.env.DASHBOARD_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -4307,7 +4307,7 @@ app.post('/api/leads/submit', async (req, res) => {
       + '<div style="font-size:13px;color:#8896a8;line-height:1.8">'
       + '&#10003; Our team will call you back within 1 business hour<br>'
       + '&#10003; We will set up your AI receptionist in under 30 minutes<br>'
-      + '&#10003; You will start your 7-day free trial immediately<br>'
+      + '&#10003; You will start your 14-day free trial immediately<br>'
       + '&#10003; No contracts, cancel anytime'
       + '</div></div>'
       + '<p style="color:#5a7a9a;font-size:13px;margin-bottom:24px">In the meantime, you can <a href="https://airingdesk.com/dashboard" style="color:#00d4ff">create your account</a> and explore the dashboard.</p>'
@@ -4363,7 +4363,7 @@ p{color:#5a7a9a;font-size:15px;line-height:1.7;margin-bottom:8px}
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
   </div>
   <h1>You're all set! 🎉</h1>
-  <p>Your 7-day free trial has started.</p>
+  <p>Your 14-day free trial has started.</p>
   <p>No charge until your trial ends.</p>
   <div class="steps">
     <div class="step"><div class="step-num">1</div> Log into your dashboard</div>
@@ -5279,7 +5279,7 @@ async function sendWelcomeEmail(business_name, email, referral_code, id) {
           <div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div></div>
           <h1 style="font-size:22px;font-weight:700;margin-bottom:12px">Welcome aboard, ${business_name}! 🎉</h1>
           <p style="color:#8896a8;font-size:15px;line-height:1.7;margin-bottom:20px">
-            Your AI receptionist is ready to go. You have a <strong style="color:#10b981">7-day free trial</strong> — no charge until your trial ends.
+            Your AI receptionist is ready to go. You have a <strong style="color:#10b981">14-day free trial</strong> — no charge until your trial ends.
           </p>
           <div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin-bottom:24px">
             <div style="font-size:13px;color:#8896a8;margin-bottom:8px">NEXT STEPS</div>
