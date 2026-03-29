@@ -5203,31 +5203,8 @@ app.post('/api/numbers/provision', authRequired, async (req, res) => {
   if (client.phone_number) return res.status(400).json({ error: 'Already have a number' });
 
   try {
-    // Step 1: Create Twilio address using customer's address
-    let addressSid = null;
-    const hasAddress = client.address_line1 && client.city && client.postcode;
-    
-    if (hasAddress) {
-      try {
-        const twilioAddress = await twilioClient.addresses.create({
-          customerName: client.business_name || (client.first_name + ' ' + client.last_name),
-          street: client.address_line1 + (client.address_line2 ? ', ' + client.address_line2 : ''),
-          city: client.city,
-          region: client.county || client.region || '',
-          postalCode: client.postcode,
-          isoCountry: 'GB',
-          friendlyName: client.business_name + ' — AiRingDesk',
-          autoCorrectAddress: true
-        });
-        addressSid = twilioAddress.sid;
-        console.log('Created Twilio address:', addressSid, 'for', client.business_name);
-      } catch(addrErr) {
-        console.error('Address creation failed:', addrErr.message);
-        // Continue without address — some numbers don't require it
-      }
-    }
-
-    // Step 2: Determine bundle SID based on number type
+    // Step 1: Determine bundle SID based on number type
+    // Note: address not required — bundle already contains approved end-user & supporting docs
     let bundleSid = null;
     if (phoneNumber.startsWith('+44800') || phoneNumber.startsWith('+443')) {
       bundleSid = process.env.TWILIO_BUNDLE_UK_TOLLFREE;
@@ -5245,7 +5222,6 @@ app.post('/api/numbers/provision', authRequired, async (req, res) => {
       statusCallback: process.env.DASHBOARD_URL + '/voice/status',
       statusCallbackMethod: 'POST',
     };
-    if (addressSid) provisionParams.addressSid = addressSid;
     if (bundleSid) provisionParams.bundleSid = bundleSid;
 
     await twilioClient.incomingPhoneNumbers.create(provisionParams);
@@ -5293,26 +5269,8 @@ async function provisionNumberAfterPayment(clientId, phoneNumber) {
     const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(clientId);
     if (!client || client.phone_number) return;
 
-    // Step 1: Create Twilio address
-    let addressSid = null;
-    if (client.address_line1 && client.city && client.postcode) {
-      try {
-        const twilioAddress = await twilioClient.addresses.create({
-          customerName: client.business_name || (client.first_name + ' ' + client.last_name),
-          street: client.address_line1 + (client.address_line2 ? ', ' + client.address_line2 : ''),
-          city: client.city,
-          region: client.county || client.region || '',
-          postalCode: client.postcode,
-          isoCountry: 'GB',
-          friendlyName: client.business_name + ' — AiRingDesk',
-          autoCorrectAddress: true
-        });
-        addressSid = twilioAddress.sid;
-        console.log('Created Twilio address:', addressSid);
-      } catch(e) { console.error('Address creation failed:', e.message); }
-    }
-
-    // Step 2: Determine bundle SID
+    // Step 1: Determine bundle SID
+    // Bundle already contains approved end-user & docs — no separate address needed
     let bundleSid = null;
     if (phoneNumber.startsWith('+44800') || phoneNumber.startsWith('+443')) {
       bundleSid = process.env.TWILIO_BUNDLE_UK_TOLLFREE;
@@ -5330,7 +5288,6 @@ async function provisionNumberAfterPayment(clientId, phoneNumber) {
       statusCallback: process.env.DASHBOARD_URL + '/voice/status',
       statusCallbackMethod: 'POST',
     };
-    if (addressSid) params.addressSid = addressSid;
     if (bundleSid) params.bundleSid = bundleSid;
     await twilioClient.incomingPhoneNumbers.create(params);
 
