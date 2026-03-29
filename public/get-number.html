@@ -42,14 +42,14 @@ h2{font-size:22px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
 .back-link{font-size:13px;color:var(--muted);text-decoration:none;display:inline-flex;align-items:center;gap:6px;margin-top:16px;transition:color .2s}
 .back-link:hover{color:var(--text)}
 </style>
-</head>
+<link rel="stylesheet" href="/brand.css"></head>
 <body>
 <div class="card">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px">
-    <div style="width:40px;height:40px;border-radius:10px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+    <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(0,102,204,.15));border:1px solid rgba(0,212,255,.3);box-shadow:0 0 16px rgba(0,212,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
     </div>
-    <div style="font-size:20px;font-weight:800;letter-spacing:-.5px;font-family:inherit"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>
+    <div style="font-size:20px;font-weight:800;letter-spacing:-.5px;font-family:inherit"><span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span></div>
   </div>
   <h2>Get your phone number</h2>
   <p class="sub">Choose a number for your AI receptionist to answer 24/7.</p>
@@ -179,7 +179,7 @@ async function provisionNumber() {
     successEl.classList.add('show');
     btn.style.display = 'none';
 
-    setTimeout(() => window.location.href = '/dashboard', 2500);
+    setTimeout(() => window.location.href = '/dashboard#help', 2500);
   } catch(err) {
     errorEl.textContent = err.message;
     errorEl.classList.add('show');

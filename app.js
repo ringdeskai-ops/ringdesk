@@ -61,7 +61,7 @@ db.exec(`
     departments TEXT DEFAULT '{}', -- JSON: {sales: "+44...", support: "+44..."}
     created_at INTEGER DEFAULT (unixepoch()),
     calls_this_month INTEGER DEFAULT 0,
-    call_limit INTEGER DEFAULT 50
+    call_limit INTEGER DEFAULT 20
   );
 
   CREATE TABLE IF NOT EXISTS calls (
@@ -116,7 +116,7 @@ function authRequired(req, res, next) {
 
 // ── Plan limits ────────────────────────────────────────────────────────────────
 const PLAN_LIMITS = {
-  trial:        { calls: 50,    price: 0 },
+  trial:        { calls: 20,    price: 0 },
   essential:    { calls: 150,   price: 2900  },  // pence
   starter:      { calls: 300,   price: 4900  },
   professional: { calls: 1000,  price: 14900 },
@@ -891,7 +891,7 @@ app.post("/stripe-webhook", async (req, res) => {
 if (event.type === "customer.subscription.deleted") {
     const sub = db.prepare("SELECT * FROM clients WHERE stripe_subscription_id = ?").get(session.id);
     if (sub) {
-      db.prepare("UPDATE clients SET plan = 'trial', plan_status = 'cancelled', cancel_at_period_end = 0, call_limit = 50, voicemail_enabled = 0, feature_appointments = 0, feature_ai_settings = 0, feature_voice_selector = 0, feature_crm = 0, call_recording = 0 WHERE id = ?").run(sub.id);
+      db.prepare("UPDATE clients SET plan = 'trial', plan_status = 'cancelled', cancel_at_period_end = 0, call_limit = 20, voicemail_enabled = 0, feature_appointments = 0, feature_ai_settings = 0, feature_voice_selector = 0, feature_crm = 0, call_recording = 0 WHERE id = ?").run(sub.id);
       try {
         const planNames = { trial:'Trial', essential:'Essential', starter:'Starter', professional:'Professional', business:'Business' };
         const joinedDate = sub.created_at ? new Date(sub.created_at * 1000).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' }) : 'recently';
@@ -4737,19 +4737,70 @@ app.get('/api/admin/health', async (req, res) => {
   // 1. Database
   try {
     const testQuery = db.prepare("SELECT COUNT(*) as count FROM clients").get();
-    results.services.database = { status: 'ok', message: testQuery.count + ' clients in DB', latency: Date.now() - start };
+    const callCount = db.prepare("SELECT COUNT(*) as count FROM call_sessions").get();
+    const dbSize = require('fs').statSync('/var/www/vhosts/airingdesk.com/httpdocs/ringdesk.db');
+    const dbMB = (dbSize.size / 1024 / 1024).toFixed(2);
+    const dbStatus = dbMB > 500 ? 'warning' : 'ok';
+    results.services.database = {
+      status: dbStatus,
+      message: testQuery.count + ' clients · ' + callCount.count + ' calls · DB size: ' + dbMB + 'MB',
+      latency: Date.now() - start
+    };
   } catch(e) {
     results.services.database = { status: 'error', message: e.message };
   }
 
-  // 2. Server
-  const used = process.memoryUsage();
-  results.services.server = {
-    status: 'ok',
-    message: 'PM2 online · ' + Math.round(used.heapUsed/1024/1024) + 'MB heap',
-    uptime: Math.floor(process.uptime()) + 's',
-    latency: Date.now() - start
-  };
+  // 2. Server — CPU, Memory, Storage
+  try {
+    const { execSync } = require('child_process');
+    const os = require('os');
+    const used = process.memoryUsage();
+
+    // Memory
+    const totalMem = os.totalmem();
+    const freeMem = os.freemem();
+    const usedMemPct = Math.round((totalMem - freeMem) / totalMem * 100);
+    const usedMemMB = Math.round((totalMem - freeMem) / 1024 / 1024);
+    const totalMemMB = Math.round(totalMem / 1024 / 1024);
+
+    // CPU load average (1 min)
+    const cpuLoad = os.loadavg()[0];
+    const cpuCount = os.cpus().length;
+    const cpuPct = Math.round((cpuLoad / cpuCount) * 100);
+
+    // Disk
+    const dfOutput = execSync("df -h / | tail -1").toString().trim().split(/\s+/);
+    const diskUsedPct = parseInt(dfOutput[4]);
+    const diskFree = dfOutput[3];
+    const diskTotal = dfOutput[1];
+
+    const serverStatus = usedMemPct > 90 || diskUsedPct > 90 || cpuPct > 90 ? 'error'
+                       : usedMemPct > 75 || diskUsedPct > 80 || cpuPct > 70 ? 'warning' : 'ok';
+
+    results.services.server = {
+      status: serverStatus,
+      message: 'CPU: ' + cpuPct + '% · RAM: ' + usedMemMB + '/' + totalMemMB + 'MB (' + usedMemPct + '%) · Disk: ' + diskFree + ' free of ' + diskTotal + ' (' + diskUsedPct + '% used)',
+      uptime: Math.floor(process.uptime()) + 's',
+      latency: Date.now() - start,
+      details: {
+        cpu_pct: cpuPct,
+        memory_used_pct: usedMemPct,
+        memory_used_mb: usedMemMB,
+        memory_total_mb: totalMemMB,
+        disk_used_pct: diskUsedPct,
+        disk_free: diskFree,
+        heap_mb: Math.round(used.heapUsed/1024/1024)
+      }
+    };
+  } catch(e) {
+    const used = process.memoryUsage();
+    results.services.server = {
+      status: 'ok',
+      message: 'PM2 online · ' + Math.round(used.heapUsed/1024/1024) + 'MB heap',
+      uptime: Math.floor(process.uptime()) + 's',
+      latency: Date.now() - start
+    };
+  }
 
   // 3. Twilio
   try {
@@ -4808,7 +4859,103 @@ app.get('/api/admin/health', async (req, res) => {
     results.services.brevo = { status: 'error', message: e.message };
   }
 
-  // 7. Customer phone lines
+  // 7. Twilio Number Search API
+  try {
+    const t0 = Date.now();
+    const numbers = await twilioClient.availablePhoneNumbers('GB').local.list({ limit: 1 });
+    results.services.twilio_numbers = {
+      status: numbers.length > 0 ? 'ok' : 'warning',
+      message: numbers.length > 0 ? 'UK numbers available for provisioning' : 'No UK numbers found',
+      latency: Date.now() - t0
+    };
+  } catch(e) {
+    results.services.twilio_numbers = { status: 'error', message: e.message };
+  }
+
+  // 8. SMS capability
+  try {
+    const t0 = Date.now();
+    const smsNumbers = db.prepare("SELECT COUNT(*) as c FROM clients WHERE sms_from_number IS NOT NULL AND sms_from_number != ''").get();
+    results.services.sms = {
+      status: 'ok',
+      message: smsNumbers.c + ' clients with SMS configured',
+      latency: Date.now() - t0
+    };
+  } catch(e) {
+    results.services.sms = { status: 'error', message: e.message };
+  }
+
+  // 9. Call Transfer — department config check
+  try {
+    const t0 = Date.now();
+    const clientsWithDepts = db.prepare("SELECT COUNT(*) as c FROM clients WHERE departments IS NOT NULL AND departments != '{}' AND departments != ''").get();
+    const clientsWithNumbers = db.prepare("SELECT COUNT(*) as c FROM clients WHERE phone_number IS NOT NULL AND phone_number != ''").get();
+    results.services.call_transfer = {
+      status: 'ok',
+      message: clientsWithDepts.c + ' clients with transfer depts configured · ' + clientsWithNumbers.c + ' active lines',
+      latency: Date.now() - t0
+    };
+  } catch(e) {
+    results.services.call_transfer = { status: 'error', message: e.message };
+  }
+
+  // 10. Webhook endpoint self-check
+  try {
+    const t0 = Date.now();
+    const webhookRes = await fetch('http://127.0.0.1:' + (process.env.PORT || 3000) + '/health');
+    const webhookData = await webhookRes.json();
+    results.services.webhook = {
+      status: webhookRes.ok ? 'ok' : 'error',
+      message: webhookRes.ok ? 'Internal API responding · uptime ' + Math.floor(webhookData.uptime) + 's' : 'HTTP ' + webhookRes.status,
+      latency: Date.now() - t0
+    };
+  } catch(e) {
+    results.services.webhook = { status: 'error', message: e.message };
+  }
+
+  // 11. Google OAuth API
+  try {
+    const t0 = Date.now();
+    const googleRes = await fetch('https://oauth2.googleapis.com/tokeninfo?access_token=test');
+    results.services.google_oauth = {
+      status: googleRes.status === 400 ? 'ok' : 'warning',
+      message: googleRes.status === 400 ? 'Google OAuth API reachable' : 'HTTP ' + googleRes.status,
+      latency: Date.now() - t0
+    };
+  } catch(e) {
+    results.services.google_oauth = { status: 'error', message: e.message };
+  }
+
+  // 12. Disk space
+  try {
+    const t0 = Date.now();
+    const { execSync } = require('child_process');
+    const dfOutput = execSync("df -h / | tail -1 | awk '{print $5, $4}'").toString().trim();
+    const usedPct = parseInt(dfOutput.split('%')[0]);
+    results.services.disk = {
+      status: usedPct < 80 ? 'ok' : usedPct < 90 ? 'warning' : 'error',
+      message: 'Disk ' + dfOutput.replace('\n','') + ' free · ' + usedPct + '% used',
+      latency: Date.now() - t0
+    };
+  } catch(e) {
+    results.services.disk = { status: 'error', message: e.message };
+  }
+
+  // 13. PM2 restart count
+  try {
+    const t0 = Date.now();
+    const restarts = parseInt(process.env.PM2_RESTART_COUNT || '0');
+    const uptime = Math.floor(process.uptime());
+    results.services.pm2 = {
+      status: restarts < 10 ? 'ok' : restarts < 50 ? 'warning' : 'error',
+      message: 'Restarts: ' + restarts + ' · Uptime: ' + uptime + 's',
+      latency: Date.now() - t0
+    };
+  } catch(e) {
+    results.services.pm2 = { status: 'error', message: e.message };
+  }
+
+  // 14. Customer phone lines
   try {
     const clients = db.prepare("SELECT id, business_name, phone_number, plan, plan_status FROM clients WHERE role = 'client' AND phone_number IS NOT NULL AND phone_number != ''").all();
     for (const client of clients) {
@@ -4926,7 +5073,7 @@ app.get("/verify-email", (req, res) => {
   if (client.verification_expires && client.verification_expires < now)
     return res.redirect('/?error=token-expired');
   db.prepare("UPDATE clients SET email_verified = 1, verification_token = NULL, verification_expires = NULL WHERE id = ?").run(client.id);
-  res.redirect('/dashboard?verified=true');
+  res.redirect('/?verified=true');
 });
 
 app.use("/api/admin", require("./routes/admin")(db, sendBrevoEmail));
@@ -5215,6 +5362,16 @@ app.post('/api/numbers/provision', authRequired, async (req, res) => {
     }
 
     // Step 3: Purchase from Twilio - webhook points to our Express app (Claude AI answers)
+    // Determine address SID based on number type
+    let addressSid = null;
+    if (phoneNumber.startsWith('+44800') || phoneNumber.startsWith('+443')) {
+      addressSid = process.env.TWILIO_ADDRESS_UK_TOLLFREE;
+    } else if (phoneNumber.startsWith('+447')) {
+      addressSid = process.env.TWILIO_ADDRESS_UK_MOBILE;
+    } else {
+      addressSid = process.env.TWILIO_ADDRESS_UK_LOCAL;
+    }
+
     const provisionParams = {
       phoneNumber,
       voiceUrl: process.env.DASHBOARD_URL + '/voice/incoming',
@@ -5223,6 +5380,7 @@ app.post('/api/numbers/provision', authRequired, async (req, res) => {
       statusCallbackMethod: 'POST',
     };
     if (bundleSid) provisionParams.bundleSid = bundleSid;
+    if (addressSid) provisionParams.addressSid = addressSid;
 
     await twilioClient.incomingPhoneNumbers.create(provisionParams);
 

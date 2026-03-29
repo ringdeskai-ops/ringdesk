@@ -1,0 +1,40 @@
+/* AiRingDesk Brand CSS - applied to all pages */
+:root{
+  --black:#020408;--bg:#060912;--surface:#080e18;--surface2:#0c1520;--surface3:#0d1e2e;
+  --border:rgba(255,255,255,0.05);--border2:rgba(0,212,255,0.15);--border3:rgba(0,212,255,0.25);
+  --text:#f0f4f8;--muted:#5a7a9a;--dim:#2a3f55;
+  --cyan:#00d4ff;--blue:#0066cc;--green:#00e87a;--amber:#ffb800;--purple:#a78bfa;--red:#ff4466;
+  --grad-cyan:linear-gradient(135deg,#00d4ff,#0066cc);
+}
+body{background:var(--bg)!important}
+/* Logo gradient text */
+.ai-text{background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+/* Nav */
+nav{background:rgba(6,9,18,0.97)!important;border-bottom:1px solid rgba(0,212,255,0.1)!important}
+/* Buttons */
+.btn-cyan{background:linear-gradient(135deg,#00d4ff,#0066cc)!important;color:#fff!important;box-shadow:0 0 24px rgba(0,212,255,.3)!important;border:none!important}
+.btn-cyan:hover{background:linear-gradient(135deg,#1ae0ff,#0077dd)!important;box-shadow:0 0 40px rgba(0,212,255,.5)!important;transform:translateY(-2px)}
+.btn-ghost{background:rgba(0,212,255,.06)!important;color:#f0f4f8!important;border:1px solid rgba(0,212,255,.2)!important}
+.btn-ghost:hover{background:rgba(0,212,255,.1)!important;border-color:rgba(0,212,255,.4)!important;color:#00d4ff!important}
+/* Logo icon */
+.logo-icon{background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(0,102,204,.15))!important;border:1px solid rgba(0,212,255,.3)!important;box-shadow:0 0 16px rgba(0,212,255,.15)!important}
+/* Section tags */
+.stag{color:var(--cyan)!important;text-shadow:0 0 20px rgba(0,212,255,.4)}
+.stag::before{width:24px!important;height:2px!important;background:linear-gradient(90deg,#00d4ff,#0066cc)!important;box-shadow:0 0 8px rgba(0,212,255,.5)!important}
+/* Headings */
+h1 em,h2 em{background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 12px rgba(0,212,255,.3))}
+/* Feature cards */
+.feat-card{background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%)!important;border:1px solid rgba(0,212,255,.12)!important;transition:all .3s}
+.feat-card:hover{border-color:rgba(0,212,255,.25)!important;transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,.4)}
+/* Footer */
+footer{background:var(--surface)!important;border-top:1px solid rgba(0,212,255,.1)!important}
+/* CTA sections */
+.cta-section{background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(0,102,255,.04))!important;border-top:1px solid rgba(0,212,255,.12)!important}
+/* Plan cards */
+.plan{background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%)!important;border:1px solid rgba(0,212,255,.12)!important}
+.plan.pop{background:linear-gradient(135deg,rgba(0,212,255,.08) 0%,var(--surface) 100%)!important;border-color:rgba(0,212,255,.35)!important;box-shadow:0 0 40px rgba(0,212,255,.1)!important}
+/* Industry chips */
+.ind-chip{background:var(--surface2)!important;border:1px solid rgba(0,212,255,.12)!important}
+.ind-chip:hover{border-color:rgba(0,212,255,.35)!important;color:var(--cyan)!important;background:rgba(0,212,255,.06)!important}
+/* Location section */
+.location-section{background:var(--surface)!important;border-color:rgba(0,212,255,.08)!important}

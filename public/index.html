@@ -13,30 +13,30 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --black:#020408;--surface:#080e18;--surface2:#0c1520;
-  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
-  --text:#f0f6ff;--muted:#5a7a9a;--dim:#2a3f55;
-  --cyan:#00d4ff;--blue:#0066ff;--green:#00e87a;--amber:#ffb800;--red:#ff4466;
-  --grad-cyan:linear-gradient(135deg,#00d4ff,#0066ff);
+  --black:#020408;--bg:#060912;--surface:#080e18;--surface2:#0c1520;--surface3:#0d1e2e;
+  --border:rgba(255,255,255,0.05);--border2:rgba(0,212,255,0.15);--border3:rgba(0,212,255,0.25);
+  --text:#f0f4f8;--muted:#5a7a9a;--dim:#2a3f55;
+  --cyan:#00d4ff;--blue:#0066cc;--green:#00e87a;--amber:#ffb800;--purple:#a78bfa;--red:#ff4466;
+  --grad-cyan:linear-gradient(135deg,#00d4ff,#0066cc);
   --font-display:'Instrument Serif',Georgia,serif;
   --font-body:'Geist',system-ui,sans-serif;
 }
 html{scroll-behavior:smooth;overflow-x:hidden}
-body{background:var(--black);color:var(--text);font-family:var(--font-body);line-height:1.6;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.6;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
 
 /* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:80px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,60px);background:rgba(2,4,8,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.12)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:80px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,60px);background:rgba(6,9,18,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,212,255,0.1)}
 .nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none}
 .nav-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:pulse 2s infinite}
 .nav-links{display:flex;align-items:center;gap:4px}
 .nav-link{color:rgba(255,255,255,.8);font-size:15px;font-weight:600;text-decoration:none;padding:9px 16px;border-radius:8px;transition:all .2s;letter-spacing:.01em}
 .nav-link:hover{color:#fff;background:rgba(255,255,255,.1)}
 .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:8px;font-size:15px;font-weight:600;font-family:var(--font-body);text-decoration:none;cursor:pointer;border:none;transition:all .2s}
-.btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2)}
-.btn-ghost:hover{background:rgba(255,255,255,.14)}
-.btn-cyan{background:var(--cyan);color:#020408;font-weight:700;box-shadow:0 0 24px rgba(0,212,255,.3)}
-.btn-cyan:hover{background:#1ae0ff;box-shadow:0 0 40px rgba(0,212,255,.5);transform:translateY(-1px)}
+.btn-ghost{background:rgba(0,212,255,.06);color:#f0f4f8;border:1px solid rgba(0,212,255,.2)}
+.btn-ghost:hover{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.35);color:#00d4ff}
+.btn-cyan{background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;font-weight:700;box-shadow:0 0 24px rgba(0,212,255,.3);border:none}
+.btn-cyan:hover{background:linear-gradient(135deg,#1ae0ff,#0077dd);box-shadow:0 0 40px rgba(0,212,255,.5);transform:translateY(-2px)}
 
 /* HAMBURGER */
 .hamburger{display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;width:44px;height:44px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);cursor:pointer;z-index:101;flex-shrink:0}
@@ -46,7 +46,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:80px;display:flex;ali
 .hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
 
 /* MOBILE MENU */
-.mobile-menu{display:none;position:fixed;top:80px;left:0;right:0;background:rgba(2,4,8,0.98);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);z-index:99;padding:16px 24px 24px;flex-direction:column;gap:4px;transform:translateY(-10px);opacity:0;transition:all .25s}
+.mobile-menu{display:none;position:fixed;top:80px;left:0;right:0;background:rgba(6,9,18,0.99);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,212,255,.1);z-index:99;padding:16px 24px 24px;flex-direction:column;gap:4px;transform:translateY(-10px);opacity:0;transition:all .25s}
 .mobile-menu.open{transform:translateY(0);opacity:1}
 .mobile-menu .nav-link{display:block;padding:12px 16px;font-size:16px;border-radius:10px;color:rgba(255,255,255,.8)}
 .mobile-menu .nav-link:hover{background:rgba(255,255,255,.08);color:#fff}
@@ -107,49 +107,52 @@ h1 em{font-style:italic;background:var(--grad-cyan);-webkit-background-clip:text
 /* TICKER */
 #ticker{border-top:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;position:relative}
 #ticker::before,#ticker::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none}
-#ticker::before{left:0;background:linear-gradient(90deg,var(--black),transparent)}
-#ticker::after{right:0;background:linear-gradient(-90deg,var(--black),transparent)}
+#ticker::before{left:0;background:linear-gradient(90deg,var(--bg),transparent)}
+#ticker::after{right:0;background:linear-gradient(-90deg,var(--bg),transparent)}
 .ticker-track{display:flex;animation:ticker 30s linear infinite;width:max-content}
 .titem{display:flex;align-items:center;gap:10px;padding:16px 40px;border-right:1px solid var(--border);white-space:nowrap}
-.tnum{font-size:18px;font-weight:800;color:var(--cyan);letter-spacing:-1px}
+.tnum{font-size:18px;font-weight:800;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,212,255,.3));letter-spacing:-1px}
 .tlabel{font-size:12px;color:var(--muted);font-weight:500}
 
 /* SECTIONS */
 section{padding:clamp(60px,10vw,120px) clamp(20px,5vw,60px);position:relative;z-index:1}
-.stag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:16px}
-.stag::before{content:'';width:20px;height:1px;background:var(--cyan)}
+.stag{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan);margin-bottom:16px;text-shadow:0 0 20px rgba(0,212,255,.4)}
+.stag::before{content:'';width:24px;height:2px;background:linear-gradient(90deg,#00d4ff,#0066cc);border-radius:1px;box-shadow:0 0 8px rgba(0,212,255,.5)}
 h2{font-family:var(--font-display);font-size:clamp(32px,5vw,56px);font-weight:400;letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px}
-h2 em{font-style:italic;color:var(--cyan)}
+h2 em{font-style:italic;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 12px rgba(0,212,255,.3))}
 .ssub{font-size:17px;color:var(--muted);max-width:480px;line-height:1.7;margin-bottom:56px}
 
 /* TRUST BAR */
 #trustbar{background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:32px clamp(20px,5vw,60px)}
 .trust-inner{display:flex;align-items:stretch;justify-content:center;gap:0;flex-wrap:wrap;max-width:1100px;margin:0 auto}
 .trust-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px 24px;flex:1;min-width:160px;text-align:center}
-.trust-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.15)}
-.trust-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.trust-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(0,102,204,.08));border:1px solid rgba(0,212,255,.25);box-shadow:0 0 16px rgba(0,212,255,.08)}
+.trust-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;letter-spacing:.01em}
 .trust-desc{font-size:11px;color:var(--muted)}
 .trust-divider{width:1px;background:var(--border);flex-shrink:0;margin:8px 0}
 @media(max-width:768px){#hero{padding:80px 20px 40px;min-height:auto}.contact-grid{grid-template-columns:1fr!important;gap:32px!important}
   #mobileSignIn{display:inline-flex !important}.trust-divider{display:none}.trust-item{min-width:140px;padding:16px 12px}}
 
 /* HOW */
-#how{background:var(--surface)}
-.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:20px;overflow:hidden}
-.step{padding:36px 32px;background:var(--surface);position:relative;transition:background .3s}
-.step:hover{background:rgba(0,212,255,.03)}
-.step-num{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--dim);text-transform:uppercase;margin-bottom:20px}
-.step-icon{width:48px;height:48px;border-radius:12px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin-bottom:18px;font-size:20px;background:rgba(0,212,255,.05)}
+#how{background:linear-gradient(180deg,var(--surface) 0%,var(--surface2) 100%)}
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.15);border-radius:24px;overflow:hidden;box-shadow:0 0 40px rgba(0,212,255,.06)}
+.step{padding:36px 32px;background:#080e18;position:relative;transition:all .3s}
+.step:hover{background:rgba(0,212,255,.06);transform:translateY(-2px);box-shadow:inset 0 0 30px rgba(0,212,255,.03)}
+.step::after{content:'';position:absolute;bottom:0;left:32px;right:32px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.1),transparent)}
+.step-num{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--cyan);text-transform:uppercase;margin-bottom:20px;opacity:1;text-shadow:0 0 12px rgba(0,212,255,.4)}
+.step-icon{width:48px;height:48px;border-radius:12px;border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;margin-bottom:18px;font-size:20px;background:rgba(0,212,255,.08);box-shadow:0 0 20px rgba(0,212,255,.1)}
 .step h3{font-size:17px;font-weight:700;margin-bottom:8px;letter-spacing:-.3px}
 .step p{font-size:13px;color:var(--muted);line-height:1.7}
 
 /* FEATURES */
 .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
-.feat{padding:32px;border-radius:16px;border:1px solid var(--border);background:var(--surface);position:relative;overflow:hidden;transition:all .3s;cursor:default}
-.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.3),transparent);opacity:0;transition:opacity .3s}
-.feat:hover{border-color:rgba(0,212,255,.2);background:rgba(0,212,255,.025);transform:translateY(-2px);box-shadow:0 20px 40px rgba(0,0,0,.3)}
+.feat{padding:32px;border-radius:20px;border:1px solid var(--border);background:linear-gradient(135deg,var(--surface) 0%,rgba(8,14,24,.8) 100%);position:relative;overflow:hidden;transition:all .35s;cursor:default}
+.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.4),transparent);opacity:0;transition:opacity .3s}
+.feat::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 20%,rgba(0,212,255,.03),transparent);opacity:0;transition:opacity .3s}
+.feat:hover{border-color:rgba(0,212,255,.25);transform:translateY(-4px);box-shadow:0 24px 48px rgba(0,0,0,.4),0 0 40px rgba(0,212,255,.06)}
 .feat:hover::before{opacity:1}
-.feat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:18px;border:1px solid var(--border)}
+.feat:hover::after{opacity:1}
+.feat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:20px;border:1px solid rgba(0,212,255,.15);box-shadow:0 0 20px rgba(0,212,255,.08)}
 .feat h3{font-size:16px;font-weight:700;margin-bottom:8px;letter-spacing:-.2px}
 .feat p{font-size:13px;color:var(--muted);line-height:1.7}
 
@@ -165,18 +168,18 @@ h2 em{font-style:italic;color:var(--cyan)}
 .roi-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px rgba(0,212,255,.5);cursor:pointer}
 .roi-results{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .roi-card{padding:16px;border-radius:12px;background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15)}
-.roi-val{font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--cyan)}
+.roi-val{font-size:28px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,212,255,.3))}
 .roi-lab{font-size:11px;color:var(--muted);margin-top:2px}
 .roi-vs{margin-top:16px;padding:14px;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.15);border-radius:12px;font-size:13px;color:var(--green);font-weight:600;text-align:center}
 
 /* COMPARE */
-.ctable{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:16px;overflow:hidden}
-.ctable th{padding:16px 20px;background:var(--surface2);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)}
+.ctable{width:100%;border-collapse:collapse;border:1px solid rgba(0,212,255,.12);border-radius:16px;overflow:hidden;box-shadow:0 0 40px rgba(0,212,255,.04)}
+.ctable th{padding:16px 20px;background:var(--surface2);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid rgba(0,212,255,.1)}
 .ctable th:first-child{color:var(--text)}
 .ctable th.ch{color:var(--cyan)}
-.ctable td{padding:14px 20px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--border);vertical-align:middle}
+.ctable td{padding:14px 20px;font-size:13px;color:var(--muted);border-bottom:1px solid rgba(0,212,255,.06);vertical-align:middle}
 .ctable tr:last-child td{border-bottom:none}
-.ctable tr:hover td{background:rgba(255,255,255,.015)}
+.ctable tr:hover td{background:rgba(0,212,255,.025)}
 .ctable td:first-child{color:var(--text);font-weight:500}
 .ctable td.ch{background:rgba(0,212,255,.03)}
 .ck{color:var(--green);font-size:14px;font-weight:700}
@@ -187,65 +190,72 @@ h2 em{font-style:italic;color:var(--cyan)}
 /* PRICING */
 #pricing{text-align:center}
 .plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;max-width:1100px;margin:0 auto}
-.plan{padding:36px 28px;border-radius:20px;border:1px solid var(--border);background:var(--surface);text-align:left;position:relative;transition:transform .3s,box-shadow .3s}
-.plan:hover{transform:translateY(-4px);box-shadow:0 30px 60px rgba(0,0,0,.4)}
-.plan.pop{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.04)}
-.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--cyan);color:#020408;font-size:10px;font-weight:800;padding:4px 14px;border-radius:100px;letter-spacing:.06em;white-space:nowrap}
+.plan{padding:36px 28px;border-radius:20px;border:1px solid var(--border);background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);text-align:left;position:relative;transition:all .35s;overflow:visible}
+.plan::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)}
+.plan:hover{transform:translateY(-6px);box-shadow:0 32px 64px rgba(0,0,0,.5),0 0 40px rgba(0,212,255,.04);border-color:rgba(0,212,255,.15)}
+.plan.pop{border-color:rgba(0,212,255,.35);background:linear-gradient(135deg,rgba(0,212,255,.08) 0%,var(--surface) 100%);box-shadow:0 0 60px rgba(0,212,255,.1)}
+.plan.pop::before{background:linear-gradient(90deg,transparent,rgba(0,212,255,.5),transparent)}
+.plan.pop .plan-price{background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.plan-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;font-size:10px;font-weight:800;padding:5px 16px;border-radius:100px;letter-spacing:.08em;white-space:nowrap;box-shadow:0 0 20px rgba(0,212,255,.4)}
 .plan-name{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
-.plan-price{font-size:52px;font-weight:800;letter-spacing:-3px;margin-bottom:4px}
+.plan-price{font-size:52px;font-weight:800;letter-spacing:-3px;margin-bottom:4px;background:linear-gradient(135deg,#e0eaf4,#8090a8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .plan-price sup{font-size:22px;font-weight:600;vertical-align:super;letter-spacing:0}
 .plan-price sub{font-size:14px;font-weight:400;color:var(--muted);letter-spacing:0;vertical-align:baseline}
 .plan-calls{font-size:13px;color:var(--green);font-weight:600;margin-bottom:28px;display:flex;align-items:center;gap:6px}
-.plan-calls::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.plan-calls::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 8px rgba(0,232,122,.5)}
 .plan-feats{margin-bottom:32px}
 .pf{font-size:13px;color:var(--muted);padding:6px 0;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
 .pf:last-child{border-bottom:none}
 .pf::before{content:'';display:none}
 .pcta{display:block;text-align:center;padding:13px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s;font-family:var(--font-body);border:none;cursor:pointer;width:100%}
-.pcta-p{background:var(--cyan);color:#020408;box-shadow:0 0 24px rgba(0,212,255,.3)}
-.pcta-p:hover{background:#1ae0ff}
-.pcta-g{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border2)}
-.pcta-g:hover{border-color:rgba(0,212,255,.3);color:var(--cyan)}
+.pcta-p{background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;box-shadow:0 0 28px rgba(0,212,255,.35);font-weight:700}
+.pcta-p:hover{background:linear-gradient(135deg,#1ae0ff,#0077dd);box-shadow:0 0 40px rgba(0,212,255,.5);transform:translateY(-1px)}
+.pcta-g{background:rgba(0,212,255,.06);color:#f0f4f8;border:1px solid rgba(0,212,255,.2);font-weight:700}
+.pcta-g:hover{border-color:rgba(0,212,255,.5);color:var(--cyan);background:rgba(0,212,255,.12);box-shadow:0 0 20px rgba(0,212,255,.1)}
 
 /* INDUSTRIES */
 .ind-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
-.ind{padding:22px 20px;border-radius:14px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:14px;transition:all .2s;cursor:default}
-.ind:hover{border-color:rgba(0,212,255,.2);background:rgba(0,212,255,.03);transform:translateY(-2px)}
-.ind-icon{width:40px;height:40px;border-radius:10px;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.14);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ind{padding:22px 20px;border-radius:16px;border:1px solid var(--border);background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);display:flex;align-items:center;gap:14px;transition:all .3s;cursor:default}
+.ind:hover{border-color:rgba(0,212,255,.25);background:rgba(0,212,255,.04);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.ind-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,rgba(0,212,255,.12),rgba(0,102,204,.06));border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 0 12px rgba(0,212,255,.06)}
 .ind-name{font-size:13px;font-weight:600;color:var(--text)}
 .ind-desc{font-size:11px;color:var(--muted);margin-top:2px}
 
 /* TESTIMONIALS */
 .test-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
-.testi{padding:32px;border-radius:16px;border:1px solid var(--border);background:var(--black);position:relative;overflow:hidden;transition:transform .3s}
-.testi:hover{transform:translateY(-3px)}
-.testi::before{content:'"';position:absolute;top:-10px;right:20px;font-size:120px;color:rgba(0,212,255,.05);font-family:var(--font-display);line-height:1}
+.testi{padding:32px;border-radius:20px;border:1px solid var(--border);background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);position:relative;overflow:hidden;transition:all .35s}
+.testi:hover{transform:translateY(-4px);border-color:rgba(0,212,255,.15);box-shadow:0 24px 48px rgba(0,0,0,.4)}
+.testi::before{content:'"';position:absolute;top:-10px;right:20px;font-size:140px;color:rgba(0,212,255,.07);font-family:var(--font-display);line-height:1}
+.testi::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.2),transparent)}
 .stars{color:var(--amber);font-size:13px;margin-bottom:16px;letter-spacing:2px}
 .testi blockquote{font-size:15px;color:rgba(240,246,255,.75);line-height:1.8;margin-bottom:20px;font-style:italic;font-family:var(--font-display)}
 .tauth{display:flex;align-items:center;gap:12px}
-.tav{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1px solid var(--border)}
+.tav{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1px solid rgba(0,212,255,.15);background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,102,204,.05))}
 .tname{font-size:13px;font-weight:700;color:var(--text)}
 .tbiz{font-size:11px;color:var(--muted);margin-top:1px}
 
 /* FAQ */
 .faq-wrap{max-width:720px;margin:0 auto}
-.faq-item{border-bottom:1px solid var(--border);padding:20px 0}
+.faq-item{border-bottom:1px solid var(--border);padding:22px 0;transition:all .2s}
+.faq-item:first-child{border-top:1px solid var(--border)}
 .faq-q{font-size:15px;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:color .2s}
 .faq-q:hover{color:var(--cyan)}
 .faq-arr{transition:transform .3s;color:var(--dim);flex-shrink:0;font-size:20px;font-weight:300}
 .faq-item.open .faq-arr{transform:rotate(45deg);color:var(--cyan)}
-.faq-a{font-size:14px;color:var(--muted);line-height:1.8;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s}
-.faq-item.open .faq-a{max-height:200px;padding-top:12px}
+.faq-item.open .faq-q{color:var(--cyan)}
+.faq-a{font-size:14px;color:var(--muted);line-height:1.8;max-height:0;overflow:hidden;transition:max-height .4s,padding .3s}
+.faq-item.open .faq-a{max-height:200px;padding-top:14px}
 
 /* CTA */
-#ctab{text-align:center;position:relative;overflow:hidden}
-#ctab::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(0,212,255,.07),transparent);pointer-events:none}
+#ctab{text-align:center;position:relative;overflow:hidden;background:linear-gradient(180deg,var(--surface) 0%,var(--surface2) 50%,var(--surface) 100%)}
+#ctab::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(0,212,255,.1),transparent);pointer-events:none}
+#ctab::after{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.3),transparent)}
 .cta-inner{max-width:680px;margin:0 auto;position:relative;z-index:1}
 .cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 
 /* FOOTER */
 footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;background:var(--black)}
-.fbrand{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.fbrand{font-size:18px;font-weight:800;letter-spacing:-.3px;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .flinks{display:flex;gap:24px;flex-wrap:wrap}
 .flinks a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
 .flinks a:hover{color:var(--text)}
@@ -341,8 +351,8 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 .demo-pulse::after{content:'';position:absolute;inset:-4px;border-radius:16px;border:1px solid rgba(0,212,255,.2);animation:demoPulse 2s ease-in-out infinite}
 .demo-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px}
 .demo-sub{font-size:12px;color:var(--muted)}
-.demo-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;border-radius:10px;background:var(--cyan);color:#020408;font-size:14px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-family:var(--font-body);transition:all .2s;box-shadow:0 0 20px rgba(0,212,255,.3)}
-.demo-btn:hover{background:#1ae0ff;box-shadow:0 0 40px rgba(0,212,255,.5);transform:translateY(-1px)}
+.demo-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;border-radius:10px;background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;font-size:14px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-family:var(--font-body);transition:all .2s;box-shadow:0 0 24px rgba(0,212,255,.35)}
+.demo-btn:hover{background:linear-gradient(135deg,#1ae0ff,#0077dd);box-shadow:0 0 40px rgba(0,212,255,.5);transform:translateY(-2px)}
 .demo-note{font-size:11px;color:var(--dim)}
 @keyframes demoPulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.8;transform:scale(1.08)}}
 /* ANIMATIONS */
@@ -459,7 +469,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     ]
   }
   </script>
-</head>
+<link rel="stylesheet" href="/brand.css"></head>
 <body>
 
 <!-- COOKIE CONSENT -->
@@ -523,6 +533,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
       <div><label class="flabel">Contact phone *</label><input class="finput" type="tel" id="sPhone" placeholder="+44 7700 900000" autocomplete="tel"/></div>
       <div><label class="flabel">Email address *</label><input class="finput" type="email" id="sEmail" placeholder="you@yourbusiness.com" autocomplete="email"/></div>
       <div><label class="flabel">Password *</label><input class="finput" type="password" id="sPass" placeholder="Min. 8 characters" autocomplete="new-password"/></div>
+      <div><label class="flabel">Confirm password *</label><input class="finput" type="password" id="sPassConfirm" placeholder="Re-enter your password" autocomplete="new-password"/></div>
       <div><label class="flabel">Address line 1</label><input class="finput" type="text" id="sAddr1" placeholder="123 High Street" autocomplete="address-line1"/></div>
       <div><label class="flabel">Address line 2</label><input class="finput" type="text" id="sAddr2" placeholder="Suite / Floor (optional)" autocomplete="address-line2"/></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
@@ -580,12 +591,12 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 <!-- NAV -->
 <nav>
   <a href="/" class="nav-brand">
-    <div style="width:38px;height:38px;border-radius:10px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+    <div style="width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(0,102,204,.15));border:1px solid rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 16px rgba(0,212,255,.15)">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
     </div>
     <div>
       <div style="display:flex;align-items:baseline;gap:0;font-size:22px;font-weight:800;letter-spacing:-.5px">
-        <span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span>
+        <span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span>
       </div>
       <div style="font-size:10px;color:#5a7a9a;letter-spacing:.06em;font-weight:500;margin-top:1px">Your 24/7 AI Call Desk</div>
     </div>
@@ -690,27 +701,27 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 <div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:24px clamp(20px,5vw,60px);background:var(--surface)">
   <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap">
     <div style="text-align:center">
-      <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px">50+</div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,212,255,.4))">50+</div>
       <div style="font-size:11px;color:var(--muted);margin-top:2px">UK businesses</div>
     </div>
     <div style="width:1px;height:40px;background:var(--border)"></div>
     <div style="text-align:center">
-      <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px">10k+</div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,212,255,.4))">10k+</div>
       <div style="font-size:11px;color:var(--muted);margin-top:2px">Calls handled</div>
     </div>
     <div style="width:1px;height:40px;background:var(--border)"></div>
     <div style="text-align:center">
-      <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px">4.9★</div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,212,255,.4))">4.9★</div>
       <div style="font-size:11px;color:var(--muted);margin-top:2px">Average rating</div>
     </div>
     <div style="width:1px;height:40px;background:var(--border)"></div>
     <div style="text-align:center">
-      <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px">99.9%</div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,212,255,.4))">99.9%</div>
       <div style="font-size:11px;color:var(--muted);margin-top:2px">Uptime guarantee</div>
     </div>
     <div style="width:1px;height:40px;background:var(--border)"></div>
     <div style="text-align:center">
-      <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px">30min</div>
+      <div style="font-size:28px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,212,255,.4))">30min</div>
       <div style="font-size:11px;color:var(--muted);margin-top:2px">Avg setup time</div>
     </div>
   </div>
@@ -860,6 +871,126 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     <div class="step"><div class="step-num">Step 04</div><div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><h3>Smart transfers & alerts</h3><p>Complex calls transfer to your team with a handoff summary. Email notifications after every call.</p></div>
   </div>
 </section>
+
+
+<!-- VOICE GUIDE -->
+<section id="voice-guide" style="background:var(--bg);padding:80px clamp(20px,5vw,60px)">
+  <div style="max-width:900px;margin:0 auto">
+    <div class="reveal" style="text-align:center;margin-bottom:40px">
+      <div class="stag">Interactive Guide</div>
+      <h2>Meet <em>Aria</em> — your AI receptionist</h2>
+      <p class="ssub">Click Play and hear exactly how AiRingDesk works — in Aria's own voice.</p>
+    </div>
+    <div class="reveal" style="background:linear-gradient(135deg,#060912 0%,#0a1020 50%,#060912 100%);border:1px solid rgba(0,212,255,.12);border-radius:24px;overflow:hidden;position:relative">
+      <div id="hp-bg-glow" style="position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.06) 0%,transparent 70%);top:-100px;left:-100px;pointer-events:none"></div>
+      <div id="hp-bg-glow2" style="position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.04) 0%,transparent 70%);bottom:-80px;right:-60px;pointer-events:none"></div>
+      <div style="position:relative;z-index:2;display:grid;grid-template-columns:minmax(220px,280px) 1fr;min-height:320px">
+        <div style="padding:32px 28px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid rgba(255,255,255,.04)">
+          <div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:#00d4ff;text-transform:uppercase;margin-bottom:12px">Voice Guide</div>
+            <div style="font-size:22px;font-weight:800;color:#f0f4f8;letter-spacing:-1px;line-height:1.2;margin-bottom:8px;font-family:inherit">Get live in<br>10 minutes</div>
+            <div style="font-size:12px;color:#3d5470;line-height:1.6;margin-bottom:24px">Click Play to hear how AiRingDesk works — or select any topic.</div>
+            <div style="position:relative;height:120px;display:flex;align-items:flex-end;justify-content:center">
+              <div id="hp-rings" style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%)">
+                <div id="hp-r1" style="position:absolute;width:60px;height:60px;border-radius:50%;border:1px solid rgba(0,212,255,.2);left:50%;top:50%;transform:translate(-50%,-50%)"></div>
+                <div id="hp-r2" style="position:absolute;width:100px;height:100px;border-radius:50%;border:1px solid rgba(0,212,255,.12);left:50%;top:50%;transform:translate(-50%,-50%)"></div>
+                <div id="hp-r3" style="position:absolute;width:140px;height:140px;border-radius:50%;border:1px solid rgba(0,212,255,.06);left:50%;top:50%;transform:translate(-50%,-50%)"></div>
+              </div>
+              <div style="position:relative;z-index:2">
+                <svg width="60" height="90" viewBox="0 0 60 90" fill="none">
+                  <circle cx="30" cy="18" r="14" fill="rgba(0,212,255,0.15)" stroke="rgba(0,212,255,0.4)" stroke-width="1.5"/>
+                  <ellipse cx="30" cy="18" rx="8" ry="10" fill="rgba(0,212,255,0.3)"/>
+                  <path d="M8 70c0-12 9-20 22-20s22 8 22 20" fill="rgba(0,212,255,0.1)" stroke="rgba(0,212,255,0.35)" stroke-width="1.5"/>
+                  <path d="M22 38v8M38 38v8" stroke="rgba(0,212,255,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+                  <circle cx="30" cy="18" r="5" fill="rgba(0,212,255,0.6)"/>
+                </svg>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:16px;justify-content:center;height:36px" id="hp-waves">
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:6px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:10px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:18px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:26px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:30px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:26px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:18px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:10px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:6px;opacity:.4"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:20px">
+            <button id="hp-playBtn" onclick="hpStartGuide()" style="background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;border:none;padding:11px 22px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;font-family:inherit">&#9654; Play</button>
+            <button id="hp-stopBtn" onclick="hpStopGuide()" style="background:transparent;border:1px solid rgba(255,255,255,.08);color:#3d5470;padding:11px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:none">&#9632; Stop</button>
+          </div>
+        </div>
+        <div style="padding:32px 28px">
+          <div style="font-size:11px;color:#2a3f55;margin-bottom:12px;display:flex;align-items:center;gap:6px"><div id="hp-npDot" style="width:5px;height:5px;border-radius:50%;background:#00d4ff;display:none"></div><span id="hp-npText">Click Play to hear from Aria</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="hp-sr" id="hp-sr0" onclick="hpJumpTo(0)" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;border:1px solid transparent;border-left:3px solid rgba(0,212,255,.3)">
+              <div style="width:8px;height:8px;border-radius:50%;background:#00d4ff;flex-shrink:0"></div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#8090a0">Never miss a call again</div><div style="font-size:11px;color:#2a3f55;margin-top:1px">AI answers 24/7, even when you're busy</div></div>
+              <div style="font-size:10px;color:#1a2d42">&#9654;</div>
+            </div>
+            <div class="hp-sr" id="hp-sr1" onclick="hpJumpTo(1)" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;border:1px solid transparent;border-left:3px solid rgba(255,184,0,.2)">
+              <div style="width:8px;height:8px;border-radius:50%;background:#ffb800;flex-shrink:0"></div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#8090a0">Live in under 10 minutes</div><div style="font-size:11px;color:#2a3f55;margin-top:1px">No technical knowledge needed</div></div>
+              <div style="font-size:10px;color:#1a2d42">&#9654;</div>
+            </div>
+            <div class="hp-sr" id="hp-sr2" onclick="hpJumpTo(2)" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;border:1px solid transparent;border-left:3px solid rgba(0,232,122,.2)">
+              <div style="width:8px;height:8px;border-radius:50%;background:#00e87a;flex-shrink:0"></div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#8090a0">Full transcripts by email</div><div style="font-size:11px;color:#2a3f55;margin-top:1px">Know exactly what every caller said</div></div>
+              <div style="font-size:10px;color:#1a2d42">&#9654;</div>
+            </div>
+            <div class="hp-sr" id="hp-sr3" onclick="hpJumpTo(3)" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;border:1px solid transparent;border-left:3px solid rgba(167,139,250,.2)">
+              <div style="width:8px;height:8px;border-radius:50%;background:#a78bfa;flex-shrink:0"></div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#8090a0">Transfers & appointments</div><div style="font-size:11px;color:#2a3f55;margin-top:1px">Just like a real receptionist</div></div>
+              <div style="font-size:10px;color:#1a2d42">&#9654;</div>
+            </div>
+            <div class="hp-sr" id="hp-sr4" onclick="hpJumpTo(4)" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;border:1px solid transparent;border-left:3px solid rgba(0,212,255,.2)">
+              <div style="width:8px;height:8px;border-radius:50%;background:#00d4ff;flex-shrink:0"></div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#8090a0">Keep your existing number</div><div style="font-size:11px;color:#2a3f55;margin-top:1px">Free call divert — no disruption</div></div>
+              <div style="font-size:10px;color:#1a2d42">&#9654;</div>
+            </div>
+          </div>
+          <div style="height:2px;background:rgba(255,255,255,.04);border-radius:1px;margin-top:20px;overflow:hidden"><div id="hp-progress" style="height:100%;background:linear-gradient(90deg,#00d4ff,#0066cc);border-radius:1px;transition:width .5s ease;width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+.hp-sr{transition:all .2s}
+.hp-sr:hover{background:rgba(0,212,255,.03)}
+.hp-sr.hp-active{background:rgba(0,212,255,.05);border-color:rgba(0,212,255,.12)!important}
+.hp-sr.hp-active div:first-of-type + div > div:first-child{color:#f0f4f8!important}
+.hp-sr.hp-active > div:last-child{color:#00d4ff!important}
+@keyframes hpRingExpand{0%{transform:translate(-50%,-50%) scale(.5);opacity:.8}100%{transform:translate(-50%,-50%) scale(2);opacity:0}}
+@keyframes hpNpBlink{0%,100%{opacity:1}50%{opacity:0}}
+#hp-npDot{animation:hpNpBlink 1s ease-in-out infinite}
+@media(max-width:600px){
+  #voice-guide .reveal > div[style*="grid"]{grid-template-columns:1fr!important}
+  #voice-guide .reveal > div[style*="grid"] > div:first-child{border-right:none!important;border-bottom:1px solid rgba(255,255,255,.04)}
+}
+</style>
+<script>
+const hpScripts=[
+  "Hi, I'm Aria — your AI receptionist from AiRingDesk. I answer your business calls 24 hours a day, 7 days a week, so you never miss a customer again.",
+  "Getting started takes under 10 minutes. You sign up, pick a UK phone number, and I'm live instantly — no technical knowledge needed, no contracts, no setup fees.",
+  "Every call I answer is logged with a full transcript and AI summary sent straight to your email. You always know exactly what was said and who called.",
+  "I can transfer calls to your team, take messages, book appointments, and handle enquiries — just like a real receptionist, but available around the clock.",
+  "And if you already have a business number your customers know, simply divert it to your AiRingDesk number for free. Your customers keep calling the same number — I answer every time."
+];
+let hpPlaying=false,hpWaveInt=null,hpRingInt=null;
+function hpGetVoice(){const v=speechSynthesis.getVoices();return v.find(x=>x.lang==='en-GB'&&(x.name.includes('Female')||x.name.includes('female')||x.name.includes('Stephanie')||x.name.includes('Martha')||x.name.includes('Kate')||x.name.includes('Serena')||x.name.includes('Moira')||x.name.includes('Fiona')))||v.find(x=>x.lang==='en-GB'&&!x.name.toLowerCase().includes('male'))||v.find(x=>x.lang==='en-GB')||v.find(x=>x.lang.startsWith('en-')&&(x.name.includes('Female')||x.name.includes('Samantha')||x.name.includes('Victoria')||x.name.includes('Allison')||x.name.includes('Ava')||x.name.includes('Susan')))||v.find(x=>x.lang.startsWith('en')&&!x.name.toLowerCase().includes('male'))||null;}
+function hpAnimWave(on){clearInterval(hpWaveInt);const bars=document.querySelectorAll('.hp-sw');if(on){hpWaveInt=setInterval(()=>{bars.forEach(b=>{b.style.height=(6+Math.random()*26)+'px';b.style.opacity=(.3+Math.random()*.7);});},100);}else{[6,10,18,26,30,26,18,10,6].forEach((h,i)=>{if(bars[i]){bars[i].style.height=h+'px';bars[i].style.opacity='.3';}});}}
+function hpAnimRings(on){['hp-r1','hp-r2','hp-r3'].forEach((id,i)=>{const el=document.getElementById(id);if(!el)return;el.style.animation=on?`hpRingExpand 2s ease-out ${i*.6}s infinite`:'none';});}
+function hpSetActive(i){for(let j=0;j<5;j++){const el=document.getElementById('hp-sr'+j);if(el)el.classList.toggle('hp-active',j===i);}const dot=document.getElementById('hp-npDot'),txt=document.getElementById('hp-npText');if(i>=0){dot.style.display='block';txt.textContent='Aria is speaking...';}else{dot.style.display='none';txt.textContent='Click Play to hear from Aria';}if(i>=0){const prog=document.getElementById('hp-progress');if(prog)prog.style.width=((i+1)/5*100)+'%';}}
+function hpJumpTo(i){speechSynthesis.cancel();hpPlaying=true;document.getElementById('hp-playBtn').style.display='none';document.getElementById('hp-stopBtn').style.display='flex';hpAnimWave(true);hpAnimRings(true);hpPlayStep(i);}
+function hpPlayStep(i){if(i>=hpScripts.length){hpDone();return;}hpSetActive(i);const u=new SpeechSynthesisUtterance(hpScripts[i]);u.rate=0.92;u.pitch=1.05;u.volume=1;const voice=hpGetVoice();if(voice)u.voice=voice;u.onend=()=>{if(hpPlaying)setTimeout(()=>hpPlayStep(i+1),600);};speechSynthesis.speak(u);}
+function hpStartGuide(){if(speechSynthesis.getVoices().length===0){speechSynthesis.onvoiceschanged=()=>{speechSynthesis.onvoiceschanged=null;hpJumpTo(0);};speechSynthesis.getVoices();}else{hpJumpTo(0);}}
+function hpStopGuide(){hpPlaying=false;speechSynthesis.cancel();hpAnimWave(false);hpAnimRings(false);hpSetActive(-1);document.getElementById('hp-playBtn').style.display='flex';document.getElementById('hp-stopBtn').style.display='none';const p=document.getElementById('hp-progress');if(p)p.style.width='0%';}
+function hpDone(){hpPlaying=false;hpAnimWave(false);hpAnimRings(false);hpSetActive(-1);document.getElementById('hp-playBtn').style.display='flex';document.getElementById('hp-stopBtn').style.display='none';const dot=document.getElementById('hp-npDot'),txt=document.getElementById('hp-npText');dot.style.display='block';txt.textContent="All done — you're ready to go live!";}
+</script>
 
 <!-- FEATURES -->
 <section id="features" style="background:var(--black)">
@@ -1118,19 +1249,19 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
       <div style="padding:20px;border-radius:14px;border:1px solid var(--border);background:var(--black)">
-        <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px;margin-bottom:4px">100%</div>
+        <div style="font-size:28px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,212,255,.4));margin-bottom:4px">100%</div>
         <div style="font-size:12px;color:var(--muted)">UK-based support team</div>
       </div>
       <div style="padding:20px;border-radius:14px;border:1px solid var(--border);background:var(--black)">
-        <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px;margin-bottom:4px">GDPR</div>
+        <div style="font-size:28px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,212,255,.4));margin-bottom:4px">GDPR</div>
         <div style="font-size:12px;color:var(--muted)">Fully compliant & certified</div>
       </div>
       <div style="padding:20px;border-radius:14px;border:1px solid var(--border);background:var(--black)">
-        <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px;margin-bottom:4px">£GBP</div>
+        <div style="font-size:28px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,212,255,.4));margin-bottom:4px">£GBP</div>
         <div style="font-size:12px;color:var(--muted)">Priced in pounds, not dollars</div>
       </div>
       <div style="padding:20px;border-radius:14px;border:1px solid var(--border);background:var(--black)">
-        <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px;margin-bottom:4px">24/7</div>
+        <div style="font-size:28px;font-weight:800;letter-spacing:-1px;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 8px rgba(0,212,255,.4));margin-bottom:4px">24/7</div>
         <div style="font-size:12px;color:var(--muted)">AI coverage, UK hours support</div>
       </div>
     </div>
@@ -1261,16 +1392,16 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
   </div>
 </section>
 
-<footer>
+<footer style="background:var(--surface);border-top:1px solid rgba(0,212,255,.1)">
   <div style="max-width:1200px;margin:0 auto;width:100%">
-    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;padding-bottom:40px;border-bottom:1px solid var(--border)">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;padding-bottom:40px;border-bottom:1px solid rgba(0,212,255,.08)">
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-        <div style="width:32px;height:32px;border-radius:8px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+        <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(0,102,204,.15));border:1px solid rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 12px rgba(0,212,255,.15)">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
         </div>
         <div>
-          <div style="font-size:20px;font-weight:800;letter-spacing:-.5px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>
+          <div style="font-size:20px;font-weight:800;letter-spacing:-.5px"><span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span></div>
           <div style="font-size:9px;color:#5a7a9a;letter-spacing:.06em;font-weight:500;margin-top:1px">Your 24/7 AI Call Desk</div>
         </div>
       </div>
@@ -1486,6 +1617,8 @@ async function goStep2(){
   if(!biz)return showE(1,'Please enter your business name.');
   if(!sPhone)return showE(1,'Please enter your contact phone.');
   if(!email||!email.includes('@'))return showE(1,'Please enter a valid email.');
+  const passConfirm=document.getElementById('sPassConfirm').value;
+  if(pass!==passConfirm)return showE(1,'Passwords do not match.');
   if(pass.length<8)return showE(1,'Password must be at least 8 characters.');
   btn.disabled=true;bt.innerHTML='<div class="spinner"></div> Creating account...';
   try{

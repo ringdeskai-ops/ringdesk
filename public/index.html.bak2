@@ -1,0 +1,1658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=2">
+  <link rel="shortcut icon" href="/favicon.svg?v=2">
+  <link rel="apple-touch-icon" href="/favicon.svg?v=2">
+  <meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>AiRingDesk — AI Receptionist for UK Businesses | From £29/month</title>
+<meta name="description" content="Never miss a customer call again. AiRingDesk answers every call 24/7, books appointments, takes messages and transfers to your team. Live in 10 minutes. From £29/month."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#020408;--surface:#080e18;--surface2:#0c1520;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);
+  --text:#f0f6ff;--muted:#5a7a9a;--dim:#2a3f55;
+  --cyan:#00d4ff;--blue:#0066ff;--green:#00e87a;--amber:#ffb800;--red:#ff4466;
+  --grad-cyan:linear-gradient(135deg,#00d4ff,#0066ff);
+  --font-display:'Instrument Serif',Georgia,serif;
+  --font-body:'Geist',system-ui,sans-serif;
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:var(--black);color:var(--text);font-family:var(--font-body);line-height:1.6;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:80px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,60px);background:rgba(2,4,8,0.95);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.12)}
+.nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:pulse 2s infinite}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-link{color:rgba(255,255,255,.8);font-size:15px;font-weight:600;text-decoration:none;padding:9px 16px;border-radius:8px;transition:all .2s;letter-spacing:.01em}
+.nav-link:hover{color:#fff;background:rgba(255,255,255,.1)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:8px;font-size:15px;font-weight:600;font-family:var(--font-body);text-decoration:none;cursor:pointer;border:none;transition:all .2s}
+.btn-ghost{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2)}
+.btn-ghost:hover{background:rgba(255,255,255,.14)}
+.btn-cyan{background:var(--cyan);color:#020408;font-weight:700;box-shadow:0 0 24px rgba(0,212,255,.3)}
+.btn-cyan:hover{background:#1ae0ff;box-shadow:0 0 40px rgba(0,212,255,.5);transform:translateY(-1px)}
+
+/* HAMBURGER */
+.hamburger{display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;width:44px;height:44px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);cursor:pointer;z-index:101;flex-shrink:0}
+.hamburger span{display:block;width:22px;height:2px;background:#fff;border-radius:2px;transition:all .3s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0;transform:scaleX(0)}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* MOBILE MENU */
+.mobile-menu{display:none;position:fixed;top:80px;left:0;right:0;background:rgba(2,4,8,0.98);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,.1);z-index:99;padding:16px 24px 24px;flex-direction:column;gap:4px;transform:translateY(-10px);opacity:0;transition:all .25s}
+.mobile-menu.open{transform:translateY(0);opacity:1}
+.mobile-menu .nav-link{display:block;padding:12px 16px;font-size:16px;border-radius:10px;color:rgba(255,255,255,.8)}
+.mobile-menu .nav-link:hover{background:rgba(255,255,255,.08);color:#fff}
+.mobile-menu-divider{height:1px;background:rgba(255,255,255,.08);margin:8px 0}
+.mobile-menu-btns{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.mobile-menu-btns .btn{width:100%;justify-content:center;padding:13px;font-size:15px;border-radius:10px}
+
+@media(max-width:900px){
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .mobile-menu{display:flex}
+}
+
+/* HERO */
+#hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:180px clamp(20px,5vw,60px) 60px;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.035) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,black,transparent);pointer-events:none}
+.orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
+.orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(0,212,255,.1),transparent 70%);top:-150px;left:50%;transform:translateX(-50%);animation:floatOrb 10s ease-in-out infinite}
+.orb2{width:350px;height:350px;background:radial-gradient(circle,rgba(0,102,255,.08),transparent 70%);bottom:50px;right:5%;animation:floatOrb 8s ease-in-out infinite reverse}
+.orb3{width:200px;height:200px;background:radial-gradient(circle,rgba(124,58,237,.07),transparent 70%);top:30%;left:3%;animation:floatOrb 12s ease-in-out infinite}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:100px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);margin-bottom:32px;animation:fadeUp .6s ease both}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 1.5s infinite}
+h1{font-family:var(--font-display);font-size:clamp(44px,8vw,92px);font-weight:400;line-height:1.0;letter-spacing:-2px;margin-bottom:28px;max-width:900px;animation:fadeUp .6s .1s ease both}
+h1 em{font-style:italic;background:var(--grad-cyan);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:clamp(16px,2vw,19px);color:var(--muted);max-width:520px;margin:0 auto 44px;line-height:1.7;animation:fadeUp .6s .2s ease both}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:56px;animation:fadeUp .6s .3s ease both}
+.btn-xl{padding:14px 32px;font-size:15px;border-radius:10px}
+.hero-proof{display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center;animation:fadeUp .6s .4s ease both}
+.proof-item{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+.pcheck{width:16px;height:16px;border-radius:50%;background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.25);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--green);flex-shrink:0}
+.pdiv{width:1px;height:14px;background:var(--border2)}
+
+/* CALL CARD */
+.hero-visual{position:relative;margin:64px auto 0;max-width:680px;width:100%;animation:fadeUp .6s .5s ease both}
+.call-card{background:rgba(8,14,24,.92);border:1px solid var(--border2);border-radius:20px;padding:28px;backdrop-filter:blur(20px);box-shadow:0 40px 80px rgba(0,0,0,.6),0 0 0 1px rgba(0,212,255,.04),inset 0 1px 0 rgba(255,255,255,.05);position:relative;overflow:hidden}
+.call-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.5),transparent)}
+.call-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.status-badge{display:flex;align-items:center;gap:7px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.2);border-radius:100px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:.04em}
+.sdot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 1.5s infinite}
+.call-time{font-size:12px;color:var(--muted)}
+.waveform{display:flex;align-items:center;gap:3px;height:48px;margin-bottom:20px;justify-content:center}
+.wb{width:3px;border-radius:2px;background:var(--cyan);opacity:.7;animation:wave var(--d,.8s) ease-in-out infinite alternate;animation-delay:var(--dl,0s)}
+.chat-row{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
+.chat-row.ai{flex-direction:row-reverse}
+.cavatar{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-weight:800}
+.ca-caller{background:rgba(0,102,255,.15);border:1px solid rgba(0,102,255,.25);color:#6699ff}
+.ca-ai{background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.2);color:var(--cyan)}
+.cbubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;max-width:75%}
+.cb-caller{background:rgba(0,102,255,.1);border:1px solid rgba(0,102,255,.18);border-radius:12px 12px 12px 3px;color:rgba(240,246,255,.8)}
+.cb-ai{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.14);border-radius:12px 12px 3px 12px;color:rgba(240,246,255,.9)}
+.clabel{font-size:10px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px;font-weight:600}
+.cl-caller{color:rgba(102,153,255,.8)}
+.cl-ai{color:rgba(0,212,255,.8)}
+.call-footer{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border);margin-top:4px}
+.cmeta{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.tbadge{background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.2);border-radius:6px;padding:3px 8px;font-size:10px;font-weight:700;color:var(--amber);letter-spacing:.04em}
+
+/* TICKER */
+#ticker{border-top:1px solid var(--border);border-bottom:1px solid var(--border);overflow:hidden;position:relative}
+#ticker::before,#ticker::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none}
+#ticker::before{left:0;background:linear-gradient(90deg,var(--black),transparent)}
+#ticker::after{right:0;background:linear-gradient(-90deg,var(--black),transparent)}
+.ticker-track{display:flex;animation:ticker 30s linear infinite;width:max-content}
+.titem{display:flex;align-items:center;gap:10px;padding:16px 40px;border-right:1px solid var(--border);white-space:nowrap}
+.tnum{font-size:18px;font-weight:800;color:var(--cyan);letter-spacing:-1px}
+.tlabel{font-size:12px;color:var(--muted);font-weight:500}
+
+/* SECTIONS */
+section{padding:clamp(60px,10vw,120px) clamp(20px,5vw,60px);position:relative;z-index:1}
+.stag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:16px}
+.stag::before{content:'';width:20px;height:1px;background:var(--cyan)}
+h2{font-family:var(--font-display);font-size:clamp(32px,5vw,56px);font-weight:400;letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px}
+h2 em{font-style:italic;color:var(--cyan)}
+.ssub{font-size:17px;color:var(--muted);max-width:480px;line-height:1.7;margin-bottom:56px}
+
+/* TRUST BAR */
+#trustbar{background:var(--surface2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:32px clamp(20px,5vw,60px)}
+.trust-inner{display:flex;align-items:stretch;justify-content:center;gap:0;flex-wrap:wrap;max-width:1100px;margin:0 auto}
+.trust-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:20px 24px;flex:1;min-width:160px;text-align:center}
+.trust-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.15)}
+.trust-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px}
+.trust-desc{font-size:11px;color:var(--muted)}
+.trust-divider{width:1px;background:var(--border);flex-shrink:0;margin:8px 0}
+@media(max-width:768px){#hero{padding:80px 20px 40px;min-height:auto}.contact-grid{grid-template-columns:1fr!important;gap:32px!important}
+  #mobileSignIn{display:inline-flex !important}.trust-divider{display:none}.trust-item{min-width:140px;padding:16px 12px}}
+
+/* HOW */
+#how{background:var(--surface)}
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:20px;overflow:hidden}
+.step{padding:36px 32px;background:var(--surface);position:relative;transition:background .3s}
+.step:hover{background:rgba(0,212,255,.03)}
+.step-num{font-size:11px;font-weight:700;letter-spacing:.1em;color:var(--dim);text-transform:uppercase;margin-bottom:20px}
+.step-icon{width:48px;height:48px;border-radius:12px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin-bottom:18px;font-size:20px;background:rgba(0,212,255,.05)}
+.step h3{font-size:17px;font-weight:700;margin-bottom:8px;letter-spacing:-.3px}
+.step p{font-size:13px;color:var(--muted);line-height:1.7}
+
+/* FEATURES */
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.feat{padding:32px;border-radius:16px;border:1px solid var(--border);background:var(--surface);position:relative;overflow:hidden;transition:all .3s;cursor:default}
+.feat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.3),transparent);opacity:0;transition:opacity .3s}
+.feat:hover{border-color:rgba(0,212,255,.2);background:rgba(0,212,255,.025);transform:translateY(-2px);box-shadow:0 20px 40px rgba(0,0,0,.3)}
+.feat:hover::before{opacity:1}
+.feat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:18px;border:1px solid var(--border)}
+.feat h3{font-size:16px;font-weight:700;margin-bottom:8px;letter-spacing:-.2px}
+.feat p{font-size:13px;color:var(--muted);line-height:1.7}
+
+/* ROI */
+.roi-grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+@media(max-width:768px){.roi-grid{grid-template-columns:1fr}}
+.roi-calc{background:var(--black);border:1px solid var(--border2);border-radius:20px;padding:32px;position:relative;overflow:hidden}
+.roi-calc::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+.roi-lbl{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.roi-input{width:100%;padding:12px 16px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:16px;font-weight:600;font-family:var(--font-body);outline:none;margin-bottom:20px;transition:border-color .2s}
+.roi-input:focus{border-color:var(--cyan)}
+.roi-slider{width:100%;height:4px;-webkit-appearance:none;background:var(--border2);border-radius:2px;outline:none;margin-bottom:24px;cursor:pointer}
+.roi-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px rgba(0,212,255,.5);cursor:pointer}
+.roi-results{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.roi-card{padding:16px;border-radius:12px;background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.15)}
+.roi-val{font-size:28px;font-weight:800;letter-spacing:-1px;color:var(--cyan)}
+.roi-lab{font-size:11px;color:var(--muted);margin-top:2px}
+.roi-vs{margin-top:16px;padding:14px;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.15);border-radius:12px;font-size:13px;color:var(--green);font-weight:600;text-align:center}
+
+/* COMPARE */
+.ctable{width:100%;border-collapse:collapse;border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.ctable th{padding:16px 20px;background:var(--surface2);font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;border-bottom:1px solid var(--border)}
+.ctable th:first-child{color:var(--text)}
+.ctable th.ch{color:var(--cyan)}
+.ctable td{padding:14px 20px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--border);vertical-align:middle}
+.ctable tr:last-child td{border-bottom:none}
+.ctable tr:hover td{background:rgba(255,255,255,.015)}
+.ctable td:first-child{color:var(--text);font-weight:500}
+.ctable td.ch{background:rgba(0,212,255,.03)}
+.ck{color:var(--green);font-size:14px;font-weight:700}
+.cx{color:var(--red);font-size:13px}
+.cp{color:var(--amber);font-size:12px}
+.co{background:rgba(0,212,255,.05)!important;font-weight:700;color:var(--cyan)!important}
+
+/* PRICING */
+#pricing{text-align:center}
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;max-width:1100px;margin:0 auto}
+.plan{padding:36px 28px;border-radius:20px;border:1px solid var(--border);background:var(--surface);text-align:left;position:relative;transition:transform .3s,box-shadow .3s}
+.plan:hover{transform:translateY(-4px);box-shadow:0 30px 60px rgba(0,0,0,.4)}
+.plan.pop{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.04)}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--cyan);color:#020408;font-size:10px;font-weight:800;padding:4px 14px;border-radius:100px;letter-spacing:.06em;white-space:nowrap}
+.plan-name{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+.plan-price{font-size:52px;font-weight:800;letter-spacing:-3px;margin-bottom:4px}
+.plan-price sup{font-size:22px;font-weight:600;vertical-align:super;letter-spacing:0}
+.plan-price sub{font-size:14px;font-weight:400;color:var(--muted);letter-spacing:0;vertical-align:baseline}
+.plan-calls{font-size:13px;color:var(--green);font-weight:600;margin-bottom:28px;display:flex;align-items:center;gap:6px}
+.plan-calls::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0}
+.plan-feats{margin-bottom:32px}
+.pf{font-size:13px;color:var(--muted);padding:6px 0;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.pf:last-child{border-bottom:none}
+.pf::before{content:'';display:none}
+.pcta{display:block;text-align:center;padding:13px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s;font-family:var(--font-body);border:none;cursor:pointer;width:100%}
+.pcta-p{background:var(--cyan);color:#020408;box-shadow:0 0 24px rgba(0,212,255,.3)}
+.pcta-p:hover{background:#1ae0ff}
+.pcta-g{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border2)}
+.pcta-g:hover{border-color:rgba(0,212,255,.3);color:var(--cyan)}
+
+/* INDUSTRIES */
+.ind-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.ind{padding:22px 20px;border-radius:14px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;gap:14px;transition:all .2s;cursor:default}
+.ind:hover{border-color:rgba(0,212,255,.2);background:rgba(0,212,255,.03);transform:translateY(-2px)}
+.ind-icon{width:40px;height:40px;border-radius:10px;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.14);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.ind-name{font-size:13px;font-weight:600;color:var(--text)}
+.ind-desc{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* TESTIMONIALS */
+.test-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.testi{padding:32px;border-radius:16px;border:1px solid var(--border);background:var(--black);position:relative;overflow:hidden;transition:transform .3s}
+.testi:hover{transform:translateY(-3px)}
+.testi::before{content:'"';position:absolute;top:-10px;right:20px;font-size:120px;color:rgba(0,212,255,.05);font-family:var(--font-display);line-height:1}
+.stars{color:var(--amber);font-size:13px;margin-bottom:16px;letter-spacing:2px}
+.testi blockquote{font-size:15px;color:rgba(240,246,255,.75);line-height:1.8;margin-bottom:20px;font-style:italic;font-family:var(--font-display)}
+.tauth{display:flex;align-items:center;gap:12px}
+.tav{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1px solid var(--border)}
+.tname{font-size:13px;font-weight:700;color:var(--text)}
+.tbiz{font-size:11px;color:var(--muted);margin-top:1px}
+
+/* FAQ */
+.faq-wrap{max-width:720px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border);padding:20px 0}
+.faq-q{font-size:15px;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;transition:color .2s}
+.faq-q:hover{color:var(--cyan)}
+.faq-arr{transition:transform .3s;color:var(--dim);flex-shrink:0;font-size:20px;font-weight:300}
+.faq-item.open .faq-arr{transform:rotate(45deg);color:var(--cyan)}
+.faq-a{font-size:14px;color:var(--muted);line-height:1.8;max-height:0;overflow:hidden;transition:max-height .3s,padding .3s}
+.faq-item.open .faq-a{max-height:200px;padding-top:12px}
+
+/* CTA */
+#ctab{text-align:center;position:relative;overflow:hidden}
+#ctab::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 50%,rgba(0,212,255,.07),transparent);pointer-events:none}
+.cta-inner{max-width:680px;margin:0 auto;position:relative;z-index:1}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* FOOTER */
+footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:20px;background:var(--black)}
+.fbrand{font-size:18px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+.flinks{display:flex;gap:24px;flex-wrap:wrap}
+.flinks a{font-size:13px;color:var(--muted);text-decoration:none;transition:color .2s}
+.flinks a:hover{color:var(--text)}
+.fcopy{font-size:12px;color:var(--dim)}
+
+/* MODAL */
+.moverlay{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.8);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.moverlay.active{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:36px;width:100%;max-width:460px;position:relative;transform:translateY(20px);transition:transform .25s;box-shadow:0 40px 100px rgba(0,0,0,.7);max-height:90vh;overflow-y:auto}
+.moverlay.active .modal{transform:translateY(0)}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--cyan),transparent)}
+.mclose{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.06);border:none;color:var(--muted);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.mclose:hover{background:rgba(255,255,255,.12);color:var(--text)}
+.mplan{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);font-size:11px;color:var(--cyan);font-weight:700;letter-spacing:.04em;margin-bottom:16px;text-transform:uppercase}
+.modal h3{font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px}
+.msub{font-size:13px;color:var(--muted);margin-bottom:24px}
+.sind{display:flex;align-items:center;margin-bottom:24px}
+.sdot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all .3s;flex-shrink:0}
+.sdot.active{background:var(--cyan);color:#020408;box-shadow:0 0 16px rgba(0,212,255,.4)}
+.sdot.done{background:var(--green);color:#020408}
+.sdot.inactive{background:rgba(255,255,255,.08);color:var(--dim);border:1px solid var(--border)}
+.sline{flex:1;height:1px;background:var(--border);transition:background .3s}
+.sline.done{background:var(--green)}
+.flabel{display:block;font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.finput,.fselect{width:100%;padding:11px 14px;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--font-body);outline:none;transition:border-color .2s;margin-bottom:14px}
+.finput:focus,.fselect:focus{border-color:var(--cyan);background:rgba(0,212,255,.04)}
+.finput::placeholder{color:var(--dim)}
+.fselect option{background:#080e18}
+.numgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-height:200px;overflow-y:auto;margin-bottom:0}
+.ncard{padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.02);cursor:pointer;transition:all .2s}
+.ncard:hover{border-color:rgba(0,212,255,.3);background:rgba(0,212,255,.04)}
+.ncard.sel{border-color:var(--cyan);background:rgba(0,212,255,.08);box-shadow:0 0 0 1px var(--cyan)}
+.nnum{font-size:12px;font-weight:700;color:var(--text)}
+.nloc{font-size:10px;color:var(--muted);margin-top:1px}
+.nload{text-align:center;padding:24px;color:var(--muted);font-size:13px;grid-column:1/-1}
+.nsrow{display:flex;gap:8px;margin-bottom:10px}
+.nsrow .fselect{flex:1;margin-bottom:0}
+.rbtn{padding:11px 14px;border-radius:10px;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:var(--text);font-size:13px;cursor:pointer;font-family:var(--font-body);transition:all .2s;white-space:nowrap}
+.rbtn:hover{border-color:rgba(0,212,255,.3);color:var(--cyan)}
+.mbtnrow{display:flex;gap:10px;margin-top:16px}
+.mback{flex:0 0 auto;padding:12px 18px;border-radius:10px;border:1px solid var(--border2);background:rgba(255,255,255,.04);color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.mback:hover{color:var(--text)}
+.msubmit{flex:1;padding:13px;border-radius:10px;border:none;background:var(--cyan);color:#020408;font-size:14px;font-weight:800;cursor:pointer;font-family:var(--font-body);transition:all .2s;box-shadow:0 0 24px rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;gap:8px}
+.msubmit:hover{background:#1ae0ff}
+.msubmit:disabled{opacity:.5;cursor:not-allowed}
+.merr{background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.25);border-radius:8px;padding:10px 14px;font-size:12px;color:#ff8899;margin-top:10px;display:none}
+.merr.show{display:block}
+.mfoot{font-size:11px;color:var(--dim);text-align:center;margin-top:14px;line-height:1.6}
+.mfoot a{color:var(--muted);text-decoration:underline}
+.msign{font-size:13px;color:var(--muted);text-align:center;margin-top:10px}
+.msign a{color:var(--cyan);text-decoration:none;font-weight:600}
+.sumbox{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.sumrow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px}
+.sumrow:last-child{border-bottom:none}
+.sumlab{color:var(--muted)}
+.sumval{font-weight:700;color:var(--text)}
+.sumval.c{color:var(--cyan)}
+.sumval.g{color:var(--green)}
+.spanel{display:none}
+.spanel.active{display:block}
+.spinner{width:14px;height:14px;border:2px solid rgba(2,4,8,.3);border-top-color:#020408;border-radius:50%;animation:spin .7s linear infinite}
+
+/* COOKIE CONSENT */
+#cookie{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;width:calc(100% - 48px);max-width:680px;background:var(--surface2);border:1px solid var(--border2);border-radius:16px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 20px 60px rgba(0,0,0,.6);backdrop-filter:blur(20px);transition:all .4s;flex-wrap:wrap}
+#cookie.hidden{opacity:0;transform:translateX(-50%) translateY(20px);pointer-events:none}
+.cookie-text{font-size:13px;color:var(--muted);line-height:1.6;flex:1;min-width:200px}
+.cookie-text a{color:var(--cyan);text-decoration:none}
+.cookie-btns{display:flex;gap:8px;flex-shrink:0}
+.cookie-accept{padding:9px 20px;border-radius:8px;border:none;background:var(--cyan);color:#020408;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.cookie-accept:hover{background:#1ae0ff}
+.cookie-decline{padding:9px 16px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--muted);font-size:13px;cursor:pointer;font-family:var(--font-body);transition:all .2s}
+.cookie-decline:hover{color:var(--text)}
+/* TRUST BADGES */
+#trust-badges{background:var(--black);padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.badges-row{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;max-width:900px;margin:0 auto}
+.badge-item{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;border:1px solid var(--border);background:var(--surface);transition:all .2s;cursor:default}
+.badge-item:hover{border-color:rgba(0,212,255,.2);background:rgba(0,212,255,.03)}
+.badge-label{font-size:12px;font-weight:600;color:var(--muted)}
+/* PRICING TOGGLE */
+.pricing-toggle{display:flex;align-items:center;gap:12px;margin:0 auto 40px;justify-content:center}
+.toggle-label{font-size:14px;color:var(--muted);font-weight:500}
+.toggle-label.active{color:var(--text);font-weight:600}
+.toggle-switch{width:48px;height:26px;border-radius:13px;background:rgba(255,255,255,.1);border:1px solid var(--border2);position:relative;cursor:pointer;transition:background .2s}
+.toggle-switch.annual{background:var(--cyan)}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.toggle-switch.annual .toggle-thumb{left:25px}
+.annual-badge{background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.25);border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:.04em}
+/* DEMO CALL BANNER */
+#demo-banner{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,102,255,.06));border-top:1px solid rgba(0,212,255,.15);border-bottom:1px solid rgba(0,212,255,.15);padding:20px clamp(20px,5vw,60px);margin-top:80px;position:relative;z-index:90}
+.demo-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.demo-text{display:flex;align-items:center;gap:14px}
+.demo-pulse{width:44px;height:44px;border-radius:12px;background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
+.demo-pulse::after{content:'';position:absolute;inset:-4px;border-radius:16px;border:1px solid rgba(0,212,255,.2);animation:demoPulse 2s ease-in-out infinite}
+.demo-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px}
+.demo-sub{font-size:12px;color:var(--muted)}
+.demo-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;border-radius:10px;background:var(--cyan);color:#020408;font-size:14px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-family:var(--font-body);transition:all .2s;box-shadow:0 0 20px rgba(0,212,255,.3)}
+.demo-btn:hover{background:#1ae0ff;box-shadow:0 0 40px rgba(0,212,255,.5);transform:translateY(-1px)}
+.demo-note{font-size:11px;color:var(--dim)}
+@keyframes demoPulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.8;transform:scale(1.08)}}
+/* ANIMATIONS */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes floatOrb{0%,100%{transform:translate(0,0)}50%{transform:translate(-15px,-25px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes wave{from{height:4px}to{height:var(--h,32px)}}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+@media(max-width:768px){
+  .nav-link{display:none}
+  .hero-ctas{flex-direction:column;align-items:center}
+  footer{flex-direction:column;text-align:center}
+  .ctable{font-size:11px}
+  .ctable th,.ctable td{padding:10px 12px}
+  #about .reveal > div{grid-template-columns:1fr!important}
+  footer .reveal > div{grid-template-columns:1fr 1fr!important}
+}
+</style>
+  <!-- SEO: Canonical -->
+  <link rel="canonical" href="https://airingdesk.com/"/>
+  <!-- SEO: Open Graph -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://airingdesk.com/"/>
+  <meta property="og:title" content="AiRingDesk — AI Receptionist for UK Businesses | From £29/month"/>
+  <meta property="og:description" content="Never miss a customer call again. AiRingDesk answers every call 24/7, books appointments, takes messages and transfers to your team. Live in 10 minutes. From £29/month."/>
+  <meta property="og:image" content="https://airingdesk.com/og-image.jpg"/>
+  <meta property="og:site_name" content="AiRingDesk"/>
+  <meta property="og:locale" content="en_GB"/>
+  <!-- SEO: Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="AiRingDesk — AI Receptionist for UK Businesses | From £29/month"/>
+  <meta name="twitter:description" content="Never miss a customer call again. AiRingDesk answers every call 24/7, books appointments, takes messages and transfers to your team. Live in 10 minutes. From £29/month."/>
+  <meta name="twitter:image" content="https://airingdesk.com/og-image.jpg"/>
+  <!-- SEO: Additional -->
+  <meta name="robots" content="index, follow"/>
+  <meta name="author" content="AiRingDesk"/>
+  <meta name="geo.region" content="GB"/>
+  <meta name="geo.placename" content="United Kingdom"/>
+  <!-- SEO: Schema.org JSON-LD -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://airingdesk.com/#organization",
+        "name": "AiRingDesk",
+        "url": "https://airingdesk.com",
+        "logo": "https://airingdesk.com/favicon.svg",
+        "description": "AI receptionist platform for UK businesses",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "GB"
+        },
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "telephone": "+44-20-4634-8499",
+          "contactType": "customer service",
+          "availableLanguage": "English"
+        },
+        "sameAs": ["https://airingdesk.com"]
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "AiRingDesk",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "AI receptionist that answers calls 24/7 for UK businesses",
+        "offers": {
+          "@type": "Offer",
+          "price": "29",
+          "priceCurrency": "GBP",
+          "priceSpecification": {
+            "@type": "RecurringChargeSpecification",
+            "billingDuration": 1,
+            "billingIncrement": "P1M"
+          }
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "reviewCount": "47"
+        }
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How much does AiRingDesk cost?",
+            "acceptedAnswer": {"@type": "Answer", "text": "AiRingDesk plans start from £29/month for 150 calls. All plans include a 14-day free trial with no credit card required."}
+          },
+          {
+            "@type": "Question",
+            "name": "Can I keep my existing phone number?",
+            "acceptedAnswer": {"@type": "Answer", "text": "Yes. Simply divert your existing business number to your AiRingDesk number. Your customers call the same number as always."}
+          },
+          {
+            "@type": "Question",
+            "name": "How quickly can I get set up?",
+            "acceptedAnswer": {"@type": "Answer", "text": "Most businesses are live in under 10 minutes. Sign up, pick a UK number, write your AI prompt and you are ready to take calls."}
+          },
+          {
+            "@type": "Question",
+            "name": "What AI powers AiRingDesk?",
+            "acceptedAnswer": {"@type": "Answer", "text": "AiRingDesk is powered by Claude AI made by Anthropic, the same technology trusted by enterprises worldwide."}
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+<!-- COOKIE CONSENT -->
+<div id="cookie">
+  <div class="cookie-text">
+    🍪 We use cookies to improve your experience and analyse site traffic. By clicking "Accept", you agree to our <a href="/privacy" style="color:var(--cyan)">Cookie Policy</a> and <a href="/privacy" style="color:var(--cyan)">Privacy Policy</a>. We comply with UK GDPR and PECR regulations.
+  </div>
+  <div class="cookie-btns">
+    <button class="cookie-decline" onclick="dismissCookie(false)">Decline</button>
+    <button class="cookie-accept" onclick="dismissCookie(true)">Accept all</button>
+  </div>
+</div>
+
+<!-- DEMO CALL BANNER -->
+<div id="demo-banner">
+  <div class="demo-inner">
+    <div class="demo-text">
+      <div class="demo-pulse">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
+      </div>
+      <div>
+        <div class="demo-title">Hear Aria in action — call our live demo</div>
+        <div class="demo-sub">Experience exactly what your customers will hear. No sign-up needed.</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <a href="tel:+447492879452" class="demo-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
+        Call +44 7492 879452
+      </a>
+      <div class="demo-note">Free to call · Available 24/7</div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="moverlay" id="signupModal">
+  <div class="modal">
+    <button class="mclose" onclick="closeModal()">×</button>
+    <div class="sind">
+      <div class="sdot active" id="sd1">1</div>
+      <div class="sline" id="sl1"></div>
+      <div class="sdot inactive" id="sd2">2</div>
+      <div class="sline" id="sl2"></div>
+      <div class="sdot inactive" id="sd3">3</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:20px;margin-top:-12px">
+      <span style="font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase">Account</span>
+      <span style="font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase">Number</span>
+      <span style="font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase">Payment</span>
+    </div>
+    <div class="mplan" id="mplanBadge">Essential — £29/month</div>
+    <div class="spanel active" id="step1">
+      <h3>Create your account</h3>
+      <p class="msub">14-day free trial. No card required until you pick your number.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label class="flabel">First name *</label><input class="finput" type="text" id="sFirst" placeholder="John" autocomplete="given-name"/></div>
+        <div><label class="flabel">Last name *</label><input class="finput" type="text" id="sLast" placeholder="Smith" autocomplete="family-name"/></div>
+      </div>
+      <div><label class="flabel">Business name *</label><input class="finput" type="text" id="sBiz" placeholder="e.g. Thornton Plumbing" autocomplete="organization"/></div>
+      <div><label class="flabel">Contact phone *</label><input class="finput" type="tel" id="sPhone" placeholder="+44 7700 900000" autocomplete="tel"/></div>
+      <div><label class="flabel">Email address *</label><input class="finput" type="email" id="sEmail" placeholder="you@yourbusiness.com" autocomplete="email"/></div>
+      <div><label class="flabel">Password *</label><input class="finput" type="password" id="sPass" placeholder="Min. 8 characters" autocomplete="new-password"/></div>
+      <div><label class="flabel">Confirm password *</label><input class="finput" type="password" id="sPassConfirm" placeholder="Re-enter your password" autocomplete="new-password"/></div>
+      <div><label class="flabel">Address line 1</label><input class="finput" type="text" id="sAddr1" placeholder="123 High Street" autocomplete="address-line1"/></div>
+      <div><label class="flabel">Address line 2</label><input class="finput" type="text" id="sAddr2" placeholder="Suite / Floor (optional)" autocomplete="address-line2"/></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label class="flabel">City / Town</label><input class="finput" type="text" id="sCity" placeholder="London" autocomplete="address-level2"/></div>
+        <div><label class="flabel">Postcode</label><input class="finput" type="text" id="sPostcode" placeholder="SW1A 1AA" autocomplete="postal-code"/></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div><label class="flabel">Country *</label><select class="finput" id="sCountry" style="cursor:pointer"><option value="GB">United Kingdom</option><option value="US">United States</option><option value="IE">Ireland</option><option value="AU">Australia</option><option value="CA">Canada</option><option value="DE">Germany</option><option value="FR">France</option><option value="NL">Netherlands</option><option value="ES">Spain</option><option value="IT">Italy</option><option value="CH">Switzerland</option><option value="NZ">New Zealand</option><option value="SG">Singapore</option><option value="AE">UAE</option><option value="IN">India</option><option value="ZA">South Africa</option></select></div>
+        <div><label class="flabel">Region / County</label><input class="finput" type="text" id="sRegion" placeholder="e.g. Greater London" autocomplete="address-level1"/></div>
+      </div>
+      <div class="mbtnrow"><button class="msubmit" id="s1btn" onclick="goStep2()"><span id="s1txt">Continue — pick your number →</span></button></div>
+      <div class="merr" id="e1"></div>
+      <p class="msign">Already have an account? <a href="/dashboard">Sign in</a></p>
+    </div>
+    <div class="spanel" id="step2">
+      <h3>Choose your number</h3>
+      <p class="msub">This number will be answered by your AI 24/7.</p>
+      <div class="nsrow">
+        <select class="fselect" id="nCountry" onchange="loadNums()">
+          <option value="GB">🇬🇧 United Kingdom</option>
+          <option value="US">🇺🇸 United States</option>
+          <option value="CH">🇨🇭 Switzerland</option>
+          <option value="DE">🇩🇪 Germany</option>
+          <option value="FR">🇫🇷 France</option>
+          <option value="NL">🇳🇱 Netherlands</option>
+        </select>
+        <button class="rbtn" onclick="loadNums()">↻</button>
+      </div>
+      <div id="numGrid" class="numgrid"><div class="nload">Loading numbers...</div></div>
+      <div class="mbtnrow">
+        <button class="mback" onclick="goStep(1)">← Back</button>
+        <button class="msubmit" onclick="goStep3()">Continue →</button>
+      </div>
+      <div class="merr" id="e2"></div>
+    </div>
+    <div class="spanel" id="step3">
+      <h3>Confirm & pay</h3>
+      <p class="msub">Secure payment via Stripe. 14-day free trial included.</p>
+      <div class="sumbox">
+        <div class="sumrow"><span class="sumlab">Plan</span><span class="sumval" id="sPlan">Essential — £29/mo</span></div>
+        <div class="sumrow"><span class="sumlab">Phone number</span><span class="sumval c" id="sNum">—</span></div>
+        <div class="sumrow"><span class="sumlab">Business</span><span class="sumval" id="sBizSum">—</span></div>
+        <div class="sumrow"><span class="sumlab">Trial</span><span class="sumval g">7 days free</span></div>
+      </div>
+      <div class="mbtnrow">
+        <button class="mback" onclick="goStep(2)">← Back</button>
+        <button class="msubmit" id="s3btn" onclick="handleSignup()"><span id="s3txt">Pay with Stripe →</span></button>
+      </div>
+      <div class="merr" id="e3"></div>
+      <p class="mfoot">Secured by Stripe · Cancel anytime · <a href="/terms" style="color:var(--cyan)">Terms</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-brand">
+    <div style="width:38px;height:38px;border-radius:10px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
+    </div>
+    <div>
+      <div style="display:flex;align-items:baseline;gap:0;font-size:22px;font-weight:800;letter-spacing:-.5px">
+        <span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span>
+      </div>
+      <div style="font-size:10px;color:#5a7a9a;letter-spacing:.06em;font-weight:500;margin-top:1px">Your 24/7 AI Call Desk</div>
+    </div>
+  </a>
+  <div class="nav-links">
+    <a href="#how" class="nav-link">How it works</a>
+    <a href="#pricing" class="nav-link">Pricing</a>
+    <a href="#compare" class="nav-link">Compare</a>
+    <a href="#faq" class="nav-link">FAQ</a>
+    <a href="#contact" class="nav-link">Contact</a>
+    <a href="/dashboard" class="btn btn-ghost" style="padding:7px 16px;font-size:13px">Sign in</a>
+    <button onclick="openModal('starter')" class="btn btn-cyan" style="padding:7px 16px;font-size:13px">Start free trial</button>
+    <a href="/dashboard" class="btn btn-ghost" style="padding:7px 16px;font-size:13px;display:none" id="mobileSignIn">Sign in</a>
+  </div>
+  <button class="hamburger" id="hamburger" onclick="toggleMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#how" class="nav-link" onclick="closeMenu()">How it works</a>
+  <a href="#pricing" class="nav-link" onclick="closeMenu()">Pricing</a>
+  <a href="#compare" class="nav-link" onclick="closeMenu()">Compare</a>
+  <a href="#contact" class="nav-link" onclick="closeMenu()">Contact</a>
+  <a href="#faq" class="nav-link" onclick="closeMenu()">FAQ</a>
+  <a href="/about" class="nav-link" onclick="closeMenu()">About</a>
+  <a href="/contact" class="nav-link" onclick="closeMenu()">Contact</a>
+  <div class="mobile-menu-divider"></div>
+  <div class="mobile-menu-btns">
+    <a href="/dashboard" class="btn btn-ghost">Sign in</a>
+    <button onclick="closeMenu();openModal('professional')" class="btn btn-cyan">Start free trial →</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+  <div class="eyebrow"><div class="live-dot"></div>Powered by Claude AI · Live 24/7 · UK-based</div>
+  <h1>Your business <em>never misses</em><br>another call</h1>
+  <p class="hero-sub">Every missed call is a missed customer. AiRingDesk answers instantly, 24/7 — so you never lose business to voicemail again.</p>
+  <div class="hero-ctas">
+    <button onclick="openModal('professional')" class="btn btn-cyan btn-xl">Start 14-day free trial →</button>
+
+  </div>
+  <div class="hero-proof">
+    <div class="proof-item"><div class="pcheck">✓</div>No setup fees</div>
+    <div class="pdiv"></div>
+    <div class="proof-item"><div class="pcheck">✓</div>Cancel anytime</div>
+    <div class="pdiv"></div>
+    <div class="proof-item"><div class="pcheck">✓</div>From £29/month</div>
+    <div class="pdiv"></div>
+    <div class="proof-item"><div class="pcheck">✓</div>Live in 10 minutes</div>
+  </div>
+  <div class="hero-visual">
+    <div class="call-card">
+      <div class="call-header">
+        <div class="status-badge"><div class="sdot"></div>Live call · AI handling</div>
+        <div class="call-time">1m 24s</div>
+      </div>
+      <div class="waveform">
+        <div class="wb" style="--d:.6s;--dl:0s;--h:12px"></div>
+        <div class="wb" style="--d:.8s;--dl:.1s;--h:28px"></div>
+        <div class="wb" style="--d:.5s;--dl:.15s;--h:20px"></div>
+        <div class="wb" style="--d:.9s;--dl:.2s;--h:36px"></div>
+        <div class="wb" style="--d:.7s;--dl:.05s;--h:44px"></div>
+        <div class="wb" style="--d:.6s;--dl:.25s;--h:32px"></div>
+        <div class="wb" style="--d:.8s;--dl:.1s;--h:48px"></div>
+        <div class="wb" style="--d:.5s;--dl:.3s;--h:40px"></div>
+        <div class="wb" style="--d:.9s;--dl:.05s;--h:24px"></div>
+        <div class="wb" style="--d:.7s;--dl:.2s;--h:36px"></div>
+        <div class="wb" style="--d:.6s;--dl:.15s;--h:20px"></div>
+        <div class="wb" style="--d:.8s;--dl:.1s;--h:44px"></div>
+        <div class="wb" style="--d:.5s;--dl:.25s;--h:16px"></div>
+        <div class="wb" style="--d:.9s;--dl:0s;--h:8px"></div>
+      </div>
+      <div class="chat-row">
+        <div class="cavatar ca-caller">S</div>
+        <div><div class="clabel cl-caller">Caller — Sarah</div><div class="cbubble cb-caller">Hi, I'd like to book an appointment for next Tuesday if possible?</div></div>
+      </div>
+      <div class="chat-row ai">
+        <div class="cavatar ca-ai">AI</div>
+        <div style="text-align:right"><div class="clabel cl-ai" style="text-align:right">Aria · AiRingDesk</div><div class="cbubble cb-ai">Of course, Sarah! Tuesday works perfectly. Could I take your name and what the appointment is for?</div></div>
+      </div>
+      <div class="chat-row">
+        <div class="cavatar ca-caller">S</div>
+        <div><div class="clabel cl-caller">Caller — Sarah</div><div class="cbubble cb-caller">It's for a dental consultation — my tooth has been aching.</div></div>
+      </div>
+      <div class="call-footer">
+        <div class="cmeta"><div class="sdot"></div>Aria · Claude AI · Kajal voice</div>
+        <div class="tbadge">📅 Booking appointment</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SOCIAL PROOF -->
+<div style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:24px clamp(20px,5vw,60px);background:var(--surface)">
+  <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap">
+    <div style="text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px">50+</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">UK businesses</div>
+    </div>
+    <div style="width:1px;height:40px;background:var(--border)"></div>
+    <div style="text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px">10k+</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Calls handled</div>
+    </div>
+    <div style="width:1px;height:40px;background:var(--border)"></div>
+    <div style="text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px">4.9★</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Average rating</div>
+    </div>
+    <div style="width:1px;height:40px;background:var(--border)"></div>
+    <div style="text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px">99.9%</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Uptime guarantee</div>
+    </div>
+    <div style="width:1px;height:40px;background:var(--border)"></div>
+    <div style="text-align:center">
+      <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px">30min</div>
+      <div style="font-size:11px;color:var(--muted);margin-top:2px">Avg setup time</div>
+    </div>
+  </div>
+</div>
+<div id="ticker">
+  <div class="ticker-track">
+    <div class="titem"><span class="tnum">62%</span><span class="tlabel">of callers hang up without voicemail</span></div>
+    <div class="titem"><span style="color:var(--dim)">·</span></div>
+    <div class="titem"><span class="tnum">£25k</span><span class="tlabel">avg cost of a full-time receptionist</span></div>
+    <div class="titem"><span style="color:var(--dim)">·</span></div>
+    <div class="titem"><span class="tnum">24/7</span><span class="tlabel">AI availability vs 9–5 human</span></div>
+    <div class="titem"><span style="color:var(--dim)">·</span></div>
+    <div class="titem"><span class="tnum">30min</span><span class="tlabel">average time to go live</span></div>
+    <div class="titem"><span style="color:var(--dim)">·</span></div>
+    <div class="titem"><span class="tnum">£29</span><span class="tlabel">starting price per month</span></div>
+    <div class="titem"><span style="color:var(--dim)">·</span></div>
+    <div class="titem"><span class="tnum">90%</span><span class="tlabel">customers expect immediate response</span></div>
+    <div class="titem"><span style="color:var(--dim)">·</span></div>
+    <!-- duplicate for loop -->
+    <div class="titem"><span class="tnum">62%</span><span class="tlabel">of callers hang up without voicemail</span></div>
+    <div class="titem"><span style="color:var(--dim)">·</span></div>
+    <div class="titem"><span class="tnum">£25k</span><span class="tlabel">avg cost of a full-time receptionist</span></div>
+    <div class="titem"><span style="color:var(--dim)">·</span></div>
+    <div class="titem"><span class="tnum">24/7</span><span class="tlabel">AI availability vs 9–5 human</span></div>
+    <div class="titem"><span style="color:var(--dim)">·</span></div>
+    <div class="titem"><span class="tnum">30min</span><span class="tlabel">average time to go live</span></div>
+    <div class="titem"><span style="color:var(--dim)">·</span></div>
+    <div class="titem"><span class="tnum">£29</span><span class="tlabel">starting price per month</span></div>
+    <div class="titem"><span style="color:var(--dim)">·</span></div>
+    <div class="titem"><span class="tnum">90%</span><span class="tlabel">customers expect immediate response</span></div>
+    <div class="titem"><span style="color:var(--dim)">·</span></div>
+  </div>
+</div>
+
+<!-- UK TRUST BAR -->
+<div id="trustbar">
+  <div class="trust-inner">
+    <div class="trust-item">
+      <div class="trust-icon">
+        <svg width="22" height="22" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="60" height="40" rx="3" fill="#012169"/>
+          <path d="M0 0L60 40M60 0L0 40" stroke="white" stroke-width="8"/>
+          <path d="M0 0L60 40M60 0L0 40" stroke="#C8102E" stroke-width="4.5"/>
+          <path d="M30 0V40M0 20H60" stroke="white" stroke-width="13"/>
+          <path d="M30 0V40M0 20H60" stroke="#C8102E" stroke-width="8"/>
+        </svg>
+      </div>
+      <div>
+        <div class="trust-title">Proudly UK-Based</div>
+        <div class="trust-desc">Registered in England & Wales</div>
+      </div>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+      </div>
+      <div>
+        <div class="trust-title">GDPR Compliant</div>
+        <div class="trust-desc">UK data protection standards</div>
+      </div>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+      </div>
+      <div>
+        <div class="trust-title">UK & Europe Data Storage</div>
+        <div class="trust-desc">Your data never leaves the UK</div>
+      </div>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg>
+      </div>
+      <div>
+        <div class="trust-title">UK Support Team</div>
+        <div class="trust-desc">Mon–Fri, 9am–6pm GMT</div>
+      </div>
+    </div>
+    <div class="trust-divider"></div>
+    <div class="trust-item">
+      <div class="trust-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <div>
+        <div class="trust-title">Twilio & Anthropic Partner</div>
+        <div class="trust-desc">Enterprise-grade infrastructure</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TICKER -->
+<div id="trust-badges">
+  <div class="badges-row">
+    <div class="badge-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+      <span class="badge-label">SSL Secured</span>
+    </div>
+    <div class="badge-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span class="badge-label">GDPR Compliant</span>
+    </div>
+    <div class="badge-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="badge-label">UK & Europe Data Storage</span>
+    </div>
+    <div class="badge-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span class="badge-label">99.9% Uptime SLA</span>
+    </div>
+    <div class="badge-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      <span class="badge-label">ICO Registered</span>
+    </div>
+    <div class="badge-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      <span class="badge-label">Stripe Payments</span>
+    </div>
+    <div class="badge-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      <span class="badge-label">UK Support Team</span>
+    </div>
+    <div class="badge-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <span class="badge-label">Twilio Verified</span>
+    </div>
+  </div>
+</div>
+
+<!-- TRUST BADGES -->
+
+
+<section id="how">
+  <div class="reveal">
+    <div class="stag">How it works</div>
+    <h2>Up and running <em>in 10 minutes</em></h2>
+    <p class="ssub">No technical knowledge needed. We handle everything — you just take the calls that matter.</p>
+  </div>
+  <div class="steps-grid reveal">
+    <div class="step"><div class="step-num">Step 01</div><div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg></div><h3>Get a real phone number</h3><p>Choose a UK, US, or European number from our marketplace. Display it on your website and business cards.</p></div>
+    <div class="step"><div class="step-num">Step 02</div><div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/><circle cx="12" cy="16" r="1" fill="#00d4ff"/><line x1="8" y1="16" x2="8" y2="16" stroke-width="3" stroke-linecap="round"/><line x1="16" y1="16" x2="16" y2="16" stroke-width="3" stroke-linecap="round"/></svg></div><h3>Train your AI receptionist</h3><p>Tell Aria your business hours, FAQs, and how you want calls handled. She learns your brand voice instantly.</p></div>
+    <div class="step"><div class="step-num">Step 03</div><div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18" stroke-width="3" stroke-linecap="round"/></svg></div><h3>Calls answered 24/7</h3><p>Every call answered instantly. Aria handles enquiries, books appointments, and takes messages around the clock.</p></div>
+    <div class="step"><div class="step-num">Step 04</div><div class="step-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><h3>Smart transfers & alerts</h3><p>Complex calls transfer to your team with a handoff summary. Email notifications after every call.</p></div>
+  </div>
+</section>
+
+
+<!-- VOICE GUIDE -->
+<section id="voice-guide" style="background:var(--bg);padding:80px clamp(20px,5vw,60px)">
+  <div style="max-width:900px;margin:0 auto">
+    <div class="reveal" style="text-align:center;margin-bottom:40px">
+      <div class="stag">Interactive Guide</div>
+      <h2>Meet <em>Aria</em> — your AI receptionist</h2>
+      <p class="ssub">Click Play and hear exactly how AiRingDesk works — in Aria's own voice.</p>
+    </div>
+    <div class="reveal" style="background:linear-gradient(135deg,#060912 0%,#0a1020 50%,#060912 100%);border:1px solid rgba(0,212,255,.12);border-radius:24px;overflow:hidden;position:relative">
+      <div id="hp-bg-glow" style="position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.06) 0%,transparent 70%);top:-100px;left:-100px;pointer-events:none"></div>
+      <div id="hp-bg-glow2" style="position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.04) 0%,transparent 70%);bottom:-80px;right:-60px;pointer-events:none"></div>
+      <div style="position:relative;z-index:2;display:grid;grid-template-columns:minmax(220px,280px) 1fr;min-height:320px">
+        <div style="padding:32px 28px;display:flex;flex-direction:column;justify-content:space-between;border-right:1px solid rgba(255,255,255,.04)">
+          <div>
+            <div style="font-size:10px;font-weight:700;letter-spacing:.12em;color:#00d4ff;text-transform:uppercase;margin-bottom:12px">Voice Guide</div>
+            <div style="font-size:22px;font-weight:800;color:#f0f4f8;letter-spacing:-1px;line-height:1.2;margin-bottom:8px;font-family:inherit">Get live in<br>10 minutes</div>
+            <div style="font-size:12px;color:#3d5470;line-height:1.6;margin-bottom:24px">Click Play to hear how AiRingDesk works — or select any topic.</div>
+            <div style="position:relative;height:120px;display:flex;align-items:flex-end;justify-content:center">
+              <div id="hp-rings" style="position:absolute;bottom:10px;left:50%;transform:translateX(-50%)">
+                <div id="hp-r1" style="position:absolute;width:60px;height:60px;border-radius:50%;border:1px solid rgba(0,212,255,.2);left:50%;top:50%;transform:translate(-50%,-50%)"></div>
+                <div id="hp-r2" style="position:absolute;width:100px;height:100px;border-radius:50%;border:1px solid rgba(0,212,255,.12);left:50%;top:50%;transform:translate(-50%,-50%)"></div>
+                <div id="hp-r3" style="position:absolute;width:140px;height:140px;border-radius:50%;border:1px solid rgba(0,212,255,.06);left:50%;top:50%;transform:translate(-50%,-50%)"></div>
+              </div>
+              <div style="position:relative;z-index:2">
+                <svg width="60" height="90" viewBox="0 0 60 90" fill="none">
+                  <circle cx="30" cy="18" r="14" fill="rgba(0,212,255,0.15)" stroke="rgba(0,212,255,0.4)" stroke-width="1.5"/>
+                  <ellipse cx="30" cy="18" rx="8" ry="10" fill="rgba(0,212,255,0.3)"/>
+                  <path d="M8 70c0-12 9-20 22-20s22 8 22 20" fill="rgba(0,212,255,0.1)" stroke="rgba(0,212,255,0.35)" stroke-width="1.5"/>
+                  <path d="M22 38v8M38 38v8" stroke="rgba(0,212,255,0.5)" stroke-width="1.5" stroke-linecap="round"/>
+                  <circle cx="30" cy="18" r="5" fill="rgba(0,212,255,0.6)"/>
+                </svg>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:16px;justify-content:center;height:36px" id="hp-waves">
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:6px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:10px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:18px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:26px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:30px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:26px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:18px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:10px;opacity:.4"></div>
+              <div class="hp-sw" style="width:3px;border-radius:2px;background:linear-gradient(to top,#0066cc,#00d4ff);height:6px;opacity:.4"></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:20px">
+            <button id="hp-playBtn" onclick="hpStartGuide()" style="background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;border:none;padding:11px 22px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;font-family:inherit">&#9654; Play</button>
+            <button id="hp-stopBtn" onclick="hpStopGuide()" style="background:transparent;border:1px solid rgba(255,255,255,.08);color:#3d5470;padding:11px 16px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:none">&#9632; Stop</button>
+          </div>
+        </div>
+        <div style="padding:32px 28px">
+          <div style="font-size:11px;color:#2a3f55;margin-bottom:12px;display:flex;align-items:center;gap:6px"><div id="hp-npDot" style="width:5px;height:5px;border-radius:50%;background:#00d4ff;display:none"></div><span id="hp-npText">Click Play to hear from Aria</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div class="hp-sr" id="hp-sr0" onclick="hpJumpTo(0)" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;border:1px solid transparent;border-left:3px solid rgba(0,212,255,.3)">
+              <div style="width:8px;height:8px;border-radius:50%;background:#00d4ff;flex-shrink:0"></div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#8090a0">Never miss a call again</div><div style="font-size:11px;color:#2a3f55;margin-top:1px">AI answers 24/7, even when you're busy</div></div>
+              <div style="font-size:10px;color:#1a2d42">&#9654;</div>
+            </div>
+            <div class="hp-sr" id="hp-sr1" onclick="hpJumpTo(1)" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;border:1px solid transparent;border-left:3px solid rgba(255,184,0,.2)">
+              <div style="width:8px;height:8px;border-radius:50%;background:#ffb800;flex-shrink:0"></div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#8090a0">Live in under 10 minutes</div><div style="font-size:11px;color:#2a3f55;margin-top:1px">No technical knowledge needed</div></div>
+              <div style="font-size:10px;color:#1a2d42">&#9654;</div>
+            </div>
+            <div class="hp-sr" id="hp-sr2" onclick="hpJumpTo(2)" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;border:1px solid transparent;border-left:3px solid rgba(0,232,122,.2)">
+              <div style="width:8px;height:8px;border-radius:50%;background:#00e87a;flex-shrink:0"></div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#8090a0">Full transcripts by email</div><div style="font-size:11px;color:#2a3f55;margin-top:1px">Know exactly what every caller said</div></div>
+              <div style="font-size:10px;color:#1a2d42">&#9654;</div>
+            </div>
+            <div class="hp-sr" id="hp-sr3" onclick="hpJumpTo(3)" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;border:1px solid transparent;border-left:3px solid rgba(167,139,250,.2)">
+              <div style="width:8px;height:8px;border-radius:50%;background:#a78bfa;flex-shrink:0"></div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#8090a0">Transfers & appointments</div><div style="font-size:11px;color:#2a3f55;margin-top:1px">Just like a real receptionist</div></div>
+              <div style="font-size:10px;color:#1a2d42">&#9654;</div>
+            </div>
+            <div class="hp-sr" id="hp-sr4" onclick="hpJumpTo(4)" style="display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;cursor:pointer;border:1px solid transparent;border-left:3px solid rgba(0,212,255,.2)">
+              <div style="width:8px;height:8px;border-radius:50%;background:#00d4ff;flex-shrink:0"></div>
+              <div style="flex:1"><div style="font-size:13px;font-weight:700;color:#8090a0">Keep your existing number</div><div style="font-size:11px;color:#2a3f55;margin-top:1px">Free call divert — no disruption</div></div>
+              <div style="font-size:10px;color:#1a2d42">&#9654;</div>
+            </div>
+          </div>
+          <div style="height:2px;background:rgba(255,255,255,.04);border-radius:1px;margin-top:20px;overflow:hidden"><div id="hp-progress" style="height:100%;background:linear-gradient(90deg,#00d4ff,#0066cc);border-radius:1px;transition:width .5s ease;width:0%"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<style>
+.hp-sr{transition:all .2s}
+.hp-sr:hover{background:rgba(0,212,255,.03)}
+.hp-sr.hp-active{background:rgba(0,212,255,.05);border-color:rgba(0,212,255,.12)!important}
+.hp-sr.hp-active div:first-of-type + div > div:first-child{color:#f0f4f8!important}
+.hp-sr.hp-active > div:last-child{color:#00d4ff!important}
+@keyframes hpRingExpand{0%{transform:translate(-50%,-50%) scale(.5);opacity:.8}100%{transform:translate(-50%,-50%) scale(2);opacity:0}}
+@keyframes hpNpBlink{0%,100%{opacity:1}50%{opacity:0}}
+#hp-npDot{animation:hpNpBlink 1s ease-in-out infinite}
+@media(max-width:600px){
+  #voice-guide .reveal > div[style*="grid"]{grid-template-columns:1fr!important}
+  #voice-guide .reveal > div[style*="grid"] > div:first-child{border-right:none!important;border-bottom:1px solid rgba(255,255,255,.04)}
+}
+</style>
+<script>
+const hpScripts=[
+  "Hi, I'm Aria — your AI receptionist from AiRingDesk. I answer your business calls 24 hours a day, 7 days a week, so you never miss a customer again.",
+  "Getting started takes under 10 minutes. You sign up, pick a UK phone number, and I'm live instantly — no technical knowledge needed, no contracts, no setup fees.",
+  "Every call I answer is logged with a full transcript and AI summary sent straight to your email. You always know exactly what was said and who called.",
+  "I can transfer calls to your team, take messages, book appointments, and handle enquiries — just like a real receptionist, but available around the clock.",
+  "And if you already have a business number your customers know, simply divert it to your AiRingDesk number for free. Your customers keep calling the same number — I answer every time."
+];
+let hpPlaying=false,hpWaveInt=null,hpRingInt=null;
+function hpGetVoice(){const v=speechSynthesis.getVoices();return v.find(x=>x.lang==='en-GB'&&(x.name.includes('Female')||x.name.includes('female')||x.name.includes('Stephanie')||x.name.includes('Martha')||x.name.includes('Kate')||x.name.includes('Serena')||x.name.includes('Moira')||x.name.includes('Fiona')))||v.find(x=>x.lang==='en-GB'&&!x.name.toLowerCase().includes('male'))||v.find(x=>x.lang==='en-GB')||v.find(x=>x.lang.startsWith('en-')&&(x.name.includes('Female')||x.name.includes('Samantha')||x.name.includes('Victoria')||x.name.includes('Allison')||x.name.includes('Ava')||x.name.includes('Susan')))||v.find(x=>x.lang.startsWith('en')&&!x.name.toLowerCase().includes('male'))||null;}
+function hpAnimWave(on){clearInterval(hpWaveInt);const bars=document.querySelectorAll('.hp-sw');if(on){hpWaveInt=setInterval(()=>{bars.forEach(b=>{b.style.height=(6+Math.random()*26)+'px';b.style.opacity=(.3+Math.random()*.7);});},100);}else{[6,10,18,26,30,26,18,10,6].forEach((h,i)=>{if(bars[i]){bars[i].style.height=h+'px';bars[i].style.opacity='.3';}});}}
+function hpAnimRings(on){['hp-r1','hp-r2','hp-r3'].forEach((id,i)=>{const el=document.getElementById(id);if(!el)return;el.style.animation=on?`hpRingExpand 2s ease-out ${i*.6}s infinite`:'none';});}
+function hpSetActive(i){for(let j=0;j<5;j++){const el=document.getElementById('hp-sr'+j);if(el)el.classList.toggle('hp-active',j===i);}const dot=document.getElementById('hp-npDot'),txt=document.getElementById('hp-npText');if(i>=0){dot.style.display='block';txt.textContent='Aria is speaking...';}else{dot.style.display='none';txt.textContent='Click Play to hear from Aria';}if(i>=0){const prog=document.getElementById('hp-progress');if(prog)prog.style.width=((i+1)/5*100)+'%';}}
+function hpJumpTo(i){speechSynthesis.cancel();hpPlaying=true;document.getElementById('hp-playBtn').style.display='none';document.getElementById('hp-stopBtn').style.display='flex';hpAnimWave(true);hpAnimRings(true);hpPlayStep(i);}
+function hpPlayStep(i){if(i>=hpScripts.length){hpDone();return;}hpSetActive(i);const u=new SpeechSynthesisUtterance(hpScripts[i]);u.rate=0.92;u.pitch=1.05;u.volume=1;const voice=hpGetVoice();if(voice)u.voice=voice;u.onend=()=>{if(hpPlaying)setTimeout(()=>hpPlayStep(i+1),600);};speechSynthesis.speak(u);}
+function hpStartGuide(){if(speechSynthesis.getVoices().length===0){speechSynthesis.onvoiceschanged=()=>{speechSynthesis.onvoiceschanged=null;hpJumpTo(0);};speechSynthesis.getVoices();}else{hpJumpTo(0);}}
+function hpStopGuide(){hpPlaying=false;speechSynthesis.cancel();hpAnimWave(false);hpAnimRings(false);hpSetActive(-1);document.getElementById('hp-playBtn').style.display='flex';document.getElementById('hp-stopBtn').style.display='none';const p=document.getElementById('hp-progress');if(p)p.style.width='0%';}
+function hpDone(){hpPlaying=false;hpAnimWave(false);hpAnimRings(false);hpSetActive(-1);document.getElementById('hp-playBtn').style.display='flex';document.getElementById('hp-stopBtn').style.display='none';const dot=document.getElementById('hp-npDot'),txt=document.getElementById('hp-npText');dot.style.display='block';txt.textContent="All done — you're ready to go live!";}
+</script>
+
+<!-- FEATURES -->
+<section id="features" style="background:var(--black)">
+  <div class="reveal">
+    <div class="stag">Features</div>
+    <h2>Everything your receptionist<br><em>should do</em> — automated</h2>
+    <p class="ssub">Built for real UK businesses. Not a chatbot — a genuine AI colleague.</p>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feat"><div class="feat-icon" style="background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.15)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></div><h3>Natural voice conversations</h3><p>Powered by Claude AI (Anthropic). Understands context, handles interruptions, sounds completely human on the phone.</p></div>
+    <div class="feat"><div class="feat-icon" style="background:rgba(0,232,122,.08);border-color:rgba(0,232,122,.15)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg></div><h3>Intelligent call routing</h3><p>Detects when to escalate and transfers with a full handoff summary — callers never repeat themselves.</p></div>
+    <div class="feat"><div class="feat-icon" style="background:rgba(255,184,0,.08);border-color:rgba(255,184,0,.15)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><h3>Voicemail & AI transcripts</h3><p>When your team is unavailable, Aria takes a voicemail and sends you the full transcript by email within seconds.</p></div>
+    <div class="feat"><div class="feat-icon" style="background:rgba(124,58,237,.08);border-color:rgba(124,58,237,.15)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></div><h3>Full call analytics</h3><p>Every call logged. Full transcripts. AI summaries. Duration, caller info, outcome — all searchable in one place.</p></div>
+    <div class="feat"><div class="feat-icon" style="background:rgba(255,68,102,.08);border-color:rgba(255,68,102,.15)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ff4466" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg></div><h3>Fully customisable AI</h3><p>Name your AI, write their script, set business hours and FAQs. Aria becomes the voice of your brand.</p></div>
+    <div class="feat"><div class="feat-icon" style="background:rgba(0,102,255,.08);border-color:rgba(0,102,255,.15)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6699ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div><h3>Multi-country numbers</h3><p>UK, US, Swiss, German, French, or Dutch numbers. Perfect for businesses serving international customers.</p></div>
+  </div>
+</section>
+
+<!-- ROI CALCULATOR -->
+<section id="roi" style="background:var(--surface)">
+  <div class="roi-grid">
+    <div class="reveal">
+      <div class="stag">ROI Calculator</div>
+      <h2>How much are <em>missed calls</em> costing you?</h2>
+      <p class="ssub">62% of callers never call back after reaching voicemail. Every missed call is lost revenue.</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;background:var(--black);border:1px solid var(--border)">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 5 5 5 9c0 2.5 1 4.5 2.5 6L9 22h6l1.5-7C18 13.5 19 11.5 19 9c0-4-3-7-7-7z"/></svg></div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)">Dental clinic</div><div style="font-size:12px;color:var(--muted)">12 missed calls/month = £3,600 lost</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;background:var(--black);border:1px solid var(--border)">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)">Plumber</div><div style="font-size:12px;color:var(--muted)">8 missed calls/month = £2,400 lost</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:12px;background:var(--black);border:1px solid var(--border)">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+          <div><div style="font-size:13px;font-weight:600;color:var(--text)">Estate agent</div><div style="font-size:12px;color:var(--muted)">5 missed calls/month = £12,500 lost</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="roi-calc">
+        <div class="roi-lbl">Monthly calls to your business</div>
+        <input class="roi-input" type="number" id="rCalls" value="50" min="1" max="1000" oninput="calcROI()"/>
+        <input type="range" class="roi-slider" id="rSlider" min="10" max="500" value="50" oninput="syncROI(this.value)"/>
+        <div class="roi-lbl">Average value per new customer (£)</div>
+        <input class="roi-input" type="number" id="rVal" value="300" min="10" max="10000" oninput="calcROI()"/>
+        <div class="roi-results">
+          <div class="roi-card"><div class="roi-val" id="rMissed">£-</div><div class="roi-lab">Revenue lost per month</div></div>
+          <div class="roi-card"><div class="roi-val" id="rSaved">£-</div><div class="roi-lab">Saved with AiRingDesk</div></div>
+        </div>
+        <div class="roi-vs" id="rVs">AiRingDesk pays for itself with just 1 captured call</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INDUSTRIES -->
+<section id="industries" style="background:var(--black)">
+  <div class="reveal">
+    <div class="stag">Who it's for</div>
+    <h2>Built for every <em>local business</em></h2>
+    <p class="ssub">If your business gets phone calls, AiRingDesk pays for itself.</p>
+  </div>
+  <div class="ind-grid reveal">
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 5 5 5 9c0 2.5 1 4.5 2.5 6L9 22h6l1.5-7C18 13.5 19 11.5 19 9c0-4-3-7-7-7z"/></svg></div><div><div class="ind-name">Dental Clinics</div><div class="ind-desc">Appointments & insurance</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div><div class="ind-name">Estate Agents</div><div class="ind-desc">Property enquiries & viewings</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div><div><div class="ind-name">Tradespeople</div><div class="ind-desc">Quote requests & bookings</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><div><div class="ind-name">Beauty & Spas</div><div class="ind-desc">Appointments & pricing</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="3" stroke-linecap="round"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="3" stroke-linecap="round"/></svg></div><div><div class="ind-name">Solicitors</div><div class="ind-desc">Client intake & consultations</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div><div><div class="ind-name">Gyms & Fitness</div><div class="ind-desc">Memberships & bookings</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div><div><div class="ind-name">Car Garages</div><div class="ind-desc">MOT & service bookings</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div><div class="ind-name">Medical Clinics</div><div class="ind-desc">Appointments & referrals</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><div><div class="ind-name">Salons & Barbers</div><div class="ind-desc">Bookings & availability</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></div><div><div class="ind-name">Restaurants & Cafés</div><div class="ind-desc">Reservations & enquiries</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><div><div class="ind-name">Accountants</div><div class="ind-desc">Client enquiries & bookings</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div><div class="ind-name">Builders & Contractors</div><div class="ind-desc">Quote requests & scheduling</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="ind-name">Electricians</div><div class="ind-desc">Emergency & job bookings</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72z"/></svg></div><div><div class="ind-name">Plumbers</div><div class="ind-desc">Emergency callouts & quotes</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div><div><div class="ind-name">Handymen & Trades</div><div class="ind-desc">Job enquiries & scheduling</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg></div><div><div class="ind-name">Letting Agents</div><div class="ind-desc">Viewing requests & tenants</div></div></div>
+    <div class="ind"><div class="ind-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/></svg></div><div><div class="ind-name">Veterinary Clinics</div><div class="ind-desc">Appointments & emergencies</div></div></div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section id="compare" style="background:var(--surface)">
+  <div class="reveal">
+    <div class="stag">Comparison</div>
+    <h2>Why choose <em>AiRingDesk</em>?</h2>
+    <p class="ssub">See how we stack up against the competition.</p>
+    <p style="font-size:11px;color:var(--dim);margin-top:-16px">Competitor pricing sourced from public websites. Prices correct as of March 2026 and subject to change.</p>
+  </div>
+  <div style="overflow-x:auto" class="reveal">
+    <table class="ctable">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th class="ch">AiRingDesk</th>
+          <th>Smith.ai</th>
+          <th>Goodcall</th>
+          <th>Dialzara</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Starting price</td><td class="co">£29/mo</td><td>$95/mo</td><td>$59/mo</td><td>$29/mo</td></tr>
+        <tr><td>AI technology</td><td class="co">Claude AI (Anthropic)</td><td>Proprietary</td><td>GPT-4</td><td>GPT</td></tr>
+        <tr><td>UK phone numbers</td><td class="co"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td><td><span class="cx">✗</span></td></tr>
+        <tr><td>Flat monthly pricing</td><td class="co"><span class="ck">✓</span></td><td><span class="cx">✗ Per minute</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>Call transcripts</td><td class="co"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="cp">Partial</span></td></tr>
+        <tr><td>Email notifications</td><td class="co"><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="cp">Paid add-on</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>Custom AI personality</td><td class="co"><span class="ck">✓</span></td><td><span class="cp">Limited</span></td><td><span class="ck">✓</span></td><td><span class="cp">Limited</span></td></tr>
+        <tr><td>Self-serve signup</td><td class="co"><span class="ck">✓</span></td><td><span class="cx">✗ Sales call</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>14-day free trial</td><td class="co"><span class="ck">✓</span></td><td><span class="cx">✗</span></td><td><span class="ck">✓</span></td><td><span class="cp">7 days</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="reveal">
+    <div class="stag">Pricing</div>
+    <h2>Simple, <em>transparent</em> pricing</h2>
+    <p class="ssub" style="margin:0 auto 32px">No setup fees. No per-minute charges. One flat monthly fee.</p>
+  </div>
+  <!-- Billing toggle -->
+  <div class="pricing-toggle reveal">
+    <span class="toggle-label active" id="monthly-lbl">Monthly</span>
+    <div class="toggle-switch" id="billing-toggle" onclick="toggleBilling()">
+      <div class="toggle-thumb"></div>
+    </div>
+    <span class="toggle-label" id="annual-lbl">Annual</span>
+    <span class="annual-badge">Save 2 months free</span>
+  </div>
+  <div class="plans reveal">
+    <!-- Essential Plan -->
+    <div class="plan">
+      <div class="plan-name">Essential</div>
+      <div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="29" data-annual="24">29</span><sub>/mo</sub></div>
+      <div class="price-note" style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px"></div>
+      <div class="plan-calls">150 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div>
+      <div class="plan-feats">
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>1 UK phone number included</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Divert existing number to AI</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI answering 24/7</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Email notifications</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call transcripts & summaries</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call transfers</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>14-day free trial</div>
+      </div>
+      <button onclick="openModal('essential')" class="pcta pcta-g">Get started →</button>
+    </div>
+
+    <div class="plan">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="49" data-annual="41">49</span><sub>/mo</sub></div>
+      <div class="price-note" style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px"></div>
+      <div class="plan-calls">300 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div>
+      <div class="plan-feats">
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Essential</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Voicemail + recordings</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call dashboard & leads</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Referral programme</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>14-day free trial</div>
+      </div>
+      <button onclick="openModal('starter')" class="pcta pcta-g">Get started →</button>
+    </div>
+
+    <div class="plan pop">
+      <div class="plan-badge">MOST POPULAR</div>
+      <div class="plan-name">Professional</div>
+      <div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="149" data-annual="124">149</span><sub>/mo</sub></div>
+      <div class="price-note" style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px"></div>
+      <div class="plan-calls">1,000 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div>
+      <div class="plan-feats">
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Starter</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Appointment booking</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom AI personality & script</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Google Calendar integration</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Priority support</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>14-day free trial</div>
+      </div>
+      <button onclick="openModal('professional')" class="pcta pcta-p">Start free trial →</button>
+    </div>
+
+    <div class="plan">
+      <div class="plan-name">Business</div>
+      <div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="349" data-annual="291">349</span><sub>/mo</sub></div>
+      <div class="price-note" style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px"></div>
+      <div class="plan-calls">5,000 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div>
+      <div class="plan-feats">
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Professional</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI voice & language selector</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>CRM & webhook integration</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call recording</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>2 phone numbers</div>
+        <div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dedicated account manager</div>
+      </div>
+      <button onclick="openModal('business')" class="pcta pcta-g">Get started →</button>
+    </div>
+  </div>
+  <p style="font-size:13px;color:var(--dim);margin-top:24px;text-align:center">All plans include a 14-day free trial. No credit card required to start.</p>
+  <p style="font-size:12px;color:var(--dim);margin-top:10px;text-align:center">📞 <strong style="color:var(--muted)">Keep your existing number.</strong> Simply divert your current business number to your AiRingDesk number — your customers call the same number as always.</p>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials" style="background:var(--black);padding-top:60px">
+  <div class="reveal">
+    <div class="stag">Testimonials</div>
+    <h2>What our <em>customers</em> say</h2>
+    <p class="ssub">Real businesses. Real results.</p>
+  </div>
+  <div class="test-grid reveal">
+    <div class="testi"><div class="stars">★★★★★</div><blockquote>"We were missing 30–40% of our calls after hours. AiRingDesk completely solved that. It books appointments, answers FAQs, and only transfers the complex ones to us."</blockquote><div class="tauth"><div class="tav" style="background:rgba(0,102,255,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6699ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div><div class="tname">Dr. James Whitfield</div><div class="tbiz">Whitfield Dental, Manchester</div></div></div></div>
+    <div class="testi"><div class="stars">★★★★★</div><blockquote>"I'm a one-person plumbing business. I used to lose jobs because I couldn't answer calls on site. Now Aria answers, takes details, and I call back when free. Paid for itself week one."</blockquote><div class="tauth"><div class="tav" style="background:rgba(0,232,122,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div><div><div class="tname">Dave Thornton</div><div class="tbiz">Thornton Plumbing, Leeds</div></div></div></div>
+    <div class="testi"><div class="stars">★★★★★</div><blockquote>"The call transcripts alone are worth it. I can see every conversation my AI has with customers. It handles difficult callers better than some of my staff."</blockquote><div class="tauth"><div class="tav" style="background:rgba(255,184,0,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><div><div class="tname">Priya Sharma</div><div class="tbiz">Serenity Spa, London</div></div></div></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="background:var(--surface)">
+  <div class="faq-wrap reveal">
+    <div class="stag">FAQ</div>
+    <h2 style="margin-bottom:40px">Common <em>questions</em></h2>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do customers know they're talking to an AI? <span class="faq-arr">+</span></div><div class="faq-a">That's your choice. Most businesses configure Aria to introduce herself as a "virtual receptionist." You can customise exactly what she says in her greeting.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What happens when a call goes over the plan limit? <span class="faq-arr">+</span></div><div class="faq-a">Additional calls will politely let callers know your lines are busy and offer voicemail. You'll be notified to upgrade. We never cut off mid-call.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I keep my existing phone number? <span class="faq-arr">+</span></div><div class="faq-a">Yes — you can forward your existing number to your AiRingDesk number, or port it over. Both options work and we'll guide you through it.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How long does setup take? <span class="faq-arr">+</span></div><div class="faq-a">Most businesses are live within 10 minutes. Sign up, pick your number, write your AI prompt, and you're ready to take calls.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What AI powers AiRingDesk? <span class="faq-arr">+</span></div><div class="faq-a">AiRingDesk is powered by Claude AI, made by Anthropic — the same technology trusted by enterprises worldwide. It's significantly more natural and context-aware than GPT-based competitors.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I cancel anytime? <span class="faq-arr">+</span></div><div class="faq-a">Absolutely. No lock-in, no cancellation fees. Cancel from your billing dashboard and your account stays active until the end of your billing period.</div></div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section id="ctab" style="background:var(--black)">
+  <div class="cta-inner reveal">
+    <div class="stag" style="justify-content:center">Get started today</div>
+    <h2>Stop missing calls.<br><em>Start growing.</em></h2>
+    <p style="font-size:17px;color:var(--muted);margin-bottom:36px">Join businesses across the UK who never miss a customer call. 14-day free trial. Live in 10 minutes.</p>
+    <div class="cta-btns">
+      <button onclick="openModal('professional')" class="btn btn-cyan btn-xl">Start your free trial →</button>
+      <a href="tel:+442046348499" class="btn btn-ghost btn-xl"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72z"/></svg> +44 20 4634 8499</a>
+    </div>
+  </div>
+</section>
+
+<!-- UK COMPANY SECTION -->
+<section id="about" style="background:var(--surface2);padding:60px clamp(20px,5vw,60px)">
+  <div style="max-width:1000px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center" class="reveal">
+    <div>
+      <div class="stag">About AiRingDesk</div>
+      <h2 style="font-size:clamp(28px,4vw,44px)">Built in the <em>UK</em>,<br>for UK businesses</h2>
+      <p style="font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:24px">We built AiRingDesk because we saw how many small UK businesses were losing customers simply because they couldn't answer the phone. A plumber on a job. A dentist with patients. An estate agent showing a property. The call goes to voicemail — and the customer calls a competitor.</p>
+      <p style="font-size:15px;color:var(--muted);line-height:1.8">AiRingDesk solves this with AI that understands British accents, UK business culture, and the way real customers speak — not a generic American chatbot, but a proper AI receptionist built for the UK market.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="padding:20px;border-radius:14px;border:1px solid var(--border);background:var(--black)">
+        <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px;margin-bottom:4px">100%</div>
+        <div style="font-size:12px;color:var(--muted)">UK-based support team</div>
+      </div>
+      <div style="padding:20px;border-radius:14px;border:1px solid var(--border);background:var(--black)">
+        <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px;margin-bottom:4px">GDPR</div>
+        <div style="font-size:12px;color:var(--muted)">Fully compliant & certified</div>
+      </div>
+      <div style="padding:20px;border-radius:14px;border:1px solid var(--border);background:var(--black)">
+        <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px;margin-bottom:4px">£GBP</div>
+        <div style="font-size:12px;color:var(--muted)">Priced in pounds, not dollars</div>
+      </div>
+      <div style="padding:20px;border-radius:14px;border:1px solid var(--border);background:var(--black)">
+        <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px;margin-bottom:4px">24/7</div>
+        <div style="font-size:12px;color:var(--muted)">AI coverage, UK hours support</div>
+      </div>
+    </div>
+  </div>
+  <!-- Partner logos row -->
+  <div style="max-width:1000px;margin:40px auto 0;padding-top:32px;border-top:1px solid var(--border)" class="reveal">
+    <div style="font-size:11px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;text-align:center;margin-bottom:20px">Powered by world-class infrastructure</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:40px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:8px;opacity:.5;filter:grayscale(1);transition:all .2s" onmouseover="this.style.opacity='1';this.style.filter='none'" onmouseout="this.style.opacity='.5';this.style.filter='grayscale(1)'">
+        <div style="width:32px;height:32px;border-radius:8px;background:#e01e5a;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/></svg></div>
+        <span style="font-size:14px;font-weight:700;color:var(--text)">Anthropic Claude</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;opacity:.5;filter:grayscale(1);transition:all .2s" onmouseover="this.style.opacity='1';this.style.filter='none'" onmouseout="this.style.opacity='.5';this.style.filter='grayscale(1)'">
+        <div style="width:32px;height:32px;border-radius:8px;background:#f22f46;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72z"/></svg></div>
+        <span style="font-size:14px;font-weight:700;color:var(--text)">Twilio</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;opacity:.5;filter:grayscale(1);transition:all .2s" onmouseover="this.style.opacity='1';this.style.filter='none'" onmouseout="this.style.opacity='.5';this.style.filter='grayscale(1)'">
+        <div style="width:32px;height:32px;border-radius:8px;background:#635bff;display:flex;align-items:center;justify-content:center;font-size:16px">💳</div>
+        <span style="font-size:14px;font-weight:700;color:var(--text)">Stripe</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;opacity:.5;filter:grayscale(1);transition:all .2s" onmouseover="this.style.opacity='1';this.style.filter='none'" onmouseout="this.style.opacity='.5';this.style.filter='grayscale(1)'">
+        <div style="width:32px;height:32px;border-radius:8px;background:#4285f4;display:flex;align-items:center;justify-content:center"><svg width="18" height="18" viewBox="0 0 24 24"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg></div>
+        <span style="font-size:14px;font-weight:700;color:var(--text)">Google Cloud</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+
+<!-- LEAD CAPTURE SECTION -->
+<section id="contact" style="background:var(--surface);padding:80px clamp(20px,5vw,60px)">
+  <div style="max-width:1100px;margin:0 auto">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center" class="contact-grid">
+
+      <!-- Left: Copy -->
+      <div class="reveal">
+        <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:100px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);margin-bottom:24px">
+          📞 Get in touch
+        </div>
+        <h2 style="font-size:clamp(28px,4vw,42px);font-weight:800;line-height:1.15;margin-bottom:16px">Ready to never miss<br><em style="font-family:'Instrument Serif',serif;color:var(--cyan);font-style:italic">a call again?</em></h2>
+        <p style="font-size:16px;color:var(--muted);line-height:1.7;margin-bottom:32px">Leave your details and we'll get your AI receptionist set up within 10 minutes. No tech skills needed.</p>
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">✅</div>
+            <span style="font-size:14px;color:var(--muted)">14-day free trial — no card required</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">⚡</div>
+            <span style="font-size:14px;color:var(--muted)">Live in under 10 minutes</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">🇬🇧</div>
+            <span style="font-size:14px;color:var(--muted)">UK-based support team</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">❌</div>
+            <span style="font-size:14px;color:var(--muted)">Cancel anytime, no long contracts</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Form -->
+      <div class="reveal" style="background:var(--surface2);border:1px solid var(--border2);border-radius:20px;padding:36px">
+        <h3 style="font-size:20px;font-weight:700;margin-bottom:6px">Get a free consultation</h3>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:24px">We'll call you back within 1 business hour</p>
+
+        <div id="leadFormWrap">
+          <div style="display:flex;flex-direction:column;gap:14px">
+            <div>
+              <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Business Name *</label>
+              <input id="leadBiz" type="text" placeholder="e.g. Thornton Plumbing" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;transition:border .2s;font-family:inherit" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border2)'">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div>
+                <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">First Name *</label>
+                <input id="leadFirst" type="text" placeholder="John" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;font-family:inherit" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border2)'">
+              </div>
+              <div>
+                <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Last Name</label>
+                <input id="leadLast" type="text" placeholder="Smith" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;font-family:inherit" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border2)'">
+              </div>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Email Address *</label>
+              <input id="leadEmail" type="email" placeholder="john@yourbusiness.com" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;font-family:inherit" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border2)'">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Phone Number *</label>
+              <input id="leadPhone" type="tel" placeholder="+44 7700 900000" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;font-family:inherit" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border2)'">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Industry</label>
+              <select id="leadIndustry" style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;font-family:inherit;appearance:none">
+                <option value="">Select your industry...</option>
+                <option>Plumbing & Heating</option>
+                <option>Electrical</option>
+                <option>Dental Practice</option>
+                <option>Medical / GP</option>
+                <option>Estate Agent</option>
+                <option>Solicitor / Legal</option>
+                <option>Security / CCTV</option>
+                <option>Accountancy</option>
+                <option>Construction</option>
+                <option>Retail</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px">Message (optional)</label>
+              <textarea id="leadMessage" rows="3" placeholder="Tell us about your business and how many calls you receive..." style="width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text);padding:12px 16px;border-radius:10px;font-size:14px;outline:none;font-family:inherit;resize:vertical" onfocus="this.style.borderColor='var(--cyan)'" onblur="this.style.borderColor='var(--border2)'"></textarea>
+            </div>
+            <div id="leadError" style="display:none;background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);border-radius:8px;padding:10px;font-size:13px;color:#ff4466"></div>
+            <button onclick="submitLead()" id="leadBtn" class="btn btn-cyan" style="width:100%;padding:14px;font-size:15px;font-weight:700;border-radius:10px;border:none;cursor:pointer">
+              Get my free consultation →
+            </button>
+            <p style="font-size:11px;color:var(--dim);text-align:center">No spam. We'll only contact you about AiRingDesk. <a href="/privacy" style="color:var(--muted)">Privacy Policy</a></p>
+          </div>
+        </div>
+
+        <div id="leadSuccess" style="display:none;text-align:center;padding:20px 0">
+          <div style="font-size:48px;margin-bottom:16px">🎉</div>
+          <h3 style="font-size:20px;font-weight:700;margin-bottom:8px">Thank you!</h3>
+          <p style="color:var(--muted);font-size:14px;line-height:1.7">We've received your enquiry and will call you back within 1 business hour. Check your email for confirmation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div style="max-width:1200px;margin:0 auto;width:100%">
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;padding-bottom:40px;border-bottom:1px solid var(--border)">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        <div style="width:32px;height:32px;border-radius:8px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
+        </div>
+        <div>
+          <div style="font-size:20px;font-weight:800;letter-spacing:-.5px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>
+          <div style="font-size:9px;color:#5a7a9a;letter-spacing:.06em;font-weight:500;margin-top:1px">Your 24/7 AI Call Desk</div>
+        </div>
+      </div>
+        <p style="font-size:13px;color:var(--muted);line-height:1.7;max-width:280px;margin-bottom:16px">AI receptionist platform for UK businesses. Never miss a customer call again.</p>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <div style="font-size:12px;color:var(--dim);display:flex;align-items:center;gap:6px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2a3f55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg> Registered in England & Wales
+          </div>
+          <div style="font-size:12px;color:var(--dim);display:flex;align-items:center;gap:6px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2a3f55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> GDPR Compliant · ICO Registered
+          </div>
+          <div style="font-size:12px;color:var(--dim);display:flex;align-items:center;gap:6px">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#2a3f55" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72z"/></svg> <a href="tel:+442046348499" style="color:var(--dim);text-decoration:none">+44 20 4634 8499</a>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px">Product</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <a href="#how" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">How it works</a>
+          <a href="#pricing" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">Pricing</a>
+          <a href="#compare" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">Compare</a>
+          <a href="/dashboard" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">Dashboard</a>
+          <a href="/get-number" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">Get a number</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px">Industries</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <a href="#industries" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">Dental Clinics</a>
+          <a href="#industries" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">Estate Agents</a>
+          <a href="#industries" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">Tradespeople</a>
+          <a href="#industries" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">Solicitors</a>
+          <a href="#industries" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">Medical Clinics</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px">Company</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <a href="#about" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">About us</a>
+          <a href="mailto:hello@airingdesk.com" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">Contact</a>
+          <a href="mailto:support@airingdesk.com" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">Support</a>
+          <a href="/privacy" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">Privacy Policy</a>
+          <a href="/terms" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">Terms of Service</a>
+          <a href="/intellectual-property" style="font-size:13px;color:var(--dim);text-decoration:none;transition:color .2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--dim)'">IP & Copyright</a>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div style="font-size:12px;color:var(--dim)">© 2026 AiRingDesk, a trading name of SatFocus Ltd. Registered in England & Wales. All rights reserved.</div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;border:1px solid var(--border);font-size:11px;color:var(--dim)">
+          <div style="width:5px;height:5px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green)"></div>
+          All systems operational
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)">
+          <svg width="16" height="11" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" rx="2" fill="#012169"/><path d="M0 0L60 40M60 0L0 40" stroke="white" stroke-width="8"/><path d="M0 0L60 40M60 0L0 40" stroke="#C8102E" stroke-width="4.5"/><path d="M30 0V40M0 20H60" stroke="white" stroke-width="13"/><path d="M30 0V40M0 20H60" stroke="#C8102E" stroke-width="8"/></svg>
+          United Kingdom
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Auto-open signup modal if ?signup=true in URL and store referral code
+window.addEventListener('DOMContentLoaded', function() {
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  const plan = params.get('plan') || 'starter';
+  if (ref) sessionStorage.setItem('referral_code', ref);
+  if (params.get('signup') === 'true') {
+    setTimeout(() => openModal(plan), 500);
+  }
+});
+
+function toggleMenu(){
+  const h=document.getElementById('hamburger');
+  const m=document.getElementById('mobileMenu');
+  h.classList.toggle('open');
+  m.classList.toggle('open');
+  document.body.style.overflow=m.classList.contains('open')?'hidden':'';
+}
+function closeMenu(){
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('mobileMenu').classList.remove('open');
+  document.body.style.overflow='';
+}
+// Close menu when clicking outside
+document.addEventListener('click',function(e){
+  const menu=document.getElementById('mobileMenu');
+  const hamburger=document.getElementById('hamburger');
+  if(menu.classList.contains('open') && !menu.contains(e.target) && !hamburger.contains(e.target)){
+    closeMenu();
+  }
+});
+
+function toggleFaq(el){const i=el.parentElement;document.querySelectorAll('.faq-item.open').forEach(x=>{if(x!==i)x.classList.remove('open')});i.classList.toggle('open')}
+function syncROI(v){document.getElementById('rCalls').value=v;calcROI()}
+function calcROI(){
+  const c=parseInt(document.getElementById('rCalls').value)||50;
+  const v=parseInt(document.getElementById('rVal').value)||300;
+  document.getElementById('rSlider').value=Math.min(c,500);
+  const m=Math.round(c*.62),l=m*v,s=Math.round(l*.7);
+  const plan=c<=200?49:c<=1000?149:349;
+  document.getElementById('rMissed').textContent='£'+l.toLocaleString();
+  document.getElementById('rSaved').textContent='£'+s.toLocaleString();
+  document.getElementById('rVs').textContent=`AiRingDesk costs £${plan}/mo — that's a ${Math.round(s/plan)}x return`;
+}
+calcROI();
+
+// Billing toggle
+let isAnnual=false;
+function toggleBilling(){
+  isAnnual=!isAnnual;
+  const tog=document.getElementById('billing-toggle');
+  const ml=document.getElementById('monthly-lbl');
+  const al=document.getElementById('annual-lbl');
+  tog.classList.toggle('annual',isAnnual);
+  ml.classList.toggle('active',!isAnnual);
+  al.classList.toggle('active',isAnnual);
+  document.querySelectorAll('.price-val').forEach(el=>{
+    const monthly=parseInt(el.dataset.monthly);
+    const annual=parseInt(el.dataset.annual);
+    el.textContent=isAnnual?annual:monthly;
+  });
+  document.querySelectorAll('.price-note').forEach(el=>{
+    el.textContent=isAnnual?'Billed annually — 2 months free':'Billed monthly';
+    el.style.color=isAnnual?'var(--green)':'var(--dim)';
+  });
+}
+
+// Cookie consent
+function dismissCookie(accepted){
+  document.getElementById('cookie').classList.add('hidden');
+  localStorage.setItem('cookieConsent',accepted?'accepted':'declined');
+}
+if(localStorage.getItem('cookieConsent')){
+  document.getElementById('cookie').classList.add('hidden');
+}
+
+// Scroll reveal
+
+async function submitLead() {
+  var biz = document.getElementById('leadBiz').value.trim();
+  var first = document.getElementById('leadFirst').value.trim();
+  var email = document.getElementById('leadEmail').value.trim();
+  var phone = document.getElementById('leadPhone').value.trim();
+  var last = document.getElementById('leadLast').value.trim();
+  var industry = document.getElementById('leadIndustry').value;
+  var message = document.getElementById('leadMessage').value.trim();
+  var errEl = document.getElementById('leadError');
+  var btn = document.getElementById('leadBtn');
+
+  errEl.style.display = 'none';
+  if (!biz || !first || !email || !phone) {
+    errEl.textContent = 'Please fill in all required fields.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if (!email.includes('@')) {
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  try {
+    var resp = await fetch('/api/leads/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ business_name: biz, first_name: first, last_name: last, email, phone, industry, message })
+    });
+    var data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || 'Failed');
+    document.getElementById('leadFormWrap').style.display = 'none';
+    document.getElementById('leadSuccess').style.display = 'block';
+  } catch(e) {
+    errEl.textContent = e.message || 'Something went wrong. Please try again.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Get my free consultation →';
+  }
+}
+
+const obs=new IntersectionObserver(e=>{e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('visible')})},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+const PLANS={essential:'Essential — £29/month',starter:'Starter — £49/month',professional:'Professional — £149/month',business:'Business — £349/month'};
+const PSUM={essential:'Essential — £29/mo',starter:'Starter — £49/mo',professional:'Professional — £149/mo',business:'Business — £349/mo'};
+let selPlan='starter',selNum=null,tok=null,curStep=1;
+
+function openModal(p){selPlan=p;selNum=null;tok=null;curStep=1;document.getElementById('mplanBadge').textContent=PLANS[p]||PLANS.starter;document.getElementById('sPlan').textContent=PSUM[p]||PSUM.starter;goStep(1);document.getElementById('signupModal').classList.add('active');document.body.style.overflow='hidden';setTimeout(()=>document.getElementById('sBiz').focus(),100)}
+function closeModal(){document.getElementById('signupModal').classList.remove('active');document.body.style.overflow=''}
+document.getElementById('signupModal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
+function goStep(n){curStep=n;document.querySelectorAll('.spanel').forEach(p=>p.classList.remove('active'));document.getElementById('step'+n).classList.add('active');for(let i=1;i<=3;i++){const d=document.getElementById('sd'+i);if(i<n){d.className='sdot done';d.textContent='✓'}else if(i===n){d.className='sdot active';d.textContent=i}else{d.className='sdot inactive';d.textContent=i}}for(let i=1;i<=2;i++){document.getElementById('sl'+i).className='sline'+(i<n?' done':'')}}
+
+async function goStep2(){
+  const biz=document.getElementById('sBiz').value.trim();
+  const email=document.getElementById('sEmail').value.trim();
+  const pass=document.getElementById('sPass').value;
+  const btn=document.getElementById('s1btn'),bt=document.getElementById('s1txt');
+  document.getElementById('e1').classList.remove('show');
+  const sFirst=document.getElementById('sFirst').value.trim();
+  const sLast=document.getElementById('sLast').value.trim();
+  const sPhone=document.getElementById('sPhone').value.trim();
+  if(!sFirst)return showE(1,'Please enter your first name.');
+  if(!sLast)return showE(1,'Please enter your last name.');
+  if(!biz)return showE(1,'Please enter your business name.');
+  if(!sPhone)return showE(1,'Please enter your contact phone.');
+  if(!email||!email.includes('@'))return showE(1,'Please enter a valid email.');
+  const passConfirm=document.getElementById('sPassConfirm').value;
+  if(pass!==passConfirm)return showE(1,'Passwords do not match.');
+  if(pass.length<8)return showE(1,'Password must be at least 8 characters.');
+  btn.disabled=true;bt.innerHTML='<div class="spinner"></div> Creating account...';
+  try{
+    const refCode = sessionStorage.getItem('referral_code') || new URLSearchParams(window.location.search).get('ref') || '';
+    const r=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({business_name:biz,email,password:pass,referral_code:refCode,first_name:sFirst,last_name:sLast,contact_phone:sPhone,address_line1:document.getElementById('sAddr1').value.trim(),address_line2:document.getElementById('sAddr2').value.trim(),city:document.getElementById('sCity').value.trim(),postcode:document.getElementById('sPostcode').value.trim(),country:document.getElementById('sCountry').value,region:document.getElementById('sRegion').value.trim()})});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||'Registration failed.');
+    if(d.message){
+      document.querySelector('.modal').innerHTML='<div style="padding:40px;text-align:center"><div style="font-size:48px;margin-bottom:16px">✉️</div><h3 style="font-size:22px;font-weight:700;margin-bottom:12px;color:#f0f4f8">Check your email</h3><p style="color:#8896a8;font-size:14px;line-height:1.6;margin-bottom:24px">We sent a verification link to <strong style="color:#00d4ff">'+email+'</strong>.<br>Click the link to activate your account.</p><p style="color:#5a7a9a;font-size:12px">Once verified, you can log in and continue setup.</p><button onclick="closeModal()" style="margin-top:24px;background:#00d4ff;color:#020408;border:none;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:700;cursor:pointer">Got it →</button></div>';
+      return;
+    }
+    tok=d.token;document.getElementById('sBizSum').textContent=biz;goStep(2);loadNums();
+  }catch(e){showE(1,e.message)}
+  finally{btn.disabled=false;bt.textContent='Continue — pick your number →'}
+}
+
+async function loadNums(){
+  const c=document.getElementById('nCountry').value,g=document.getElementById('numGrid');
+  selNum=null;g.innerHTML='<div class="nload"><div class="spinner" style="margin:0 auto 8px;border-top-color:var(--cyan)"></div>Loading...</div>';
+  try{
+    const r=await fetch('/api/numbers/search?country='+c,{headers:{'Authorization':'Bearer '+tok}});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error);
+    if(!d.numbers||d.numbers.length===0){g.innerHTML='<div class="nload">No numbers available.</div>';return}
+    g.innerHTML=d.numbers.map(n=>`<div class="ncard" onclick="selNumber('${n.phoneNumber}','${n.friendlyName}',this)"><div class="nnum">${n.friendlyName}</div><div class="nloc">${n.locality||n.region||'Local'}</div></div>`).join('');
+  }catch(e){g.innerHTML=`<div class="nload" style="color:var(--red)">${e.message}</div>`}
+}
+
+function selNumber(num,fn,el){document.querySelectorAll('.ncard').forEach(c=>c.classList.remove('sel'));el.classList.add('sel');selNum=num;document.getElementById('sNum').textContent=num;document.getElementById('e2').classList.remove('show')}
+function goStep3(){if(!selNum)return showE(2,'Please select a phone number.');goStep(3)}
+
+async function handleSignup(){
+  const btn=document.getElementById('s3btn'),bt=document.getElementById('s3txt');
+  btn.disabled=true;bt.innerHTML='<div class="spinner"></div> Redirecting...';
+  try{
+    const r=await fetch('/api/billing/checkout',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({plan:selPlan,phone_number:selNum})});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.error||'Checkout failed.');
+    window.location.href=d.url;
+  }catch(e){showE(3,e.message);btn.disabled=false;bt.textContent='Pay with Stripe →'}
+}
+
+function showE(s,m){const el=document.getElementById('e'+s);el.textContent=m;el.classList.add('show')}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('signupModal').classList.contains('active')){if(curStep===1)goStep2();else if(curStep===2)goStep3();else if(curStep===3)handleSignup()}});
+</script>
+</body>
+</html>
