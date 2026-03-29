@@ -514,7 +514,7 @@ app.post("/api/auth/login", async (req, res) => {
 
 // Get client profile + stats
 app.get("/api/client/profile", authRequired, (req, res) => {
-  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, ai_voice, ai_voice_language, departments, calls_this_month, call_limit, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number, show_demo_banner, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, voicemail_enabled, call_recording, billing_cycle_day, billing_period_start, signup_completed, cancel_at_period_end FROM clients WHERE id = ?").get(req.client.id);
+  const client = db.prepare("SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, ai_voice, ai_voice_language, departments, calls_this_month, call_limit, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number, show_demo_banner, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, voicemail_enabled, call_recording, billing_cycle_day, billing_period_start, signup_completed, cancel_at_period_end, address_type FROM clients WHERE id = ?").get(req.client.id);
   if (!client) return res.status(404).json({ error: "Not found" });
   client.departments = JSON.parse(client.departments || "{}");
   res.json(client);
@@ -522,9 +522,9 @@ app.get("/api/client/profile", authRequired, (req, res) => {
 
 // Update account details
 app.put("/api/client/account", authRequired, (req, res) => {
-  const { first_name, last_name, business_name, contact_phone, address_line1, address_line2, city, postcode, country, region } = req.body;
-  db.prepare("UPDATE clients SET first_name=?, last_name=?, business_name=?, contact_phone=?, address_line1=?, address_line2=?, city=?, postcode=?, country=?, region=? WHERE id=?")
-    .run(first_name||'', last_name||'', business_name||'', contact_phone||'', address_line1||'', address_line2||'', city||'', postcode||'', country||'', region||'', req.client.id);
+  const { first_name, last_name, business_name, contact_phone, address_line1, address_line2, city, postcode, country, region, address_type } = req.body;
+  db.prepare("UPDATE clients SET first_name=?, last_name=?, business_name=?, contact_phone=?, address_line1=?, address_line2=?, city=?, postcode=?, country=?, region=?, address_type=? WHERE id=?")
+    .run(first_name||'', last_name||'', business_name||'', contact_phone||'', address_line1||'', address_line2||'', city||'', postcode||'', country||'', region||'', address_type||'business', req.client.id);
   res.json({ success: true });
 });
 
@@ -5094,7 +5094,8 @@ app.post('/api/numbers/provision', authRequired, async (req, res) => {
           region: client.county || client.region || '',
           postalCode: client.postcode,
           isoCountry: 'GB',
-          friendlyName: client.business_name + ' — AiRingDesk'
+          friendlyName: client.business_name + ' — AiRingDesk',
+          autoCorrectAddress: true
         });
         addressSid = twilioAddress.sid;
         console.log('Created Twilio address:', addressSid, 'for', client.business_name);
@@ -5140,7 +5141,8 @@ app.post('/api/numbers/provision', authRequired, async (req, res) => {
     const assignIp = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || '').split(',')[0].trim();
     const assignNow = Math.floor(Date.now() / 1000);
     db.prepare('INSERT INTO number_assignments (client_id, business_name, email, phone_number, assigned_at, assigned_ip, status, address_line1, city, postcode, country, twilio_bundle_sid) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)')
-      .run(client.id, client.business_name, client.email, phoneNumber, assignNow, assignIp, 'active',
+      .run(client.id, client.business_name, client.email, phoneNumber, assignNow, assignIp,
+        (client.address_type || 'business') === 'residential' ? 'active_residential' : 'active',
         client.address_line1||'', client.city||'', client.postcode||'', client.country||'GB', bundleSid||'');
 
     console.log('Provisioned ' + phoneNumber + ' for ' + client.business_name);
@@ -5180,7 +5182,8 @@ async function provisionNumberAfterPayment(clientId, phoneNumber) {
           region: client.county || client.region || '',
           postalCode: client.postcode,
           isoCountry: 'GB',
-          friendlyName: client.business_name + ' — AiRingDesk'
+          friendlyName: client.business_name + ' — AiRingDesk',
+          autoCorrectAddress: true
         });
         addressSid = twilioAddress.sid;
         console.log('Created Twilio address:', addressSid);
