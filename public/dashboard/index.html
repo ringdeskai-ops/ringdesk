@@ -744,11 +744,20 @@ select option{background-color:#0c1520;color:#f0f6ff}
       </div>
       <div class="table-card">
         <div class="table-header">
-          <div class="table-actions">
-            <button class="filter-btn active" onclick="filterCalls('all',this)">All</button>
-            <button class="filter-btn" onclick="filterCalls('completed',this)">Completed</button>
-            <button class="filter-btn" onclick="filterCalls('transferred',this)">Transferred</button>
-            <button class="filter-btn" onclick="filterCalls('voicemail',this)">Voicemail</button>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <div class="table-actions">
+              <button class="filter-btn active" onclick="filterCalls('all',this)">All</button>
+              <button class="filter-btn" onclick="filterCalls('completed',this)">Completed</button>
+              <button class="filter-btn" onclick="filterCalls('transferred',this)">Transferred</button>
+              <button class="filter-btn" onclick="filterCalls('voicemail',this)">Voicemail</button>
+              <button class="filter-btn" onclick="filterCalls('missed',this)">Missed</button>
+            </div>
+            <div style="display:flex;gap:6px;margin-left:auto;align-items:center">
+              <input type="date" id="callDateFrom" onchange="filterCallsByDate()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:5px 10px;border-radius:6px;font-size:12px;font-family:inherit;outline:none" placeholder="From"/>
+              <span style="font-size:11px;color:var(--muted)">to</span>
+              <input type="date" id="callDateTo" onchange="filterCallsByDate()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:5px 10px;border-radius:6px;font-size:12px;font-family:inherit;outline:none" placeholder="To"/>
+              <button onclick="clearCallDateFilter()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit">Clear</button>
+            </div>
           </div>
         </div>
         <div style="overflow-x:auto">
@@ -3182,8 +3191,17 @@ async function loadCalls() {
 }
 
 function renderCalls() {
-  const filtered = currentCallFilter === 'all' ? allCalls : allCalls.filter(c => c.status === currentCallFilter);
-  document.getElementById('callsSubTitle').textContent = `${filtered.length} calls`;
+  var filtered = allCalls;
+  // Status filter
+  if (currentCallFilter === 'missed') {
+    filtered = allCalls.filter(function(c){ return c.duration <= 10 && c.status === 'completed'; });
+  } else if (currentCallFilter !== 'all') {
+    filtered = allCalls.filter(function(c){ return c.status === currentCallFilter; });
+  }
+  // Date filter
+  if (currentCallDateFrom) filtered = filtered.filter(function(c){ return c.started_at >= currentCallDateFrom; });
+  if (currentCallDateTo) filtered = filtered.filter(function(c){ return c.started_at <= currentCallDateTo; });
+  document.getElementById('callsSubTitle').textContent = filtered.length + ' calls';
   const tbody = document.getElementById('callsTableBody');
   if (filtered.length === 0) {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">No calls found</td></tr>';
@@ -3362,10 +3380,29 @@ function exportCalls() {
 }
 
 // ── FILTER CALLS ─────────────────────────────────────────────────────
+var currentCallDateFrom = null;
+var currentCallDateTo = null;
+
 function filterCalls(filter, btn) {
   currentCallFilter = filter;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
+  if (btn) btn.classList.add('active');
+  renderCalls();
+}
+
+function filterCallsByDate() {
+  var from = document.getElementById('callDateFrom').value;
+  var to = document.getElementById('callDateTo').value;
+  currentCallDateFrom = from ? new Date(from).getTime() / 1000 : null;
+  currentCallDateTo = to ? new Date(to).getTime() / 1000 + 86399 : null;
+  renderCalls();
+}
+
+function clearCallDateFilter() {
+  document.getElementById('callDateFrom').value = '';
+  document.getElementById('callDateTo').value = '';
+  currentCallDateFrom = null;
+  currentCallDateTo = null;
   renderCalls();
 }
 
