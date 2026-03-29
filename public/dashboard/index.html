@@ -334,6 +334,12 @@ select option{background-color:#0c1520;color:#f0f6ff}
       <div class="form-group"><label class="form-label">Email address *</label><input class="form-input" type="email" id="signupEmail" placeholder="you@yourbusiness.com" autocomplete="email"/></div>
       <div class="form-group"><label class="form-label">Password *</label><input class="form-input" type="password" id="signupPass" placeholder="Min. 8 characters" autocomplete="new-password"/></div>
       <div class="form-group"><label class="form-label">Country *</label><select class="form-input" id="signupCountry" style="cursor:pointer;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-color:#080e18;background-image:url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"%235a7a9a\" stroke-width=\"2\"><polyline points=\"6 9 12 15 18 9\"/></svg>');background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;color:#f0f6ff;border:1px solid rgba(255,255,255,0.10);"><option value="GB">🇬🇧 United Kingdom</option><option value="IE">🇮🇪 Ireland</option><option value="US">🇺🇸 United States</option><option value="AU">🇦🇺 Australia</option><option value="CA">🇨🇦 Canada</option><option value="DE">🇩🇪 Germany</option><option value="FR">🇫🇷 France</option><option value="NL">🇳🇱 Netherlands</option><option value="ES">🇪🇸 Spain</option><option value="IT">🇮🇹 Italy</option><option value="CH">🇨🇭 Switzerland</option><option value="NZ">🇳🇿 New Zealand</option><option value="SG">🇸🇬 Singapore</option><option value="AE">🇦🇪 UAE</option><option value="IN">🇮🇳 India</option><option value="ZA">🇿🇦 South Africa</option></select></div>
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;padding:12px 14px;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.15);border-radius:8px">
+        <input type="checkbox" id="tosCheckbox" style="margin-top:2px;accent-color:#00d4ff;flex-shrink:0;width:16px;height:16px;cursor:pointer"/>
+        <label for="tosCheckbox" style="font-size:12px;color:var(--muted);line-height:1.6;cursor:pointer">
+          I agree to the <a href="/terms" target="_blank" style="color:var(--cyan)">Terms of Service</a> and <a href="/privacy" target="_blank" style="color:var(--cyan)">Privacy Policy</a>. I confirm I am authorised to act on behalf of my business and will use this service lawfully.
+        </label>
+      </div>
       <button class="auth-btn" id="signupBtn" onclick="doSignup()">Create account →</button>
       <div class="auth-error" id="signupError"></div>
       <div style="display:flex;align-items:center;gap:10px;margin:16px 0">
@@ -2920,6 +2926,8 @@ async function doSignup() {
   if (!phone) return showAuthError('signupError', 'Please enter your contact phone number.');
   if (!email || !email.includes('@')) return showAuthError('signupError', 'Please enter a valid email address.');
   if (pass.length < 8) return showAuthError('signupError', 'Password must be at least 8 characters.');
+  const tosChecked = document.getElementById('tosCheckbox');
+  if (tosChecked && !tosChecked.checked) return showAuthError('signupError', 'Please accept the Terms of Service to continue.');
   btn.disabled = true; btn.textContent = 'Creating account...';
   errEl.classList.remove('show');
   try {
@@ -2930,6 +2938,15 @@ async function doSignup() {
     });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Registration failed');
+    // Log ToS acceptance if we have a token
+    if (d.token) {
+      try {
+        await fetch('/api/auth/accept-tos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + d.token }
+        });
+      } catch(e) {}
+    }
     // Show email verification message — hide form fields, show success panel
     document.getElementById('signupFirst').closest('.form-group') && null;
     const form = document.getElementById('signupForm');
