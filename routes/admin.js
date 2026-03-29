@@ -48,7 +48,7 @@ module.exports = function(db, sendBrevoEmail) {
   });
 
   router.get('/customers', adminRequired, (req, res) => {
-    const customers = db.prepare('SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, ai_voice, ai_voice_language, departments, calls_this_month, call_limit, email_notifications, stripe_customer_id, stripe_subscription_id, subscription_ends_at, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number, referral_programme_enabled, voicemail_enabled, call_recording, show_demo_banner, feature_email, feature_appointments, feature_crm, feature_voice_selector, feature_ai_settings FROM clients ORDER BY created_at ASC').all();
+    const customers = db.prepare('SELECT id, business_name, email, phone_number, plan, plan_status, ai_name, ai_prompt, ai_voice, ai_voice_language, departments, calls_this_month, call_limit, email_notifications, stripe_customer_id, stripe_subscription_id, subscription_ends_at, created_at, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, customer_number, referral_programme_enabled, voicemail_enabled, call_recording, show_demo_banner, feature_email, feature_appointments, feature_crm, feature_voice_selector, feature_ai_settings, sms_missed_call, sms_voicemail, sms_after_call, sms_appointment, sms_from_number, suspended, address_type FROM clients ORDER BY created_at ASC').all();
     customers.forEach((c, i) => c.customer_number = 'RD-' + String(i+1).padStart(3,'0'));
     res.json({ customers });
   });
