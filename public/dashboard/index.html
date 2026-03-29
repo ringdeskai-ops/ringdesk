@@ -394,6 +394,10 @@ select option{background-color:#0c1520;color:#f0f6ff}
         Call Logs
         <span class="nav-badge" id="newCallsBadge" style="display:none">0</span>
       </button>
+      <button class="nav-btn" id="navSmsLogs" onclick="showPage('sms-logs')">
+        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        SMS Logs
+      </button>
       <button class="nav-btn" onclick="showPage('leads')">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         Leads
@@ -644,6 +648,26 @@ select option{background-color:#0c1520;color:#f0f6ff}
               <div style="font-size:11px;color:var(--dim)" id="usageDays"></div>
             </div>
           </div>
+          <!-- SMS Usage Ring -->
+          <div id="smsUsageRow" style="display:none;align-items:center;gap:20px;padding-top:14px;border-top:1px solid var(--border);margin-top:14px">
+            <div style="position:relative;width:80px;height:80px;flex-shrink:0">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+                <circle id="smsRing" cx="40" cy="40" r="32" fill="none" stroke="#a78bfa" stroke-width="8"
+                  stroke-linecap="round" stroke-dasharray="201" stroke-dashoffset="201"
+                  transform="rotate(-90 40 40)" style="transition:stroke-dashoffset .8s ease"/>
+              </svg>
+              <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+                <div style="font-size:14px;font-weight:800;color:var(--text)" id="smsPct">0%</div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="font-size:13px;font-weight:700;color:var(--text)">SMS Usage</div>
+              <div style="font-size:12px;color:var(--muted)">Sent <span id="smsSentThis" style="color:var(--text);font-weight:700">0</span> this month</div>
+              <div style="font-size:12px;color:var(--muted)">Received <span id="smsReceivedThis" style="color:var(--text);font-weight:700">0</span> this month</div>
+              <div style="font-size:11px;color:#a78bfa;font-weight:600;cursor:pointer" onclick="showPage('sms-logs')">View SMS Logs →</div>
+            </div>
+          </div>
         </div>
         <!-- Bar chart -->
         <div style="margin-top:8px">
@@ -775,6 +799,82 @@ select option{background-color:#0c1520;color:#f0f6ff}
             </thead>
             <tbody id="callsTableBody">
               <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Loading calls...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- SMS LOGS PAGE -->
+    <div class="page" id="page-sms-logs">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">SMS <em>Logs</em></h1>
+          <p class="page-sub" id="smsLogsSubTitle">All SMS messages sent and received</p>
+        </div>
+        <button onclick="loadSmsLogs()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">↻ Refresh</button>
+      </div>
+
+      <!-- Stats Row -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--cyan)" id="smsTotalCount">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Total</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--green)" id="smsSentCount">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Sent</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--cyan)" id="smsReceivedCount">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Received</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--amber)" id="smsMonthCount">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">This Month</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--red)" id="smsFailedCount">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Failed</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="table-card">
+        <div class="table-header">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%">
+            <div class="table-actions">
+              <button class="filter-btn active" onclick="filterSms('all',this)">All</button>
+              <button class="filter-btn" onclick="filterSms('outbound',this)">Sent</button>
+              <button class="filter-btn" onclick="filterSms('inbound',this)">Received</button>
+              <button class="filter-btn" onclick="filterSms('failed',this)">Failed</button>
+              <button class="filter-btn" onclick="filterSms('missed_call',this)">Missed Call</button>
+              <button class="filter-btn" onclick="filterSms('voicemail',this)">Voicemail</button>
+              <button class="filter-btn" onclick="filterSms('after_call',this)">After Call</button>
+            </div>
+            <div style="display:flex;gap:6px;margin-left:auto;align-items:center">
+              <input type="date" id="smsDateFrom" onchange="filterSmsByDate()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:5px 10px;border-radius:6px;font-size:12px;font-family:inherit;outline:none"/>
+              <span style="font-size:11px;color:var(--muted)">to</span>
+              <input type="date" id="smsDateTo" onchange="filterSmsByDate()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:5px 10px;border-radius:6px;font-size:12px;font-family:inherit;outline:none"/>
+              <button onclick="clearSmsDateFilter()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--muted);padding:5px 10px;border-radius:6px;font-size:11px;cursor:pointer;font-family:inherit">Clear</button>
+            </div>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Direction</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Message</th>
+                <th>Trigger</th>
+                <th>Status</th>
+                <th>Date & Time</th>
+              </tr>
+            </thead>
+            <tbody id="smsLogsTableBody">
+              <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -3939,6 +4039,8 @@ function showPage(name) {
   else stopAnalyticsRefresh();
   if (name === 'lead-intel') startLeadIntelRefresh();
   else stopLeadIntelRefresh();
+  if (name === 'sms-logs') loadSmsLogs();
+  if (name === 'sms-logs') loadSmsLogs();
   if (name === 'my-account') loadMyAccount();
   if (name === 'admin-management') {
     updateIncidentToggleUI();
@@ -4266,6 +4368,36 @@ function updateUsageWidget(stats, profile) {
     var title = d.date + ': ' + d.count + ' call' + (d.count !== 1 ? 's' : '');
     return '<div title="' + title + '" style="flex:1;height:' + h + 'px;background:' + color + ';border-radius:2px 2px 0 0;min-width:2px;cursor:default"></div>';
   }).join('');
+
+  // SMS usage ring
+  updateSmsRing();
+}
+
+function updateSmsRing() {
+  var token = localStorage.getItem('rd_token');
+  if (!token) return;
+  fetch('/api/sms', { headers: { 'Authorization': 'Bearer ' + token } })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    var s = data.stats || {};
+    var sent = s.sent || 0;
+    var received = s.received || 0;
+    var thisMonth = s.this_month || 0;
+    var smsRow = document.getElementById('smsUsageRow');
+    if (smsRow) smsRow.style.display = 'flex';
+    var ring = document.getElementById('smsRing');
+    var pctEl = document.getElementById('smsPct');
+    var sentEl = document.getElementById('smsSentThis');
+    var recEl = document.getElementById('smsReceivedThis');
+    // Show month usage as % of 100 (soft cap for visual)
+    var pct = Math.min(100, thisMonth);
+    var offset = 201 - (pct / 100) * 201;
+    if (ring) { ring.style.strokeDashoffset = offset; }
+    if (pctEl) pctEl.textContent = thisMonth;
+    if (sentEl) sentEl.textContent = sent;
+    if (recEl) recEl.textContent = received;
+  })
+  .catch(function(){});
 }
 
 // ── VOICE PREVIEW ────────────────────────────────────────────────────
@@ -5742,6 +5874,178 @@ function loadSmsSettings(profile) {
   if (el('smsToggleVoicemail')) el('smsToggleVoicemail').classList.toggle('on', !!profile.sms_voicemail);
   if (el('smsToggleAfterCall')) el('smsToggleAfterCall').classList.toggle('on', !!profile.sms_after_call);
   if (el('smsToggleAppointment')) el('smsToggleAppointment').classList.toggle('on', !!profile.sms_appointment);
+}
+
+
+// ============================================================
+// SMS LOGS
+// ============================================================
+var allSmsLogs = [];
+var currentSmsFilter = 'all';
+var smsDateFrom = null;
+var smsDateTo = null;
+
+function loadSmsLogs() {
+  var token = localStorage.getItem('rd_token');
+  var isAdmin = currentUser && ['admin','superadmin'].includes(currentUser.role);
+  var url = '/api/sms';
+  fetch(url, { headers: { 'Authorization': 'Bearer ' + token } })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    allSmsLogs = data.logs || [];
+    // Update stats
+    var s = data.stats || {};
+    var el = function(id){ return document.getElementById(id); };
+    if(el('smsTotalCount')) el('smsTotalCount').textContent = s.total || 0;
+    if(el('smsSentCount')) el('smsSentCount').textContent = s.sent || 0;
+    if(el('smsReceivedCount')) el('smsReceivedCount').textContent = s.received || 0;
+    if(el('smsMonthCount')) el('smsMonthCount').textContent = s.this_month || 0;
+    if(el('smsFailedCount')) el('smsFailedCount').textContent = s.failed || 0;
+    if(el('smsLogsSubTitle')) el('smsLogsSubTitle').textContent = (s.total || 0) + ' total SMS messages';
+    renderSmsLogs();
+  })
+  .catch(function(e){ console.error('SMS logs error:', e); });
+}
+
+function filterSms(filter, btn) {
+  currentSmsFilter = filter;
+  document.querySelectorAll('#page-sms-logs .filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  renderSmsLogs();
+}
+
+function filterSmsByDate() {
+  var from = document.getElementById('smsDateFrom').value;
+  var to = document.getElementById('smsDateTo').value;
+  smsDateFrom = from ? new Date(from).getTime()/1000 : null;
+  smsDateTo = to ? new Date(to).getTime()/1000 + 86399 : null;
+  renderSmsLogs();
+}
+
+function clearSmsDateFilter() {
+  document.getElementById('smsDateFrom').value = '';
+  document.getElementById('smsDateTo').value = '';
+  smsDateFrom = null;
+  smsDateTo = null;
+  renderSmsLogs();
+}
+
+function renderSmsLogs() {
+  var filtered = allSmsLogs;
+  if(currentSmsFilter === 'outbound') filtered = allSmsLogs.filter(function(s){ return s.direction === 'outbound' && s.status !== 'failed'; });
+  else if(currentSmsFilter === 'inbound') filtered = allSmsLogs.filter(function(s){ return s.direction === 'inbound'; });
+  else if(currentSmsFilter === 'failed') filtered = allSmsLogs.filter(function(s){ return s.status === 'failed'; });
+  else if(currentSmsFilter === 'missed_call') filtered = allSmsLogs.filter(function(s){ return s.trigger === 'missed_call'; });
+  else if(currentSmsFilter === 'voicemail') filtered = allSmsLogs.filter(function(s){ return s.trigger === 'voicemail'; });
+  else if(currentSmsFilter === 'after_call') filtered = allSmsLogs.filter(function(s){ return s.trigger === 'after_call'; });
+  if(smsDateFrom) filtered = filtered.filter(function(s){ return s.created_at >= smsDateFrom; });
+  if(smsDateTo) filtered = filtered.filter(function(s){ return s.created_at <= smsDateTo; });
+
+  var tbody = document.getElementById('smsLogsTableBody');
+  if(!tbody) return;
+  if(filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">No SMS messages found</td></tr>';
+    return;
+  }
+
+  var triggerLabels = {missed_call:'📵 Missed Call', voicemail:'📬 Voicemail', after_call:'📋 After Call', appointment:'📅 Appointment', auto_reply:'🤖 Auto Reply', inbound:'📨 Inbound', test:'🧪 Test'};
+  var dirColors = {outbound:'var(--green)', inbound:'var(--cyan)'};
+  var statusColors = {sent:'var(--green)', failed:'var(--red)', received:'var(--cyan)'};
+
+  tbody.innerHTML = filtered.map(function(s){
+    var date = s.created_at ? new Date(s.created_at*1000).toLocaleString('en-GB') : '-';
+    var triggerLabel = triggerLabels[s.trigger] || s.trigger || '-';
+    var dirColor = dirColors[s.direction] || 'var(--muted)';
+    var statusColor = statusColors[s.status] || 'var(--muted)';
+    var msgPreview = s.body ? (s.body.length > 60 ? s.body.substring(0,60)+'...' : s.body) : '-';
+    return '<tr>'
+      + '<td><span style="font-size:11px;font-weight:700;color:' + dirColor + ';text-transform:uppercase">' + (s.direction||'-') + '</span></td>'
+      + '<td style="font-size:12px;color:var(--muted);font-family:monospace">' + (s.from_number||'-') + '</td>'
+      + '<td style="font-size:12px;color:var(--muted);font-family:monospace">' + (s.to_number||'-') + '</td>'
+      + '<td style="font-size:12px;color:var(--text);max-width:200px" title="' + (s.body||'') + '">' + msgPreview + '</td>'
+      + '<td style="font-size:12px;color:var(--muted)">' + triggerLabel + '</td>'
+      + '<td><span style="font-size:11px;font-weight:700;color:' + statusColor + '">' + (s.status||'-') + '</span></td>'
+      + '<td style="font-size:12px;color:var(--muted);white-space:nowrap">' + date + '</td>'
+      + '</tr>';
+  }).join('');
+}
+
+
+var allSmsLogs = [];
+var currentSmsFilter = 'all';
+var smsDateFrom = null;
+var smsDateTo = null;
+
+function loadSmsLogs() {
+  var token = localStorage.getItem('rd_token');
+  fetch('/api/sms', { headers: { 'Authorization': 'Bearer ' + token } })
+  .then(function(r){ return r.json(); })
+  .then(function(data){
+    allSmsLogs = data.logs || [];
+    var s = data.stats || {};
+    var el = function(id){ return document.getElementById(id); };
+    if(el('smsTotalCount')) el('smsTotalCount').textContent = s.total || 0;
+    if(el('smsSentCount')) el('smsSentCount').textContent = s.sent || 0;
+    if(el('smsReceivedCount')) el('smsReceivedCount').textContent = s.received || 0;
+    if(el('smsMonthCount')) el('smsMonthCount').textContent = s.this_month || 0;
+    if(el('smsFailedCount')) el('smsFailedCount').textContent = s.failed || 0;
+    if(el('smsLogsSubTitle')) el('smsLogsSubTitle').textContent = (s.total || 0) + ' total SMS messages';
+    renderSmsLogs();
+  })
+  .catch(function(e){ console.error('SMS logs error:', e); });
+}
+
+function filterSms(filter, btn) {
+  currentSmsFilter = filter;
+  document.querySelectorAll('#page-sms-logs .filter-btn').forEach(function(b){ b.classList.remove('active'); });
+  if(btn) btn.classList.add('active');
+  renderSmsLogs();
+}
+
+function filterSmsByDate() {
+  var from = document.getElementById('smsDateFrom').value;
+  var to = document.getElementById('smsDateTo').value;
+  smsDateFrom = from ? new Date(from).getTime()/1000 : null;
+  smsDateTo = to ? new Date(to).getTime()/1000 + 86399 : null;
+  renderSmsLogs();
+}
+
+function clearSmsDateFilter() {
+  document.getElementById('smsDateFrom').value = '';
+  document.getElementById('smsDateTo').value = '';
+  smsDateFrom = null; smsDateTo = null;
+  renderSmsLogs();
+}
+
+function renderSmsLogs() {
+  var filtered = allSmsLogs;
+  if(currentSmsFilter === 'outbound') filtered = allSmsLogs.filter(function(s){ return s.direction === 'outbound' && s.status !== 'failed'; });
+  else if(currentSmsFilter === 'inbound') filtered = allSmsLogs.filter(function(s){ return s.direction === 'inbound'; });
+  else if(currentSmsFilter === 'failed') filtered = allSmsLogs.filter(function(s){ return s.status === 'failed'; });
+  else if(currentSmsFilter === 'missed_call') filtered = allSmsLogs.filter(function(s){ return s.trigger === 'missed_call'; });
+  else if(currentSmsFilter === 'voicemail') filtered = allSmsLogs.filter(function(s){ return s.trigger === 'voicemail'; });
+  else if(currentSmsFilter === 'after_call') filtered = allSmsLogs.filter(function(s){ return s.trigger === 'after_call'; });
+  if(smsDateFrom) filtered = filtered.filter(function(s){ return s.created_at >= smsDateFrom; });
+  if(smsDateTo) filtered = filtered.filter(function(s){ return s.created_at <= smsDateTo; });
+  var tbody = document.getElementById('smsLogsTableBody');
+  if(!tbody) return;
+  if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">No SMS messages found</td></tr>'; return; }
+  var triggerLabels = {missed_call:'📵 Missed Call',voicemail:'📬 Voicemail',after_call:'📋 After Call',appointment:'📅 Appointment',auto_reply:'🤖 Auto Reply',inbound:'📨 Inbound',test:'🧪 Test'};
+  var dirColors = {outbound:'var(--green)',inbound:'var(--cyan)'};
+  var statusColors = {sent:'var(--green)',failed:'var(--red)',received:'var(--cyan)'};
+  tbody.innerHTML = filtered.map(function(s){
+    var date = s.created_at ? new Date(s.created_at*1000).toLocaleString('en-GB') : '-';
+    var msgPreview = s.body ? (s.body.length > 60 ? s.body.substring(0,60)+'...' : s.body) : '-';
+    return '<tr>'
+      + '<td><span style="font-size:11px;font-weight:700;color:' + (dirColors[s.direction]||'var(--muted)') + ';text-transform:uppercase">' + (s.direction||'-') + '</span></td>'
+      + '<td style="font-size:12px;color:var(--muted);font-family:monospace">' + (s.from_number||'-') + '</td>'
+      + '<td style="font-size:12px;color:var(--muted);font-family:monospace">' + (s.to_number||'-') + '</td>'
+      + '<td style="font-size:12px;color:var(--text);max-width:200px">' + msgPreview + '</td>'
+      + '<td style="font-size:12px;color:var(--muted)">' + (triggerLabels[s.trigger]||s.trigger||'-') + '</td>'
+      + '<td><span style="font-size:11px;font-weight:700;color:' + (statusColors[s.status]||'var(--muted)') + '">' + (s.status||'-') + '</span></td>'
+      + '<td style="font-size:12px;color:var(--muted);white-space:nowrap">' + date + '</td>'
+      + '</tr>';
+  }).join('');
 }
 
 </script>

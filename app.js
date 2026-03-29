@@ -194,6 +194,35 @@ app.get('/api/admin/sms-logs', authRequired, (req, res) => {
 });
 
 
+
+// ============================================================
+// SMS LOGS API
+// ============================================================
+app.get('/api/sms', authRequired, (req, res) => {
+  const logs = db.prepare('SELECT * FROM sms_logs WHERE client_id = ? ORDER BY created_at DESC LIMIT 200').all(req.client.id);
+  const stats = {
+    total: db.prepare('SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ?').get(req.client.id).c,
+    sent: db.prepare("SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ? AND direction = 'outbound' AND status = 'sent'").get(req.client.id).c,
+    received: db.prepare("SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ? AND direction = 'inbound'").get(req.client.id).c,
+    failed: db.prepare("SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ? AND status = 'failed'").get(req.client.id).c,
+    this_month: db.prepare("SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ? AND created_at > strftime('%s','now','-30 days')").get(req.client.id).c,
+  };
+  res.json({ logs, stats });
+});
+
+app.get('/api/admin/sms/:clientId', authRequired, (req, res) => {
+  if (!['admin','superadmin'].includes(req.client.role)) return res.status(403).json({ error: 'Forbidden' });
+  const logs = db.prepare('SELECT * FROM sms_logs WHERE client_id = ? ORDER BY created_at DESC LIMIT 200').all(req.params.clientId);
+  const stats = {
+    total: db.prepare('SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ?').get(req.params.clientId).c,
+    sent: db.prepare("SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ? AND direction = 'outbound' AND status = 'sent'").get(req.params.clientId).c,
+    received: db.prepare("SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ? AND direction = 'inbound'").get(req.params.clientId).c,
+    failed: db.prepare("SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ? AND status = 'failed'").get(req.params.clientId).c,
+    this_month: db.prepare("SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ? AND created_at > strftime('%s','now','-30 days')").get(req.params.clientId).c,
+  };
+  res.json({ logs, stats });
+});
+
 // ============================================================
 // SAFETY & COMPLIANCE ROUTES
 // ============================================================
