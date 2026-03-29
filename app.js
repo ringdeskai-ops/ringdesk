@@ -137,6 +137,55 @@ const STRIPE_PRICE_IDS = {
 
 
 
+
+// ============================================================
+// SMS ENGINE
+// ============================================================
+async function sendSMS(clientId, toNumber, body, trigger) {
+  try {
+    const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(clientId);
+    if (!client || !client.phone_number) return;
+    const fromNumber = client.sms_from_number || client.phone_number;
+    const msg = await twilioClient.messages.create({ body, from: fromNumber, to: toNumber });
+    db.prepare('INSERT INTO sms_logs (client_id, direction, from_number, to_number, body, status, twilio_sid, trigger) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
+      .run(clientId, 'outbound', fromNumber, toNumber, body, 'sent', msg.sid, trigger);
+    console.log('📱 SMS sent to', toNumber, '| trigger:', trigger);
+    return { success: true, sid: msg.sid };
+  } catch(e) {
+    console.error('SMS error:', e.message);
+    db.prepare('INSERT INTO sms_logs (client_id, direction, from_number, to_number, body, status, trigger) VALUES (?, ?, ?, ?, ?, ?, ?)')
+      .run(clientId, 'outbound', '', toNumber, body, 'failed', trigger);
+    return { success: false, error: e.message };
+  }
+}
+
+app.post('/sms/incoming', async (req, res) => {
+  const { From, To, Body } = req.body;
+  const client = db.prepare('SELECT * FROM clients WHERE phone_number = ?').get(To);
+  if (!client) return res.type('text/xml').send('<Response></Response>');
+  db.prepare('INSERT INTO sms_logs (client_id, direction, from_number, to_number, body, status, trigger) VALUES (?, ?, ?, ?, ?, ?, ?)')
+    .run(client.id, 'inbound', From, To, Body, 'received', 'inbound');
+  const reply = "Thanks for your message. We'll get back to you shortly. For urgent matters, please call us directly.";
+  res.type('text/xml').send('<?xml version="1.0" encoding="UTF-8"?><Response><Message>' + reply + '</Message></Response>');
+  db.prepare('INSERT INTO sms_logs (client_id, direction, from_number, to_number, body, status, trigger) VALUES (?, ?, ?, ?, ?, ?, ?)')
+    .run(client.id, 'outbound', To, From, reply, 'sent', 'auto_reply');
+});
+
+app.put('/api/admin/sms-settings/:clientId', authRequired, (req, res) => {
+  if (!['admin','superadmin'].includes(req.client.role)) return res.status(403).json({ error: 'Forbidden' });
+  const { sms_missed_call, sms_voicemail, sms_appointment, sms_after_call } = req.body;
+  db.prepare('UPDATE clients SET sms_missed_call=?, sms_voicemail=?, sms_appointment=?, sms_after_call=? WHERE id=?')
+    .run(sms_missed_call?1:0, sms_voicemail?1:0, sms_appointment?1:0, sms_after_call?1:0, req.params.clientId);
+  res.json({ success: true });
+});
+
+app.get('/api/admin/sms-logs', authRequired, (req, res) => {
+  if (!['admin','superadmin'].includes(req.client.role)) return res.status(403).json({ error: 'Forbidden' });
+  const logs = db.prepare('SELECT sl.*, c.business_name FROM sms_logs sl LEFT JOIN clients c ON sl.client_id = c.id ORDER BY sl.created_at DESC LIMIT 100').all();
+  res.json({ logs });
+});
+
+
 // ============================================================
 // SAFETY & COMPLIANCE ROUTES
 // ============================================================
@@ -1293,6 +1342,32 @@ app.post("/voice/transfer-complete", async (req, res) => {
 });
 
 
+// ── Post-call SMS triggers ───────────────────────────────────────────────────
+async function triggerPostCallSMS(client, callerNumber, callType, callerName, summary) {
+  if (!client || !callerNumber || callerNumber === 'anonymous') return;
+  
+  const businessName = client.business_name || 'Your AI Receptionist';
+  const callerDisplay = callerName ? callerName : callerNumber;
+
+  // Missed call SMS
+  if (callType === 'missed' && client.sms_missed_call) {
+    const body = 'Missed call from ' + callerDisplay + '. Your AI receptionist ' + (client.ai_name||'Aria') + ' was unable to connect them. Call back: ' + callerNumber;
+    await sendSMS(client.id, client.contact_phone || client.mobile_phone || client.work_phone, body, 'missed_call');
+  }
+
+  // After call summary SMS
+  if (callType === 'completed' && client.sms_after_call && summary) {
+    const body = 'Call summary from ' + (client.ai_name||'Aria') + ': ' + summary.substring(0, 140);
+    await sendSMS(client.id, client.contact_phone || client.mobile_phone || client.work_phone, body, 'after_call');
+  }
+
+  // Voicemail SMS
+  if (callType === 'voicemail' && client.sms_voicemail) {
+    const body = 'New voicemail from ' + callerDisplay + '. Listen in your AiRingDesk dashboard: https://airingdesk.com/dashboard';
+    await sendSMS(client.id, client.contact_phone || client.mobile_phone || client.work_phone, body, 'voicemail');
+  }
+}
+
 // ── Voicemail recording route ─────────────────────────────────────────────────
 app.post("/voice/voicemail", (req, res) => {
   const { CallSid, To } = req.body;
@@ -1360,13 +1435,22 @@ app.post("/voice/status", async (req, res) => {
     const call = db.prepare("SELECT * FROM calls WHERE call_sid = ?").get(CallSid);
     if (call) {
       const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(call.client_id);
-      if (client && client.email_notifications) {
-        let transcript = [];
-        try { transcript = JSON.parse(call.transcript || '[]'); } catch {}
-        sendCallNotificationEmail(client, call, transcript);
+      if (client) {
+        // Email notification
+        if (client.email_notifications) {
+          let transcript = [];
+          try { transcript = JSON.parse(call.transcript || '[]'); } catch {}
+          sendCallNotificationEmail(client, call, transcript);
+        }
+        // SMS triggers
+        const callerNum = call.caller_number || call.from_number || null;
+        const callStatus = call.status || 'completed';
+        setImmediate(async () => {
+          await triggerPostCallSMS(client, callerNum, callStatus, callerName, summary);
+        });
       }
     }
-  } catch(err) { console.error('Email notification error:', err.message); }
+  } catch(err) { console.error('Email/SMS notification error:', err.message); }
 
   // Deliver webhook if configured
   try {

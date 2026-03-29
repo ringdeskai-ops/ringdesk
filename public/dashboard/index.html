@@ -1699,6 +1699,32 @@ select option{background-color:#0c1520;color:#f0f6ff}
         </div>
       </div>
 
+      <!-- SMS Notification Toggles -->
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header">
+          <div class="table-title">📱 SMS Notifications</div>
+          <div style="font-size:12px;color:var(--muted)">Control which SMS alerts this customer receives after calls</div>
+        </div>
+        <div style="padding:16px 20px;display:flex;flex-direction:column;gap:4px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+            <div><span style="font-size:12px;color:var(--muted)">Missed call SMS</span><div style="font-size:10px;color:var(--dim)">SMS when caller hangs up without leaving a message</div></div>
+            <div class="toggle" id="clientSmsMissedToggle" onclick="toggleSmsFeature('sms_missed_call','clientSmsMissedToggle')"><div class="toggle-thumb"></div></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+            <div><span style="font-size:12px;color:var(--muted)">Voicemail SMS</span><div style="font-size:10px;color:var(--dim)">SMS alert when a new voicemail is received</div></div>
+            <div class="toggle" id="clientSmsVoicemailToggle" onclick="toggleSmsFeature('sms_voicemail','clientSmsVoicemailToggle')"><div class="toggle-thumb"></div></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+            <div><span style="font-size:12px;color:var(--muted)">After-call summary SMS</span><div style="font-size:10px;color:var(--dim)">SMS with AI summary after each completed call</div></div>
+            <div class="toggle" id="clientSmsAfterCallToggle" onclick="toggleSmsFeature('sms_after_call','clientSmsAfterCallToggle')"><div class="toggle-thumb"></div></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0">
+            <div><span style="font-size:12px;color:var(--muted)">Appointment SMS</span><div style="font-size:10px;color:var(--dim)">SMS when AI books a new appointment</div></div>
+            <div class="toggle" id="clientSmsAppointmentToggle" onclick="toggleSmsFeature('sms_appointment','clientSmsAppointmentToggle')"><div class="toggle-thumb"></div></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Invoices / Payment history -->
       <div class="table-card" style="margin-bottom:20px">
         <div class="table-header">
@@ -3557,6 +3583,15 @@ async function openCustomerDetail(clientId) {
   if (featureVoiceToggle) featureVoiceToggle.classList.toggle('on', customer.feature_voice_selector !== 0);
   const featureAiToggle = document.getElementById('clientFeatureAiSettingsToggle');
   if (featureAiToggle) featureAiToggle.classList.toggle('on', customer.feature_ai_settings !== 0);
+  // SMS toggles
+  var smsMissed = document.getElementById('clientSmsMissedToggle');
+  var smsVoicemail = document.getElementById('clientSmsVoicemailToggle');
+  var smsAfterCall = document.getElementById('clientSmsAfterCallToggle');
+  var smsAppt = document.getElementById('clientSmsAppointmentToggle');
+  if (smsMissed) smsMissed.classList.toggle('on', !!customer.sms_missed_call);
+  if (smsVoicemail) smsVoicemail.classList.toggle('on', !!customer.sms_voicemail);
+  if (smsAfterCall) smsAfterCall.classList.toggle('on', !!customer.sms_after_call);
+  if (smsAppt) smsAppt.classList.toggle('on', !!customer.sms_appointment);
 
   // Show provision button if no number
   var provBtn = document.getElementById('detailProvisionBtn');
@@ -5559,6 +5594,40 @@ async function releaseCustomerNumber() {
   } catch(e) { showToast('Error: ' + e.message, 'error'); }
 }
 
+
+
+// ============================================================
+// SMS FEATURE TOGGLES
+// ============================================================
+async function toggleSmsFeature(feature, toggleId) {
+  if (!currentDetailCustomer) return;
+  const token = localStorage.getItem('rd_token');
+  const currentVal = currentDetailCustomer[feature] || 0;
+  const newVal = currentVal ? 0 : 1;
+  
+  try {
+    const body = {
+      sms_missed_call: currentDetailCustomer.sms_missed_call || 0,
+      sms_voicemail: currentDetailCustomer.sms_voicemail || 0,
+      sms_after_call: currentDetailCustomer.sms_after_call || 0,
+      sms_appointment: currentDetailCustomer.sms_appointment || 0,
+    };
+    body[feature] = newVal;
+    
+    await fetch('/api/admin/sms-settings/' + currentDetailCustomer.id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify(body)
+    });
+    
+    currentDetailCustomer[feature] = newVal;
+    var el = document.getElementById(toggleId);
+    if (el) el.classList.toggle('on', newVal === 1);
+    showToast('SMS setting updated', 'success');
+  } catch(e) {
+    showToast('Error updating SMS setting', 'error');
+  }
+}
 
 </script>
 <div id="toast"></div><div id="toast"></div>
