@@ -31,6 +31,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Database = require("better-sqlite3");
 
+const APP_VERSION = '2.5.9';
 const app = express();
 app.use(express.json());
 
@@ -1791,7 +1792,7 @@ app.delete("/api/admin/customer/:id", authRequired, (req, res) => {
   res.json({ success: true, message: `${customer.business_name} deleted` });
 });
 
-app.get("/health", (req, res) => res.json({ status: "ok", uptime: process.uptime(), clients: db.prepare("SELECT COUNT(*) as c FROM clients").get().c }));
+app.get("/health", (req, res) => res.json({ status: "ok", version: APP_VERSION, uptime: process.uptime(), clients: db.prepare("SELECT COUNT(*) as c FROM clients").get().c }));
 
 
 app.get('/', (req, res) => res.sendFile(__dirname + '/public/index.html'));
@@ -4731,7 +4732,7 @@ app.get('/api/admin/health', async (req, res) => {
     if (!['admin','superadmin'].includes(user.role)) return res.status(403).json({ error: 'Forbidden' });
   } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
 
-  const results = { timestamp: new Date().toISOString(), services: {}, customers: [] };
+  const results = { timestamp: new Date().toISOString(), version: APP_VERSION, services: {}, customers: [] };
   const start = Date.now();
 
   // 1. Database
