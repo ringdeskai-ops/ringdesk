@@ -85,7 +85,7 @@ module.exports = function(db) {
       doc.fontSize(28).font('Helvetica-Bold');
       doc.fillColor('#0099bb').text('Ai', 50, 40, { continued: true });
       doc.fillColor('#111111').text('Ring', { continued: true });
-      doc.fillColor('#888888').text('Desk');
+      doc.fillColor('#888888').text('Desk®');
 
       // Tagline
       doc.fontSize(10).font('Helvetica').fillColor('#888888').text('Your 24/7 AI Call Desk', 50, 78);

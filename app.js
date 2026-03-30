@@ -415,7 +415,7 @@ async function sendLeadAlert(session, currentPage) {
     const locationName = session.location_interest ? session.location_interest.replace(/-/g,' ') : 'Unknown';
     const subject = '🔥 Hot Lead Alert — ' + session.city + ', ' + session.country + ' (' + session.score + ' points)';
     const html = `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;background:#060912;color:#f0f6ff;padding:32px;border-radius:12px">
-      <div style="font-size:24px;font-weight:800;margin-bottom:2px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-bottom:4px">Your 24/7 AI Call Desk</div>
+      <div style="font-size:24px;font-weight:800;margin-bottom:2px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span><sup style="font-size:8px;color:#3d5470;vertical-align:super;margin-left:1px">®</sup></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-bottom:4px">Your 24/7 AI Call Desk</div>
       <div style="font-size:10px;color:#5a7a9a;letter-spacing:.06em;margin-bottom:24px">YOUR 24/7 AI CALL DESK</div>
       <div style="background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);border-radius:10px;padding:20px;margin-bottom:20px">
         <div style="font-size:20px;font-weight:800;color:#ffb800;margin-bottom:8px">🔥 Hot Lead Detected!</div>
@@ -1692,7 +1692,7 @@ app.get('/auth/google/login/callback', async (req, res) => {
 <html><head><title>Signing in...</title></head>
 <body style="background:#020408;color:#f0f6ff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0">
 <div style="text-align:center">
-  <div style="font-size:24px;font-weight:800;margin-bottom:4px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-bottom:16px">Your 24/7 AI Call Desk</div>
+  <div style="font-size:24px;font-weight:800;margin-bottom:4px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span><sup style="font-size:8px;color:#3d5470;vertical-align:super;margin-left:1px">®</sup></div><div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-bottom:16px">Your 24/7 AI Call Desk</div>
   <div style="color:#5a7a9a;margin-bottom:8px">Signing you in...</div>
 </div>
 <script>
@@ -5625,7 +5625,7 @@ async function sendCallNotificationEmail(client, call, transcript) {
           <!-- Header -->
           <div style="background:#080e18;padding:28px 32px;border-bottom:1px solid #1a2332">
             <div style="font-size:24px;font-weight:800;margin-bottom:4px">
-              <span style="color:#00d4ff">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span>
+              <span style="color:#00d4ff">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span><sup style="font-size:8px;color:#3d5470;vertical-align:super;margin-left:1px">®</sup>
             </div>
             <div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div>
           </div>
