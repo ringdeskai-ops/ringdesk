@@ -5956,15 +5956,15 @@ function drawGlobe() {
 
   // Background
   const bgGrad = ctx.createRadialGradient(cx-r*0.3, cy-r*0.3, 0, cx, cy, r);
-  bgGrad.addColorStop(0, '#0a1628');
-  bgGrad.addColorStop(1, '#020408');
+  bgGrad.addColorStop(0, '#0d2040');
+  bgGrad.addColorStop(1, '#060912');
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI*2);
   ctx.fillStyle = bgGrad;
   ctx.fill();
 
   // Grid lines
-  ctx.strokeStyle = 'rgba(0,212,255,0.06)';
+  ctx.strokeStyle = 'rgba(0,212,255,0.15)';
   ctx.lineWidth = 0.5;
   for (let lat = -80; lat <= 80; lat += 20) {
     ctx.beginPath();
@@ -6009,12 +6009,12 @@ function drawGlobe() {
     if (p.z < 0) return;
 
     const color = v.status === 'hot' ? '#ff4466' : v.status === 'warm' ? '#ffb800' : '#00d4ff';
-    const dotR = v.status === 'hot' ? 5 : 4;
+    const dotR = v.status === 'hot' ? 7 : v.status === 'warm' ? 6 : 5;
 
     // Pulse ring
     ctx.beginPath();
     ctx.arc(p.x, p.y, dotR + 4, 0, Math.PI*2);
-    ctx.fillStyle = color.replace(')', ',0.15)').replace('rgb', 'rgba');
+    ctx.fillStyle = color + '33';
     ctx.fill();
 
     // Dot
@@ -6077,7 +6077,7 @@ function loadLiveVisitors() {
     .then(r => r.json())
     .then(data => {
       globeVisitors = data.today || [];
-      updateVisitorList(data.live || []);
+      updateVisitorList(data.live && data.live.length > 0 ? data.live : data.today || []);
       // Update live count
       const banner = document.getElementById('liveVisitorCount');
       if (banner) banner.textContent = (data.stats?.live_count || 0) + ' visitors online now';
