@@ -4257,10 +4257,8 @@ function showPage(name) {
   if (name === 'system-health') startHealthAutoRefresh();
   else stopHealthAutoRefresh();
   if (name === 'leads') loadWebsiteLeads();
-  if (name === 'analytics') { startAnalyticsRefresh(); startGlobe(); }
-  else { stopAnalyticsRefresh(); stopGlobe(); }
-  if (name === 'lead-intel') startLeadIntelRefresh();
-  else stopLeadIntelRefresh();
+  if (name === 'analytics') { startAnalyticsRefresh(); startGlobe(); } else { stopAnalyticsRefresh(); stopGlobe(); }
+  if (name === 'lead-intel') { startLeadIntelRefresh(); } else { stopLeadIntelRefresh(); }
   if (name === 'sms-logs') loadSmsLogs();
   if (name === 'sms-logs') loadSmsLogs();
   if (name === 'my-account') loadMyAccount();
