@@ -6148,7 +6148,7 @@ function updateVisitorList(visitors, stats) {
 }
 
 function loadLiveVisitors() {
-  const token = localStorage.getItem('ard_token') || (typeof currentToken !== 'undefined' ? currentToken : '');
+  const token = localStorage.getItem('rd_token') || localStorage.getItem('ard_token') || '';
   fetch('/api/admin/live-visitors', { headers: { 'Authorization': 'Bearer ' + token } })
     .then(r => r.json())
     .then(data => {
