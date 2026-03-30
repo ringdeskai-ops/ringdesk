@@ -200,7 +200,10 @@ app.get('/api/admin/sms-logs', authRequired, (req, res) => {
 // SMS LOGS API
 // ============================================================
 app.get('/api/sms', authRequired, (req, res) => {
-  const logs = db.prepare('SELECT * FROM sms_logs WHERE client_id = ? ORDER BY created_at DESC LIMIT 200').all(req.client.id);
+  const isAdmin = ['admin','superadmin'].includes(req.client.role);
+  const logs = isAdmin
+    ? db.prepare('SELECT * FROM sms_logs ORDER BY created_at DESC LIMIT 200').all()
+    : db.prepare('SELECT * FROM sms_logs WHERE client_id = ? ORDER BY created_at DESC LIMIT 200').all(req.client.id);
   const stats = {
     total: db.prepare('SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ?').get(req.client.id).c,
     sent: db.prepare("SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ? AND direction = 'outbound' AND status = 'sent'").get(req.client.id).c,
@@ -639,14 +642,17 @@ app.put("/api/client/settings", authRequired, (req, res) => {
 // Get call logs
 app.get("/api/calls", authRequired, (req, res) => {
   const { limit = 50, offset = 0, status } = req.query;
-  let query = "SELECT * FROM calls WHERE client_id = ?";
-  const params = [req.client.id];
+  const isAdmin = ['admin','superadmin'].includes(req.client.role);
+  let query = isAdmin ? "SELECT * FROM calls WHERE 1=1" : "SELECT * FROM calls WHERE client_id = ?";
+  const params = isAdmin ? [] : [req.client.id];
   if (status) { query += " AND status = ?"; params.push(status); }
   query += " ORDER BY started_at DESC LIMIT ? OFFSET ?";
   params.push(Number(limit), Number(offset));
   const calls = db.prepare(query).all(...params);
   calls.forEach(c => { try { c.transcript = JSON.parse(c.transcript || "[]"); } catch { c.transcript = []; } });
-  const total = db.prepare("SELECT COUNT(*) as count FROM calls WHERE client_id = ?").get(req.client.id).count;
+  const totalQuery = isAdmin ? "SELECT COUNT(*) as count FROM calls" : "SELECT COUNT(*) as count FROM calls WHERE client_id = ?";
+  const totalParams = isAdmin ? [] : [req.client.id];
+  const total = db.prepare(totalQuery).get(...totalParams).count;
   res.json({ calls, total });
 });
 
