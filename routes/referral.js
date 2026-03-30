@@ -90,8 +90,8 @@ module.exports = function(db, sendBrevoEmail) {
       db.prepare('INSERT INTO referrals (id, referrer_id, referee_email) VALUES (?, ?, ?)').run(uuidv4(), req.client.id, email);
       const refLink = process.env.DASHBOARD_URL + '/signup?ref=' + client.referral_code;
       const html = '<div style="font-family:Helvetica Neue,sans-serif;max-width:600px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
-        + '<div style="font-size:28px;font-weight:800;margin-bottom:8px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span></div>'
-        + '<div style="font-size:11px;color:#5a7a9a;margin-bottom:32px;border-bottom:1px solid #1a2332;padding-bottom:16px">AI Receptionist Platform</div>'
+        + '<div style="font-size:28px;font-weight:800;margin-bottom:4px"><span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span></div>'
+        + '<div style="font-size:11px;color:#5a7a9a;margin-bottom:32px;border-bottom:1px solid #1a2332;padding-bottom:16px">Your 24/7 AI Call Desk</div>'
         + '<h1 style="font-size:22px;font-weight:700;margin-bottom:12px">' + client.business_name + ' recommends AiRingDesk for your business</h1>'
         + '<p style="color:#8896a8;font-size:15px;line-height:1.7;margin-bottom:24px">' + client.business_name + ' uses AiRingDesk to answer every business call 24/7 with AI and recommended it for your business.</p>'
         + '<div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:24px;margin-bottom:24px">'

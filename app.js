@@ -5625,9 +5625,9 @@ async function sendCallNotificationEmail(client, call, transcript) {
           <!-- Header -->
           <div style="background:#080e18;padding:28px 32px;border-bottom:1px solid #1a2332">
             <div style="font-size:24px;font-weight:800;margin-bottom:4px">
-              <span style="color:#00d4ff">Ai</span><span style="color:#f0f6ff">Ring</span><span style="color:#5a7a9a">Desk</span>
+              <span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span>
             </div>
-            <div style="font-size:11px;color:#5a7a9a;letter-spacing:.08em;text-transform:uppercase">AI Receptionist Platform</div>
+            <div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div>
           </div>
 
           <!-- Title bar -->

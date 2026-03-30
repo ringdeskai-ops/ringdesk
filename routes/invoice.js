@@ -88,7 +88,7 @@ module.exports = function(db) {
       doc.fillColor('#888888').text('Desk');
 
       // Tagline
-      doc.fontSize(10).font('Helvetica').fillColor('#888888').text('AI Receptionist Platform', 50, 78);
+      doc.fontSize(10).font('Helvetica').fillColor('#888888').text('Your 24/7 AI Call Desk', 50, 78);
 
       // INVOICE label
       doc.fontSize(32).font('Helvetica-Bold').fillColor('#111111').text('INVOICE', 380, 35);
@@ -172,7 +172,7 @@ module.exports = function(db) {
       doc.rect(0, 760, 595, 82).fill('#f8f9fa');
       doc.moveTo(0, 760).lineTo(595, 760).strokeColor('#dddddd').lineWidth(1).stroke();
       doc.fontSize(9).font('Helvetica').fillColor('#888888');
-      doc.text('AiRingDesk · AI Receptionist Platform · airingdesk.com', 50, 772, { lineBreak: false });
+      doc.text('AiRingDesk · Your 24/7 AI Call Desk · airingdesk.com', 50, 772, { lineBreak: false });
       doc.text('hello@airingdesk.com · +44 20 4634 8499', 50, 787, { lineBreak: false });
       doc.text('Registered in England & Wales · UK GDPR Compliant', 50, 802, { lineBreak: false });
       doc.fontSize(9).font('Helvetica-Bold').fillColor('#0099bb').text('Thank you for your business!', 350, 787, { lineBreak: false });
