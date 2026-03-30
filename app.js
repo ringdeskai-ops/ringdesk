@@ -4603,6 +4603,34 @@ app.delete('/api/admin/incidents/:id', (req, res) => {
 // ============================================================
 // LEAD INTELLIGENCE API
 // ============================================================
+
+// ── Live Visitor Globe API ────────────────────────────────────────────────────
+app.get('/api/admin/live-visitors', (req, res) => {
+  const auth = req.headers.authorization;
+  if (!auth) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const token = auth.replace('Bearer ', '');
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    if (!['admin','superadmin'].includes(user.role)) return res.status(403).json({ error: 'Forbidden' });
+  } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
+
+  const now = Math.floor(Date.now() / 1000);
+  const live = now - 300;    // active in last 5 min
+  const today = now - 86400; // last 24 hours
+
+  const liveVisitors = db.prepare("SELECT country, country_code, city, region, status, score, device, browser, page_views, last_seen FROM visitor_sessions WHERE last_seen > ? AND country_code != 'XX' ORDER BY last_seen DESC LIMIT 50").all(live);
+  const todayVisitors = db.prepare("SELECT country, country_code, city, status, score, device, browser, last_seen FROM visitor_sessions WHERE last_seen > ? AND country_code != 'XX' ORDER BY last_seen DESC LIMIT 100").all(today);
+  const stats = {
+    live_count: db.prepare("SELECT COUNT(*) as c FROM visitor_sessions WHERE last_seen > ?").get(live).c,
+    today_count: db.prepare("SELECT COUNT(*) as c FROM visitor_sessions WHERE last_seen > ?").get(today).c,
+    hot_count: db.prepare("SELECT COUNT(*) as c FROM visitor_sessions WHERE score >= 40 AND last_seen > ?").get(today).c,
+    total_count: db.prepare("SELECT COUNT(*) as c FROM visitor_sessions WHERE country_code != 'XX'").get().c,
+    top_countries: db.prepare("SELECT country, country_code, COUNT(*) as c FROM visitor_sessions WHERE last_seen > ? AND country_code != 'XX' GROUP BY country_code ORDER BY c DESC LIMIT 5").all(today),
+  };
+
+  res.json({ live: liveVisitors, today: todayVisitors, stats });
+});
+
 app.get('/api/admin/leads-intelligence', (req, res) => {
   const auth = req.headers.authorization;
   if (!auth) return res.status(401).json({ error: 'Unauthorized' });

@@ -815,6 +815,22 @@ select option{background-color:#0c1520;color:#f0f6ff}
         <button onclick="loadSmsLogs()" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">↻ Refresh</button>
       </div>
 
+
+      <!-- Live Visitor Globe -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+        <div style="background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid rgba(0,212,255,.12);border-radius:16px;padding:20px;position:relative;overflow:hidden">
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">🌍 Live Visitor Globe</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Real-time visitors on airingdesk.com</div>
+          <canvas id="globeCanvas" width="320" height="320" style="display:block;margin:0 auto;border-radius:50%"></canvas>
+        </div>
+        <div style="background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid rgba(0,212,255,.12);border-radius:16px;padding:20px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px">📍 Active Visitors</div>
+          <div id="visitorList" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto">
+            <div style="text-align:center;color:var(--muted);font-size:13px;padding:40px 0">Loading...</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Stats Row -->
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
@@ -4212,8 +4228,8 @@ function showPage(name) {
   if (name === 'system-health') startHealthAutoRefresh();
   else stopHealthAutoRefresh();
   if (name === 'leads') loadWebsiteLeads();
-  if (name === 'analytics') startAnalyticsRefresh();
-  else stopAnalyticsRefresh();
+  if (name === 'analytics') { startAnalyticsRefresh(); startGlobe(); }
+  else { stopAnalyticsRefresh(); stopGlobe(); }
   if (name === 'lead-intel') startLeadIntelRefresh();
   else stopLeadIntelRefresh();
   if (name === 'sms-logs') loadSmsLogs();
@@ -5902,6 +5918,185 @@ function updateLeadStatus(leadId, status) {
     body: JSON.stringify({ lead_id: leadId, status })
   }).then(() => loadWebsiteLeads());
 }
+
+
+// ── Live Visitor Globe ────────────────────────────────────────────────────────
+let globeAngle = 0;
+let globeVisitors = [];
+let globeAnimFrame = null;
+
+const COUNTRY_COORDS = {
+  'GB': [51.5, -0.1], 'US': [37.0, -95.7], 'DE': [51.2, 10.5],
+  'FR': [46.2, 2.2], 'IN': [20.6, 78.9], 'AU': [25.3, 133.8],
+  'CA': [56.1, -106.3], 'NL': [52.1, 5.3], 'IE': [53.1, -8.2],
+  'SG': [1.3, 103.8], 'AE': [23.4, 53.8], 'ZA': [-30.6, 22.9],
+  'PK': [30.4, 69.3], 'NG': [9.1, 8.7], 'NZ': [-40.9, 174.9],
+  'CH': [46.8, 8.2], 'SE': [60.1, 18.6], 'NO': [60.5, 8.5],
+  'DK': [56.3, 9.5], 'PL': [51.9, 19.1], 'IT': [41.9, 12.6],
+  'ES': [40.5, -3.7], 'BR': [-14.2, -51.9], 'MX': [23.6, -102.6],
+  'JP': [36.2, 138.3], 'KR': [35.9, 127.8], 'CN': [35.9, 104.2],
+};
+
+function latLngToXY(lat, lng, angle, cx, cy, r) {
+  const adjLng = lng + angle;
+  const x = cx + r * Math.cos(lat * Math.PI/180) * Math.sin(adjLng * Math.PI/180);
+  const y = cy - r * Math.sin(lat * Math.PI/180);
+  const z = Math.cos(lat * Math.PI/180) * Math.cos(adjLng * Math.PI/180);
+  return { x, y, z };
+}
+
+function drawGlobe() {
+  const canvas = document.getElementById('globeCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W/2, cy = H/2, r = W/2 - 10;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  const bgGrad = ctx.createRadialGradient(cx-r*0.3, cy-r*0.3, 0, cx, cy, r);
+  bgGrad.addColorStop(0, '#0a1628');
+  bgGrad.addColorStop(1, '#020408');
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.fillStyle = bgGrad;
+  ctx.fill();
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(0,212,255,0.06)';
+  ctx.lineWidth = 0.5;
+  for (let lat = -80; lat <= 80; lat += 20) {
+    ctx.beginPath();
+    let first = true;
+    for (let lng = -180; lng <= 180; lng += 2) {
+      const p = latLngToXY(lat, lng, globeAngle, cx, cy, r);
+      if (p.z > 0) {
+        if (first) { ctx.moveTo(p.x, p.y); first = false; }
+        else ctx.lineTo(p.x, p.y);
+      } else first = true;
+    }
+    ctx.stroke();
+  }
+  for (let lng = -180; lng <= 180; lng += 20) {
+    ctx.beginPath();
+    let first = true;
+    for (let lat = -90; lat <= 90; lat += 2) {
+      const p = latLngToXY(lat, lng, globeAngle, cx, cy, r);
+      if (p.z > 0) {
+        if (first) { ctx.moveTo(p.x, p.y); first = false; }
+        else ctx.lineTo(p.x, p.y);
+      } else first = true;
+    }
+    ctx.stroke();
+  }
+
+  // Globe border glow
+  const borderGrad = ctx.createRadialGradient(cx, cy, r-2, cx, cy, r+2);
+  borderGrad.addColorStop(0, 'rgba(0,212,255,0.3)');
+  borderGrad.addColorStop(1, 'rgba(0,212,255,0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.strokeStyle = 'rgba(0,212,255,0.4)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Visitor dots
+  globeVisitors.forEach(v => {
+    const coords = COUNTRY_COORDS[v.country_code];
+    if (!coords) return;
+    const p = latLngToXY(coords[0], coords[1], globeAngle, cx, cy, r);
+    if (p.z < 0) return;
+
+    const color = v.status === 'hot' ? '#ff4466' : v.status === 'warm' ? '#ffb800' : '#00d4ff';
+    const dotR = v.status === 'hot' ? 5 : 4;
+
+    // Pulse ring
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, dotR + 4, 0, Math.PI*2);
+    ctx.fillStyle = color.replace(')', ',0.15)').replace('rgb', 'rgba');
+    ctx.fill();
+
+    // Dot
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, dotR, 0, Math.PI*2);
+    ctx.fillStyle = color;
+    ctx.fill();
+
+    // Glow
+    const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, dotR*3);
+    glow.addColorStop(0, color + '66');
+    glow.addColorStop(1, 'transparent');
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, dotR*3, 0, Math.PI*2);
+    ctx.fillStyle = glow;
+    ctx.fill();
+  });
+
+  // Shine
+  const shine = ctx.createRadialGradient(cx-r*0.4, cy-r*0.4, 0, cx, cy, r);
+  shine.addColorStop(0, 'rgba(255,255,255,0.04)');
+  shine.addColorStop(0.5, 'rgba(255,255,255,0)');
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.fillStyle = shine;
+  ctx.fill();
+
+  globeAngle += 0.3;
+  globeAnimFrame = requestAnimationFrame(drawGlobe);
+}
+
+function updateVisitorList(visitors) {
+  const list = document.getElementById('visitorList');
+  if (!list) return;
+  if (!visitors || visitors.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:40px 0">No active visitors</div>';
+    return;
+  }
+  list.innerHTML = visitors.slice(0,10).map(v => {
+    const color = v.status === 'hot' ? '#ff4466' : v.status === 'warm' ? '#ffb800' : '#00d4ff';
+    const ago = Math.round((Date.now()/1000 - v.last_seen) / 60);
+    const agoText = ago < 1 ? 'Just now' : ago + 'm ago';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.08);border-radius:8px">
+      <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;box-shadow:0 0 6px ${color}"></div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--text)">${v.city || v.country || 'Unknown'}</div>
+        <div style="font-size:10px;color:var(--muted)">${v.country || ''} · ${v.device || 'unknown'} · ${v.browser || ''}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:10px;color:${color};font-weight:700">${v.status?.toUpperCase() || 'COLD'}</div>
+        <div style="font-size:10px;color:var(--dim)">${agoText}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function loadLiveVisitors() {
+  const token = localStorage.getItem('ard_token');
+  fetch('/api/admin/live-visitors', { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(r => r.json())
+    .then(data => {
+      globeVisitors = data.today || [];
+      updateVisitorList(data.live || []);
+      // Update live count
+      const banner = document.getElementById('liveVisitorCount');
+      if (banner) banner.textContent = (data.stats?.live_count || 0) + ' visitors online now';
+    })
+    .catch(e => console.error('Globe error:', e));
+}
+
+function startGlobe() {
+  if (globeAnimFrame) cancelAnimationFrame(globeAnimFrame);
+  drawGlobe();
+  loadLiveVisitors();
+  if (!window.globeTimer) window.globeTimer = setInterval(loadLiveVisitors, 15000);
+}
+
+function stopGlobe() {
+  if (globeAnimFrame) { cancelAnimationFrame(globeAnimFrame); globeAnimFrame = null; }
+  if (window.globeTimer) { clearInterval(window.globeTimer); window.globeTimer = null; }
+}
+// ── End Globe ─────────────────────────────────────────────────────────────────
 
 function loadLeadIntel() {
   var token = localStorage.getItem('rd_token');
