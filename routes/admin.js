@@ -77,7 +77,7 @@ module.exports = function(db, sendBrevoEmail) {
     function brandedEmail(icon, title, subtitle, bodyHtml, ctaText, ctaUrl, footerNote) {
       return '<div style="font-family:Helvetica Neue,sans-serif;max-width:580px;margin:0 auto;background:#060912;color:#f0f4f8;padding:0;border-radius:16px;overflow:hidden;border:1px solid #1a2332">'
         + '<div style="background:#080e18;padding:28px 32px;border-bottom:1px solid #1a2332">'
-        + '<div style="font-size:24px;font-weight:800;margin-bottom:4px"><span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span></div>'
+        + '<div style="font-size:24px;font-weight:800;margin-bottom:4px"><span style="color:#00d4ff">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span></div>'
         + '<div style="font-size:11px;color:#5a7a9a;letter-spacing:.06em;margin-top:2px">Your 24/7 AI Call Desk</div>'
         + '</div>'
         + '<div style="background:' + (icon==='❌'?'rgba(255,68,102,.06)':'rgba(0,232,122,.06)') + ';border-bottom:1px solid ' + (icon==='❌'?'rgba(255,68,102,.15)':'rgba(0,232,122,.15)') + ';padding:16px 32px;display:flex;align-items:center;gap:12px">'
