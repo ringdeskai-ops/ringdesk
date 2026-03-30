@@ -4210,8 +4210,8 @@ async function loadRevenue() {
 function showPage(name) {
   if (name === 'incident-log') loadIncidents();
   if (name === 'system-health') startHealthAutoRefresh();
-  if (name === 'leads') loadWebsiteLeads();
   else stopHealthAutoRefresh();
+  if (name === 'leads') loadWebsiteLeads();
   if (name === 'analytics') startAnalyticsRefresh();
   else stopAnalyticsRefresh();
   if (name === 'lead-intel') startLeadIntelRefresh();
@@ -4236,7 +4236,7 @@ function showPage(name) {
   });
   closeDetail();
   if (name === 'calls') renderCalls();
-  if (name === 'leads') { renderLeads(); }
+  if (name === 'leads') { renderLeads(); loadWebsiteLeads(); }
   if (name === 'appointments') loadAppointments();
   if (name === 'settings') loadWebhookSettings();
   if (name === 'help') {}
