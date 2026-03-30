@@ -5966,6 +5966,11 @@ function project(lat, lng, angle, cx, cy, r) {
   return {x, y, z};
 }
 
+// Preload world map
+const worldMapImg = new Image();
+worldMapImg.crossOrigin = 'anonymous';
+worldMapImg.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blue_Marble_2002.png/1200px-Blue_Marble_2002.png';
+
 function drawGlobe() {
   const canvas = document.getElementById('globeCanvas');
   if (!canvas) return;
@@ -5975,7 +5980,7 @@ function drawGlobe() {
 
   ctx.clearRect(0,0,W,H);
 
-  // Ocean
+  // Ocean base
   const ocean = ctx.createRadialGradient(cx-r*.3, cy-r*.3, 0, cx, cy, r);
   ocean.addColorStop(0, '#0d2a4a');
   ocean.addColorStop(0.5, '#071828');
@@ -5984,6 +5989,41 @@ function drawGlobe() {
   ctx.arc(cx,cy,r,0,Math.PI*2);
   ctx.fillStyle = ocean;
   ctx.fill();
+
+  // Draw world map texture mapped to sphere
+  if (worldMapImg.complete && worldMapImg.naturalWidth > 0) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.clip();
+    const mapW = worldMapImg.naturalWidth;
+    const mapH = worldMapImg.naturalHeight;
+    // Simple cylindrical projection mapped to visible hemisphere
+    const offX = (globeAngle % 360) / 360;
+    for (let px = cx-r; px < cx+r; px += 2) {
+      for (let py = cy-r; py < cy+r; py += 2) {
+        const dx = (px-cx)/r, dy = (py-cy)/r;
+        const d2 = dx*dx+dy*dy;
+        if (d2 > 1) continue;
+        const dz = Math.sqrt(1-d2);
+        const lat = Math.asin(dy) * 180/Math.PI * -1;
+        let lng = Math.atan2(dx, dz) * 180/Math.PI;
+        lng = ((lng/360 + offX) % 1 + 1) % 1;
+        const mx = Math.floor(lng * mapW);
+        const my = Math.floor(((90-lat)/180) * mapH);
+        ctx.drawImage(worldMapImg, mx, my, 2, 2, px, py, 2, 2);
+      }
+    }
+    ctx.restore();
+    // Tint overlay for our dark theme
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx,cy,r,0,Math.PI*2);
+    ctx.clip();
+    ctx.fillStyle = 'rgba(0,30,60,0.45)';
+    ctx.fill();
+    ctx.restore();
+  }
 
   // Clip to sphere
   ctx.save();
