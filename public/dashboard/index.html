@@ -6152,8 +6152,8 @@ function loadLiveVisitors() {
   fetch('/api/admin/live-visitors', { headers: { 'Authorization': 'Bearer ' + token } })
     .then(r => r.json())
     .then(data => {
-      globeVisitors = data.today || [];
-      const liveOrToday = (data.live && data.live.length > 0) ? data.live : data.today || [];
+      globeVisitors = data.live || [];
+      const liveOrToday = data.today || [];
       updateVisitorList(liveOrToday, data.stats);
       const banner = document.getElementById('liveVisitorCount');
       if (banner) banner.textContent = (data.stats?.live_count||0) + ' visitors online now';
