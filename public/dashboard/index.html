@@ -903,8 +903,8 @@ select option{background-color:#0c1520;color:#f0f6ff}
           </div>
           <div style="overflow-x:auto">
             <table>
-              <thead><tr><th>Date</th><th>Business</th><th>Contact</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
-              <tbody id="websiteLeadsBody"><tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted)">Loading...</td></tr></tbody>
+              <thead><tr><th>Date</th><th>Business</th><th>Contact</th><th>Email</th><th>Phone</th><th>Industry</th><th>Status</th><th>Actions</th></tr></thead>
+              <tbody id="websiteLeadsBody"><tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">Loading...</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -923,7 +923,7 @@ select option{background-color:#0c1520;color:#f0f6ff}
               </tr>
             </thead>
             <tbody id="leadsTableBody">
-              <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--muted)">Loading leads...</td></tr>
+              
             </tbody>
           </table>
         </div>
@@ -4210,6 +4210,7 @@ async function loadRevenue() {
 function showPage(name) {
   if (name === 'incident-log') loadIncidents();
   if (name === 'system-health') startHealthAutoRefresh();
+  if (name === 'leads') loadWebsiteLeads();
   else stopHealthAutoRefresh();
   if (name === 'analytics') startAnalyticsRefresh();
   else stopAnalyticsRefresh();
@@ -5851,6 +5852,56 @@ function stopAnalyticsRefresh() {
 // LEAD INTELLIGENCE
 // ============================================================
 var leadIntelTimer = null;
+
+function loadWebsiteLeads() {
+  const token = localStorage.getItem('ard_token');
+  const tbody = document.getElementById('websiteLeadsBody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Loading...</td></tr>';
+  fetch('/api/leads', { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(r => r.json())
+    .then(data => {
+      if (!tbody) return;
+      const leads = data.leads || [];
+      if (!leads.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">No website enquiries yet</td></tr>';
+        return;
+      }
+      tbody.innerHTML = leads.map(l => {
+        const date = l.created_at ? new Date(l.created_at * 1000).toLocaleDateString('en-GB') : '—';
+        const statusColor = l.status === 'converted' ? '#00e87a' : l.status === 'contacted' ? '#ffb800' : l.status === 'lost' ? '#ff4466' : '#00d4ff';
+        const statusLabel = l.status || 'new';
+        return `<tr>
+          <td style="font-size:12px;color:var(--muted)">${date}</td>
+          <td style="font-weight:600">${l.business_name || '—'}</td>
+          <td>${(l.first_name||'') + ' ' + (l.last_name||'')}</td>
+          <td style="color:var(--cyan)">${l.email || '—'}</td>
+          <td>${l.phone || '—'}</td>
+          <td>${l.industry || '—'}</td>
+          <td><span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;color:${statusColor};background:${statusColor}18;border:1px solid ${statusColor}33">${statusLabel}</span></td>
+          <td>
+            <select onchange="updateLeadStatus('${l.id}', this.value)" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer">
+              <option value="new" ${l.status==='new'?'selected':''}>New</option>
+              <option value="contacted" ${l.status==='contacted'?'selected':''}>Contacted</option>
+              <option value="converted" ${l.status==='converted'?'selected':''}>Converted</option>
+              <option value="lost" ${l.status==='lost'?'selected':''}>Lost</option>
+            </select>
+          </td>
+        </tr>`;
+      }).join('');
+    })
+    .catch(e => {
+      if (tbody) tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--red)">Error loading leads</td></tr>';
+    });
+}
+
+function updateLeadStatus(leadId, status) {
+  const token = localStorage.getItem('ard_token');
+  fetch('/api/leads/status', {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ lead_id: leadId, status })
+  }).then(() => loadWebsiteLeads());
+}
 
 function loadLeadIntel() {
   var token = localStorage.getItem('rd_token');
