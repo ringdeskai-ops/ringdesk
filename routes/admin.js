@@ -89,7 +89,7 @@ module.exports = function(db, sendBrevoEmail) {
         + (ctaText ? '<a href="' + ctaUrl + '" style="display:inline-block;background:#00d4ff;color:#020408;text-decoration:none;padding:12px 28px;border-radius:50px;font-size:14px;font-weight:700;margin-top:8px">' + ctaText + '</a>' : '')
         + '</div>'
         + '<div style="background:#080e18;border-top:1px solid #1a2332;padding:16px 32px;display:flex;justify-content:space-between;align-items:center">'
-        + '<div style="font-size:11px;color:#3d4f63">' + (footerNote || 'AiRingDesk · AI Receptionist Platform') + '</div>'
+        + '<div style="font-size:11px;color:#3d4f63">' + (footerNote || 'AiRingDesk® · AI Receptionist Platform') + '</div>'
         + '<a href="https://airingdesk.com" style="font-size:11px;color:#5a7a9a;text-decoration:none">airingdesk.com</a>'
         + '</div></div>';
     }
