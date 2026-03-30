@@ -5992,8 +5992,8 @@ function drawGlobe() {
   ctx.clip();
 
   // Grid lines
-  ctx.strokeStyle = 'rgba(0,180,220,0.08)';
-  ctx.lineWidth = 0.5;
+  ctx.strokeStyle = 'rgba(0,212,255,0.2)';
+  ctx.lineWidth = 0.8;
   for (let lat=-80; lat<=80; lat+=20) {
     ctx.beginPath();
     let f=true;
@@ -6108,7 +6108,7 @@ function updateVisitorList(visitors, stats) {
 }
 
 function loadLiveVisitors() {
-  const token = localStorage.getItem('ard_token');
+  const token = localStorage.getItem('ard_token') || (typeof currentToken !== 'undefined' ? currentToken : '');
   fetch('/api/admin/live-visitors', { headers: { 'Authorization': 'Bearer ' + token } })
     .then(r => r.json())
     .then(data => {
