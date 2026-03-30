@@ -815,22 +815,6 @@ select option{background-color:#0c1520;color:#f0f6ff}
         <button onclick="loadSmsLogs()" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">↻ Refresh</button>
       </div>
 
-
-      <!-- Live Visitor Globe -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
-        <div style="background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid rgba(0,212,255,.12);border-radius:16px;padding:20px;position:relative;overflow:hidden">
-          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">🌍 Live Visitor Globe</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Real-time visitors on airingdesk.com</div>
-          <canvas id="globeCanvas" width="320" height="320" style="display:block;margin:0 auto;border-radius:50%"></canvas>
-        </div>
-        <div style="background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid rgba(0,212,255,.12);border-radius:16px;padding:20px">
-          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px">📍 Active Visitors</div>
-          <div id="visitorList" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto">
-            <div style="text-align:center;color:var(--muted);font-size:13px;padding:40px 0">Loading...</div>
-          </div>
-        </div>
-      </div>
-
       <!-- Stats Row -->
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
@@ -2928,6 +2912,22 @@ select option{background-color:#0c1520;color:#f0f6ff}
         <div style="width:10px;height:10px;border-radius:50%;background:#00e87a;animation:pulse 2s infinite;flex-shrink:0"></div>
         <div style="font-size:14px;font-weight:600;color:#00e87a" id="liveVisitorCount">0 visitors online now</div>
         <div style="font-size:12px;color:var(--muted);margin-left:8px">Last 5 minutes</div>
+      </div>
+
+
+      <!-- Live Visitor Globe -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
+        <div style="background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid rgba(0,212,255,.12);border-radius:16px;padding:20px;position:relative;overflow:hidden">
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">🌍 Live Visitor Globe</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Real-time visitors on airingdesk.com</div>
+          <canvas id="globeCanvas" width="320" height="320" style="display:block;margin:0 auto;border-radius:50%"></canvas>
+        </div>
+        <div style="background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid rgba(0,212,255,.12);border-radius:16px;padding:20px">
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px">📍 Active Visitors</div>
+          <div id="visitorList" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto">
+            <div style="text-align:center;color:var(--muted);font-size:13px;padding:40px 0">Loading...</div>
+          </div>
+        </div>
       </div>
 
       <!-- Stats Row -->
