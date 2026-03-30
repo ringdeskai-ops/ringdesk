@@ -2918,14 +2918,43 @@ select option{background-color:#0c1520;color:#f0f6ff}
       <!-- Live Visitor Globe -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px">
         <div style="background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid rgba(0,212,255,.12);border-radius:16px;padding:20px;position:relative;overflow:hidden">
-          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">🌍 Live Visitor Globe</div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Real-time visitors on airingdesk.com</div>
-          <canvas id="globeCanvas" width="320" height="320" style="display:block;margin:0 auto;border-radius:50%"></canvas>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:var(--text)">🌍 Live Visitor Globe</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:2px">Real-time visitors on airingdesk.com</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="width:8px;height:8px;border-radius:50%;background:#00e87a;animation:pulse 2s infinite"></div>
+              <span id="globeLiveCount" style="font-size:12px;font-weight:700;color:#00e87a">0 live</span>
+            </div>
+          </div>
+          <div style="position:relative;width:100%;padding-bottom:100%;overflow:hidden;border-radius:12px">
+            <iframe id="globeFrame"
+              src="https://globe.gl/example/random-points/"
+              style="position:absolute;inset:0;width:100%;height:100%;border:none;border-radius:12px;pointer-events:none;opacity:0.9"
+              loading="lazy">
+            </iframe>
+            <div id="globeFallback" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+              <canvas id="globeCanvas" width="400" height="400" style="width:100%;height:100%"></canvas>
+            </div>
+          </div>
         </div>
         <div style="background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid rgba(0,212,255,.12);border-radius:16px;padding:20px">
-          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:16px">📍 Active Visitors</div>
-          <div id="visitorList" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto">
-            <div style="text-align:center;color:var(--muted);font-size:13px;padding:40px 0">Loading...</div>
+          <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">📍 Visitor Activity</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:12px">Last 24 hours</div>
+          <div id="globeStatRow" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">
+            <div style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.12);border-radius:10px;padding:12px;text-align:center">
+              <div id="globeTodayCount" style="font-size:24px;font-weight:800;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">0</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px">Today</div>
+            </div>
+            <div style="background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.12);border-radius:10px;padding:12px;text-align:center">
+              <div id="globeHotCount" style="font-size:24px;font-weight:800;background:linear-gradient(135deg,#ff4466,#cc0033);-webkit-background-clip:text;-webkit-text-fill-color:transparent">0</div>
+              <div style="font-size:10px;color:var(--muted);margin-top:2px">Hot Leads</div>
+            </div>
+          </div>
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Recent Visitors</div>
+          <div id="visitorList" style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto">
+            <div style="text-align:center;color:var(--muted);font-size:13px;padding:20px 0">Loading...</div>
           </div>
         </div>
       </div>
@@ -5920,29 +5949,32 @@ function updateLeadStatus(leadId, status) {
 }
 
 
+
 // ── Live Visitor Globe ────────────────────────────────────────────────────────
 let globeAngle = 0;
 let globeVisitors = [];
 let globeAnimFrame = null;
 
-const COUNTRY_COORDS = {
-  'GB': [51.5, -0.1], 'US': [37.0, -95.7], 'DE': [51.2, 10.5],
-  'FR': [46.2, 2.2], 'IN': [20.6, 78.9], 'AU': [25.3, 133.8],
-  'CA': [56.1, -106.3], 'NL': [52.1, 5.3], 'IE': [53.1, -8.2],
-  'SG': [1.3, 103.8], 'AE': [23.4, 53.8], 'ZA': [-30.6, 22.9],
-  'PK': [30.4, 69.3], 'NG': [9.1, 8.7], 'NZ': [-40.9, 174.9],
-  'CH': [46.8, 8.2], 'SE': [60.1, 18.6], 'NO': [60.5, 8.5],
-  'DK': [56.3, 9.5], 'PL': [51.9, 19.1], 'IT': [41.9, 12.6],
-  'ES': [40.5, -3.7], 'BR': [-14.2, -51.9], 'MX': [23.6, -102.6],
-  'JP': [36.2, 138.3], 'KR': [35.9, 127.8], 'CN': [35.9, 104.2],
+const COORDS = {
+  'GB':[51.5,-0.1],'US':[37,-95.7],'DE':[51.2,10.5],'FR':[46.2,2.2],
+  'IN':[20.6,78.9],'AU':[-25.3,133.8],'CA':[56.1,-106.3],'NL':[52.1,5.3],
+  'IE':[53.1,-8.2],'SG':[1.3,103.8],'AE':[23.4,53.8],'ZA':[-30.6,22.9],
+  'PK':[30.4,69.3],'NG':[9.1,8.7],'NZ':[-40.9,174.9],'CH':[46.8,8.2],
+  'SE':[60.1,18.6],'NO':[60.5,8.5],'DK':[56.3,9.5],'PL':[51.9,19.1],
+  'IT':[41.9,12.6],'ES':[40.5,-3.7],'BR':[-14.2,-51.9],'MX':[23.6,-102.6],
+  'JP':[36.2,138.3],'KR':[35.9,127.8],'CN':[35.9,104.2],'RU':[61.5,105.3],
+  'TR':[38.9,35.2],'SA':[23.9,45.1],'EG':[26,30],'ZW':[-20,30],
+  'TZ':[-6,35],'KE':[-0.5,37],'GH':[7.9,-1.2],'MA':[31.8,-7.1],
 };
 
-function latLngToXY(lat, lng, angle, cx, cy, r) {
-  const adjLng = lng + angle;
-  const x = cx + r * Math.cos(lat * Math.PI/180) * Math.sin(adjLng * Math.PI/180);
-  const y = cy - r * Math.sin(lat * Math.PI/180);
-  const z = Math.cos(lat * Math.PI/180) * Math.cos(adjLng * Math.PI/180);
-  return { x, y, z };
+// Simplified continent polygons [lat,lng]
+function project(lat, lng, angle, cx, cy, r) {
+  const la = lat * Math.PI/180;
+  const lo = (lng + angle) * Math.PI/180;
+  const x = cx + r * Math.cos(la) * Math.sin(lo);
+  const y = cy - r * Math.sin(la);
+  const z = Math.cos(la) * Math.cos(lo);
+  return {x, y, z};
 }
 
 function drawGlobe() {
@@ -5950,169 +5982,158 @@ function drawGlobe() {
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
-  const cx = W/2, cy = H/2, r = W/2 - 10;
+  const cx = W/2, cy = H/2, r = W/2 - 8;
 
-  ctx.clearRect(0, 0, W, H);
+  ctx.clearRect(0,0,W,H);
 
-  // Background
-  const bgGrad = ctx.createRadialGradient(cx-r*0.3, cy-r*0.3, 0, cx, cy, r);
-  bgGrad.addColorStop(0, '#0d2040');
-  bgGrad.addColorStop(1, '#060912');
+  // Ocean
+  const ocean = ctx.createRadialGradient(cx-r*.3, cy-r*.3, 0, cx, cy, r);
+  ocean.addColorStop(0, '#0d2a4a');
+  ocean.addColorStop(0.5, '#071828');
+  ocean.addColorStop(1, '#030c14');
   ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI*2);
-  ctx.fillStyle = bgGrad;
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle = ocean;
   ctx.fill();
 
+  // Clip to sphere
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.clip();
+
   // Grid lines
-  ctx.strokeStyle = 'rgba(0,212,255,0.15)';
+  ctx.strokeStyle = 'rgba(0,180,220,0.08)';
   ctx.lineWidth = 0.5;
-  for (let lat = -80; lat <= 80; lat += 20) {
+  for (let lat=-80; lat<=80; lat+=20) {
     ctx.beginPath();
-    let first = true;
-    for (let lng = -180; lng <= 180; lng += 2) {
-      const p = latLngToXY(lat, lng, globeAngle, cx, cy, r);
-      if (p.z > 0) {
-        if (first) { ctx.moveTo(p.x, p.y); first = false; }
-        else ctx.lineTo(p.x, p.y);
-      } else first = true;
+    let f=true;
+    for (let lng=-180; lng<=180; lng+=3) {
+      const p=project(lat,lng,globeAngle,cx,cy,r);
+      if(p.z>0){f?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);f=false;}else f=true;
     }
     ctx.stroke();
   }
-  for (let lng = -180; lng <= 180; lng += 20) {
+  for (let lng=-180; lng<=180; lng+=20) {
     ctx.beginPath();
-    let first = true;
-    for (let lat = -90; lat <= 90; lat += 2) {
-      const p = latLngToXY(lat, lng, globeAngle, cx, cy, r);
-      if (p.z > 0) {
-        if (first) { ctx.moveTo(p.x, p.y); first = false; }
-        else ctx.lineTo(p.x, p.y);
-      } else first = true;
+    let f=true;
+    for (let lat=-90; lat<=90; lat+=3) {
+      const p=project(lat,lng,globeAngle,cx,cy,r);
+      if(p.z>0){f?ctx.moveTo(p.x,p.y):ctx.lineTo(p.x,p.y);f=false;}else f=true;
     }
     ctx.stroke();
   }
 
-  // Continent outlines (simplified polygon paths)
-  const continents = [
-    // UK & Ireland
-    [[51,-6],[58,-5],[59,-3],[57,0],[53,2],[51,2],[50,0],[50,-5],[51,-6]],
-    // Western Europe
-    [[51,2],[55,8],[57,10],[56,12],[55,14],[48,17],[46,14],[44,10],[43,5],[44,0],[47,-2],[48,-5],[51,-2],[51,2]],
-    // Scandinavia
-    [[57,8],[58,6],[62,5],[65,14],[70,28],[69,30],[64,26],[60,22],[59,18],[57,12],[57,8]],
-    // Russia / Eastern Europe
-    [[55,14],[60,22],[65,30],[68,50],[66,70],[68,100],[65,130],[60,140],[55,135],[50,130],[48,130],[45,135],[45,120],[45,80],[48,60],[50,50],[55,40],[58,30],[60,24],[55,22],[50,20],[48,17],[55,14]],
-    // North Africa
-    [[37,10],[37,-5],[35,-6],[32,-8],[28,-13],[15,-17],[5,-5],[4,10],[10,15],[15,20],[20,25],[25,30],[30,32],[32,25],[37,15],[37,10]],
-    // Sub-Saharan Africa
-    [[5,-5],[0,-8],[-5,-12],[-10,-14],[-20,-14],[-30,-18],[-34,-26],[-34,-20],[-28,32],[-20,36],[-10,40],[0,42],[5,40],[10,42],[15,40],[20,38],[15,28],[10,20],[5,10],[5,-5]],
-    // Middle East
-    [[30,32],[37,38],[42,44],[38,58],[24,58],[22,40],[28,34],[30,32]],
-    // Indian Subcontinent
-    [[24,68],[36,74],[36,76],[30,80],[28,88],[22,92],[8,78],[8,76],[12,74],[20,72],[24,68]],
-    // Southeast Asia
-    [[28,88],[25,98],[20,100],[15,105],[10,104],[5,100],[3,108],[5,118],[1,110],[5,100],[10,98],[22,100],[25,98]],
-    // China/East Asia
-    [[42,130],[48,134],[50,140],[44,140],[36,122],[25,120],[22,110],[25,102],[30,100],[38,76],[42,80],[48,88],[50,80],[55,70],[52,60],[50,50],[55,40],[60,50],[60,80],[55,90],[50,90],[50,100],[55,120],[50,130],[42,130]],
-    // North America
-    [[70,-140],[72,-120],[70,-100],[60,-95],[58,-80],[50,-64],[45,-60],[44,-66],[42,-70],[42,-80],[45,-83],[45,-75],[44,-76],[42,-79],[42,-83],[38,-75],[36,-76],[30,-80],[25,-80],[25,-90],[20,-88],[16,-86],[10,-84],[8,-78],[10,-77],[12,-72],[16,-62],[18,-66],[20,-72],[30,-76],[36,-76],[44,-66],[50,-64],[52,-56],[56,-60],[60,-64],[65,-64],[66,-68],[70,-78],[72,-80],[72,-100],[75,-120],[76,-140],[70,-140]],
-    // South America
-    [[10,-72],[10,-62],[5,-52],[0,-50],[-5,-35],[-10,-37],[-20,-40],[-30,-50],[-35,-58],[-40,-62],[-50,-68],[-55,-66],[-56,-68],[-50,-74],[-42,-74],[-35,-72],[-28,-70],[-18,-70],[-10,-76],[-2,-78],[0,-78],[5,-78],[10,-72]],
-    // Australia
-    [[-18,122],[-14,128],[-12,136],[-14,140],[-18,148],[-24,152],[-30,153],[-36,150],[-38,145],[-38,140],[-34,136],[-32,134],[-28,126],[-22,114],[-18,122]],
-  ];
-
-  ctx.strokeStyle = 'rgba(0,212,255,0.35)';
-  ctx.fillStyle = 'rgba(0,212,255,0.06)';
-  ctx.lineWidth = 0.8;
-
-  continents.forEach(poly => {
+  // Continents
+  LANDS.forEach(poly => {
     ctx.beginPath();
-    let started = false;
-    poly.forEach(([lat, lng]) => {
-      const p = latLngToXY(lat, lng, globeAngle, cx, cy, r);
-      if (p.z > 0.1) {
-        if (!started) { ctx.moveTo(p.x, p.y); started = true; }
-        else ctx.lineTo(p.x, p.y);
+    let started=false;
+    poly.forEach(([lat,lng]) => {
+      const p=project(lat,lng,globeAngle,cx,cy,r);
+      if(p.z>0.05){
+        started?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y);
+        started=true;
       }
     });
-    if (started) { ctx.closePath(); ctx.fill(); ctx.stroke(); }
+    if(started){
+      ctx.closePath();
+      ctx.fillStyle='rgba(0,180,100,0.18)';
+      ctx.fill();
+      ctx.strokeStyle='rgba(0,220,130,0.35)';
+      ctx.lineWidth=0.8;
+      ctx.stroke();
+    }
   });
 
-  // Globe border glow
-  const borderGrad = ctx.createRadialGradient(cx, cy, r-2, cx, cy, r+2);
-  borderGrad.addColorStop(0, 'rgba(0,212,255,0.3)');
-  borderGrad.addColorStop(1, 'rgba(0,212,255,0)');
-  ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI*2);
-  ctx.strokeStyle = 'rgba(0,212,255,0.4)';
-  ctx.lineWidth = 1.5;
-  ctx.stroke();
+  ctx.restore();
 
   // Visitor dots
   globeVisitors.forEach(v => {
-    const coords = COUNTRY_COORDS[v.country_code];
-    if (!coords) return;
-    const p = latLngToXY(coords[0], coords[1], globeAngle, cx, cy, r);
-    if (p.z < 0) return;
-
-    const color = v.status === 'hot' ? '#ff4466' : v.status === 'warm' ? '#ffb800' : '#00d4ff';
-    const dotR = v.status === 'hot' ? 7 : v.status === 'warm' ? 6 : 5;
-
-    // Pulse ring
+    const coords = COORDS[v.country_code];
+    if(!coords) return;
+    const p = project(coords[0],coords[1],globeAngle,cx,cy,r);
+    if(p.z < 0.1) return;
+    const col = v.status==='hot'?'#ff4466':v.status==='warm'?'#ffb800':'#00d4ff';
+    const dr = v.status==='hot'?6:v.status==='warm'?5:4;
+    // Glow
+    const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,dr*4);
+    g.addColorStop(0,col+'aa');
+    g.addColorStop(1,'transparent');
     ctx.beginPath();
-    ctx.arc(p.x, p.y, dotR + 4, 0, Math.PI*2);
-    ctx.fillStyle = color + '33';
+    ctx.arc(p.x,p.y,dr*4,0,Math.PI*2);
+    ctx.fillStyle=g;
     ctx.fill();
-
     // Dot
     ctx.beginPath();
-    ctx.arc(p.x, p.y, dotR, 0, Math.PI*2);
-    ctx.fillStyle = color;
+    ctx.arc(p.x,p.y,dr,0,Math.PI*2);
+    ctx.fillStyle=col;
     ctx.fill();
-
-    // Glow
-    const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, dotR*3);
-    glow.addColorStop(0, color + '66');
-    glow.addColorStop(1, 'transparent');
+    // Ring
     ctx.beginPath();
-    ctx.arc(p.x, p.y, dotR*3, 0, Math.PI*2);
-    ctx.fillStyle = glow;
-    ctx.fill();
+    ctx.arc(p.x,p.y,dr+3,0,Math.PI*2);
+    ctx.strokeStyle=col+'66';
+    ctx.lineWidth=1.5;
+    ctx.stroke();
   });
 
-  // Shine
-  const shine = ctx.createRadialGradient(cx-r*0.4, cy-r*0.4, 0, cx, cy, r);
-  shine.addColorStop(0, 'rgba(255,255,255,0.04)');
-  shine.addColorStop(0.5, 'rgba(255,255,255,0)');
+  // Atmosphere
+  const atm=ctx.createRadialGradient(cx,cy,r-2,cx,cy,r+6);
+  atm.addColorStop(0,'rgba(0,180,255,0.15)');
+  atm.addColorStop(1,'rgba(0,100,200,0)');
   ctx.beginPath();
-  ctx.arc(cx, cy, r, 0, Math.PI*2);
-  ctx.fillStyle = shine;
+  ctx.arc(cx,cy,r+4,0,Math.PI*2);
+  ctx.fillStyle=atm;
   ctx.fill();
 
-  globeAngle += 0.3;
+  // Shine
+  const shine=ctx.createRadialGradient(cx-r*.4,cy-r*.4,0,cx,cy,r);
+  shine.addColorStop(0,'rgba(255,255,255,0.06)');
+  shine.addColorStop(0.4,'transparent');
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle=shine;
+  ctx.fill();
+
+  // Border
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.strokeStyle='rgba(0,212,255,0.4)';
+  ctx.lineWidth=1.5;
+  ctx.stroke();
+
+  globeAngle += 0.25;
   globeAnimFrame = requestAnimationFrame(drawGlobe);
 }
 
-function updateVisitorList(visitors) {
+function updateVisitorList(visitors, stats) {
   const list = document.getElementById('visitorList');
+  const liveEl = document.getElementById('globeLiveCount');
+  const todayEl = document.getElementById('globeTodayCount');
+  const hotEl = document.getElementById('globeHotCount');
+  if (liveEl) liveEl.textContent = (stats?.live_count||0) + ' live';
+  if (todayEl) todayEl.textContent = stats?.today_count||0;
+  if (hotEl) hotEl.textContent = stats?.hot_count||0;
   if (!list) return;
-  if (!visitors || visitors.length === 0) {
-    list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:13px;padding:40px 0">No active visitors</div>';
+  const show = visitors && visitors.length > 0 ? visitors : [];
+  if (!show.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);font-size:12px;padding:20px 0">No visitors yet today</div>';
     return;
   }
-  list.innerHTML = visitors.slice(0,10).map(v => {
-    const color = v.status === 'hot' ? '#ff4466' : v.status === 'warm' ? '#ffb800' : '#00d4ff';
-    const ago = Math.round((Date.now()/1000 - v.last_seen) / 60);
-    const agoText = ago < 1 ? 'Just now' : ago + 'm ago';
-    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 10px;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.08);border-radius:8px">
-      <div style="width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;box-shadow:0 0 6px ${color}"></div>
+  list.innerHTML = show.slice(0,10).map(v => {
+    const col = v.status==='hot'?'#ff4466':v.status==='warm'?'#ffb800':'#00d4ff';
+    const ago = Math.round((Date.now()/1000-v.last_seen)/60);
+    const agoTxt = ago<1?'Just now':ago<60?ago+'m ago':Math.floor(ago/60)+'h ago';
+    const flag = v.country_code ? String.fromCodePoint(...[...v.country_code].map(c=>0x1F1E6+c.charCodeAt(0)-65)) : '🌍';
+    return `<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.08);border-radius:8px">
+      <div style="width:7px;height:7px;border-radius:50%;background:${col};flex-shrink:0;box-shadow:0 0 6px ${col}88"></div>
+      <span style="font-size:14px">${flag}</span>
       <div style="flex:1;min-width:0">
-        <div style="font-size:12px;font-weight:600;color:var(--text)">${v.city || v.country || 'Unknown'}</div>
-        <div style="font-size:10px;color:var(--muted)">${v.country || ''} · ${v.device || 'unknown'} · ${v.browser || ''}</div>
+        <div style="font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${v.city||v.country||'Unknown'}</div>
+        <div style="font-size:10px;color:var(--muted)">${v.device||'unknown'} · ${v.browser||''}</div>
       </div>
       <div style="text-align:right;flex-shrink:0">
-        <div style="font-size:10px;color:${color};font-weight:700">${v.status?.toUpperCase() || 'COLD'}</div>
-        <div style="font-size:10px;color:var(--dim)">${agoText}</div>
+        <div style="font-size:10px;color:${col};font-weight:700">${(v.status||'cold').toUpperCase()}</div>
+        <div style="font-size:10px;color:var(--dim)">${agoTxt}</div>
       </div>
     </div>`;
   }).join('');
@@ -6124,12 +6145,12 @@ function loadLiveVisitors() {
     .then(r => r.json())
     .then(data => {
       globeVisitors = data.today || [];
-      updateVisitorList(data.live && data.live.length > 0 ? data.live : data.today || []);
-      // Update live count
+      const liveOrToday = (data.live && data.live.length > 0) ? data.live : data.today || [];
+      updateVisitorList(liveOrToday, data.stats);
       const banner = document.getElementById('liveVisitorCount');
-      if (banner) banner.textContent = (data.stats?.live_count || 0) + ' visitors online now';
+      if (banner) banner.textContent = (data.stats?.live_count||0) + ' visitors online now';
     })
-    .catch(e => console.error('Globe error:', e));
+    .catch(e => console.error('Globe:', e));
 }
 
 function startGlobe() {
