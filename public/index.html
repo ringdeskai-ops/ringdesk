@@ -65,7 +65,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:80px;display:flex;ali
 .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.035) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,black,transparent);pointer-events:none}
 .orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
 .orb1{width:600px;height:600px;background:radial-gradient(circle,rgba(0,212,255,.1),transparent 70%);top:-150px;left:50%;transform:translateX(-50%);animation:floatOrb 10s ease-in-out infinite}
-.orb2{width:350px;height:350px;background:radial-gradient(circle,rgba(0,102,255,.08),transparent 70%);bottom:50px;right:5%;animation:floatOrb 8s ease-in-out infinite reverse}
+.orb2{width:350px;height:350px;background:radial-gradient(circle,rgba(0,102,204,.06),transparent 70%);bottom:50px;right:5%;animation:floatOrb 8s ease-in-out infinite reverse}
 .orb3{width:200px;height:200px;background:radial-gradient(circle,rgba(124,58,237,.07),transparent 70%);top:30%;left:3%;animation:floatOrb 12s ease-in-out infinite}
 .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:100px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--cyan);margin-bottom:32px;animation:fadeUp .6s ease both}
 .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 1.5s infinite}
@@ -81,7 +81,7 @@ h1 em{font-style:italic;background:var(--grad-cyan);-webkit-background-clip:text
 
 /* CALL CARD */
 .hero-visual{position:relative;margin:64px auto 0;max-width:680px;width:100%;animation:fadeUp .6s .5s ease both}
-.call-card{background:rgba(8,14,24,.92);border:1px solid var(--border2);border-radius:20px;padding:28px;backdrop-filter:blur(20px);box-shadow:0 40px 80px rgba(0,0,0,.6),0 0 0 1px rgba(0,212,255,.04),inset 0 1px 0 rgba(255,255,255,.05);position:relative;overflow:hidden}
+.call-card{background:rgba(6,9,18,.95);border:1px solid rgba(0,212,255,.2);border-radius:20px;padding:28px;backdrop-filter:blur(20px);box-shadow:0 40px 80px rgba(0,0,0,.6),0 0 0 1px rgba(0,212,255,.04),inset 0 1px 0 rgba(255,255,255,.05);position:relative;overflow:hidden}
 .call-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.5),transparent)}
 .call-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
 .status-badge{display:flex;align-items:center;gap:7px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.2);border-radius:100px;padding:4px 12px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:.04em}
@@ -92,13 +92,13 @@ h1 em{font-style:italic;background:var(--grad-cyan);-webkit-background-clip:text
 .chat-row{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
 .chat-row.ai{flex-direction:row-reverse}
 .cavatar{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;font-weight:800}
-.ca-caller{background:rgba(0,102,255,.15);border:1px solid rgba(0,102,255,.25);color:#6699ff}
-.ca-ai{background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.2);color:var(--cyan)}
+.ca-caller{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:#00d4ff}
+.ca-ai{background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(0,102,204,.15));border:1px solid rgba(0,212,255,.3);color:#00d4ff;box-shadow:0 0 12px rgba(0,212,255,.15)}
 .cbubble{padding:10px 14px;border-radius:12px;font-size:13px;line-height:1.6;max-width:75%}
-.cb-caller{background:rgba(0,102,255,.1);border:1px solid rgba(0,102,255,.18);border-radius:12px 12px 12px 3px;color:rgba(240,246,255,.8)}
-.cb-ai{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.14);border-radius:12px 12px 3px 12px;color:rgba(240,246,255,.9)}
+.cb-caller{background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.15);border-radius:12px 12px 12px 3px;color:rgba(240,246,255,.9)}
+.cb-ai{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,102,204,.05));border:1px solid rgba(0,212,255,.18);border-radius:12px 12px 3px 12px;color:rgba(240,246,255,.95)}
 .clabel{font-size:10px;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px;font-weight:600}
-.cl-caller{color:rgba(102,153,255,.8)}
+.cl-caller{color:rgba(0,212,255,.8)}
 .cl-ai{color:rgba(0,212,255,.8)}
 .call-footer{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border);margin-top:4px}
 .cmeta{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
@@ -344,7 +344,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 .toggle-switch.annual .toggle-thumb{left:25px}
 .annual-badge{background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.25);border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:.04em}
 /* DEMO CALL BANNER */
-#demo-banner{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,102,255,.06));border-top:1px solid rgba(0,212,255,.15);border-bottom:1px solid rgba(0,212,255,.15);padding:20px clamp(20px,5vw,60px);margin-top:80px;position:relative;z-index:90}
+#demo-banner{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,102,204,.05));border-top:1px solid rgba(0,212,255,.15);border-bottom:1px solid rgba(0,212,255,.15);padding:20px clamp(20px,5vw,60px);margin-top:80px;position:relative;z-index:90}
 .demo-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .demo-text{display:flex;align-items:center;gap:14px}
 .demo-pulse{width:44px;height:44px;border-radius:12px;background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
@@ -1205,7 +1205,7 @@ function hpDone(){hpPlaying=false;hpAnimWave(false);hpAnimRings(false);hpSetActi
     <p class="ssub">Real businesses. Real results.</p>
   </div>
   <div class="test-grid reveal">
-    <div class="testi"><div class="stars">★★★★★</div><blockquote>"We were missing 30–40% of our calls after hours. AiRingDesk completely solved that. It books appointments, answers FAQs, and only transfers the complex ones to us."</blockquote><div class="tauth"><div class="tav" style="background:rgba(0,102,255,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6699ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div><div class="tname">Dr. James Whitfield</div><div class="tbiz">Whitfield Dental, Manchester</div></div></div></div>
+    <div class="testi"><div class="stars">★★★★★</div><blockquote>"We were missing 30–40% of our calls after hours. AiRingDesk completely solved that. It books appointments, answers FAQs, and only transfers the complex ones to us."</blockquote><div class="tauth"><div class="tav" style="background:rgba(0,212,255,.08)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div><div><div class="tname">Dr. James Whitfield</div><div class="tbiz">Whitfield Dental, Manchester</div></div></div></div>
     <div class="testi"><div class="stars">★★★★★</div><blockquote>"I'm a one-person plumbing business. I used to lose jobs because I couldn't answer calls on site. Now Aria answers, takes details, and I call back when free. Paid for itself week one."</blockquote><div class="tauth"><div class="tav" style="background:rgba(0,232,122,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg></div><div><div class="tname">Dave Thornton</div><div class="tbiz">Thornton Plumbing, Leeds</div></div></div></div>
     <div class="testi"><div class="stars">★★★★★</div><blockquote>"The call transcripts alone are worth it. I can see every conversation my AI has with customers. It handles difficult callers better than some of my staff."</blockquote><div class="tauth"><div class="tav" style="background:rgba(255,184,0,.1)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffb800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg></div><div><div class="tname">Priya Sharma</div><div class="tbiz">Serenity Spa, London</div></div></div></div>
   </div>
