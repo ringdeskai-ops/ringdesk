@@ -149,8 +149,16 @@ async function sendSMS(clientId, toNumber, body, trigger) {
     // Use client's own SMS number, fallback to global AiRingDesk SMS number
     const globalSmsFrom = process.env.TWILIO_SMS_FROM || '+447492879452';
     const fromNumber = client.sms_from_number || globalSmsFrom;
+    // Validate to number
+    if (!toNumber || toNumber.trim() === '') { console.log('SMS skipped: missing to number for client:', clientId); return; }
+    // Normalise UK numbers missing + prefix
+    if (toNumber.startsWith('07')) toNumber = '+44' + toNumber.slice(1);
+    if (toNumber.startsWith('44') && !toNumber.startsWith('+')) toNumber = '+' + toNumber;
+    // Remove spaces
+    toNumber = toNumber.replace(/\s/g,'');
+    // Skip fake/test numbers
+    if (toNumber === '+447700900000' || toNumber === '+447700900001') { console.log('SMS skipped: test number', toNumber); return; }
     // Prevent sending SMS from and to the same number
-    if (!toNumber) { console.log('SMS skipped: missing to number'); return; }
     if (fromNumber === toNumber) { console.log('SMS skipped: from and to are the same number:', fromNumber); return; }
     const msg = await twilioClient.messages.create({ body, from: fromNumber, to: toNumber });
     db.prepare('INSERT INTO sms_logs (client_id, direction, from_number, to_number, body, status, twilio_sid, trigger) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
