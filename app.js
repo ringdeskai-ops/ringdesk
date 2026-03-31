@@ -147,6 +147,9 @@ async function sendSMS(clientId, toNumber, body, trigger) {
     const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(clientId);
     if (!client || !client.phone_number) return;
     const fromNumber = client.sms_from_number || client.phone_number;
+    // Prevent sending SMS from and to the same number
+    if (!toNumber || !fromNumber) { console.log('SMS skipped: missing from or to number'); return; }
+    if (fromNumber === toNumber) { console.log('SMS skipped: from and to are the same number:', fromNumber); return; }
     const msg = await twilioClient.messages.create({ body, from: fromNumber, to: toNumber });
     db.prepare('INSERT INTO sms_logs (client_id, direction, from_number, to_number, body, status, twilio_sid, trigger) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
       .run(clientId, 'outbound', fromNumber, toNumber, body, 'sent', msg.sid, trigger);
