@@ -145,10 +145,12 @@ const STRIPE_PRICE_IDS = {
 async function sendSMS(clientId, toNumber, body, trigger) {
   try {
     const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(clientId);
-    if (!client || !client.phone_number) return;
-    const fromNumber = client.sms_from_number || client.phone_number;
+    if (!client) return;
+    // Use client's own SMS number, fallback to global AiRingDesk SMS number
+    const globalSmsFrom = process.env.TWILIO_SMS_FROM || '+447492879452';
+    const fromNumber = client.sms_from_number || globalSmsFrom;
     // Prevent sending SMS from and to the same number
-    if (!toNumber || !fromNumber) { console.log('SMS skipped: missing from or to number'); return; }
+    if (!toNumber) { console.log('SMS skipped: missing to number'); return; }
     if (fromNumber === toNumber) { console.log('SMS skipped: from and to are the same number:', fromNumber); return; }
     const msg = await twilioClient.messages.create({ body, from: fromNumber, to: toNumber });
     db.prepare('INSERT INTO sms_logs (client_id, direction, from_number, to_number, body, status, twilio_sid, trigger) VALUES (?, ?, ?, ?, ?, ?, ?, ?)')
@@ -561,7 +563,7 @@ If the caller wants to leave a voicemail or message, or if no one is available, 
 If the caller wants to book an appointment, collect their name, preferred date and time only. Then reply with [BOOK:name|YYYY-MM-DD|HH:MM|none] e.g. [BOOK:John Smith|2026-03-26|14:00|none]. Ask one question at a time. Confirm each answer before moving to next.`;
 
   try {
-    db.prepare('INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, voicemail_enabled, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, call_recording, show_demo_banner) VALUES (?, ?, ?, ?, ?, ?, ?, \'client\', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1, 0, 0, 0, 0, 0, 1)')
+    db.prepare('INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, voicemail_enabled, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, call_recording, show_demo_banner, sms_missed_call) VALUES (?, ?, ?, ?, ?, ?, ?, \'client\', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1, 0, 0, 0, 0, 0, 1, 1)')
       .run(id, business_name, email, password_hash, stripeCustomerId, defaultPrompt, customerNumber, first_name||'', last_name||'', contact_phone||'', address_line1||'', address_line2||'', city||'', county||'', postcode||'', country||'United Kingdom', region||'');
 
     // Generate email verification token
@@ -866,6 +868,12 @@ app.post("/stripe-webhook", async (req, res) => {
     const cycleDay = new Date().getDate();
     db.prepare("UPDATE clients SET plan = ?, plan_status = 'active', stripe_subscription_id = ?, call_limit = ?, billing_period_start = ?, billing_cycle_day = ? WHERE id = ?")
       .run(plan, session.subscription, limit, periodStart, cycleDay, client_id);
+    // Auto-enable SMS by plan
+    const _smsMissed = 1;
+    const _smsAfter = ['starter','professional','business'].includes(plan) ? 1 : 0;
+    const _smsVoicemail = ['professional','business'].includes(plan) ? 1 : 0;
+    db.prepare('UPDATE clients SET sms_missed_call=?, sms_after_call=?, sms_voicemail=? WHERE id=?').run(_smsMissed, _smsAfter, _smsVoicemail, client_id);
+    console.log('📱 SMS auto-enabled for plan:', plan, '| missed:1 after:', _smsAfter, 'voicemail:', _smsVoicemail);
 
     // Auto-set feature flags based on plan
     const planFeatures = {
@@ -1396,7 +1404,7 @@ async function triggerPostCallSMS(client, callerNumber, callType, callerName, su
   const businessName = client.business_name || 'Your AI Receptionist';
   const callerDisplay = callerName ? callerName : callerNumber;
 
-  // Missed call SMS
+  // Missed call SMS - always send if plan allows (global sender used if no sms_from_number)
   if (callType === 'missed' && client.sms_missed_call) {
     const body = 'Missed call from ' + callerDisplay + '. Your AI receptionist ' + (client.ai_name||'Aria') + ' was unable to connect them. Call back: ' + callerNumber;
     await sendSMS(client.id, client.contact_phone || client.mobile_phone || client.work_phone, body, 'missed_call');
@@ -1668,7 +1676,7 @@ app.get('/auth/google/login/callback', async (req, res) => {
 
       const defaultPrompt = `You are ${business_name}'s AI receptionist. Be professional, warm, and helpful. Keep responses under 40 words. If the caller wants to leave a voicemail, reply with exactly [VOICEMAIL].`;
 
-      db.prepare(`INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, email_verified, voicemail_enabled, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, call_recording, show_demo_banner)
+      db.prepare(`INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, email_verified, voicemail_enabled, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, call_recording, show_demo_banner, sms_missed_call)
         VALUES (?, ?, ?, ?, ?, ?, ?, 'client', ?, ?, 1, 0, 1, 0, 0, 0, 0, 0, 1)`)
         .run(id, business_name, email, password_hash, stripeCustomerId, defaultPrompt, customerNumber, given_name||'', family_name||'');
 
