@@ -4926,13 +4926,19 @@ app.get('/api/admin/health', async (req, res) => {
     results.services.twilio_numbers = { status: 'error', message: e.message };
   }
 
+
   // 8. SMS capability
   try {
     const t0 = Date.now();
-    const smsNumbers = db.prepare("SELECT COUNT(*) as c FROM clients WHERE sms_from_number IS NOT NULL AND sms_from_number != ''").get();
+    const smsEnabled = db.prepare("SELECT COUNT(*) as c FROM clients WHERE sms_missed_call=1 OR sms_voicemail=1 OR sms_appointment=1 OR sms_after_call=1").get();
+    const smsCustomFrom = db.prepare("SELECT COUNT(*) as c FROM clients WHERE sms_from_number IS NOT NULL AND sms_from_number != ''").get();
+    const smsMissed = db.prepare("SELECT COUNT(*) as c FROM clients WHERE sms_missed_call=1").get();
+    const smsVoicemail = db.prepare("SELECT COUNT(*) as c FROM clients WHERE sms_voicemail=1").get();
+    const smsAfterCall = db.prepare("SELECT COUNT(*) as c FROM clients WHERE sms_after_call=1").get();
+    const globalSmsFrom = process.env.TWILIO_SMS_FROM || '+447492879452';
     results.services.sms = {
-      status: 'ok',
-      message: smsNumbers.c + ' clients with SMS configured',
+      status: smsEnabled.c > 0 ? 'ok' : 'warning',
+      message: smsEnabled.c + ' clients with SMS active · Missed call: ' + smsMissed.c + ' · Voicemail: ' + smsVoicemail.c + ' · After call: ' + smsAfterCall.c + (smsCustomFrom.c > 0 ? ' · ' + smsCustomFrom.c + ' custom numbers' : ' · Global: ' + globalSmsFrom),
       latency: Date.now() - t0
     };
   } catch(e) {
