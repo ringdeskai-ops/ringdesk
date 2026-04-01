@@ -60,6 +60,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:80px;display:flex;ali
   .hamburger{display:flex}
   .mobile-menu{display:flex}
 }
+@media(max-width:480px){
+  .ssub{font-size:14px!important;margin-bottom:32px}
+  #about .reveal > div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important;gap:24px!important}
+  #about .reveal > div > div > div[style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr 1fr!important;gap:8px!important}
+  footer .reveal > div{grid-template-columns:1fr!important}
+  .plans{grid-template-columns:1fr!important}
+  .hero-ctas{flex-direction:column;align-items:stretch;gap:12px}
+  .hero-ctas .btn{width:100%;justify-content:center;text-align:center}
+  .demo-inner{flex-direction:column;text-align:center}
+  .badges-row{gap:8px}
+  .badge-item{padding:8px 12px}
+  .modal{padding:24px 20px;border-radius:16px}
+  h1{letter-spacing:-1px}
+}
 
 /* HERO */
 #hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:180px clamp(20px,5vw,60px) 60px;position:relative;overflow:hidden}
