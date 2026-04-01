@@ -5157,6 +5157,7 @@ app.post('/api/webhook/settings', authRequired, (req, res) => {
 
 app.post('/api/webhook/test', authRequired, async (req, res) => {
   const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(req.client.id);
+  if (!client) return res.status(404).json({ error: "Client not found" });
   if (!client.webhook_url) return res.status(400).json({ error: 'No webhook URL set' });
   try {
     const testPayload = {
