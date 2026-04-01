@@ -5141,6 +5141,8 @@ app.use("/api/admin", require("./routes/admin")(db, sendBrevoEmail));
 app.use("/api/referral", require("./routes/referral")(db, sendBrevoEmail));
 const invoiceRouter = require("./routes/invoice")(db);
 app.use("/api/invoice", invoiceRouter);
+const gcRouter = require("./routes/gocardless")(db);
+app.use("/api/gc", gcRouter);
 app.use('/dashboard', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   res.setHeader('Pragma', 'no-cache');
