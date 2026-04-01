@@ -1905,10 +1905,10 @@ select option{background-color:#0c1520;color:#f0f6ff}
             <div style="display:flex;gap:8px">
               <select id="planChangeSelect" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:6px 10px;border-radius:8px;font-size:12px">
                 <option value="trial">Trial</option>
-                <option value="essential">Essential £29</option>
-                <option value="starter">Starter £49</option>
-                <option value="professional">Professional £149</option>
-                <option value="business">Business £349</option>
+                <option value="essential">Essential £29 + VAT</option>
+                <option value="starter">Starter £49 + VAT</option>
+                <option value="professional">Professional £149 + VAT</option>
+                <option value="business">Business £349 + VAT</option>
               </select>
               <button onclick="changeCustomerPlan()" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:6px 12px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600">Update plan</button>
             </div>
@@ -3179,9 +3179,9 @@ select option{background-color:#0c1520;color:#f0f6ff}
       <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">📉 Downgrade to a smaller plan</div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:12px">Keep your AI receptionist at a lower price.</div>
       <select id="downgradeSelect" style="width:100%;padding:9px 12px;background:var(--surface2);border:1px solid var(--border2);color:var(--text);border-radius:8px;font-size:13px;margin-bottom:10px;font-family:var(--font-body)">
-        <option value="essential">Essential — £29/mo (150 calls)</option>
-        <option value="starter">Starter — £49/mo (300 calls)</option>
-        <option value="professional">Professional — £149/mo (1,000 calls)</option>
+        <option value="essential">Essential — £29/mo + VAT (150 calls)</option>
+        <option value="starter">Starter — £49/mo + VAT (300 calls)</option>
+        <option value="professional">Professional — £149/mo + VAT (1,000 calls)</option>
       </select>
       <button onclick="applyDowngrade()" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font-body)">Switch to this plan →</button>
     </div>
@@ -3655,6 +3655,7 @@ function renderBillingPlans(currentPlan) {
       ${p.popular&&currentPlan!==p.id?'<div class="plan-current-badge" style="background:rgba(0,212,255,.15);color:var(--cyan);border:1px solid rgba(0,212,255,.3)">POPULAR</div>':''}
       <div class="plan-name-sm">${p.name}</div>
       <div class="plan-price-sm"><sup>£</sup>${p.price}<sub>/mo</sub></div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:8px">+ VAT</div>
       <div class="plan-calls-sm">${p.calls}</div>
       ${p.feats.map(f=>`<div class="plan-feat">${f}</div>`).join('')}
       <button class="upgrade-btn ${currentPlan===p.id?'upgrade-current':p.popular?'upgrade-primary':'upgrade-ghost'}"
@@ -4317,7 +4318,7 @@ async function applyRetentionDiscount() {
 
 async function applyDowngrade() {
   const plan = document.getElementById('downgradeSelect').value;
-  const planNames = {essential:'Essential £29',starter:'Starter £49',professional:'Professional £149'};
+  const planNames = {essential:'Essential £29 + VAT',starter:'Starter £49 + VAT',professional:'Professional £149 + VAT'};
   if (!confirm('Switch to ' + (planNames[plan]||plan) + '/mo? This takes effect at your next billing date.')) return;
   try {
     const d = await api('/api/billing/checkout', { method: 'POST', body: { plan } });
@@ -6605,10 +6606,10 @@ function renderSmsLogs() {
             <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:6px">PLAN</label>
             <select id="newPlan" style="width:100%;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:8px;font-size:14px;outline:none">
               <option value="trial">Free Trial (14 days)</option>
-              <option value="essential">Essential — £29/month</option>
-              <option value="starter">Starter — £49/month</option>
-              <option value="professional">Professional — £149/month</option>
-              <option value="business">Business — £349/month</option>
+              <option value="essential">Essential — £29/month + VAT</option>
+              <option value="starter">Starter — £49/month + VAT</option>
+              <option value="professional">Professional — £149/month + VAT</option>
+              <option value="business">Business — £349/month + VAT</option>
             </select>
           </div>
           <div id="addCustomerError" style="display:none;background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);border-radius:8px;padding:10px;font-size:13px;color:var(--red)"></div>
