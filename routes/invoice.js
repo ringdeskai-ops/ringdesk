@@ -144,8 +144,12 @@ module.exports = function(db) {
       );
       doc.fontSize(14).font('Helvetica-Bold').fillColor('#111111').text('£' + (invoice.amount / 100).toFixed(2), 455, rowY + 15);
 
-      // Totals section
+      // Totals section with VAT breakdown
       let totY = rowY + 70;
+      const netAmount = invoice.final_amount;
+      const vatAmount = Math.round(netAmount * 0.20);
+      const grossAmount = netAmount + vatAmount;
+
       if (invoice.discount > 0) {
         doc.moveTo(350, totY).lineTo(545, totY).strokeColor('#dddddd').lineWidth(1).stroke();
         doc.fontSize(10).font('Helvetica').fillColor('#888888').text('Subtotal', 350, totY + 8);
@@ -156,10 +160,24 @@ module.exports = function(db) {
         doc.fontSize(10).font('Helvetica-Bold').fillColor('#007a3d').text('-£' + (invoice.discount / 100).toFixed(2), 480, totY + 8, { align: 'right', width: 65 });
         totY += 28;
       }
+
+      // Net amount
+      doc.moveTo(350, totY).lineTo(545, totY).strokeColor('#dddddd').lineWidth(1).stroke();
+      doc.fontSize(10).font('Helvetica').fillColor('#888888').text('Net Amount (ex VAT)', 350, totY + 8);
+      doc.fontSize(10).font('Helvetica-Bold').fillColor('#111111').text('£' + (netAmount / 100).toFixed(2), 480, totY + 8, { align: 'right', width: 65 });
+      totY += 28;
+
+      // VAT line
+      doc.moveTo(350, totY).lineTo(545, totY).strokeColor('#dddddd').lineWidth(1).stroke();
+      doc.fontSize(10).font('Helvetica').fillColor('#888888').text('VAT (20%)', 350, totY + 8);
+      doc.fontSize(10).font('Helvetica-Bold').fillColor('#111111').text('£' + (vatAmount / 100).toFixed(2), 480, totY + 8, { align: 'right', width: 65 });
+      totY += 28;
+
+      // Total inc VAT
       doc.moveTo(350, totY).lineTo(545, totY).strokeColor('#dddddd').lineWidth(1).stroke();
       doc.rect(350, totY, 195, 40).fill('#f0f0f0');
-      doc.fontSize(12).font('Helvetica-Bold').fillColor('#666666').text('TOTAL DUE', 365, totY + 12);
-      doc.fontSize(18).font('Helvetica-Bold').fillColor('#0099bb').text('£' + (invoice.final_amount / 100).toFixed(2), 430, totY + 8, { align: 'right', width: 105 });
+      doc.fontSize(12).font('Helvetica-Bold').fillColor('#666666').text('TOTAL INC VAT', 365, totY + 12);
+      doc.fontSize(18).font('Helvetica-Bold').fillColor('#0099bb').text('£' + (grossAmount / 100).toFixed(2), 430, totY + 8, { align: 'right', width: 105 });
 
       // Paid watermark - absolute position
       doc.save();
@@ -174,7 +192,7 @@ module.exports = function(db) {
       doc.fontSize(9).font('Helvetica').fillColor('#888888');
       doc.text('AiRingDesk® · Your 24/7 AI Call Desk · airingdesk.com', 50, 772, { lineBreak: false });
       doc.text('hello@airingdesk.com · +44 20 4634 8499', 50, 787, { lineBreak: false });
-      doc.text('Registered in England & Wales · UK GDPR Compliant', 50, 802, { lineBreak: false });
+      doc.text('AiRingDesk is a trading name of SatFocus Ltd · Registered in England & Wales · VAT No: GB 321211372', 50, 802, { lineBreak: false });
       doc.fontSize(9).font('Helvetica-Bold').fillColor('#0099bb').text('Thank you for your business!', 350, 787, { lineBreak: false });
 
       doc.end();

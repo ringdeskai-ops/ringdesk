@@ -1225,6 +1225,23 @@ select option{background-color:#0c1520;color:#f0f6ff}
         <div style="font-size:13px;color:var(--muted);margin-bottom:14px">Your AI receptionist is paused. Reactivate to start answering calls again — your settings and call history are saved.</div>
         <button onclick="reactivateSubscription()" style="background:var(--cyan);color:#020408;border:none;padding:11px 24px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">Reactivate my account →</button>
       </div>
+      <!-- GoCardless Direct Debit Status -->
+      <div id="gcStatusCard" style="display:none;margin-bottom:20px;padding:18px 22px;background:var(--surface);border:1px solid rgba(0,212,255,.15);border-radius:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div style="width:44px;height:44px;border-radius:12px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text)">Direct Debit Active</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Payments collected automatically via GoCardless · Paid to AiRingDesk</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <div style="padding:6px 14px;border-radius:20px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.2);font-size:12px;font-weight:700;color:var(--green)">✓ Mandate Active</div>
+          <button onclick="cancelGCSubscription()" style="padding:6px 14px;border-radius:20px;background:transparent;border:1px solid rgba(255,68,102,.3);font-size:12px;font-weight:700;color:var(--red);cursor:pointer;font-family:var(--font-body)">Cancel</button>
+        </div>
+      </div>
+
       <div class="billing-grid" id="billingPlans">
         <!-- Populated by JS -->
       </div>
@@ -1244,7 +1261,7 @@ select option{background-color:#0c1520;color:#f0f6ff}
         </div>
         <div style="overflow-x:auto">
           <table>
-            <thead><tr><th>Invoice #</th><th>Date</th><th>Plan</th><th>Period</th><th>Amount</th><th>Discount</th><th>Total</th><th>Status</th><th>Download</th></tr></thead>
+            <thead><tr><th>Invoice #</th><th>Date</th><th>Plan</th><th>Period</th><th>Net</th><th>Discount</th><th>VAT (20%)</th><th>Total inc VAT</th><th>Status</th><th>Download</th></tr></thead>
             <tbody id="invoiceHistoryBody"><tr><td colspan="9" style="text-align:center;padding:20px;color:var(--muted)">Loading...</td></tr></tbody>
           </table>
         </div>
@@ -4313,7 +4330,15 @@ function showPage(name) {
   if (name === 'compliance') {}
   if (name === 'admin-management') loadAdminManagement(); // Static page, no loading needed
   if (name === 'referral') loadReferral();
-  if (name === 'billing') { loadBillingInvoices(); renderBillingPlans(currentUser && currentUser.plan); }
+  if (name === 'billing') {
+    loadBillingInvoices();
+    renderBillingPlans(currentUser && currentUser.plan);
+    // Show GoCardless status if mandate active
+    const gcCard = document.getElementById('gcStatusCard');
+    if (gcCard && currentUser && currentUser.gc_mandate_id) {
+      gcCard.style.display = 'flex';
+    }
+  }
 }
 
 // ── CANCELLATION FLOW ────────────────────────────────────────────────────────
@@ -4869,7 +4894,8 @@ async function loadBillingInvoices() {
       + '<td style="font-size:11px;color:var(--muted)">'+ps+' - '+pe+'</td>'
       + '<td style="font-size:13px;font-weight:600">£'+(inv.amount/100).toFixed(2)+'</td>'
       + '<td style="font-size:13px;color:var(--green)">'+(inv.discount>0?'-£'+(inv.discount/100).toFixed(2):'—')+'</td>'
-      + '<td style="font-size:14px;font-weight:700;color:var(--cyan)">£'+(inv.final_amount/100).toFixed(2)+'</td>'
+      + '<td style="font-size:12px;color:var(--muted)">£'+((inv.final_amount*0.20)/100).toFixed(2)+'</td>'
+      + '<td style="font-size:14px;font-weight:700;color:var(--cyan)">£'+((inv.final_amount*1.20)/100).toFixed(2)+'</td>'
       + '<td><span style="font-size:11px;padding:2px 8px;border-radius:100px;font-weight:700;background:rgba(0,232,122,.1);color:var(--green)">PAID</span></td>'
       + '<td style="display:flex;gap:5px">'
       + '<a href="/invoice-preview/' + inv.id + '" target="_blank" style="background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:5px 9px;border-radius:6px;font-size:11px;font-weight:600;text-decoration:none">View</a>'
