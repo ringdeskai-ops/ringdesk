@@ -36,7 +36,7 @@ function authRequired(req, res, next) {
   } catch(e) { res.status(401).json({ error: 'Invalid token' }); }
 }
 
-module.exports = function(db) {
+module.exports = function(db, createInvoice, sendBrevoEmail) {
 
   // ── Step 1: Create GoCardless customer + redirect flow ──────────────────────
   router.post('/setup', authRequired, async (req, res) => {
@@ -194,9 +194,20 @@ module.exports = function(db) {
           if (client) {
             const amount = payment.amount;
             const now = Math.floor(Date.now() / 1000);
+            const periodEnd = now + 2592000; // 30 days
             db.prepare('UPDATE clients SET plan_status = ?, billing_period_start = ?, calls_this_month = 0 WHERE id = ?')
               .run('active', now, client.id);
             console.log(`✅ GC payment confirmed for ${client.email} — £${(amount/100).toFixed(2)}`);
+
+            // Create invoice and send email
+            try {
+              if (createInvoice) {
+                const inv = await createInvoice(client.id, amount, 0, client.plan, now, periodEnd, null);
+                console.log(`✅ GC invoice created: ${inv.invoice_number} for ${client.email}`);
+              }
+            } catch(invErr) {
+              console.error('GC invoice creation error:', invErr.message);
+            }
           }
         }
       }
