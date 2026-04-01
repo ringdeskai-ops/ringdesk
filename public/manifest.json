@@ -1,0 +1,33 @@
+{
+  "name": "AiRingDesk — AI Receptionist",
+  "short_name": "AiRingDesk",
+  "description": "AI receptionist that answers every business call 24/7. Never miss a customer again.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060912",
+  "theme_color": "#00d4ff",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "lang": "en-GB",
+  "scope": "/",
+  "shortcuts": [
+    {
+      "name": "Sign In",
+      "url": "/dashboard",
+      "description": "Sign in to your AiRingDesk dashboard"
+    },
+    {
+      "name": "Start Free Trial",
+      "url": "/#signup",
+      "description": "Start your 14-day free trial"
+    }
+  ]
+}
