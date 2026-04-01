@@ -77,7 +77,7 @@ module.exports = function(db) {
 
       // Create billing request flow
       const flow = await gc.billingRequestFlows.create({
-        redirect_uri: `${process.env.DASHBOARD_URL}/billing/gc-success?plan=${plan}`,
+        redirect_uri: `${process.env.DASHBOARD_URL}/dashboard?gc=success&plan=${plan}`,
         exit_uri: `${process.env.DASHBOARD_URL}/billing`,
         links: { billing_request: billingRequest.id },
         prefilled_customer: {

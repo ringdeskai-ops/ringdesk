@@ -3204,6 +3204,26 @@ let profile = null;
 
 // ── INIT ──────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // Handle GoCardless success redirect
+  const gcParams = new URLSearchParams(window.location.search);
+  if (gcParams.get('gc') === 'success') {
+    const gcPlan = gcParams.get('plan') || 'essential';
+    history.replaceState(null, '', '/dashboard');
+    // Confirm the mandate and create subscription
+    fetch('/api/gc/confirm', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + authToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plan: gcPlan })
+    }).then(r => r.json()).then(d => {
+      if (d.success) {
+        showToast('🎉 Direct Debit set up successfully! Your plan is now active.', 'success');
+        setTimeout(() => location.reload(), 2000);
+      } else {
+        showToast('Payment setup error: ' + (d.error || 'Unknown error'), 'error');
+      }
+    }).catch(e => showToast('Error confirming payment: ' + e.message, 'error'));
+  }
+
   // Handle #help hash — redirect new users to Help & Guide after number provisioning
   if (window.location.hash === '#help') {
     history.replaceState(null, '', '/dashboard');
@@ -3802,8 +3822,19 @@ async function testEmail() {
 // ── BILLING ───────────────────────────────────────────────────────────
 async function upgradePlan(plan) {
   try {
-    const d = await api('/api/billing/checkout', { method: 'POST', body: { plan } });
+    showToast('Setting up Direct Debit — please wait...', 'info');
+    const d = await api('/api/gc/setup', { method: 'POST', body: { plan } });
     if (d?.url) window.location.href = d.url;
+    else showToast('Error: No redirect URL received', 'error');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function cancelGCSubscription() {
+  if (!confirm('Are you sure you want to cancel your subscription?')) return;
+  try {
+    await api('/api/gc/cancel', { method: 'POST', body: {} });
+    showToast('Subscription cancelled', 'success');
+    setTimeout(() => location.reload(), 2000);
   } catch(e) { showToast('Error: ' + e.message, 'error'); }
 }
 
