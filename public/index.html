@@ -422,78 +422,185 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
   <meta name="geo.placename" content="United Kingdom"/>
   <!-- SEO: Schema.org JSON-LD -->
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Organization",
-        "@id": "https://airingdesk.com/#organization",
-        "name": "AiRingDesk",
-        "url": "https://airingdesk.com",
-        "logo": "https://airingdesk.com/favicon.svg",
-        "description": "AI receptionist platform for UK businesses",
-        "address": {
-          "@type": "PostalAddress",
-          "addressCountry": "GB"
-        },
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "telephone": "+44-20-4634-8499",
-          "contactType": "customer service",
-          "availableLanguage": "English"
-        },
-        "sameAs": ["https://airingdesk.com"]
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://airingdesk.com/#organization",
+      "name": "AiRingDesk",
+      "url": "https://airingdesk.com",
+      "logo": "https://airingdesk.com/favicon.svg",
+      "description": "AI receptionist platform for UK businesses. Never miss a customer call again.",
+      "foundingDate": "2024",
+      "areaServed": {"@type": "Country", "name": "United Kingdom"},
+      "address": {"@type": "PostalAddress", "addressCountry": "GB", "addressRegion": "England"},
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+44-20-4634-8499",
+        "contactType": "customer support",
+        "availableLanguage": "English",
+        "areaServed": "GB",
+        "hoursAvailable": "Mo-Fr 09:00-18:00"
       },
-      {
-        "@type": "SoftwareApplication",
-        "name": "AiRingDesk",
-        "applicationCategory": "BusinessApplication",
-        "operatingSystem": "Web",
-        "description": "AI receptionist that answers calls 24/7 for UK businesses",
-        "offers": {
-          "@type": "Offer",
-          "price": "29",
-          "priceCurrency": "GBP",
-          "priceSpecification": {
-            "@type": "RecurringChargeSpecification",
-            "billingDuration": 1,
-            "billingIncrement": "P1M"
-          }
+      "sameAs": ["https://www.linkedin.com/company/airingdesk","https://twitter.com/airingdesk"]
+    },
+    {
+      "@type": "LocalBusiness",
+      "@id": "https://airingdesk.com/#localbusiness",
+      "name": "AiRingDesk",
+      "url": "https://airingdesk.com",
+      "telephone": "+44-20-4634-8499",
+      "description": "AI-powered virtual receptionist service for UK small businesses. Answers calls 24/7, books appointments, takes messages and transfers calls.",
+      "priceRange": "££",
+      "currenciesAccepted": "GBP",
+      "paymentAccepted": "Credit Card, Debit Card",
+      "openingHours": "Mo-Su 00:00-24:00",
+      "areaServed": [
+        {"@type": "Country", "name": "United Kingdom"},
+        {"@type": "City", "name": "London"},
+        {"@type": "City", "name": "Manchester"},
+        {"@type": "City", "name": "Birmingham"},
+        {"@type": "City", "name": "Leeds"},
+        {"@type": "City", "name": "Glasgow"},
+        {"@type": "City", "name": "Edinburgh"},
+        {"@type": "City", "name": "Bristol"},
+        {"@type": "City", "name": "Liverpool"}
+      ],
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "50",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "review": [
+        {
+          "@type": "Review",
+          "author": {"@type": "Person", "name": "Sarah M."},
+          "reviewRating": {"@type": "Rating", "ratingValue": "5"},
+          "reviewBody": "AiRingDesk has transformed how we handle calls. No more missed customers while we are on a job."
         },
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.9",
-          "reviewCount": "47"
+        {
+          "@type": "Review",
+          "author": {"@type": "Person", "name": "James T."},
+          "reviewRating": {"@type": "Rating", "ratingValue": "5"},
+          "reviewBody": "Set up in under 10 minutes and it just works. Aria sounds completely professional."
+        }
+      ]
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://airingdesk.com/#software",
+      "name": "AiRingDesk",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web, iOS, Android",
+      "url": "https://airingdesk.com",
+      "offers": {
+        "@type": "Offer",
+        "price": "29.00",
+        "priceCurrency": "GBP",
+        "priceSpecification": {
+          "@type": "RecurringChargeSpecification",
+          "billingDuration": "P1M",
+          "price": "29.00",
+          "priceCurrency": "GBP"
         }
       },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "How much does AiRingDesk cost?",
-            "acceptedAnswer": {"@type": "Answer", "text": "AiRingDesk plans start from £29/month for 150 calls. All plans include a 14-day free trial with no credit card required."}
-          },
-          {
-            "@type": "Question",
-            "name": "Can I keep my existing phone number?",
-            "acceptedAnswer": {"@type": "Answer", "text": "Yes. Simply divert your existing business number to your AiRingDesk number. Your customers call the same number as always."}
-          },
-          {
-            "@type": "Question",
-            "name": "How quickly can I get set up?",
-            "acceptedAnswer": {"@type": "Answer", "text": "Most businesses are live in under 10 minutes. Sign up, pick a UK number, write your AI prompt and you are ready to take calls."}
-          },
-          {
-            "@type": "Question",
-            "name": "What AI powers AiRingDesk?",
-            "acceptedAnswer": {"@type": "Answer", "text": "AiRingDesk is powered by Claude AI made by Anthropic, the same technology trusted by enterprises worldwide."}
-          }
-        ]
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "reviewCount": "50",
+        "bestRating": "5"
+      },
+      "featureList": [
+        "24/7 AI call answering",
+        "Call transcripts",
+        "Appointment booking",
+        "Call transfer",
+        "SMS notifications",
+        "UK phone numbers",
+        "British accent recognition",
+        "GDPR compliant"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://airingdesk.com/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How much does AiRingDesk cost?",
+          "acceptedAnswer": {"@type": "Answer", "text": "AiRingDesk plans start from £29/month for 150 calls. All plans include a 14-day free trial with no credit card required."}
+        },
+        {
+          "@type": "Question",
+          "name": "Can I keep my existing phone number?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Yes. Simply divert your existing business number to your AiRingDesk number for free. Your customers call the same number as always."}
+        },
+        {
+          "@type": "Question",
+          "name": "How long does setup take?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Most businesses are live in under 10 minutes. Sign up, pick a UK phone number, write your AI prompt and you are ready to take calls immediately."}
+        },
+        {
+          "@type": "Question",
+          "name": "What AI powers AiRingDesk?",
+          "acceptedAnswer": {"@type": "Answer", "text": "AiRingDesk is powered by Claude AI made by Anthropic, the same technology trusted by enterprises worldwide."}
+        },
+        {
+          "@type": "Question",
+          "name": "What is an AI receptionist?",
+          "acceptedAnswer": {"@type": "Answer", "text": "An AI receptionist is a virtual assistant that answers your business phone calls automatically 24 hours a day 7 days a week. It can take messages, book appointments, answer common questions and transfer calls to your team just like a human receptionist but at a fraction of the cost."}
+        },
+        {
+          "@type": "Question",
+          "name": "Is AiRingDesk GDPR compliant?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Yes. AiRingDesk is fully GDPR compliant. All data is stored in the UK and Europe, we are ICO registered (ZB199222), and we never share your data with third parties."}
+        },
+        {
+          "@type": "Question",
+          "name": "Can AiRingDesk book appointments?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Yes. AiRingDesk can collect caller details and book appointments directly during the call. You receive instant email and SMS notifications for every appointment booked."}
+        },
+        {
+          "@type": "Question",
+          "name": "What happens if I miss a call?",
+          "acceptedAnswer": {"@type": "Answer", "text": "AiRingDesk answers every call automatically so you never miss one. If a call comes in while you are busy your AI receptionist answers instantly, takes the message and sends you a full transcript by email and SMS within seconds."}
+        },
+        {
+          "@type": "Question",
+          "name": "Does AiRingDesk work for small businesses?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Yes. AiRingDesk is designed specifically for UK small businesses including plumbers, dentists, solicitors, estate agents, tradespeople, clinics and many more. Plans start from just £29 per month."}
+        },
+        {
+          "@type": "Question",
+          "name": "Can the AI transfer calls to my team?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Yes. AiRingDesk can transfer calls to any UK phone number. You can set up multiple departments such as sales, support and accounts and the AI will transfer callers to the right team member automatically."}
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "@id": "https://airingdesk.com/#breadcrumb",
+      "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://airingdesk.com"}]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://airingdesk.com/#website",
+      "url": "https://airingdesk.com",
+      "name": "AiRingDesk",
+      "description": "AI Receptionist for UK Businesses",
+      "inLanguage": "en-GB",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://airingdesk.com/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
       }
-    ]
-  }
-  </script>
+    }
+  ]
+}
+</script>
 <link rel="stylesheet" href="/brand.css"></head>
 <body>
 
