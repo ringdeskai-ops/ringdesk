@@ -9,3 +9,7 @@ ringdesk.db
 ringdesk.db*
 *.db-shm
 *.db-wal
+public/*backup*.html
+public/dashboard/*backup*.html
+public/og-image.jpg
+public/og-image-*.jpg
