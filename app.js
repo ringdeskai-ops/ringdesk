@@ -846,6 +846,7 @@ app.use('/assets', require('express').static(__dirname + '/public/assets'));
 app.get('/og-image.svg', (req, res) => res.sendFile(__dirname + '/public/og-image.svg'));
 app.get('/og-image.jpg', (req, res) => res.sendFile(__dirname + '/public/og-image.jpg'));
 app.get('/favicon.svg', (req, res) => res.sendFile(__dirname + '/public/favicon.svg'));
+app.get('/brand.css', (req, res) => res.sendFile(__dirname + '/public/brand.css'));
 
 // SEO: Sitemap and robots.txt
 app.get('/sitemap.xml', (req, res) => {
