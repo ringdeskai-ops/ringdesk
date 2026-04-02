@@ -6472,10 +6472,11 @@ function loadSmsSettings(profile) {
 function viewSmsMessage(body, dirColor, date) {
   var modal = document.createElement('div');
   modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box';
+  modal.setAttribute('data-sms-modal', '1');
   modal.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)">'
     + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
     + '<div style="font-size:14px;font-weight:700;color:var(--text)">SMS Message</div>'
-    + '<button onclick="this.closest('div[style*=fixed]').remove()" style="background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0;line-height:1">&times;</button>'
+    + '<button onclick="document.body.querySelector(\'[data-sms-modal]\').remove()" style="background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0;line-height:1">&times;</button>'
     + '</div>'
     + '<div style="font-size:12px;color:var(--muted);margin-bottom:12px">' + date + '</div>'
     + '<div style="background:var(--surface2);border-radius:10px;padding:16px;font-size:14px;color:var(--text);line-height:1.7;white-space:pre-wrap;word-break:break-word">' + body + '</div>'
@@ -6580,10 +6581,11 @@ function renderSmsLogs() {
 function viewSmsMessage(body, dirColor, date) {
   var modal = document.createElement('div');
   modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box';
+  modal.setAttribute('data-sms-modal', '1');
   modal.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)">'
     + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
     + '<div style="font-size:14px;font-weight:700;color:var(--text)">SMS Message</div>'
-    + '<button onclick="this.closest('div[style*=fixed]').remove()" style="background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0;line-height:1">&times;</button>'
+    + '<button onclick="document.body.querySelector(\'[data-sms-modal]\').remove()" style="background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0;line-height:1">&times;</button>'
     + '</div>'
     + '<div style="font-size:12px;color:var(--muted);margin-bottom:12px">' + date + '</div>'
     + '<div style="background:var(--surface2);border-radius:10px;padding:16px;font-size:14px;color:var(--text);line-height:1.7;white-space:pre-wrap;word-break:break-word">' + body + '</div>'
