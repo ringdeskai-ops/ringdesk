@@ -32,7 +32,7 @@ sed -i "s/# AiRingDesk Changelog/# AiRingDesk Changelog\n\n$ENTRY/" CHANGELOG.md
 node --check app.js && \
 git add app.js package.json package-lock.json CHANGELOG.md && \
 git commit -m "v$NEW - $DESC" && \
-git tag "v$NEW" && \
+git tag -f "v$NEW" && \
 git push origin master && \
 git push origin "v$NEW" && \
 pm2 restart airingdesk --update-env
