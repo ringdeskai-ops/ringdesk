@@ -1,5 +1,13 @@
 # AiRingDesk Changelog
 
+## [3.0.0] - 2026-04-02
+
+### Changes
+- Major change description
+
+---
+
+
 ## [2.7.0] - 2026-04-02
 
 ### Changes
