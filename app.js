@@ -841,12 +841,13 @@ app.post("/api/billing/discount", authRequired, async (req, res) => {
   }
 });
 });
-// Static assets
-app.use('/assets', require('express').static(__dirname + '/public/assets'));
-app.get('/og-image.svg', (req, res) => res.sendFile(__dirname + '/public/og-image.svg'));
-app.get('/og-image.jpg', (req, res) => res.sendFile(__dirname + '/public/og-image.jpg'));
-app.get('/favicon.svg', (req, res) => res.sendFile(__dirname + '/public/favicon.svg'));
-app.get('/brand.css', (req, res) => res.sendFile(__dirname + '/public/brand.css'));
+// Static assets with caching
+const staticOptions = { maxAge: '7d', etag: true, lastModified: true };
+app.use('/assets', require('express').static(__dirname + '/public/assets', staticOptions));
+app.get('/og-image.svg', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=604800'); res.sendFile(__dirname + '/public/og-image.svg'); });
+app.get('/og-image.jpg', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=604800'); res.sendFile(__dirname + '/public/og-image.jpg'); });
+app.get('/favicon.svg', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=604800'); res.sendFile(__dirname + '/public/favicon.svg'); });
+app.get('/brand.css', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.sendFile(__dirname + '/public/brand.css'); });
 
 // SEO: Sitemap and robots.txt
 app.get('/sitemap.xml', (req, res) => {
