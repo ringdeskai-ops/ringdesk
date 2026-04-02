@@ -848,6 +848,9 @@ app.get('/og-image.svg', (req, res) => { res.setHeader('Cache-Control', 'public,
 app.get('/og-image.jpg', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=604800'); res.sendFile(__dirname + '/public/og-image.jpg'); });
 app.get('/favicon.svg', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=604800'); res.sendFile(__dirname + '/public/favicon.svg'); });
 app.get('/brand.css', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.sendFile(__dirname + '/public/brand.css'); });
+app.get('/home.css', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.sendFile(__dirname + '/public/home.css'); });
+app.get('/home.js', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.sendFile(__dirname + '/public/home.js'); });
+app.get('/schema.json', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.setHeader('Content-Type', 'application/json'); res.sendFile(__dirname + '/public/schema.json'); });
 
 // SEO: Sitemap and robots.txt
 app.get('/sitemap.xml', (req, res) => {
