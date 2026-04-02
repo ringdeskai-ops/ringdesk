@@ -851,6 +851,7 @@ app.get('/brand.css', (req, res) => { res.setHeader('Cache-Control', 'public, ma
 app.get('/home.css', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.sendFile(__dirname + '/public/home.css'); });
 app.get('/home.js', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.sendFile(__dirname + '/public/home.js'); });
 app.get('/schema.json', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.setHeader('Content-Type', 'application/json'); res.sendFile(__dirname + '/public/schema.json'); });
+app.get('/manifest.json', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=86400'); res.setHeader('Content-Type', 'application/manifest+json'); res.sendFile(__dirname + '/public/manifest.json'); });
 
 // SEO: Sitemap and robots.txt
 app.get('/sitemap.xml', (req, res) => {
