@@ -1,6 +1,6 @@
 {
   "name": "airingdesk-retell-app",
-  "version": "2.5.9",
+  "version": "2.6.0",
   "description": "AiRingDesk - AI Receptionist Platform for UK Businesses",
   "main": "app.js",
   "scripts": {
