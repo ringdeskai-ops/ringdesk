@@ -871,6 +871,7 @@ select option{background-color:#0c1520;color:#f0f6ff}
                 <th>Trigger</th>
                 <th>Status</th>
                 <th>Date & Time</th>
+                <th>View</th>
               </tr>
             </thead>
             <tbody id="smsLogsTableBody">
@@ -6468,6 +6469,21 @@ function loadSmsSettings(profile) {
 // ============================================================
 // SMS LOGS
 // ============================================================
+function viewSmsMessage(body, dirColor, date) {
+  var modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box';
+  modal.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+    + '<div style="font-size:14px;font-weight:700;color:var(--text)">SMS Message</div>'
+    + '<button onclick="this.closest('div[style*=fixed]').remove()" style="background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0;line-height:1">&times;</button>'
+    + '</div>'
+    + '<div style="font-size:12px;color:var(--muted);margin-bottom:12px">' + date + '</div>'
+    + '<div style="background:var(--surface2);border-radius:10px;padding:16px;font-size:14px;color:var(--text);line-height:1.7;white-space:pre-wrap;word-break:break-word">' + body + '</div>'
+    + '</div>';
+  modal.addEventListener('click', function(e){ if(e.target===modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
+
 var allSmsLogs = [];
 var currentSmsFilter = 'all';
 var smsDateFrom = null;
@@ -6532,7 +6548,7 @@ function renderSmsLogs() {
   var tbody = document.getElementById('smsLogsTableBody');
   if(!tbody) return;
   if(filtered.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">No SMS messages found</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">No SMS messages found</td></tr>';
     return;
   }
 
@@ -6546,18 +6562,35 @@ function renderSmsLogs() {
     var dirColor = dirColors[s.direction] || 'var(--muted)';
     var statusColor = statusColors[s.status] || 'var(--muted)';
     var msgPreview = s.body ? (s.body.length > 60 ? s.body.substring(0,60)+'...' : s.body) : '-';
+    var safeBody = (s.body||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
     return '<tr>'
       + '<td><span style="font-size:11px;font-weight:700;color:' + dirColor + ';text-transform:uppercase">' + (s.direction||'-') + '</span></td>'
       + '<td style="font-size:12px;color:var(--muted);font-family:monospace">' + (s.from_number||'-') + '</td>'
       + '<td style="font-size:12px;color:var(--muted);font-family:monospace">' + (s.to_number||'-') + '</td>'
-      + '<td style="font-size:12px;color:var(--text);max-width:200px" title="' + (s.body||'') + '">' + msgPreview + '</td>'
+      + '<td style="font-size:12px;color:var(--text);max-width:200px">' + msgPreview + '</td>'
       + '<td style="font-size:12px;color:var(--muted)">' + triggerLabel + '</td>'
       + '<td><span style="font-size:11px;font-weight:700;color:' + statusColor + '">' + (s.status||'-') + '</span></td>'
       + '<td style="font-size:12px;color:var(--muted);white-space:nowrap">' + date + '</td>'
+      + '<td><button onclick="viewSmsMessage(\''+safeBody+'\',\''+dirColor+'\',\''+date+'\')" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body)">View</button></td>'
       + '</tr>';
   }).join('');
 }
 
+
+function viewSmsMessage(body, dirColor, date) {
+  var modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box';
+  modal.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;max-width:520px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">'
+    + '<div style="font-size:14px;font-weight:700;color:var(--text)">SMS Message</div>'
+    + '<button onclick="this.closest('div[style*=fixed]').remove()" style="background:transparent;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:0;line-height:1">&times;</button>'
+    + '</div>'
+    + '<div style="font-size:12px;color:var(--muted);margin-bottom:12px">' + date + '</div>'
+    + '<div style="background:var(--surface2);border-radius:10px;padding:16px;font-size:14px;color:var(--text);line-height:1.7;white-space:pre-wrap;word-break:break-word">' + body + '</div>'
+    + '</div>';
+  modal.addEventListener('click', function(e){ if(e.target===modal) modal.remove(); });
+  document.body.appendChild(modal);
+}
 
 var allSmsLogs = [];
 var currentSmsFilter = 'all';
@@ -6617,7 +6650,7 @@ function renderSmsLogs() {
   if(smsDateTo) filtered = filtered.filter(function(s){ return s.created_at <= smsDateTo; });
   var tbody = document.getElementById('smsLogsTableBody');
   if(!tbody) return;
-  if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">No SMS messages found</td></tr>'; return; }
+  if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">No SMS messages found</td></tr>'; return; }
   var triggerLabels = {missed_call:'📵 Missed Call',voicemail:'📬 Voicemail',after_call:'📋 After Call',appointment:'📅 Appointment',auto_reply:'🤖 Auto Reply',inbound:'📨 Inbound',test:'🧪 Test'};
   var dirColors = {outbound:'var(--green)',inbound:'var(--cyan)'};
   var statusColors = {sent:'var(--green)',failed:'var(--red)',received:'var(--cyan)'};
