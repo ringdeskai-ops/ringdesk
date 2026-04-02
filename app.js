@@ -1256,7 +1256,7 @@ app.post("/voice/speech", async (req, res) => {
           const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
           const startDateTime = new Date(`${date}T${time}:00`);
           const endDateTime = new Date(startDateTime.getTime() + 60 * 60000);
-          await calendar.events.insert({
+          const result = await calendar.events.insert({
             calendarId: 'primary',
             resource: {
               summary: `Appointment - ${name}`,
