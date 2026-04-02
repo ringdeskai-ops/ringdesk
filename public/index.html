@@ -399,6 +399,8 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 </style>
   <!-- SEO: Canonical -->
   <link rel="canonical" href="https://airingdesk.com/"/>
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"/>
+  <meta name="googlebot" content="index, follow"/>
   <!-- SEO: Open Graph -->
   <meta property="og:type" content="website"/>
   <meta property="og:url" content="https://airingdesk.com/"/>
@@ -577,6 +579,36 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
           "@type": "Question",
           "name": "Can the AI transfer calls to my team?",
           "acceptedAnswer": {"@type": "Answer", "text": "Yes. AiRingDesk can transfer calls to any UK phone number. You can set up multiple departments such as sales, support and accounts and the AI will transfer callers to the right team member automatically."}
+        },
+        {
+          "@type": "Question",
+          "name": "What is the best AI receptionist for small businesses in the UK?",
+          "acceptedAnswer": {"@type": "Answer", "text": "AiRingDesk is the leading AI receptionist for UK small businesses, starting from just £29/month + VAT. It answers calls 24/7, books appointments, takes messages and transfers calls — all powered by Claude AI. Unlike US-focused competitors, AiRingDesk is built specifically for UK businesses with British voice recognition and UK phone numbers included."}
+        },
+        {
+          "@type": "Question",
+          "name": "How does an AI receptionist compare to a human receptionist?",
+          "acceptedAnswer": {"@type": "Answer", "text": "An AI receptionist like AiRingDesk answers every call instantly 24/7 at a fraction of the cost of a human receptionist. A full-time human receptionist costs £25,000+ per year in the UK. AiRingDesk starts from just £29/month + VAT — saving businesses over £24,000 per year while never missing a call."}
+        },
+        {
+          "@type": "Question",
+          "name": "Can AiRingDesk integrate with my CRM system?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Yes. AiRingDesk Business plan includes CRM and webhook integration, allowing you to send call data, leads and appointments directly to your CRM system including Salesforce, HubSpot, Zoho and any system with a webhook endpoint."}
+        },
+        {
+          "@type": "Question",
+          "name": "Does AiRingDesk work with Google Calendar?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Yes. AiRingDesk Professional and Business plans include Google Calendar integration. When a caller books an appointment, it is added directly to your Google Calendar automatically with all caller details included."}
+        },
+        {
+          "@type": "Question",
+          "name": "Is there a free trial for AiRingDesk?",
+          "acceptedAnswer": {"@type": "Answer", "text": "Yes. AiRingDesk offers a 14-day free trial with no credit card required. You can sign up, get a UK phone number and start answering calls with your AI receptionist within 10 minutes — completely free for 14 days."}
+        },
+        {
+          "@type": "Question",
+          "name": "What UK phone numbers does AiRingDesk provide?",
+          "acceptedAnswer": {"@type": "Answer", "text": "AiRingDesk provides dedicated UK geographic phone numbers (01, 02 area codes) and national numbers (03). You can choose a number local to your area to give customers confidence they are calling a local business."}
         }
       ]
     },
@@ -596,6 +628,95 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
         "@type": "SearchAction",
         "target": "https://airingdesk.com/?q={search_term_string}",
         "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "Speakable",
+      "@id": "https://airingdesk.com/#speakable",
+      "cssSelector": [".hero-title", ".hero-sub", ".speakable"]
+    },
+    {
+      "@type": "HowTo",
+      "@id": "https://airingdesk.com/#howto",
+      "name": "How to set up an AI receptionist for your business",
+      "description": "Set up AiRingDesk AI receptionist in under 10 minutes. No technical knowledge required.",
+      "totalTime": "PT10M",
+      "estimatedCost": {"@type": "MonetaryAmount", "currency": "GBP", "value": "29"},
+      "step": [
+        {
+          "@type": "HowToStep",
+          "position": 1,
+          "name": "Sign up for a free trial",
+          "text": "Visit airingdesk.com and sign up for your 14-day free trial. No credit card required.",
+          "url": "https://airingdesk.com/dashboard"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 2,
+          "name": "Get your UK phone number",
+          "text": "Choose a dedicated UK phone number for your AI receptionist, or prepare to divert your existing number.",
+          "url": "https://airingdesk.com/dashboard"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 3,
+          "name": "Configure your AI receptionist",
+          "text": "Set your business name, greeting and instructions. Tell the AI what your business does and how to handle calls.",
+          "url": "https://airingdesk.com/dashboard"
+        },
+        {
+          "@type": "HowToStep",
+          "position": 4,
+          "name": "Divert your calls",
+          "text": "Divert your existing business number to your new AiRingDesk number. Your AI receptionist is now live.",
+          "url": "https://airingdesk.com/dashboard"
+        }
+      ]
+    },
+    {
+      "@type": "Service",
+      "@id": "https://airingdesk.com/#service",
+      "name": "AI Receptionist Service",
+      "provider": {"@id": "https://airingdesk.com/#organization"},
+      "serviceType": "Virtual Receptionist",
+      "areaServed": {"@type": "Country", "name": "United Kingdom"},
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "AiRingDesk Plans",
+        "itemListElement": [
+          {
+            "@type": "Offer",
+            "name": "Essential Plan",
+            "price": "29.00",
+            "priceCurrency": "GBP",
+            "description": "150 calls per month. AI answering, transcripts, call transfers.",
+            "eligibleRegion": {"@type": "Country", "name": "United Kingdom"}
+          },
+          {
+            "@type": "Offer",
+            "name": "Starter Plan",
+            "price": "49.00",
+            "priceCurrency": "GBP",
+            "description": "300 calls per month. Everything in Essential plus voicemail and recordings.",
+            "eligibleRegion": {"@type": "Country", "name": "United Kingdom"}
+          },
+          {
+            "@type": "Offer",
+            "name": "Professional Plan",
+            "price": "149.00",
+            "priceCurrency": "GBP",
+            "description": "1000 calls per month. Appointment booking, custom AI personality, Google Calendar integration.",
+            "eligibleRegion": {"@type": "Country", "name": "United Kingdom"}
+          },
+          {
+            "@type": "Offer",
+            "name": "Business Plan",
+            "price": "349.00",
+            "priceCurrency": "GBP",
+            "description": "5000 calls per month. AI voice selector, CRM integration, dedicated account manager.",
+            "eligibleRegion": {"@type": "Country", "name": "United Kingdom"}
+          }
+        ]
       }
     }
   ]
