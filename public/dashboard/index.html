@@ -2809,7 +2809,7 @@ select option{background-color:#0c1520;color:#f0f6ff}
       <div class="page-header">
         <div>
           <h1 class="page-title">System <em>Health</em></h1>
-          <p class="page-sub">Live monitoring of all AiRingDesk services · <span style="color:var(--cyan);font-size:11px;font-weight:700">v2.5.9</span></p>
+          <p class="page-sub">Live monitoring of all AiRingDesk services · <span id="healthVersion" style="color:var(--cyan);font-size:11px;font-weight:700">v2.6.0</span></p>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
           <div id="healthLastUpdated" style="font-size:12px;color:var(--muted)">Not loaded</div>
@@ -2822,6 +2822,11 @@ select option{background-color:#0c1520;color:#f0f6ff}
         <div id="healthBannerDot" style="width:10px;height:10px;border-radius:50%;background:#00e87a;flex-shrink:0"></div>
         <div id="healthBannerText" style="font-size:14px;font-weight:600;color:#00e87a">All systems operational</div>
         <div id="healthBannerSub" style="font-size:12px;color:var(--muted);margin-left:auto"></div>
+      </div>
+
+      <!-- Version & System Info -->
+      <div id="systemInfoCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px">
+        <!-- Populated by JS -->
       </div>
 
       <!-- Services Grid -->
@@ -5461,6 +5466,35 @@ function loadHealthData() {
   .then(data => {
     renderHealthDashboard(data);
     document.getElementById('healthLastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+    
+    // Render system info cards
+    if (data.system) {
+      const s = data.system;
+      const uptimeColor = s.uptime_seconds > 86400 ? 'var(--green)' : 'var(--amber)';
+      document.getElementById('systemInfoCards').innerHTML = `
+        <div style="background:var(--surface);border:1px solid rgba(0,212,255,.2);border-radius:12px;padding:16px 20px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Version</div>
+          <div style="font-size:22px;font-weight:800;color:var(--cyan)">v${s.version}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">${s.git_hash} · ${s.git_date}</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid rgba(0,232,122,.2);border-radius:12px;padding:16px 20px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Uptime</div>
+          <div style="font-size:22px;font-weight:800;color:${uptimeColor}">${s.uptime}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Node.js ${s.node_version}</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid rgba(255,184,0,.2);border-radius:12px;padding:16px 20px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Database</div>
+          <div style="font-size:22px;font-weight:800;color:var(--amber)">${s.db_size_mb} MB</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">Modified ${s.db_last_modified_mins}m ago</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid rgba(0,212,255,.2);border-radius:12px;padding:16px 20px">
+          <div style="font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Environment</div>
+          <div style="font-size:22px;font-weight:800;color:var(--green)">LIVE</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px">${s.server_ip} · Production</div>
+        </div>
+      `;
+      document.getElementById('healthVersion').textContent = 'v' + s.version;
+    }
   })
   .catch(err => {
     document.getElementById('healthLastUpdated').textContent = 'Error loading data';
@@ -5503,6 +5537,7 @@ function renderHealthDashboard(data) {
   // Service cards
   const serviceConfig = {
     server:         { label: 'Server', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>' },
+    gocardless:     { label: 'GoCardless', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>' },
     database:       { label: 'Database', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>' },
     twilio:         { label: 'Twilio', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>' },
     anthropic:      { label: 'Claude AI', icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>' },

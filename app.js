@@ -4787,7 +4787,45 @@ app.get('/api/admin/health', async (req, res) => {
     if (!['admin','superadmin'].includes(user.role)) return res.status(403).json({ error: 'Forbidden' });
   } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
 
-  const results = { timestamp: new Date().toISOString(), version: APP_VERSION, services: {}, customers: [] };
+  const results = { timestamp: new Date().toISOString(), version: APP_VERSION, services: {}, customers: [], system: {} };
+  
+  // System info
+  try {
+    const { execSync } = require('child_process');
+    const os = require('os');
+    const fs = require('fs');
+    
+    // Version info
+    const pkgJson = JSON.parse(fs.readFileSync('/var/www/vhosts/airingdesk.com/httpdocs/package.json', 'utf8'));
+    const gitHash = execSync('git rev-parse --short HEAD 2>/dev/null || echo unknown').toString().trim();
+    const gitDate = execSync('git log -1 --format=%cd --date=format:"%Y-%m-%d %H:%M" 2>/dev/null || echo unknown').toString().trim();
+    const nodeVersion = process.version;
+    const pm2Uptime = Math.floor(process.uptime());
+    const hours = Math.floor(pm2Uptime / 3600);
+    const mins = Math.floor((pm2Uptime % 3600) / 60);
+    const uptimeStr = hours + 'h ' + mins + 'm';
+    
+    // Backup info
+    const dbPath = '/var/www/vhosts/airingdesk.com/httpdocs/ringdesk.db';
+    const dbStat = fs.statSync(dbPath);
+    const dbMB = (dbStat.size / 1024 / 1024).toFixed(2);
+    const dbAge = Math.floor((Date.now() - dbStat.mtimeMs) / 1000 / 60);
+    
+    results.system = {
+      version: pkgJson.version,
+      git_hash: gitHash,
+      git_date: gitDate,
+      node_version: nodeVersion,
+      uptime: uptimeStr,
+      uptime_seconds: pm2Uptime,
+      db_size_mb: dbMB,
+      db_last_modified_mins: dbAge,
+      server_ip: '185.249.74.165',
+      environment: 'production'
+    };
+  } catch(e) {
+    results.system = { version: APP_VERSION, error: e.message };
+  }
   const start = Date.now();
 
   // 1. Database
@@ -4913,6 +4951,26 @@ app.get('/api/admin/health', async (req, res) => {
     };
   } catch(e) {
     results.services.brevo = { status: 'error', message: e.message };
+  }
+
+  // 6b. GoCardless
+  try {
+    const t0 = Date.now();
+    const gcRes = await fetch('https://api.gocardless.com/creditors', {
+      headers: {
+        'Authorization': 'Bearer ' + process.env.GOCARDLESS_ACCESS_TOKEN,
+        'GoCardless-Version': '2015-07-06'
+      }
+    });
+    const gcData = await gcRes.json();
+    const creditor = gcData.creditors && gcData.creditors[0];
+    results.services.gocardless = {
+      status: gcRes.ok ? 'ok' : 'warning',
+      message: gcRes.ok ? 'AiRingDesk · ' + (creditor?.verification_status || 'unknown') + ' · ' + (creditor?.bank_reference_prefix || '') : 'HTTP ' + gcRes.status,
+      latency: Date.now() - t0
+    };
+  } catch(e) {
+    results.services.gocardless = { status: 'error', message: e.message };
   }
 
   // 7. Twilio Number Search API
