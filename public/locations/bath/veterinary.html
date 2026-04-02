@@ -69,7 +69,13 @@
   .footer-inner{max-width:1100px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px}
   .footer-links{display:flex;gap:16px;flex-wrap:wrap}
   .footer-links a{font-size:11px;color:var(--muted);text-decoration:none}
-  </style>
+  
+.faq-section{max-width:860px;margin:0 auto}
+.faq-grid{display:flex;flex-direction:column;gap:16px;margin-top:24px}
+.faq-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px}
+.faq-q{font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.4}
+.faq-a{font-size:14px;color:var(--muted);line-height:1.7}
+</style>
 <link rel="stylesheet" href="/brand.css"></head>
 <body>
 <nav>
@@ -144,6 +150,31 @@
   </div>
 </div>
 
+<div class="section faq-section" itemscope itemtype="https://schema.org/FAQPage">
+  <div class="stag">Veterinary Practices · Bath</div>
+  <h2>Frequently asked <em>questions</em></h2>
+  <div class="faq-grid">
+  <div class="faq-item" itemscope itemtype="https://schema.org/Question">
+    <div class="faq-q" itemprop="name">How can an AI receptionist help my Bath veterinary practice?</div>
+    <div class="faq-a" itemscope itemtype="https://schema.org/Answer"><span itemprop="text">AiRingDesk answers pet owner calls 24/7, books consultations and vaccinations, handles medication enquiries and routes emergency calls immediately to your clinical team.</span></div>
+  </div>
+  <div class="faq-item" itemscope itemtype="https://schema.org/Question">
+    <div class="faq-q" itemprop="name">Can it handle emergency vet calls?</div>
+    <div class="faq-a" itemscope itemtype="https://schema.org/Answer"><span itemprop="text">Yes — AiRingDesk can identify emergency calls and route them directly to your on-call vet immediately, while handling routine appointment bookings automatically.</span></div>
+  </div>
+  <div class="faq-item" itemscope itemtype="https://schema.org/Question">
+    <div class="faq-q" itemprop="name">How much does an AI receptionist for a vet practice cost?</div>
+    <div class="faq-a" itemscope itemtype="https://schema.org/Answer"><span itemprop="text">Plans start from £29/month + VAT. Most veterinary practices find the Starter at £49/month + VAT or Professional at £149/month + VAT suits their call volume.</span></div>
+  </div>
+  <div class="faq-item" itemscope itemtype="https://schema.org/Question">
+    <div class="faq-q" itemprop="name">Is pet owner data handled securely?</div>
+    <div class="faq-a" itemscope itemtype="https://schema.org/Answer"><span itemprop="text">Yes — AiRingDesk is ICO registered, UK GDPR compliant and all data is stored on UK servers. Client and patient data is fully protected.</span></div>
+  </div>
+  </div>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How can an AI receptionist help my Bath veterinary practice?","acceptedAnswer":{"@type":"Answer","text":"AiRingDesk answers pet owner calls 24/7, books consultations and vaccinations, handles medication enquiries and routes emergency calls immediately to your clinical team."}},{"@type":"Question","name":"Can it handle emergency vet calls?","acceptedAnswer":{"@type":"Answer","text":"Yes — AiRingDesk can identify emergency calls and route them directly to your on-call vet immediately, while handling routine appointment bookings automatically."}},{"@type":"Question","name":"How much does an AI receptionist for a vet practice cost?","acceptedAnswer":{"@type":"Answer","text":"Plans start from £29/month + VAT. Most veterinary practices find the Starter at £49/month + VAT or Professional at £149/month + VAT suits their call volume."}},{"@type":"Question","name":"Is pet owner data handled securely?","acceptedAnswer":{"@type":"Answer","text":"Yes — AiRingDesk is ICO registered, UK GDPR compliant and all data is stored on UK servers. Client and patient data is fully protected."}}]}
+  </script>
+</div>
 <div class="cta-section">
   <div class="stag">Veterinary Clinics · Bath</div>
   <h2>Start your <em>free trial</em> today</h2>
