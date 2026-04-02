@@ -1839,7 +1839,7 @@ app.delete("/api/admin/customer/:id", authRequired, (req, res) => {
 app.get("/health", (req, res) => res.json({ status: "ok", version: APP_VERSION, uptime: process.uptime(), clients: db.prepare("SELECT COUNT(*) as c FROM clients").get().c }));
 
 
-app.get('/', (req, res) => res.sendFile(__dirname + '/public/index.html'));
+app.get('/', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400'); res.sendFile(__dirname + '/public/index.html'); });
 app.get('/get-number', (req, res) => res.sendFile(__dirname + '/public/get-number.html'));
 app.get('/about', (req, res) => res.sendFile(__dirname + '/public/about.html'));
 app.get('/contact', (req, res) => res.sendFile(__dirname + '/public/contact.html'));
