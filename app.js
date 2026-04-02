@@ -31,7 +31,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Database = require("better-sqlite3");
 
-const APP_VERSION = '2.6.0';
+const APP_VERSION = '2.6.1';
 const app = express();
 app.use(express.json());
 

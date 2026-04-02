@@ -1,5 +1,13 @@
 # AiRingDesk Changelog
 
+## [2.6.1] - 2026-04-02
+
+### Changes
+- Fix description
+
+---
+
+
 All notable changes to AiRingDesk are documented here.
 Format: [Version] - Date - Description
 
