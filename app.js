@@ -616,12 +616,16 @@ app.post("/api/auth/login", async (req, res) => {
   if (client.email_verified === 0)
     return res.status(403).json({ error: "Please verify your email before logging in. Check your inbox for the verification link." });
 
+  // Token expiry: 24h standard, 7d if remember_me
+  const rememberMe = req.body.remember_me === true;
+  const expiresIn = rememberMe ? "7d" : "24h";
+  
   const token = jwt.sign(
     { id: client.id, email: client.email, business_name: client.business_name, role: client.role || "client" },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn }
   );
-  res.json({ token, client: { id: client.id, business_name: client.business_name, email: client.email, plan: client.plan, phone_number: client.phone_number } });
+  res.json({ token, client: { id: client.id, business_name: client.business_name, email: client.email, plan: client.plan, phone_number: client.phone_number }, expires_in: expiresIn });
 });
 
 // ═══════════════════════════════════════════════════════════════════════════════

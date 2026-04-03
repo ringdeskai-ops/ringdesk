@@ -302,6 +302,10 @@ select option{background-color:#0c1520;color:#f0f6ff}
     <div id="loginForm">
       <div class="form-group"><label class="form-label">Email address</label><input class="form-input" type="email" id="loginEmail" placeholder="you@yourbusiness.com" autocomplete="email"/></div>
       <div class="form-group"><label class="form-label">Password</label><input class="form-input" type="password" id="loginPass" placeholder="Your password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <input type="checkbox" id="rememberMe" style="width:16px;height:16px;accent-color:var(--cyan);cursor:pointer"/>
+        <label for="rememberMe" style="font-size:13px;color:var(--muted);cursor:pointer">Remember me for 7 days</label>
+      </div>
       <button class="auth-btn" id="loginBtn" onclick="doLogin()">Sign in →</button>
       <div class="auth-error" id="loginError"></div>
       <p style="text-align:center;margin-top:12px;font-size:13px;color:var(--muted)"><a href="#" onclick="showForgotPassword()" style="color:var(--cyan);text-decoration:none">Forgot your password?</a></p>
@@ -3226,6 +3230,40 @@ let selectedCall = null;
 let profile = null;
 
 // ── INIT ──────────────────────────────────────────────────────────────
+// Idle timeout — 30 minutes
+let idleTimer;
+const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
+function resetIdleTimer() {
+  clearTimeout(idleTimer);
+  idleTimer = setTimeout(() => {
+    if (authToken) {
+      localStorage.removeItem('rd_token');
+      localStorage.removeItem('rd_user');
+      localStorage.removeItem('rd_login_time');
+      alert('You have been logged out due to inactivity.');
+      window.location.reload();
+    }
+  }, IDLE_TIMEOUT);
+}
+
+// Check token age on load
+const loginTime = parseInt(localStorage.getItem('rd_login_time') || '0');
+const rememberMeActive = localStorage.getItem('rd_remember_me') === 'true';
+if (loginTime && !rememberMeActive) {
+  const age = Date.now() - loginTime;
+  if (age > 24 * 60 * 60 * 1000) { // 24 hours
+    localStorage.removeItem('rd_token');
+    localStorage.removeItem('rd_user');
+    localStorage.removeItem('rd_login_time');
+  }
+}
+
+['mousedown','mousemove','keydown','scroll','touchstart','click'].forEach(e => {
+  document.addEventListener(e, resetIdleTimer, { passive: true });
+});
+resetIdleTimer();
+
 document.addEventListener('DOMContentLoaded', () => {
   // Handle GoCardless success redirect
   const gcParams = new URLSearchParams(window.location.search);
@@ -3325,7 +3363,7 @@ async function doLogin() {
   if (!email || !pass) return showAuthError('loginError', 'Please enter your email and password.');
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
   try {
-    const r = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password: pass }) });
+    const r = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password: pass, remember_me: document.getElementById('rememberMe')?.checked || false }) });
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || 'Login failed');
     authToken = d.token;
@@ -3336,6 +3374,7 @@ async function doLogin() {
     } catch(e) { currentUser = { ...d.client, role: 'client' }; }
     localStorage.setItem('rd_token', authToken);
     localStorage.setItem('rd_user', JSON.stringify(currentUser));
+    localStorage.setItem('rd_login_time', Date.now().toString());
     if (currentUser.role === 'client' && !d.client.phone_number) {
       window.location.href = '/get-number';
       return;
