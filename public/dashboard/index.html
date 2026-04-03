@@ -110,7 +110,7 @@ body{background:var(--black);color:var(--text);font-family:var(--font-body);line
 .trend-down{color:var(--red)}
 
 /* Table card */
-.table-card{background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border:1px solid rgba(0,212,255,.08);border-radius:16px;overflow:hidden}
+.table-card{background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);border:1px solid rgba(0,212,255,.08);border-radius:16px;overflow:visible}
 .table-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
 .table-title{font-size:14px;font-weight:700;color:var(--text);letter-spacing:.01em}
 .table-sub{font-size:11px;color:var(--muted);margin-top:2px}
@@ -255,10 +255,103 @@ tr:hover td{background:rgba(255,255,255,.015)}
 @media(max-width:768px){
   .sidebar{transform:translateX(-100%);transition:transform .3s}
   .sidebar.open{transform:translateX(0)}
-  .main{margin-left:0;padding-bottom:70px}
+  .main{margin-left:0;padding-bottom:70px;overflow-x:hidden}
   .mobile-nav{display:flex}
   .stats-row{grid-template-columns:1fr 1fr}
   .settings-grid{grid-template-columns:1fr}
+  .page{padding:16px 12px;overflow-x:hidden}
+  .page-header{flex-direction:column;gap:8px}
+  .table-card{overflow:hidden !important;border-radius:12px}
+  .billing-grid{grid-template-columns:1fr !important}
+  .billing-plan{padding:20px 16px}
+  .filter-bar,.filter-btns{flex-wrap:wrap;gap:6px}
+  .filter-btn{font-size:11px;padding:5px 10px}
+  .stat-card{padding:14px 12px}
+  .page-title{font-size:clamp(20px,5vw,28px)}
+  .page-header > div:last-child{width:100%}
+
+  /* Mobile card layout for calls table */
+  #page-calls table, #page-calls thead,
+  #page-sms-logs table, #page-sms-logs thead,
+  #page-leads table, #page-leads thead { display:block }
+
+  #page-calls thead tr,
+  #page-sms-logs thead tr,
+  #page-leads thead tr { display:none }
+
+  #page-calls tbody, #page-sms-logs tbody, #page-leads tbody { display:flex; flex-direction:column; gap:10px; padding:12px }
+
+  #page-calls tbody tr, #page-sms-logs tbody tr, #page-leads tbody tr {
+    display:flex; flex-direction:column;
+    background:var(--surface2); border:1px solid rgba(0,212,255,.08);
+    border-radius:12px; padding:14px 16px; gap:6px; cursor:pointer;
+    transition:border-color .2s;
+  }
+  #page-calls tbody tr:hover, #page-sms-logs tbody tr:hover, #page-leads tbody tr:hover {
+    border-color:rgba(0,212,255,.2);
+  }
+
+  #page-calls tbody td, #page-sms-logs tbody td, #page-leads tbody td {
+    display:flex; align-items:center; gap:8px;
+    padding:0 !important; border:none !important;
+    font-size:13px; min-width:0;
+  }
+
+  /* Hide less important columns on mobile */
+  #page-calls tbody td:nth-child(5),
+  #page-calls tbody td:nth-child(7) { display:none }
+
+  /* SMS - hide trigger and status columns but keep view button (col 8) */
+  #page-sms-logs tbody td:nth-child(5),
+  #page-sms-logs tbody td:nth-child(6) { display:none }
+
+  #page-leads tbody td:nth-child(3) { display:none }
+
+  /* Summary text full width on mobile */
+  .summary-text { max-width:100% !important; white-space:normal !important; }
+
+  /* Fix overview grid on mobile */
+  .overview-grid { grid-template-columns:1fr !important }
+  /* Fix sidebar bleed */
+  body { overflow-x:hidden }
+  .sidebar { visibility:hidden; z-index:40 }
+  .sidebar.open { visibility:visible; z-index:60 }
+  .main { position:relative; z-index:45; background:var(--bg); min-height:100vh; width:100% }
+  
+  /* Appointments - card layout - target apptsTableBody */
+  #apptsTableBody { display:flex !important; flex-direction:column; gap:10px; padding:12px }
+  #page-appointments .table-card > div { overflow-x:visible !important }
+  #page-appointments table { min-width:unset !important; display:block }
+  #page-appointments thead { display:none !important }
+  #page-appointments tbody { display:flex; flex-direction:column; gap:10px; padding:12px }
+  #page-appointments tbody tr {
+    display:flex !important; flex-direction:column !important;
+    background:var(--surface2); border:1px solid rgba(0,212,255,.08);
+    border-radius:12px; padding:14px 16px; gap:6px;
+  }
+  #page-appointments tbody td {
+    display:flex !important; align-items:center; gap:8px;
+    padding:4px 0 !important; border:none !important; font-size:13px;
+  }
+  #page-appointments tbody td:nth-child(5) { display:none !important }
+
+  /* Invoice history - card layout */
+  #page-billing .table-card table { display:block; min-width:unset !important }
+  #page-billing .table-card thead { display:none !important }
+  #page-billing .table-card tbody { display:flex; flex-direction:column; gap:8px; padding:12px }
+  #page-billing .table-card tbody tr {
+    display:flex !important; flex-direction:column !important;
+    background:var(--surface2); border:1px solid rgba(0,212,255,.08);
+    border-radius:10px; padding:12px 14px; gap:4px;
+  }
+  #page-billing .table-card tbody td {
+    display:flex !important; justify-content:space-between;
+    padding:3px 0 !important; border:none !important; font-size:12px;
+  }
+  #page-billing .table-card tbody td:before {
+    content:attr(data-label);
+    color:var(--muted); font-size:11px; font-weight:600;
+  }
 }
 
 /* Select dark theme fix */
@@ -685,7 +778,7 @@ select option{background-color:#0c1520;color:#f0f6ff}
       </div>
 
       <!-- Two column layout -->
-      <div style="display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start" id="overviewGrid">
+      <div style="display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start" id="overviewGrid" class="overview-grid">
         <!-- Recent calls -->
         <div class="table-card">
           <div class="table-header">
@@ -894,7 +987,7 @@ select option{background-color:#0c1520;color:#f0f6ff}
           <div class="page-sub">Track and manage enquiries from your AI receptionist</div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px">
         <div class="stat-card" style="--c:rgba(0,212,255,.3)"><div class="stat-val" id="leadsNew" style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">—</div><div class="stat-label">New leads</div></div>
         <div class="stat-card" style="--c:rgba(255,184,0,.3)"><div class="stat-val" id="leadsFollowup" style="background:linear-gradient(135deg,#ffb800,#ff8800);-webkit-background-clip:text;-webkit-text-fill-color:transparent">—</div><div class="stat-label">Needs follow-up</div></div>
         <div class="stat-card" style="--c:rgba(0,232,122,.3)"><div class="stat-val" id="leadsConverted" style="background:linear-gradient(135deg,#00e87a,#00aa55);-webkit-background-clip:text;-webkit-text-fill-color:transparent">—</div><div class="stat-label">Converted</div></div>
@@ -3182,23 +3275,52 @@ select option{background-color:#0c1520;color:#f0f6ff}
 
   <!-- Mobile nav -->
   <nav class="mobile-nav">
-    <button class="mob-nav-btn active" onclick="showPage('overview')">
+    <button class="mob-nav-btn active" id="mob-overview" onclick="showPage('overview')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
       Overview
     </button>
-    <button class="mob-nav-btn" onclick="showPage('calls')">
+    <button class="mob-nav-btn" id="mob-calls" onclick="showPage('calls')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72z"/></svg>
       Calls
     </button>
-    <button class="mob-nav-btn" onclick="showPage('leads')">
+    <button class="mob-nav-btn" id="mob-leads" onclick="showPage('leads')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
       Leads
     </button>
-    <button class="mob-nav-btn" onclick="showPage('settings')">
+    <button class="mob-nav-btn" id="mob-settings" onclick="showPage('settings')">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
       Settings
     </button>
+    <button class="mob-nav-btn" onclick="toggleMobileMenu()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      More
+    </button>
   </nav>
+
+  <!-- Mobile More Menu -->
+  <div id="mobileMoreMenu" style="display:none;position:fixed;bottom:65px;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);z-index:49;padding:8px 0">
+    <button onclick="showPage('billing');toggleMobileMenu()" style="width:100%;padding:14px 24px;background:none;border:none;color:var(--text);font-size:14px;text-align:left;display:flex;align-items:center;gap:12px;cursor:pointer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Billing & Plans
+    </button>
+    <button onclick="showPage('notifications');toggleMobileMenu()" style="width:100%;padding:14px 24px;background:none;border:none;color:var(--text);font-size:14px;text-align:left;display:flex;align-items:center;gap:12px;cursor:pointer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+      Notifications
+    </button>
+    <button onclick="showPage('sms-logs');toggleMobileMenu()" style="width:100%;padding:14px 24px;background:none;border:none;color:var(--text);font-size:14px;text-align:left;display:flex;align-items:center;gap:12px;cursor:pointer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      SMS Logs
+    </button>
+    <button onclick="showPage('appointments');toggleMobileMenu()" style="width:100%;padding:14px 24px;background:none;border:none;color:var(--text);font-size:14px;text-align:left;display:flex;align-items:center;gap:12px;cursor:pointer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Appointments
+    </button>
+    <div style="height:1px;background:var(--border);margin:4px 0"></div>
+    <button onclick="doLogout()" style="width:100%;padding:14px 24px;background:none;border:none;color:#ff4466;font-size:14px;text-align:left;display:flex;align-items:center;gap:12px;cursor:pointer">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff4466" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sign out
+    </button>
+  </div>
 
 </div>
 
@@ -7130,6 +7252,52 @@ function dismissPWA() {
   const banner = document.getElementById('pwaInstallBanner');
   if (banner) banner.style.display = 'none';
   localStorage.setItem('pwa_dismissed', '1');
+}
+</script>
+
+<!-- iOS PWA Install Banner -->
+<div id="iosInstallBanner" style="display:none;position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#0d1520;border:1px solid rgba(0,212,255,.25);border-radius:14px;padding:16px 20px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:340px;width:90%;text-align:center">
+  <div style="font-size:13px;font-weight:700;color:#e8f4f8;margin-bottom:6px">Install AiRingDesk</div>
+  <div style="font-size:12px;color:#5a7a9a;line-height:1.6;margin-bottom:12px">Tap <strong style="color:#00d4ff">Share</strong> then <strong style="color:#00d4ff">Add to Home Screen</strong> to install the app</div>
+  <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:12px">
+    <div style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:6px 12px;font-size:12px;color:#00d4ff;display:flex;align-items:center;gap:6px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      Share
+    </div>
+    <span style="color:#3d5470">→</span>
+    <div style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);border-radius:8px;padding:6px 12px;font-size:12px;color:#00d4ff;display:flex;align-items:center;gap:6px">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      Add to Home Screen
+    </div>
+  </div>
+
+  <button onclick="dismissIosBanner()" style="position:absolute;top:10px;right:12px;background:transparent;border:none;color:#5a7a9a;cursor:pointer;font-size:18px;line-height:1;padding:0">×</button>
+</div>
+
+<script>
+(function() {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isInStandaloneMode = window.navigator.standalone === true;
+  const dismissed = localStorage.getItem('ios_pwa_dismissed');
+
+  if (isIOS && !isInStandaloneMode) {
+    localStorage.removeItem('ios_pwa_dismissed');
+    setTimeout(function() {
+      const banner = document.getElementById('iosInstallBanner');
+      if (banner) { banner.style.display = 'block'; }
+    }, 3000);
+  }
+})();
+
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobileMoreMenu');
+  if (menu) menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+}
+
+function dismissIosBanner() {
+  const banner = document.getElementById('iosInstallBanner');
+  if (banner) banner.style.display = 'none';
+  localStorage.setItem('ios_pwa_dismissed', '1');
 }
 </script>
 </body>
