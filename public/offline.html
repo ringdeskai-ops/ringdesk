@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>AiRingDesk — Offline</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#060912;color:#e8f4f8;font-family:'Geist',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:24px}
+.icon{width:64px;height:64px;border-radius:16px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 24px}
+h1{font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:12px}
+h1 em{font-style:italic;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+p{font-size:15px;color:#5a7a9a;margin-bottom:32px;line-height:1.6}
+button{background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;border:none;padding:14px 28px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer}
+</style>
+</head>
+<body>
+<div>
+  <div class="icon">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
+  </div>
+  <h1>You're <em>offline</em></h1>
+  <p>No internet connection detected.<br>Your AI receptionist is still answering calls — don't worry!</p>
+  <button onclick="window.location.reload()">Try again</button>
+</div>
+</body>
+</html>

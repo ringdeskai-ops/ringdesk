@@ -597,6 +597,16 @@ If the caller wants to book an appointment, collect their name, preferred date a
     sendVerificationEmail(business_name, email, verifyUrl);
     sendWelcomeEmail(business_name, email, referral_code, id);
 
+    // Push notify admins of new signup
+    setImmediate(async () => {
+      await sendAdminPushNotification(
+        '🎉 New signup!',
+        business_name + ' (' + email + ') just registered',
+        '/dashboard',
+        'new-signup'
+      );
+    });
+
     res.json({ success: true, message: "Registration successful. Please check your email to verify your account." });
   } catch (err) {
     if (err.message.includes("UNIQUE")) return res.status(409).json({ error: "Email already registered" });
@@ -869,6 +879,13 @@ app.get('/home.css', (req, res) => { res.setHeader('Cache-Control', 'public, max
 app.get('/home.js', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.sendFile(__dirname + '/public/home.js'); });
 app.get('/schema.json', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.setHeader('Content-Type', 'application/json'); res.sendFile(__dirname + '/public/schema.json'); });
 app.get('/manifest.json', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=86400'); res.setHeader('Content-Type', 'application/manifest+json'); res.sendFile(__dirname + '/public/manifest.json'); });
+app.get('/sw.js', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.setHeader('Content-Type', 'application/javascript'); res.sendFile(__dirname + '/public/sw.js'); });
+app.get('/icon-96.png', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=604800'); res.sendFile(__dirname + '/public/icon-96.png'); });
+app.get('/icon-192.png', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=604800'); res.sendFile(__dirname + '/public/icon-192.png'); });
+app.get('/icon-512.png', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=604800'); res.sendFile(__dirname + '/public/icon-512.png'); });
+app.get('/apple-touch-icon.png', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=604800'); res.sendFile(__dirname + '/public/apple-touch-icon.png'); });
+app.get('/push-init.js', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.setHeader('Content-Type', 'application/javascript'); res.sendFile(__dirname + '/public/push-init.js'); });
+app.get('/offline.html', (req, res) => { res.sendFile(__dirname + '/public/offline.html'); });
 
 // SEO: Sitemap and robots.txt
 app.get('/sitemap.xml', (req, res) => {
@@ -1533,6 +1550,14 @@ app.post("/voice/status", async (req, res) => {
         const callStatus = call.status || 'completed';
         setImmediate(async () => {
           await triggerPostCallSMS(client, callerNum, callStatus, callerName, summary);
+        });
+        // Push notification
+        setImmediate(async () => {
+          const callType = call.status === 'voicemail' ? '📩 Voicemail received' : '📞 Call completed';
+          const callerDisplay = callerNum || 'Unknown number';
+          await sendPushNotification(client.id, callType, callerDisplay + (summary ? ' — ' + summary.substring(0,60) : ''), '/dashboard', 'call');
+          // Notify superadmin of every call too
+          await sendAdminPushNotification('📞 ' + client.business_name, callerDisplay + ' just called', '/dashboard', 'admin-call');
         });
       }
     }
@@ -4465,6 +4490,16 @@ app.post('/api/leads/submit', async (req, res) => {
 
     await sendBrevoEmail(process.env.NOTIFY_EMAIL, '🎯 New Lead: ' + business_name + ' — ' + first_name, adminHtml);
 
+    // Push notify admins of new lead
+    setImmediate(async () => {
+      await sendAdminPushNotification(
+        '🎯 New Lead!',
+        business_name + ' — ' + first_name + (industry ? ' · ' + industry : ''),
+        '/dashboard',
+        'new-lead'
+      );
+    });
+
     // Send confirmation to lead
     const confirmHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:580px;margin:0 auto;background:#060912;color:#f0f4f8;padding:0;border-radius:16px;overflow:hidden;border:1px solid #1a2332">'
       + '<div style="background:#080e18;padding:24px 32px;border-bottom:1px solid #1a2332">'
@@ -5834,6 +5869,94 @@ app.post('/api/email/test', authRequired, async (req, res) => {
     await sendBrevoEmail(client.email, '✅ AiRingDesk email test successful!', '<div style="font-family:sans-serif;padding:20px"><h2>Email is working!</h2><p>AiRingDesk notifications are working correctly.</p></div>');
     res.json({ success: true, message: `Test email sent to ${client.email}` });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ── Push Notifications ────────────────────────────────────────────────────────
+const webpush = require('web-push');
+webpush.setVapidDetails(
+  process.env.VAPID_EMAIL,
+  process.env.VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY
+);
+
+// Save push subscription
+app.post('/api/push/subscribe', authRequired, (req, res) => {
+  try {
+    const { subscription } = req.body;
+    if (!subscription) return res.status(400).json({ error: 'No subscription provided' });
+    db.prepare('UPDATE clients SET push_subscription = ? WHERE id = ?')
+      .run(JSON.stringify(subscription), req.client.id);
+    res.json({ success: true });
+  } catch(err) {
+    console.error('Push subscribe error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Remove push subscription
+app.post('/api/push/unsubscribe', authRequired, (req, res) => {
+  try {
+    db.prepare('UPDATE clients SET push_subscription = NULL WHERE id = ?')
+      .run(req.client.id);
+    res.json({ success: true });
+  } catch(err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Send push notification to a client
+async function sendPushNotification(clientId, title, body, url, tag) {
+  try {
+    const client = db.prepare('SELECT push_subscription FROM clients WHERE id = ?').get(clientId);
+    if (!client || !client.push_subscription) return;
+    const subscription = JSON.parse(client.push_subscription);
+    const payload = JSON.stringify({
+      title: title || 'AiRingDesk',
+      body: body || '',
+      url: url || '/dashboard',
+      tag: tag || 'airingdesk',
+      requireInteraction: false
+    });
+    await webpush.sendNotification(subscription, payload);
+    console.log('Push sent to client:', clientId);
+  } catch(err) {
+    if (err.statusCode === 410) {
+      // Subscription expired — remove it
+      db.prepare('UPDATE clients SET push_subscription = NULL WHERE id = ?').run(clientId);
+      console.log('Push subscription expired, removed for:', clientId);
+    } else {
+      console.error('Push error:', err.message);
+    }
+  }
+}
+
+// Send push to superadmin
+async function sendAdminPushNotification(title, body, url, tag) {
+  try {
+    const admins = db.prepare("SELECT id, push_subscription FROM clients WHERE role IN ('admin','superadmin') AND push_subscription IS NOT NULL").all();
+    for (const admin of admins) {
+      await sendPushNotification(admin.id, title, body, url, tag);
+    }
+  } catch(err) {
+    console.error('Admin push error:', err.message);
+  }
+}
+
+// VAPID public key endpoint — dashboard uses this
+app.get('/api/push/vapid-public-key', authRequired, (req, res) => {
+  res.json({ publicKey: process.env.VAPID_PUBLIC_KEY });
+});
+
+// Test push endpoint — superadmin only
+app.post('/api/push/test', authRequired, async (req, res) => {
+  if (!['admin','superadmin'].includes(req.client.role)) return res.status(403).json({ error: 'Forbidden' });
+  try {
+    await sendPushNotification(req.client.id, '🔔 AiRingDesk Test', 'Push notifications are working!', '/dashboard', 'test');
+    res.json({ success: true });
+  } catch(err) {
     res.status(500).json({ error: err.message });
   }
 });

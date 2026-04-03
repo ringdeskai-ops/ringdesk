@@ -2,32 +2,88 @@
   "name": "AiRingDesk — AI Receptionist",
   "short_name": "AiRingDesk",
   "description": "AI receptionist that answers every business call 24/7. Never miss a customer again.",
-  "start_url": "/",
+  "start_url": "/dashboard",
+  "id": "/",
   "display": "standalone",
   "background_color": "#060912",
   "theme_color": "#00d4ff",
   "orientation": "portrait",
   "icons": [
     {
+      "src": "/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
       "src": "/favicon.svg",
       "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/svg+xml"
     }
   ],
-  "categories": ["business", "productivity", "utilities"],
+  "screenshots": [
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "AiRingDesk Dashboard"
+    },
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "AiRingDesk AI Receptionist"
+    }
+  ],
+  "categories": [
+    "business",
+    "productivity",
+    "utilities"
+  ],
   "lang": "en-GB",
   "scope": "/",
   "shortcuts": [
     {
       "name": "Sign In",
       "url": "/dashboard",
-      "description": "Sign in to your AiRingDesk dashboard"
+      "description": "Sign in to your AiRingDesk dashboard",
+      "icons": [
+        {
+          "src": "/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     },
     {
       "name": "Start Free Trial",
       "url": "/#signup",
-      "description": "Start your 14-day free trial"
+      "description": "Start your 14-day free trial",
+      "icons": [
+        {
+          "src": "/icon-96.png",
+          "sizes": "96x96"
+        }
+      ]
     }
   ]
 }
