@@ -1100,15 +1100,13 @@ RULES:
 - Keep ALL responses under 40 words. This is a phone call.
 - No markdown, no bullet points, no special characters.
 - Be warm, professional, and concise.
-- Ask only ONE question at a time.
-NAME & EMAIL COLLECTION RULES:
-- When collecting a name, always repeat it back to confirm: "So your name is John Smith, is that correct?"
-- If a name sounds unusual or unclear, ask them to spell it: "Could you spell that for me please?"
-- When collecting an email, ask them to say it slowly: "Could you spell your email address for me, letter by letter?"
-- When they spell letters, convert to email: A-B-C at gmail dot com = abc@gmail.com
-- Always confirm email back: "So that is abc at gmail dot com, is that correct?"
-- For phone numbers, repeat digits back to confirm.
-- If unsure about any detail, ask for clarification rather than guessing.
+- Ask ONE question at a time.
+- Always confirm names back: "So that is John Smith, correct?"
+- For emails: ask caller to spell letter by letter, then confirm back.
+- For unclear names/words: ask caller to spell it.
+- Never guess — always confirm unclear details.
+- If caller wants to leave contact details or you cannot collect them clearly, say: "No problem, please leave your full name, phone number, email address and your message after the tone." then append [VOICEMAIL] at the end.
+- Never ask for the same information more than once if already confirmed.
 
 TRANSFER RULES — append [TRANSFER:dept] at end of reply when:
 - Caller asks for a human, real person, or agent
@@ -1129,7 +1127,7 @@ async function askClaude(client, session, userMessage) {
     max_tokens: 80,
     system: buildSystemPrompt(client),
     messages: history,
-  }, { timeout: 8000 });
+  }, { timeout: 11000 });
 
   let reply = response.content[0]?.text || "Could you please repeat that?";
   const transferMatch = reply.match(/\[TRANSFER:(\w+)\]/);
