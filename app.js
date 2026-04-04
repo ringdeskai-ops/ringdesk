@@ -1100,10 +1100,6 @@ RULES:
 - Keep ALL responses under 40 words. This is a phone call.
 - No markdown, no bullet points, no special characters.
 - Be warm, professional, and concise.
-- Ask ONE question at a time.
-- If caller wants to leave contact details, or if you cannot clearly understand their name, email or phone number, immediately say: "No problem, I will transfer you now to leave a voice message." then append [VOICEMAIL].
-- Never try to collect email addresses by voice — always route to voicemail instead.
-- Never ask for the same information twice.
 
 TRANSFER RULES — append [TRANSFER:dept] at end of reply when:
 - Caller asks for a human, real person, or agent
@@ -1124,7 +1120,7 @@ async function askClaude(client, session, userMessage) {
     max_tokens: 80,
     system: buildSystemPrompt(client),
     messages: history,
-  }, { timeout: 11000 });
+  }, { timeout: 8000 });
 
   let reply = response.content[0]?.text || "Could you please repeat that?";
   const transferMatch = reply.match(/\[TRANSFER:(\w+)\]/);
@@ -1270,7 +1266,7 @@ app.post("/voice/speech", async (req, res) => {
 
   try {
     const timeoutPromise = new Promise((_, reject) => 
-      setTimeout(() => reject(new Error('timeout')), 4000)
+      setTimeout(() => reject(new Error('timeout')), 9000)
     );
     let { reply, transferDept } = await Promise.race([
       askClaude(client, session, SpeechResult),
@@ -1451,7 +1447,8 @@ app.post("/voice/transfer-complete", async (req, res) => {
 
 // ── Post-call SMS triggers ───────────────────────────────────────────────────
 async function triggerPostCallSMS(client, callerNumber, callType, callerName, summary) {
-  if (!client || !callerNumber || callerNumber === 'anonymous') return;
+  if (!client) return;
+  if (!callerNumber) callerNumber = 'anonymous';
   
   const businessName = client.business_name || 'Your AI Receptionist';
   const callerDisplay = callerName ? callerName : callerNumber;
