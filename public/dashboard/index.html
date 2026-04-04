@@ -3787,6 +3787,7 @@ function renderCalls() {
       <td style="color:var(--muted);font-size:12px">${fmtDate(c.started_at)}</td>
       <td>
         <button class="btn-sm btn-ghost-sm" onclick="event.stopPropagation();openCallDetail('${c.id}')">View</button>
+        <button class="btn-sm" data-call-del="${c.id}" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:var(--red);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body)">Delete</button>
       </td>
     </tr>
   `).join('');
@@ -6714,6 +6715,56 @@ var currentSmsFilter = 'all';
 var smsDateFrom = null;
 var smsDateTo = null;
 
+document.addEventListener('click', function(e) {
+  var smsView = e.target.closest('[data-sms-view]');
+  if (smsView) {
+    e.stopPropagation();
+    var id = smsView.getAttribute('data-sms-view');
+    var sms = allSmsLogs.find(function(s){ return String(s.id) === String(id); });
+    if (sms) {
+      var dirColors = {outbound:'var(--green)',inbound:'var(--cyan)'};
+      var date = sms.created_at ? new Date(sms.created_at*1000).toLocaleString('en-GB') : '-';
+      viewSmsMessage(sms.body||'', dirColors[sms.direction]||'var(--muted)', date);
+    }
+    return;
+  }
+  var smsDel = e.target.closest('[data-sms-del]');
+  if (smsDel) { e.stopPropagation(); deleteSms(smsDel.getAttribute('data-sms-del')); return; }
+  var callDel = e.target.closest('[data-call-del]');
+  if (callDel) { e.stopPropagation(); deleteCall(callDel.getAttribute('data-call-del')); return; }
+});
+
+async function deleteCall(id) {
+  if (!confirm('Move this call to archive? You can restore it later.')) return;
+  const token = authToken || localStorage.getItem('rd_token');
+  await fetch('/api/calls/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+  loadCalls();
+  renderLeads();
+  showToast('Call archived', 'success');
+}
+
+async function deleteSms(id) {
+  if (!confirm('Move this SMS to archive? You can restore it later.')) return;
+  const token = authToken || localStorage.getItem('rd_token');
+  await fetch('/api/sms/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+  loadSmsLogs();
+  showToast('SMS archived', 'success');
+}
+
+async function restoreCall(id) {
+  const token = authToken || localStorage.getItem('rd_token');
+  await fetch('/api/calls/' + id + '/restore', { method: 'PATCH', headers: { 'Authorization': 'Bearer ' + token } });
+  loadCalls();
+  showToast('Call restored', 'success');
+}
+
+async function restoreSms(id) {
+  const token = authToken || localStorage.getItem('rd_token');
+  await fetch('/api/sms/' + id + '/restore', { method: 'PATCH', headers: { 'Authorization': 'Bearer ' + token } });
+  loadSmsLogs();
+  showToast('SMS restored', 'success');
+}
+
 function loadSmsLogs() {
   var token = localStorage.getItem('rd_token');
   var isAdmin = currentUser && ['admin','superadmin'].includes(currentUser.role);
@@ -6796,7 +6847,7 @@ function renderSmsLogs() {
       + '<td style="font-size:12px;color:var(--muted)">' + triggerLabel + '</td>'
       + '<td><span style="font-size:11px;font-weight:700;color:' + statusColor + '">' + (s.status||'-') + '</span></td>'
       + '<td style="font-size:12px;color:var(--muted);white-space:nowrap">' + date + '</td>'
-      + '<td><button onclick="viewSmsMessage(\''+safeBody+'\',\''+dirColor+'\',\''+date+'\')" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body)">View</button></td>'
+      + '<td style="display:flex;gap:6px"><button data-sms-view="'+s.id+'" style="background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body)">View</button><button data-sms-del="'+s.id+'" style="background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);color:#ff4466;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">Delete</button></td>'
       + '</tr>';
   }).join('');
 }
@@ -6822,6 +6873,7 @@ var allSmsLogs = [];
 var currentSmsFilter = 'all';
 var smsDateFrom = null;
 var smsDateTo = null;
+
 
 function loadSmsLogs() {
   var token = localStorage.getItem('rd_token');
@@ -6864,36 +6916,6 @@ function clearSmsDateFilter() {
   renderSmsLogs();
 }
 
-function renderSmsLogs() {
-  var filtered = allSmsLogs;
-  if(currentSmsFilter === 'outbound') filtered = allSmsLogs.filter(function(s){ return s.direction === 'outbound' && s.status !== 'failed'; });
-  else if(currentSmsFilter === 'inbound') filtered = allSmsLogs.filter(function(s){ return s.direction === 'inbound'; });
-  else if(currentSmsFilter === 'failed') filtered = allSmsLogs.filter(function(s){ return s.status === 'failed'; });
-  else if(currentSmsFilter === 'missed_call') filtered = allSmsLogs.filter(function(s){ return s.trigger === 'missed_call'; });
-  else if(currentSmsFilter === 'voicemail') filtered = allSmsLogs.filter(function(s){ return s.trigger === 'voicemail'; });
-  else if(currentSmsFilter === 'after_call') filtered = allSmsLogs.filter(function(s){ return s.trigger === 'after_call'; });
-  if(smsDateFrom) filtered = filtered.filter(function(s){ return s.created_at >= smsDateFrom; });
-  if(smsDateTo) filtered = filtered.filter(function(s){ return s.created_at <= smsDateTo; });
-  var tbody = document.getElementById('smsLogsTableBody');
-  if(!tbody) return;
-  if(filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">No SMS messages found</td></tr>'; return; }
-  var triggerLabels = {missed_call:'📵 Missed Call',voicemail:'📬 Voicemail',after_call:'📋 After Call',appointment:'📅 Appointment',auto_reply:'🤖 Auto Reply',inbound:'📨 Inbound',test:'🧪 Test'};
-  var dirColors = {outbound:'var(--green)',inbound:'var(--cyan)'};
-  var statusColors = {sent:'var(--green)',failed:'var(--red)',received:'var(--cyan)'};
-  tbody.innerHTML = filtered.map(function(s){
-    var date = s.created_at ? new Date(s.created_at*1000).toLocaleString('en-GB') : '-';
-    var msgPreview = s.body ? (s.body.length > 60 ? s.body.substring(0,60)+'...' : s.body) : '-';
-    return '<tr>'
-      + '<td><span style="font-size:11px;font-weight:700;color:' + (dirColors[s.direction]||'var(--muted)') + ';text-transform:uppercase">' + (s.direction||'-') + '</span></td>'
-      + '<td style="font-size:12px;color:var(--muted);font-family:monospace">' + (s.from_number||'-') + '</td>'
-      + '<td style="font-size:12px;color:var(--muted);font-family:monospace">' + (s.to_number||'-') + '</td>'
-      + '<td style="font-size:12px;color:var(--text);max-width:200px">' + msgPreview + '</td>'
-      + '<td style="font-size:12px;color:var(--muted)">' + (triggerLabels[s.trigger]||s.trigger||'-') + '</td>'
-      + '<td><span style="font-size:11px;font-weight:700;color:' + (statusColors[s.status]||'var(--muted)') + '">' + (s.status||'-') + '</span></td>'
-      + '<td style="font-size:12px;color:var(--muted);white-space:nowrap">' + date + '</td>'
-      + '</tr>';
-  }).join('');
-}
 
 </script>
 <div id="toast"></div><div id="toast"></div>
