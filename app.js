@@ -228,8 +228,8 @@ app.get('/api/admin/sms-logs', authRequired, (req, res) => {
 app.get('/api/sms', authRequired, (req, res) => {
   const isAdmin = ['admin','superadmin'].includes(req.client.role);
   const logs = isAdmin
-    ? db.prepare('SELECT * FROM sms_logs ORDER BY created_at DESC LIMIT 200').all()
-    : db.prepare('SELECT * FROM sms_logs WHERE client_id = ? ORDER BY created_at DESC LIMIT 200').all(req.client.id);
+    ? db.prepare('SELECT * FROM sms_logs WHERE deleted_at IS NULL ORDER BY created_at DESC LIMIT 200').all()
+    : db.prepare('SELECT * FROM sms_logs WHERE client_id = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 200').all(req.client.id);
   const stats = {
     total: db.prepare('SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ?').get(req.client.id).c,
     sent: db.prepare("SELECT COUNT(*) as c FROM sms_logs WHERE client_id = ? AND direction = 'outbound' AND status = 'sent'").get(req.client.id).c,
@@ -683,7 +683,7 @@ app.put("/api/client/settings", authRequired, (req, res) => {
 app.get("/api/calls", authRequired, (req, res) => {
   const { limit = 50, offset = 0, status } = req.query;
   const isAdmin = ['admin','superadmin'].includes(req.client.role);
-  let query = isAdmin ? "SELECT * FROM calls WHERE 1=1" : "SELECT * FROM calls WHERE client_id = ?";
+  let query = isAdmin ? "SELECT * FROM calls WHERE deleted_at IS NULL" : "SELECT * FROM calls WHERE client_id = ? AND deleted_at IS NULL";
   const params = isAdmin ? [] : [req.client.id];
   if (status) { query += " AND status = ?"; params.push(status); }
   query += " ORDER BY started_at DESC LIMIT ? OFFSET ?";
@@ -737,7 +737,61 @@ app.get("/api/calls/:id", authRequired, (req, res) => {
   res.json(call);
 });
 
+// Delete call (soft delete)
+app.delete("/api/calls/:id", authRequired, (req, res) => {
+  const isAdmin = ['admin','superadmin'].includes(req.client.role);
+  const call = isAdmin
+    ? db.prepare("SELECT * FROM calls WHERE id = ?").get(req.params.id)
+    : db.prepare("SELECT * FROM calls WHERE id = ? AND client_id = ?").get(req.params.id, req.client.id);
+  if (!call) return res.status(404).json({ error: "Not found" });
+  db.prepare("UPDATE calls SET deleted_at = ? WHERE id = ?").run(Math.floor(Date.now()/1000), req.params.id);
+  res.json({ success: true });
+});
+
+// Restore call
+app.patch("/api/calls/:id/restore", authRequired, (req, res) => {
+  const isAdmin = ['admin','superadmin'].includes(req.client.role);
+  const call = isAdmin
+    ? db.prepare("SELECT * FROM calls WHERE id = ?").get(req.params.id)
+    : db.prepare("SELECT * FROM calls WHERE id = ? AND client_id = ?").get(req.params.id, req.client.id);
+  if (!call) return res.status(404).json({ error: "Not found" });
+  db.prepare("UPDATE calls SET deleted_at = NULL WHERE id = ?").run(req.params.id);
+  res.json({ success: true });
+});
+
+// Get deleted calls (archive)
+app.get("/api/calls/archived", authRequired, (req, res) => {
+  const isAdmin = ['admin','superadmin'].includes(req.client.role);
+  const calls = isAdmin
+    ? db.prepare("SELECT * FROM calls WHERE deleted_at IS NOT NULL ORDER BY deleted_at DESC").all()
+    : db.prepare("SELECT * FROM calls WHERE client_id = ? AND deleted_at IS NOT NULL ORDER BY deleted_at DESC").all(req.client.id);
+  res.json({ calls });
+});
+
+// Delete SMS (soft delete)
+app.delete("/api/sms/:id", authRequired, (req, res) => {
+  const isAdmin = ['admin','superadmin'].includes(req.client.role);
+  const sms = isAdmin
+    ? db.prepare("SELECT * FROM sms_logs WHERE id = ?").get(req.params.id)
+    : db.prepare("SELECT * FROM sms_logs WHERE id = ? AND client_id = ?").get(req.params.id, req.client.id);
+  if (!sms) return res.status(404).json({ error: "Not found" });
+  db.prepare("UPDATE sms_logs SET deleted_at = ? WHERE id = ?").run(Math.floor(Date.now()/1000), req.params.id);
+  res.json({ success: true });
+});
+
+// Restore SMS
+app.patch("/api/sms/:id/restore", authRequired, (req, res) => {
+  const isAdmin = ['admin','superadmin'].includes(req.client.role);
+  const sms = isAdmin
+    ? db.prepare("SELECT * FROM sms_logs WHERE id = ?").get(req.params.id)
+    : db.prepare("SELECT * FROM sms_logs WHERE id = ? AND client_id = ?").get(req.params.id, req.client.id);
+  if (!sms) return res.status(404).json({ error: "Not found" });
+  db.prepare("UPDATE sms_logs SET deleted_at = NULL WHERE id = ?").run(req.params.id);
+  res.json({ success: true });
+});
+
 // Dashboard stats
+
 app.get("/api/stats", authRequired, (req, res) => {
   const clientId = req.client.id;
   const thirtyDaysAgo = Math.floor(Date.now() / 1000) - 30 * 86400;

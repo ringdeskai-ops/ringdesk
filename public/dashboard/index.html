@@ -6659,7 +6659,7 @@ function toggleClientSms(feature, toggleId) {
 }
 
 async function saveSmsSettings() {
-  var token = authToken || localStorage.getItem('rd_token');
+  var token = localStorage.getItem('rd_token');
   var alertNumber = document.getElementById('smsAlertNumber').value.trim();
   var body = {
     sms_missed_call: document.getElementById('smsToggleMissed').classList.contains('on') ? 1 : 0,
