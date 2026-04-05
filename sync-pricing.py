@@ -39,70 +39,50 @@ def update_file(fp, plans, sp):
     c = re.sub(r'"@type":"Offer","price":"\d+"', f'"@type":"Offer","price":"{sp}"', c)
     c = re.sub(r'>From £\d+/month \+ VAT<', f'>From £{sp}/month + VAT<', c)
 
-    # Update data-monthly and data-annual attributes in price-val spans
-    active = [p for p in plans if p.get('is_active',1)]
-    for p in active:
-        monthly = p['price_monthly']
-        annual = p.get('price_annual', round(monthly * 0.83))
-        calls = p['call_limit']
-        calls_str = f"{calls:,}" if calls >= 1000 else str(calls)
-        name = p['name']
-
-        # Update data-monthly, data-annual AND visible price in span
-        plan_pattern = rf'(<div class="plan[^"]*">\s*(?:<div class="plan-badge">[^<]*</div>\s*)?<div class="plan-name">{name}</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly=")\d+(" data-annual=")\d+(">)\d+(</span>)'
-        replacement = rf'\g<1>{monthly}\g<2>{annual}\g<3>{monthly}\g<4>'
-        c = re.sub(plan_pattern, replacement, c, flags=re.DOTALL)
-
-        # Update calls per month for this plan
-        # Find plan name then update calls within next 500 chars
-        idx = c.find(f'<div class="plan-name">{name}</div>')
-        if idx != -1:
-            section = c[idx:idx+600]
-            new_section = re.sub(r'(\d[\d,]*) calls per month', f'{calls_str} calls per month', section, count=1)
-            c = c[:idx] + new_section + c[idx+600:]
+    # Replace entire pricing section if present
+    if '<section id="pricing"' in c:
+        active = [p for p in plans if p.get('is_active',1)]
+        svg = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+        cards = []
+        for p in active:
+            monthly = p['price_monthly']
+            annual = p.get('price_annual', round(monthly * 0.83))
+            calls = p['call_limit']
+            calls_str = f"{calls:,}" if calls >= 1000 else str(calls)
+            pop = ' pop' if p.get('is_popular') else ''
+            badge = '<div class=\"plan-badge\">MOST POPULAR</div>' if p.get('is_popular') else ''
+            feats = ''.join([f'<div class=\"pf\">{svg}{f}</div>' for f in p.get('features',[])])
+            btn_class = 'pcta-p' if p.get('is_popular') else 'pcta-g'
+            btn_text = 'Start free trial &rarr;' if p.get('is_popular') else 'Get started &rarr;'
+            cards.append(f'<div class=\"plan{pop}\">{badge}<div class=\"plan-name\">{p["name"]}</div><div class=\"plan-price\"><sup>£</sup><span class=\"price-val\" data-monthly=\"{monthly}\" data-annual=\"{annual}\">{monthly}</span><sub>/mo</sub></div><div style=\"font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px\">+ VAT</div><div class=\"plan-calls\">{calls_str} calls per month<div style=\"font-size:10px;color:var(--dim);margin-top:3px\">Inbound calls, any duration</div></div><div class=\"plan-feats\">{feats}</div><button onclick=\"location.href=\'/dashboard\'" class=\"pcta {btn_class}\">{btn_text}</button></div>')
+        plans_html = '<div class=\"plans\">' + ''.join(cards) + '</div>'
+        new_section = f'''<section id=\"pricing\" style=\"padding:60px 24px;background:var(--black)\">
+<div style=\"text-align:center;margin-bottom:32px\">
+<div style=\"font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px\"><span style=\"display:inline-block;width:24px;height:2px;background:var(--cyan)\"></span>Pricing</div>
+<h2 style=\"font-family:'Instrument Serif',Georgia,serif;font-size:42px;font-weight:400;letter-spacing:-1px;margin-bottom:8px\">Simple, <em style=\"font-style:italic;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent\">transparent</em> pricing</h2>
+<p style=\"font-size:15px;color:var(--muted)\">No setup fees. No per-minute charges. One flat monthly fee.</p>
+</div>
+<div class=\"pricing-toggle\">
+<span class=\"toggle-label active\" id=\"monthly-lbl\">Monthly</span>
+<div class=\"toggle-switch\" id=\"billing-toggle\" onclick=\"toggleBilling()\"><div class=\"toggle-thumb\"></div></div>
+<span class=\"toggle-label\" id=\"annual-lbl\">Annual</span>
+<span class=\"annual-badge\">Save 2 months free</span>
+</div>
+{plans_html}
+<p style=\"font-size:13px;color:var(--dim);margin-top:24px;text-align:center\">All plans include a 14-day free trial. No credit card required to start.</p>
+<p style=\"font-size:12px;color:var(--dim);margin-top:6px;text-align:center\">All prices exclude VAT. VAT at 20% will be added at checkout.</p>
+<p style=\"font-size:12px;color:var(--dim);margin-top:10px;text-align:center\">&#128222; <strong style=\"color:var(--muted)\">Keep your existing number.</strong> Simply divert your current business number to your AiRingDesk number &#8212; your customers call the same number as always.</p>
+<script>if(typeof toggleBilling==='undefined'){{var _annual=false;function toggleBilling(){{_annual=!_annual;document.getElementById('billing-toggle').classList.toggle('annual',_annual);document.getElementById('monthly-lbl').classList.toggle('active',!_annual);document.getElementById('annual-lbl').classList.toggle('active',_annual);document.querySelectorAll('.price-val').forEach(function(e){{e.textContent=_annual?e.dataset.annual:e.dataset.monthly;}});}}}}</script>
+</section>'''
+        c = re.sub(r'<section id="pricing".*?</section>', new_section, c, count=1, flags=re.DOTALL)
 
     if c == orig: return False
     with open(fp,'w',encoding='utf-8') as f: f.write(c)
     return True
 
 def update_homepage(fp, plans):
-    with open(fp, 'r', encoding='utf-8', errors='replace') as f:
-        orig = f.read()
-    c = orig
-    active = [p for p in plans if p.get('is_active', 1)]
-    for p in active:
-        pid = p['id']
-        monthly = p['price_monthly']
-        annual = p.get('price_annual', round(monthly * 0.83))
-        calls = p['call_limit']
-        calls_str = f"{calls:,}" if calls >= 1000 else str(calls)
-
-        # Update data-monthly and data-annual attributes + visible price
-        import re
-        # Find the plan block by name and update price-val span
-        pattern = rf'(<div class="plan-name">{p["name"]}</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly=")(\d+)(" data-annual=")(\d+)(">)(\d+)(</span>)'
-        replacement = rf'\g<1>{monthly}\g<3>{annual}\g<5>{monthly}\g<7>'
-        new_c = re.sub(pattern, replacement, c)
-
-        # Update calls per month
-        old_calls_pattern = rf'(\d[\d,]*) calls per month'
-        # Find the right plan section and update calls
-        plan_start = new_c.find(f'<div class="plan-name">{p["name"]}</div>')
-        if plan_start != -1:
-            plan_end = new_c.find('<div class="plan-name">', plan_start + 1)
-            if plan_end == -1:
-                plan_end = new_c.find('</section>', plan_start)
-            plan_section = new_c[plan_start:plan_end]
-            new_plan_section = re.sub(r'(\d[\d,]*) calls per month', f'{calls_str} calls per month', plan_section, count=1)
-            new_c = new_c[:plan_start] + new_plan_section + new_c[plan_end:]
-
-        c = new_c
-
-    if c == orig:
-        return False
-    with open(fp, 'w', encoding='utf-8') as f:
-        f.write(c)
-    return True
+    sp = min(p['price_monthly'] for p in plans if p.get('is_active',1))
+    return update_file(fp, plans, sp)
 
 def main():
     parser = argparse.ArgumentParser()
