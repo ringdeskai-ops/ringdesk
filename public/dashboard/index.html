@@ -217,13 +217,13 @@ tr:hover td{background:rgba(255,255,255,.015)}
 
 /* Notification panel */
 .notif-dot{width:7px;height:7px;border-radius:50%;background:var(--red);position:absolute;top:4px;right:4px}
-.recent-call{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all .2s}
+.recent-call{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all .2s;min-width:0;overflow:hidden}
 .recent-call:hover{padding-left:4px}
 .recent-call:last-child{border-bottom:none}
 .call-avatar{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-weight:700}
 .call-info{flex:1;min-width:0}
-.call-name{font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.call-snippet{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+.call-name{font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.call-snippet{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px;min-width:0}
 .call-time-sm{font-size:11px;color:var(--dim);flex-shrink:0}
 
 /* Lead status */
@@ -310,8 +310,6 @@ tr:hover td{background:rgba(255,255,255,.015)}
   /* Summary text full width on mobile */
   .summary-text { max-width:100% !important; white-space:normal !important; }
 
-  /* Fix overview grid on mobile */
-  .overview-grid { grid-template-columns:1fr !important }
   /* Fix sidebar bleed */
   body { overflow-x:hidden }
   .sidebar { visibility:hidden; z-index:40 }
@@ -778,7 +776,7 @@ select option{background-color:#0c1520;color:#f0f6ff}
       </div>
 
       <!-- Two column layout -->
-      <div style="display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start" id="overviewGrid" class="overview-grid">
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:16px;align-items:start" id="overviewGrid">
         <!-- Recent calls -->
         <div class="table-card">
           <div class="table-header">
@@ -788,7 +786,7 @@ select option{background-color:#0c1520;color:#f0f6ff}
             </div>
             <button class="btn-sm btn-ghost-sm" onclick="showPage('calls')">View all</button>
           </div>
-          <div id="recentCallsList" style="padding:0 16px"></div>
+          <div id="recentCallsList" style="padding:0 16px;overflow:hidden;min-width:0"></div>
         </div>
 
         <!-- Right column -->
