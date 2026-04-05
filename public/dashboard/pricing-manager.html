@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pricing Manager — AiRingDesk</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#020408;--surface:#080e18;--surface2:#0c1520;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.10);
+  --text:#f0f6ff;--muted:#5a7a9a;--dim:#2a3f55;
+  --cyan:#00d4ff;--green:#00e87a;--amber:#ffb800;--red:#ff4466;
+  --font-body:'Geist',system-ui,sans-serif;
+}
+body{background:#020408;color:#f0f6ff;font-family:var(--font-body);line-height:1.5;padding:32px;min-height:100vh}
+h1{font-size:28px;font-weight:700;color:#f0f6ff;margin-bottom:6px}
+.sub{color:#5a7a9a;font-size:13px;margin-bottom:24px}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:#5a7a9a;font-size:13px;text-decoration:none;margin-bottom:24px;cursor:pointer;background:none;border:none;font-family:var(--font-body)}
+.back-btn:hover{color:#f0f6ff}
+.header-row{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:28px}
+.sync-btn{display:flex;align-items:center;gap:8px;background:#00d4ff;color:#020408;border:none;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;min-height:44px}
+.sync-btn:hover{background:#1ae0ff}
+.section-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5a7a9a;margin-bottom:12px}
+.access-box{background:#0c1520;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:16px;margin-bottom:24px}
+.plans-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:28px}
+.plan-card{background:#0c1520;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:18px;display:flex;flex-direction:column}
+.plan-card.popular{border-color:rgba(0,212,255,.4)}
+.plan-name{font-size:16px;font-weight:800;color:#f0f6ff}
+.plan-price{font-size:28px;font-weight:800;color:#00d4ff;margin:8px 0 2px}
+.plan-annual{font-size:11px;color:#5a7a9a;margin-bottom:6px}
+.plan-calls{font-size:13px;color:#00e87a;font-weight:600;margin-bottom:14px}
+.plan-feats{border-top:1px solid rgba(255,255,255,.06);padding-top:10px;flex:1}
+.plan-feat{font-size:12px;color:#5a7a9a;padding:3px 0;display:flex;gap:6px}
+.feat-check{color:#00e87a;flex-shrink:0}
+.edit-btn{width:100%;margin-top:12px;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#f0f6ff;font-size:13px;font-weight:600;cursor:pointer}
+.edit-btn:hover{background:rgba(255,255,255,.05)}
+.badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700}
+.badge-green{background:rgba(0,232,122,.1);color:#00e87a;border:1px solid rgba(0,232,122,.2)}
+.badge-red{background:rgba(255,68,102,.1);color:#ff4466;border:1px solid rgba(255,68,102,.2)}
+.badge-cyan{background:rgba(0,212,255,.1);color:#00d4ff;border:1px solid rgba(0,212,255,.2)}
+.log-table{width:100%;border-collapse:collapse;font-size:13px;min-width:480px}
+.log-table th{padding:10px 16px;text-align:left;color:#5a7a9a;font-size:11px;font-weight:600;border-bottom:1px solid rgba(255,255,255,.06)}
+.log-table td{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,.06);color:#f0f6ff}
+.log-wrap{background:#0c1520;border:1px solid rgba(255,255,255,.1);border-radius:12px;overflow:hidden;overflow-x:auto}
+.access-denied{background:rgba(255,68,102,.08);border:1px solid rgba(255,68,102,.2);border-radius:10px;padding:16px;margin-bottom:20px;color:#ff4466;font-size:13px;text-align:center;display:none}
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;align-items:center;justify-content:center}
+.modal-box{background:#0c1520;border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:28px;width:90%;max-width:480px;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:18px;font-weight:700;color:#f0f6ff;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;color:#5a7a9a;cursor:pointer;font-size:22px;line-height:1}
+.field-label{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5a7a9a;margin-bottom:6px}
+.field-input{width:100%;background:#080e18;border:1px solid rgba(255,255,255,.12);color:#f0f6ff;padding:11px 14px;border-radius:8px;font-size:15px;outline:none;box-sizing:border-box;font-family:var(--font-body)}
+.field-input:focus{border-color:#00d4ff}
+.field-group{margin-bottom:14px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.warn-box{background:rgba(255,184,0,.08);border:1px solid rgba(255,184,0,.2);border-radius:8px;padding:12px;margin-bottom:14px}
+.err-box{background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);border-radius:8px;padding:10px;font-size:13px;color:#ff4466;display:none;margin-bottom:14px}
+.btn-row{display:grid;grid-template-columns:1fr 2fr;gap:10px}
+.btn-cancel{padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#f0f6ff;font-size:13px;font-weight:600;cursor:pointer}
+.btn-save{background:#00d4ff;color:#020408;border:none;padding:12px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer}
+.progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;background:#00d4ff;border-radius:3px;width:0%;transition:width 2s ease}
+.admin-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);gap:12px}
+.toggle-wrap{display:flex;align-items:center;gap:8px;cursor:pointer;color:#5a7a9a;font-size:13px}
+.toggle{width:40px;height:22px;border-radius:11px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.active{background:#00d4ff;border-color:#00d4ff}
+.toggle-thumb{width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .2s}
+.toggle.active .toggle-thumb{transform:translateX(18px)}
+@media(max-width:600px){
+  body{padding:16px}
+  .plans-grid{grid-template-columns:1fr}
+  .two-col{grid-template-columns:1fr}
+  .btn-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<button class="back-btn" onclick="history.back()">← Back to dashboard</button>
+
+<div class="header-row">
+  <div>
+    <h1>Pricing Manager</h1>
+    <p class="sub">Edit plan cards and sync changes to all 2,565 pages instantly.</p>
+  </div>
+  <button class="sync-btn" id="syncBtn" onclick="openSyncModal()" style="display:none">
+    ↺ Sync to all pages
+  </button>
+</div>
+
+<div class="access-denied" id="accessDenied">Pricing edit access not enabled — ask your super admin.</div>
+
+<div id="adminAccessSection" style="display:none;margin-bottom:24px">
+  <div class="section-label">Admin Access Control</div>
+  <div class="access-box">
+    <div id="adminList" style="color:#5a7a9a;font-size:13px">Loading...</div>
+  </div>
+</div>
+
+<div class="section-label">Plans</div>
+<div class="plans-grid" id="plansGrid">
+  <div style="color:#5a7a9a;font-size:13px">Loading plans...</div>
+</div>
+
+<div class="section-label">Sync History</div>
+<div class="log-wrap">
+  <table class="log-table">
+    <thead><tr>
+      <th>Date & Time</th><th>Triggered By</th><th>Pages Updated</th><th>Duration</th><th>Errors</th>
+    </tr></thead>
+    <tbody id="syncLog"><tr><td colspan="5" style="text-align:center;color:#5a7a9a;padding:16px">No syncs yet</td></tr></tbody>
+  </table>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-bg" id="editModal">
+  <div class="modal-box">
+    <div class="modal-title">
+      <span id="editTitle">Edit Plan</span>
+      <button class="modal-close" onclick="closeEditModal()">x</button>
+    </div>
+    <input type="hidden" id="editId">
+    <div class="field-group">
+      <label class="field-label">Plan Name</label>
+      <input class="field-input" type="text" id="editName">
+    </div>
+    <div class="two-col" style="margin-bottom:14px">
+      <div>
+        <label class="field-label">Monthly Price (£)</label>
+        <input class="field-input" type="number" id="editMonthly" min="0" inputmode="numeric">
+      </div>
+      <div>
+        <label class="field-label">Annual Price (£/mo)</label>
+        <input class="field-input" type="number" id="editAnnual" min="0" inputmode="numeric">
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Call Limit / Month</label>
+      <input class="field-input" type="number" id="editCallLimit" min="0" inputmode="numeric">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Features (one per line)</label>
+      <textarea class="field-input" id="editFeatures" rows="6" style="resize:vertical"></textarea>
+    </div>
+    <div style="display:flex;gap:20px;margin-bottom:14px">
+      <label style="display:flex;align-items:center;gap:8px;color:#f0f6ff;font-size:14px;cursor:pointer">
+        <input type="checkbox" id="editPopular" style="width:18px;height:18px"> Most Popular
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;color:#f0f6ff;font-size:14px;cursor:pointer">
+        <input type="checkbox" id="editActive" style="width:18px;height:18px"> Active
+      </label>
+    </div>
+    <div class="warn-box">
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+        <input type="checkbox" id="editUpdateClients" style="width:18px;height:18px;margin-top:2px;flex-shrink:0">
+        <div>
+          <div style="color:#ffb800;font-weight:600;font-size:13px">Update existing clients on this plan</div>
+          <div style="color:#5a7a9a;font-size:12px;margin-top:2px">Changes their call limit to the new value.</div>
+        </div>
+      </label>
+    </div>
+    <div class="err-box" id="editErr"></div>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="btn-save" id="saveBtn" onclick="savePlan()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sync Modal -->
+<div class="modal-bg" id="syncModal">
+  <div class="modal-box" style="max-width:420px">
+    <div style="font-size:18px;font-weight:700;color:#f0f6ff;margin-bottom:8px">Sync to all pages?</div>
+    <div style="font-size:13px;color:#5a7a9a;margin-bottom:20px;line-height:1.6">Updates pricing on all <strong style="color:#f0f6ff">2,565 static pages</strong> and purges Cloudflare cache. Takes ~30 seconds.</div>
+    <div id="syncProgress" style="display:none;margin-bottom:16px">
+      <div id="syncStatus" style="font-size:13px;color:#00d4ff;margin-bottom:8px">Syncing...</div>
+      <div class="progress-bar"><div class="progress-fill" id="syncBar"></div></div>
+    </div>
+    <div id="syncResult" style="display:none;margin-bottom:16px;padding:12px;border-radius:8px"></div>
+    <div id="syncActions" style="display:grid;grid-template-columns:1fr 2fr;gap:10px">
+      <button class="btn-cancel" onclick="closeSyncModal()">Cancel</button>
+      <button class="btn-save" id="syncConfirmBtn" onclick="doSync()">Yes, sync all pages</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TOKEN = localStorage.getItem('rd_token');
+const USER = (() => { try { return JSON.parse(localStorage.getItem('rd_user') || 'null'); } catch { return null; } })();
+
+if (!TOKEN || !USER) {
+  window.location.href = '/dashboard';
+}
+if (!['admin','superadmin'].includes(USER && USER.role)) {
+  window.location.href = '/dashboard';
+}
+
+let plans = [], canEdit = false;
+
+async function apiFetch(path, opts = {}) {
+  const r = await fetch(path, {
+    ...opts,
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + TOKEN, ...(opts.headers || {}) },
+    body: opts.body ? JSON.stringify(opts.body) : undefined
+  });
+  if (r.status === 401) { window.location.href = '/dashboard'; return null; }
+  return r.json();
+}
+
+async function init() {
+  const data = await apiFetch('/api/admin/pricing');
+  if (!data || !data.ok) { document.getElementById('accessDenied').style.display = 'block'; return; }
+
+  plans = data.plans || [];
+  canEdit = data.canEdit || false;
+
+  document.getElementById('accessDenied').style.display = !canEdit ? 'block' : 'none';
+  document.getElementById('syncBtn').style.display = canEdit ? 'flex' : 'none';
+
+  if (USER.role === 'superadmin') {
+    document.getElementById('adminAccessSection').style.display = 'block';
+    renderAdmins(data.admins || []);
+  }
+
+  renderPlans(plans);
+  renderLog(data.syncLog || []);
+}
+
+function renderPlans(pl) {
+  const g = document.getElementById('plansGrid');
+  if (!pl.length) { g.innerHTML = '<div style="color:#5a7a9a">No plans found.</div>'; return; }
+  g.innerHTML = pl.map(p => {
+    const calls = p.call_limit >= 1000 ? p.call_limit.toLocaleString() : String(p.call_limit);
+    const feats = (p.features || []).map(f => '<div class="plan-feat"><span class="feat-check">&#10003;</span><span>' + f + '</span></div>').join('');
+    const eb = canEdit ? '<button class="edit-btn" onclick="openEdit(\'' + p.id + '\')">Edit plan</button>' : '';
+    return '<div class="plan-card' + (p.is_popular ? ' popular' : '') + '">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-bottom:8px">'
+      + '<span class="plan-name">' + p.name + '</span>'
+      + '<span><span class="badge ' + (p.is_active ? 'badge-green' : 'badge-red') + '">' + (p.is_active ? 'ACTIVE' : 'INACTIVE') + '</span>'
+      + (p.is_popular ? '<span class="badge badge-cyan" style="margin-left:4px">POPULAR</span>' : '') + '</span></div>'
+      + '<div class="plan-price">\u00a3' + p.price_monthly + '<span style="font-size:12px;color:#5a7a9a;font-weight:400">/mo + VAT</span></div>'
+      + '<div class="plan-annual">Annual: \u00a3' + p.price_annual + '/mo</div>'
+      + '<div class="plan-calls">' + calls + ' calls/month</div>'
+      + '<div class="plan-feats">' + feats + '</div>'
+      + eb
+      + (p.updated_by ? '<div style="font-size:10px;color:#5a7a9a;margin-top:8px">Last edited by ' + p.updated_by + '</div>' : '')
+      + '</div>';
+  }).join('');
+}
+
+function renderAdmins(admins) {
+  const l = document.getElementById('adminList');
+  if (!admins.length) { l.innerHTML = '<div style="color:#5a7a9a;font-size:13px">No admins found.</div>'; return; }
+  l.innerHTML = admins.map(a =>
+    '<div class="admin-row">'
+    + '<div><div style="font-size:13px;font-weight:600;color:#f0f6ff">' + (a.first_name || '') + ' ' + (a.last_name || '') + '</div>'
+    + '<div style="font-size:12px;color:#5a7a9a">' + a.email + '</div></div>'
+    + '<div class="toggle-wrap">Pricing edit '
+    + '<div class="toggle ' + (a.pricing_edit ? 'active' : '') + '" onclick="toggleAccess(\'' + a.id + '\',this)">'
+    + '<div class="toggle-thumb"></div></div></div>'
+    + '</div>'
+  ).join('');
+}
+
+function renderLog(log) {
+  const t = document.getElementById('syncLog');
+  if (!log.length) { t.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#5a7a9a;padding:16px">No syncs yet</td></tr>'; return; }
+  t.innerHTML = log.map(e => {
+    const dt = new Date(e.timestamp * 1000);
+    const ds = dt.toLocaleDateString('en-GB') + ' ' + dt.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+    return '<tr><td style="color:#5a7a9a;white-space:nowrap">' + ds + '</td>'
+      + '<td>' + e.triggered_by + '</td>'
+      + '<td style="color:#00d4ff">' + (e.pages_updated || 0).toLocaleString() + '</td>'
+      + '<td style="color:#5a7a9a">' + ((e.duration_ms || 0) / 1000).toFixed(1) + 's</td>'
+      + '<td style="color:' + (e.errors > 0 ? '#ff4466' : '#00e87a') + '">' + (e.errors || 0) + '</td></tr>';
+  }).join('');
+}
+
+function openEdit(id) {
+  const p = plans.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('editId').value = id;
+  document.getElementById('editTitle').textContent = 'Edit - ' + p.name;
+  document.getElementById('editName').value = p.name;
+  document.getElementById('editMonthly').value = p.price_monthly;
+  document.getElementById('editAnnual').value = p.price_annual;
+  document.getElementById('editCallLimit').value = p.call_limit;
+  document.getElementById('editFeatures').value = (p.features || []).join('\n');
+  document.getElementById('editPopular').checked = !!p.is_popular;
+  document.getElementById('editActive').checked = p.is_active !== 0;
+  document.getElementById('editUpdateClients').checked = false;
+  document.getElementById('editErr').style.display = 'none';
+  document.getElementById('editModal').style.display = 'flex';
+}
+function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+
+async function savePlan() {
+  const btn = document.getElementById('saveBtn'), err = document.getElementById('editErr');
+  err.style.display = 'none';
+  const id = document.getElementById('editId').value;
+  const name = document.getElementById('editName').value.trim();
+  const price_monthly = parseInt(document.getElementById('editMonthly').value);
+  const price_annual = parseInt(document.getElementById('editAnnual').value);
+  const call_limit = parseInt(document.getElementById('editCallLimit').value);
+  const features = document.getElementById('editFeatures').value.split('\n').map(f => f.trim()).filter(Boolean);
+  const is_popular = document.getElementById('editPopular').checked;
+  const is_active = document.getElementById('editActive').checked;
+  const update_existing_clients = document.getElementById('editUpdateClients').checked;
+  if (!name) { err.textContent = 'Plan name required'; err.style.display = 'block'; return; }
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  try {
+    const data = await apiFetch('/api/admin/pricing/update', { method: 'POST', body: { id, name, price_monthly, price_annual, call_limit, features, is_popular, is_active, update_existing_clients } });
+    if (!data || !data.ok) throw new Error(data && data.error ? data.error : 'Save failed');
+    const idx = plans.findIndex(x => x.id === id);
+    if (idx !== -1) plans[idx] = data.plan;
+    renderPlans(plans);
+    closeEditModal();
+    if (data.clientsUpdated > 0) alert('Saved. ' + data.clientsUpdated + ' client(s) call limit updated.');
+  } catch(e) { err.textContent = e.message; err.style.display = 'block'; }
+  finally { btn.textContent = 'Save Changes'; btn.disabled = false; }
+}
+
+function openSyncModal() {
+  document.getElementById('syncModal').style.display = 'flex';
+  document.getElementById('syncProgress').style.display = 'none';
+  document.getElementById('syncResult').style.display = 'none';
+  document.getElementById('syncActions').style.display = 'grid';
+  document.getElementById('syncConfirmBtn').disabled = false;
+  document.getElementById('syncConfirmBtn').textContent = 'Yes, sync all pages';
+  document.getElementById('syncBar').style.width = '0%';
+}
+function closeSyncModal() { document.getElementById('syncModal').style.display = 'none'; }
+
+async function doSync() {
+  const btn = document.getElementById('syncConfirmBtn'), bar = document.getElementById('syncBar');
+  const st = document.getElementById('syncStatus'), res = document.getElementById('syncResult');
+  const act = document.getElementById('syncActions');
+  btn.disabled = true; btn.textContent = 'Syncing...';
+  document.getElementById('syncProgress').style.display = 'block';
+  st.textContent = 'Updating 2,565 pages...';
+  bar.style.transition = 'width 8s ease'; bar.style.width = '60%';
+  setTimeout(() => { bar.style.transition = 'width 20s ease'; bar.style.width = '85%'; }, 8000);
+  try {
+    const data = await apiFetch('/api/admin/pricing/sync', { method: 'POST', body: {} });
+    bar.style.transition = 'width .4s'; bar.style.width = '100%';
+    if (!data || !data.ok) throw new Error(data && data.error ? data.error : 'Sync failed');
+    st.textContent = 'Purging Cloudflare cache...';
+    await new Promise(r => setTimeout(r, 800));
+    res.style.cssText = 'display:block;background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);border-radius:8px;padding:12px;margin-bottom:16px';
+    res.innerHTML = '<div style="font-weight:700;color:#00e87a;margin-bottom:4px">Sync complete</div><div style="font-size:13px;color:#5a7a9a">' + (data.pages_updated || 0).toLocaleString() + ' pages updated - ' + ((data.duration_ms || 0) / 1000).toFixed(1) + 's - ' + (data.errors || 0) + ' errors</div>';
+    act.innerHTML = '<button class="btn-cancel" style="grid-column:1/-1" onclick="closeSyncModal();init()">Done</button>';
+  } catch(e) {
+    bar.style.background = '#ff4466'; bar.style.width = '100%';
+    res.style.cssText = 'display:block;background:rgba(255,68,102,.08);border:1px solid rgba(255,68,102,.2);border-radius:8px;padding:12px;margin-bottom:16px';
+    res.innerHTML = '<div style="font-weight:700;color:#ff4466;margin-bottom:4px">Sync failed</div><div style="font-size:13px;color:#5a7a9a">' + e.message + '</div>';
+    act.innerHTML = '<button class="btn-cancel" style="grid-column:1/-1" onclick="closeSyncModal()">Close</button>';
+  }
+}
+
+async function toggleAccess(adminId, el) {
+  const nowEnabled = !el.classList.contains('active');
+  const data = await apiFetch('/api/admin/pricing/access', { method: 'POST', body: { admin_id: adminId, enabled: nowEnabled } });
+  if (data && data.ok) el.classList.toggle('active', nowEnabled);
+  else alert('Failed to update access');
+}
+
+init();
+</script>
+</body>
+</html>
