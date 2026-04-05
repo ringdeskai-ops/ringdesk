@@ -13,3 +13,4 @@ public/*backup*.html
 public/dashboard/*backup*.html
 public/og-image.jpg
 public/og-image-*.jpg
+ecosystem.config.js

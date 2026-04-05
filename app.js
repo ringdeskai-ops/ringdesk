@@ -33,7 +33,13 @@ const Database = require("better-sqlite3");
 
 const APP_VERSION = '2.6.1';
 const app = express();
-app.use(express.json());
+app.use(express.json({
+  verify: (req, res, buf) => {
+    if (req.originalUrl.startsWith('/stripe-webhook')) {
+      req.rawBody = buf;
+    }
+  }
+}));
 
 // Security headers
 app.use((req, res, next) => {
@@ -112,7 +118,6 @@ app.use(cors({
   },
   credentials: true
 }));
-app.use("/stripe-webhook", bodyParser.raw({ type: "application/json" }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -958,7 +963,7 @@ app.post("/stripe-webhook", async (req, res) => {
   const sig = req.headers["stripe-signature"];
   let event;
   try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    event = stripe.webhooks.constructEvent(req.rawBody || req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
