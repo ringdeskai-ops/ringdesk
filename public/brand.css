@@ -38,3 +38,37 @@ footer{background:var(--surface)!important;border-top:1px solid rgba(0,212,255,.
 .ind-chip:hover{border-color:rgba(0,212,255,.35)!important;color:var(--cyan)!important;background:rgba(0,212,255,.06)!important}
 /* Location section */
 .location-section{background:var(--surface)!important;border-color:rgba(0,212,255,.08)!important}
+
+/* ── PRICING SECTION ── */
+.plans{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;max-width:1100px;margin:0 auto}
+.plan{padding:36px 28px;border-radius:20px;border:1px solid var(--border);background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%);text-align:left;position:relative;transition:all .35s;overflow:visible}
+.plan::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent)}
+.plan:hover{transform:translateY(-6px);box-shadow:0 32px 64px rgba(0,0,0,.5),0 0 40px rgba(0,212,255,.04);border-color:rgba(0,212,255,.15)}
+.plan.pop{border-color:rgba(0,212,255,.35);background:linear-gradient(135deg,rgba(0,212,255,.08) 0%,var(--surface) 100%);box-shadow:0 0 60px rgba(0,212,255,.1)}
+.plan.pop::before{background:linear-gradient(90deg,transparent,rgba(0,212,255,.5),transparent)}
+.plan.pop .plan-price{background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.plan-badge{position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;font-size:10px;font-weight:800;padding:5px 16px;border-radius:100px;letter-spacing:.08em;white-space:nowrap;box-shadow:0 0 20px rgba(0,212,255,.4)}
+.plan-name{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+.plan-price{font-size:52px;font-weight:800;letter-spacing:-3px;margin-bottom:4px;background:linear-gradient(135deg,#e0eaf4,#8090a8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.plan-price sup{font-size:22px;font-weight:600;vertical-align:super;letter-spacing:0}
+.plan-price sub{font-size:14px;font-weight:400;color:var(--muted);letter-spacing:0;vertical-align:baseline}
+.plan-calls{font-size:13px;color:var(--green);font-weight:600;margin-bottom:28px;display:flex;align-items:center;gap:6px}
+.plan-calls::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;box-shadow:0 0 8px rgba(0,232,122,.5)}
+.plan-feats{margin-bottom:32px}
+.pf{font-size:13px;color:var(--muted);padding:6px 0;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.pf:last-child{border-bottom:none}
+.pf::before{content:'';display:none}
+.pcta{display:block;text-align:center;padding:13px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;transition:all .2s;font-family:var(--font-body);border:none;cursor:pointer;width:100%}
+.pcta-p{background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;box-shadow:0 0 28px rgba(0,212,255,.35);font-weight:700}
+.pcta-p:hover{background:linear-gradient(135deg,#1ae0ff,#0077dd);box-shadow:0 0 40px rgba(0,212,255,.5);transform:translateY(-1px)}
+.pcta-g{background:rgba(0,212,255,.06);color:#f0f4f8;border:1px solid rgba(0,212,255,.2);font-weight:700}
+.pcta-g:hover{border-color:rgba(0,212,255,.5);color:var(--cyan);background:rgba(0,212,255,.12);box-shadow:0 0 20px rgba(0,212,255,.1)}
+.pricing-toggle{display:flex;align-items:center;gap:12px;margin:0 auto 40px;justify-content:center}
+.toggle-label{font-size:14px;color:var(--muted);font-weight:500}
+.toggle-label.active{color:var(--text);font-weight:600}
+.toggle-switch{width:48px;height:26px;border-radius:13px;background:rgba(255,255,255,.1);border:1px solid var(--border2);position:relative;cursor:pointer;transition:background .2s}
+.toggle-switch.annual{background:var(--cyan)}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.toggle-switch.annual .toggle-thumb{left:25px}
+.annual-badge{background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.25);border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:.04em}
+@media(max-width:600px){.plans{grid-template-columns:1fr!important}}
