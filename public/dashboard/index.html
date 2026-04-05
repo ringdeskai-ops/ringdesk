@@ -1527,32 +1527,34 @@ Dedicated account manager</textarea></div>
               <div style="padding:16px 18px;background:var(--surface);border:1px solid rgba(0,232,122,.2);border-radius:12px;display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;border-radius:9px;background:rgba(0,232,122,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div><div style="font-size:13px;font-weight:600;color:var(--text)">Retention modal dropdown</div><div style="font-size:11px;color:var(--muted)">Plan names stay in sync</div></div></div>
             </div>
           </div>
-        </div>
 
-        <!-- Pricing Change History -->
-        <div style="margin-top:32px;margin-bottom:32px">
-          <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">Change History</div>
-          <div class="table-card">
-            <div class="table-header">
-              <div>
-                <div class="table-title">Price Update Log</div>
-                <div class="table-sub">Every save and sync to the website — who changed it and when</div>
+          <!-- Price Update Log — inside page-pricing-manage -->
+          <div style="margin-top:32px;margin-bottom:32px">
+            <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">Change History</div>
+            <div class="table-card">
+              <div class="table-header">
+                <div>
+                  <div class="table-title">Price Update Log</div>
+                  <div class="table-sub">Every save and sync to the website — who changed it and when</div>
+                </div>
+                <button onclick="syncPricingNow()" id="pricingSyncBtn" style="padding:8px 18px;border-radius:8px;border:none;background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);display:flex;align-items:center;gap:7px;box-shadow:0 0 16px rgba(0,212,255,.2)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                  Sync to all pages
+                </button>
               </div>
-              <button onclick="syncPricingNow()" id="pricingSyncBtn" style="padding:8px 18px;border-radius:8px;border:none;background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);display:flex;align-items:center;gap:7px;box-shadow:0 0 16px rgba(0,212,255,.2)">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
-                Sync to all pages
-              </button>
-            </div>
-            <div style="overflow-x:auto">
-              <table>
-                <thead><tr><th>Date &amp; Time</th><th>Changed by</th><th>Pages updated</th><th>Duration</th><th>Status</th></tr></thead>
-                <tbody id="pricingHistoryBody">
-                  <tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">Loading history...</td></tr>
-                </tbody>
-              </table>
+              <div style="overflow-x:auto">
+                <table>
+                  <thead><tr><th>Date &amp; Time</th><th>Changed by</th><th>Pages updated</th><th>Duration</th><th>Status</th></tr></thead>
+                  <tbody id="pricingHistoryBody">
+                    <tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">Loading history...</td></tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
+
+
 
         <!-- ── HELP & GUIDE PAGE ── -->
     <div class="page" id="page-help">
