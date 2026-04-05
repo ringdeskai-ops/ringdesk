@@ -5455,6 +5455,7 @@ app.use('/dashboard', (req, res, next) => {
   res.setHeader('Pragma', 'no-cache');
   next();
 }, require('express').static(__dirname + '/public/dashboard'));
+app.get('/dashboard/pricing-manager.html', (req, res) => res.redirect(301, '/dashboard'));
 app.get('/dashboard/*', (req, res) => res.sendFile(__dirname + '/public/dashboard/index.html'));
 
 const PORT = process.env.PORT || 3000;

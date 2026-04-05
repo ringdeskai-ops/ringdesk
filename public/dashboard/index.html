@@ -568,6 +568,10 @@ select option{background-color:#0c1520;color:#f0f6ff}
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
           System Health
         </button>
+        <button class="nav-btn" id="navPricingManager" style="display:none" onclick="showPage('pricing-manager')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          Pricing Manager
+        </button>
         <button class="nav-btn superadmin-only" id="navAnalytics" onclick="showPage('analytics')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           Analytics
@@ -3192,6 +3196,183 @@ select option{background-color:#0c1520;color:#f0f6ff}
           <div class="page-sub" style="font-size:14px;color:var(--muted)">Server maintenance reference — all known issues and fixes</div>
         </div>
       </div>
+
+<!-- PRICING MANAGER PAGE -->
+<div class="page" id="page-pricing-manager">
+<div style="padding:0 32px 32px">
+
+  <!-- Guide -->
+  <div style="margin-bottom:24px">
+    <button onclick="var c=document.getElementById('pmGuide'),ch=document.getElementById('pmChev'),o=c.style.display==='none';c.style.display=o?'block':'none';ch.style.transform=o?'rotate(180deg)':''" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:#0c1520;border:1px solid rgba(0,212,255,.12);border-radius:14px;padding:14px 18px;cursor:pointer;font-family:inherit;text-align:left">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:28px;height:28px;border-radius:7px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#f0f6ff">How this works &mdash; Admin Guide</div>
+          <div style="font-size:11px;color:#5a7a9a;margin-top:1px">Everything you need to know about managing pricing</div>
+        </div>
+      </div>
+      <svg id="pmChev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5a7a9a" stroke-width="2.5" style="flex-shrink:0;transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div id="pmGuide" style="display:none;background:#0c1520;border:1px solid rgba(0,212,255,.12);border-top:none;border-radius:0 0 14px 14px;padding:18px">
+      <div style="background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.1);border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#5a7a9a;line-height:1.7">
+        The Pricing Manager is the <strong style="color:#f0f6ff">single source of truth</strong> for all plan data. Edit a plan then click <strong style="color:#f0f6ff">Sync to all pages</strong> to update all 2,565 static pages and purge Cloudflare cache instantly.
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px">
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5a7a9a;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.06)">Plan Fields</div>
+          <div style="display:flex;flex-direction:column;gap:8px;font-size:12px;color:#5a7a9a;line-height:1.6">
+            <div><strong style="color:#f0f6ff">Monthly Price</strong> &mdash; Shown on cards, charged via GoCardless. Excludes VAT.</div>
+            <div><strong style="color:#f0f6ff">Annual Price</strong> &mdash; Formula: Monthly &times; 10 &divide; 12 (2 months free). Round down to nearest &pound;1.</div>
+            <div><strong style="color:#f0f6ff">Call Limit</strong> &mdash; Max AI calls/month. Resets on billing date.</div>
+            <div><strong style="color:#f0f6ff">Features</strong> &mdash; One per line. Higher plans start with &ldquo;Everything in [previous]&rdquo;.</div>
+            <div><strong style="color:#f0f6ff">Update existing clients</strong> &mdash; Also updates call_limit in DB for current subscribers on this plan.</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5a7a9a;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.06)">Annual Pricing Formula</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:10px;color:#5a7a9a;margin-bottom:3px">Essential</div>
+              <div style="font-size:16px;font-weight:800;color:#00d4ff">&pound;24<span style="font-size:10px;font-weight:400;color:#5a7a9a">/mo</span></div>
+              <div style="font-size:10px;color:#00e87a">Save &pound;60/yr</div>
+            </div>
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:10px;color:#5a7a9a;margin-bottom:3px">Starter</div>
+              <div style="font-size:16px;font-weight:800;color:#00d4ff">&pound;41<span style="font-size:10px;font-weight:400;color:#5a7a9a">/mo</span></div>
+              <div style="font-size:10px;color:#00e87a">Save &pound;96/yr</div>
+            </div>
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:10px;color:#5a7a9a;margin-bottom:3px">Professional</div>
+              <div style="font-size:16px;font-weight:800;color:#00d4ff">&pound;124<span style="font-size:10px;font-weight:400;color:#5a7a9a">/mo</span></div>
+              <div style="font-size:10px;color:#00e87a">Save &pound;300/yr</div>
+            </div>
+            <div style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:10px;color:#5a7a9a;margin-bottom:3px">Business</div>
+              <div style="font-size:16px;font-weight:800;color:#00d4ff">&pound;291<span style="font-size:10px;font-weight:400;color:#5a7a9a">/mo</span></div>
+              <div style="font-size:10px;color:#00e87a">Save &pound;696/yr</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px">
+    <div>
+      <h1 class="page-title">Pricing <em>Manager</em></h1>
+      <p class="page-sub">Edit plan cards and sync to all 2,565 pages instantly.</p>
+    </div>
+    <button id="pmSyncBtn" onclick="pmOpenSync()" style="display:none;align-items:center;gap:8px;background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;border:none;padding:11px 20px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;min-height:44px;box-shadow:0 0 20px rgba(0,212,255,.2)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15 6.7L3 16"/></svg>
+      Sync to all pages
+    </button>
+  </div>
+
+  <div id="pmAccessDenied" style="display:none;background:rgba(255,68,102,.08);border:1px solid rgba(255,68,102,.2);border-radius:12px;padding:16px;margin-bottom:20px;color:#ff4466;font-size:13px;text-align:center">
+    Pricing edit access not enabled &mdash; contact your super admin.
+  </div>
+
+  <!-- Admin access (superadmin only) -->
+  <div id="pmAdminSection" style="display:none;margin-bottom:24px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2a3f55;margin-bottom:10px">Admin Access Control</div>
+    <div style="background:#0c1520;border:1px solid rgba(0,212,255,.08);border-radius:14px;padding:16px">
+      <div id="pmAdminList" style="color:#5a7a9a;font-size:13px">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Plans -->
+  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2a3f55;margin-bottom:10px">Plans</div>
+  <div id="pmPlansGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:28px">
+    <div style="color:#5a7a9a;font-size:13px;padding:20px">Loading plans...</div>
+  </div>
+
+  <!-- Sync history -->
+  <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#2a3f55;margin-bottom:10px">Sync History</div>
+  <div style="background:#0c1520;border:1px solid rgba(0,212,255,.08);border-radius:14px;overflow:hidden;overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;min-width:480px">
+      <thead><tr style="border-bottom:1px solid rgba(255,255,255,.06)">
+        <th style="padding:10px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#2a3f55;background:rgba(255,255,255,.02)">Date</th>
+        <th style="padding:10px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#2a3f55;background:rgba(255,255,255,.02)">Triggered By</th>
+        <th style="padding:10px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#2a3f55;background:rgba(255,255,255,.02)">Pages</th>
+        <th style="padding:10px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#2a3f55;background:rgba(255,255,255,.02)">Duration</th>
+        <th style="padding:10px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#2a3f55;background:rgba(255,255,255,.02)">Errors</th>
+      </tr></thead>
+      <tbody id="pmSyncLog"><tr><td colspan="5" style="padding:20px;text-align:center;color:#2a3f55;font-size:13px">No syncs yet</td></tr></tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- Edit Modal -->
+<div id="pmEditModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#0c1520;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:22px">
+      <div id="pmEditTitle" style="font-size:18px;font-weight:700;color:#f0f6ff">Edit Plan</div>
+      <button onclick="pmCloseEdit()" style="background:none;border:none;color:#5a7a9a;cursor:pointer;font-size:22px;line-height:1;padding:4px">&#x2715;</button>
+    </div>
+    <input type="hidden" id="pmEditId">
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5a7a9a;margin-bottom:6px">Plan Name</label>
+      <input id="pmEditName" type="text" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:#f0f6ff;padding:11px 14px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;font-family:inherit">
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+      <div>
+        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5a7a9a;margin-bottom:6px">Monthly (&pound;)</label>
+        <input id="pmEditMonthly" type="number" min="0" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:#f0f6ff;padding:11px 14px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;font-family:inherit">
+      </div>
+      <div>
+        <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5a7a9a;margin-bottom:6px">Annual (&pound;/mo)</label>
+        <input id="pmEditAnnual" type="number" min="0" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:#f0f6ff;padding:11px 14px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;font-family:inherit">
+      </div>
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5a7a9a;margin-bottom:6px">Call Limit / Month</label>
+      <input id="pmEditCallLimit" type="number" min="0" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:#f0f6ff;padding:11px 14px;border-radius:10px;font-size:14px;outline:none;box-sizing:border-box;font-family:inherit">
+    </div>
+    <div style="margin-bottom:14px">
+      <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#5a7a9a;margin-bottom:6px">Features <span style="text-transform:none;letter-spacing:0;font-weight:400">(one per line)</span></label>
+      <textarea id="pmEditFeatures" rows="6" style="width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);color:#f0f6ff;padding:11px 14px;border-radius:10px;font-size:13px;outline:none;resize:vertical;font-family:inherit;box-sizing:border-box;line-height:1.6"></textarea>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:20px;margin-bottom:14px">
+      <label style="display:flex;align-items:center;gap:8px;color:#f0f6ff;font-size:14px;cursor:pointer;min-height:44px"><input type="checkbox" id="pmEditPopular" style="width:18px;height:18px;cursor:pointer"> Mark as Most Popular</label>
+      <label style="display:flex;align-items:center;gap:8px;color:#f0f6ff;font-size:14px;cursor:pointer;min-height:44px"><input type="checkbox" id="pmEditActive" style="width:18px;height:18px;cursor:pointer"> Plan is Active</label>
+    </div>
+    <div style="background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.2);border-radius:10px;padding:12px;margin-bottom:14px">
+      <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+        <input type="checkbox" id="pmEditUpdateClients" style="width:18px;height:18px;margin-top:2px;flex-shrink:0;cursor:pointer">
+        <div><div style="color:#ffb800;font-weight:600;font-size:13px">Update existing clients on this plan</div><div style="color:#5a7a9a;font-size:12px;margin-top:3px;line-height:1.5">Updates their call limit to the new value. Reversible.</div></div>
+      </label>
+    </div>
+    <div id="pmEditErr" style="display:none;background:rgba(255,68,102,.08);border:1px solid rgba(255,68,102,.25);border-radius:8px;padding:10px 14px;font-size:13px;color:#ff8899;margin-bottom:14px"></div>
+    <div style="display:grid;grid-template-columns:1fr 2fr;gap:10px">
+      <button onclick="pmCloseEdit()" style="padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#f0f6ff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Cancel</button>
+      <button onclick="pmSavePlan()" id="pmSaveBtn" style="background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;border:none;padding:12px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 0 16px rgba(0,212,255,.2)">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sync Modal -->
+<div id="pmSyncModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:2000;align-items:center;justify-content:center;padding:20px">
+  <div style="background:#0c1520;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:28px;width:100%;max-width:420px">
+    <div style="font-size:18px;font-weight:700;color:#f0f6ff;margin-bottom:8px">Sync to all pages?</div>
+    <div style="font-size:13px;color:#5a7a9a;margin-bottom:20px;line-height:1.7">Updates all <strong style="color:#f0f6ff">2,565 static pages</strong> then purges Cloudflare cache. Takes ~30 seconds.</div>
+    <div id="pmSyncProgress" style="display:none;margin-bottom:16px">
+      <div id="pmSyncStatus" style="font-size:13px;color:#00d4ff;margin-bottom:6px">Updating pages...</div>
+      <div style="height:5px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden"><div id="pmSyncBar" style="height:100%;background:linear-gradient(90deg,#00d4ff,#0066cc);border-radius:3px;width:0%;transition:width 2s ease"></div></div>
+    </div>
+    <div id="pmSyncResult" style="display:none;margin-bottom:16px;padding:14px;border-radius:10px"></div>
+    <div id="pmSyncActions" style="display:grid;grid-template-columns:1fr 2fr;gap:10px">
+      <button onclick="pmCloseSync()" style="padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#f0f6ff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Cancel</button>
+      <button onclick="pmConfirmSync()" id="pmSyncConfirmBtn" style="background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;border:none;padding:12px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Yes, sync all pages</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
       <!-- Incident Log v2 Live -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
         <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;flex:1;margin-right:16px">
@@ -3605,6 +3786,7 @@ function showDashboard() {
   document.getElementById('overviewName').textContent = currentUser?.business_name || 'there';
   updateGreeting();
   // Show referral banner for clients only
+  if (['admin','superadmin'].includes(currentUser?.role)) { var pmNav=document.getElementById('navPricingManager'); if(pmNav) pmNav.style.display='flex'; }
   const isAdminUser = ['superadmin','admin'].includes(currentUser?.role);
   const bannerEl = document.getElementById('referralBanner');
   if (bannerEl) bannerEl.style.display = isAdminUser ? 'none' : 'block';
@@ -4488,6 +4670,7 @@ async function loadRevenue() {
 }
 function showPage(name) {
   if (name === 'incident-log') loadIncidents();
+  if (name === 'pricing-manager') loadPricingManager();
   if (name === 'system-health') startHealthAutoRefresh();
   else stopHealthAutoRefresh();
   if (name === 'leads') loadWebsiteLeads();
@@ -7320,5 +7503,155 @@ function dismissIosBanner() {
   localStorage.setItem('ios_pwa_dismissed', '1');
 }
 </script>
+
+<script>
+var pmPlans=[],pmCanEdit=false;
+function loadPricingManager(){
+  api('/api/admin/pricing').then(function(data){
+    if(!data||!data.ok){document.getElementById('pmAccessDenied').style.display='block';return;}
+    pmPlans=data.plans||[];pmCanEdit=data.canEdit||false;
+    document.getElementById('pmAccessDenied').style.display=!pmCanEdit?'block':'none';
+    document.getElementById('pmSyncBtn').style.display=pmCanEdit?'flex':'none';
+    if(currentUser&&currentUser.role==='superadmin'){
+      document.getElementById('pmAdminSection').style.display='block';
+      pmRenderAdmins(data.admins||[]);
+    }
+    pmRenderPlans(pmPlans);
+    pmRenderLog(data.syncLog||[]);
+  }).catch(function(e){console.error('loadPricingManager:',e);});
+}
+function pmRenderPlans(plans){
+  var g=document.getElementById('pmPlansGrid');
+  if(!plans||!plans.length){g.innerHTML='<div style="color:#5a7a9a;font-size:13px;padding:20px">No plans found.</div>';return;}
+  g.innerHTML=plans.map(function(p){
+    var calls=p.call_limit>=1000?p.call_limit.toLocaleString():String(p.call_limit);
+    var feats=(p.features||[]).map(function(f){return '<div style="font-size:12px;color:#5a7a9a;padding:3px 0;display:flex;gap:6px;align-items:flex-start"><span style="color:#00e87a;flex-shrink:0">&#10003;</span><span>'+f+'</span></div>';}).join('');
+    var eb=pmCanEdit?'<button onclick="pmOpenEdit(''+p.id+'')" style="width:100%;margin-top:12px;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#f0f6ff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .2s" onmouseover="this.style.background='rgba(255,255,255,.05)'" onmouseout="this.style.background='transparent'">Edit plan</button>':'';
+    var popBorder=p.is_popular?'border:1px solid rgba(0,212,255,.35)':'border:1px solid rgba(0,212,255,.08)';
+    var statusBadge=p.is_active?'<span style="background:rgba(0,232,122,.1);color:#00e87a;border:1px solid rgba(0,232,122,.2);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700">ACTIVE</span>':'<span style="background:rgba(255,68,102,.1);color:#ff4466;border:1px solid rgba(255,68,102,.2);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700">INACTIVE</span>';
+    var popBadge=p.is_popular?'<span style="background:rgba(0,212,255,.1);color:#00d4ff;border:1px solid rgba(0,212,255,.2);padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;margin-left:4px">POPULAR</span>':'';
+    return '<div style="background:#0c1520;'+popBorder+';border-radius:14px;padding:18px;display:flex;flex-direction:column">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:6px;margin-bottom:10px"><span style="font-size:15px;font-weight:700;color:#f0f6ff">'+p.name+'</span><div>'+statusBadge+popBadge+'</div></div>'
+      +'<div style="margin-bottom:3px"><span style="font-size:28px;font-weight:800;color:#00d4ff">\u00a3'+p.price_monthly+'</span><span style="font-size:12px;color:#5a7a9a"> /mo + VAT</span></div>'
+      +'<div style="font-size:11px;color:#5a7a9a;margin-bottom:6px">Annual: \u00a3'+p.price_annual+'/mo</div>'
+      +'<div style="font-size:13px;color:#00e87a;font-weight:600;margin-bottom:14px">'+calls+' calls/month</div>'
+      +'<div style="border-top:1px solid rgba(255,255,255,.06);padding-top:10px;flex:1">'+feats+'</div>'
+      +eb+(p.updated_by?'<div style="font-size:10px;color:#2a3f55;margin-top:8px">Last edited by '+p.updated_by+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+function pmRenderAdmins(admins){
+  var l=document.getElementById('pmAdminList');
+  if(!admins||!admins.length){l.innerHTML='<div style="color:#5a7a9a;font-size:13px">No admins found.</div>';return;}
+  l.innerHTML=admins.map(function(a){
+    return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06);gap:12px">'
+      +'<div><div style="font-size:13px;font-weight:600;color:#f0f6ff">'+(a.first_name||'')+' '+(a.last_name||'')+'</div><div style="font-size:12px;color:#5a7a9a">'+a.email+'</div></div>'
+      +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer;color:#5a7a9a;font-size:12px;flex-shrink:0">Pricing edit'
+      +'<div class="toggle '+(a.pricing_edit?'active':'')+'" onclick="pmToggleAccess(''+a.id+'',this)" style="cursor:pointer;flex-shrink:0"><div class="toggle-thumb"></div></div>'
+      +'</div></div>';
+  }).join('');
+}
+function pmRenderLog(log){
+  var t=document.getElementById('pmSyncLog');
+  if(!log||!log.length){t.innerHTML='<tr><td colspan="5" style="padding:20px;text-align:center;color:#2a3f55;font-size:13px">No syncs yet</td></tr>';return;}
+  t.innerHTML=log.map(function(e){
+    var dt=new Date(e.timestamp*1000);
+    var ds=dt.toLocaleDateString('en-GB')+' '+dt.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    return '<tr style="border-bottom:1px solid rgba(255,255,255,.06)">'
+      +'<td style="padding:10px 16px;color:#5a7a9a;font-size:12px;white-space:nowrap">'+ds+'</td>'
+      +'<td style="padding:10px 16px;color:#f0f6ff;font-size:13px">'+e.triggered_by+'</td>'
+      +'<td style="padding:10px 16px;color:#00d4ff;font-weight:600">'+(e.pages_updated||0).toLocaleString()+'</td>'
+      +'<td style="padding:10px 16px;color:#5a7a9a;font-size:12px">'+((e.duration_ms||0)/1000).toFixed(1)+'s</td>'
+      +'<td style="padding:10px 16px;color:'+(e.errors>0?'#ff4466':'#00e87a')+';font-weight:600">'+(e.errors||0)+'</td></tr>';
+  }).join('');
+}
+function pmOpenEdit(id){
+  var p=pmPlans.find(function(x){return x.id===id;});if(!p)return;
+  document.getElementById('pmEditId').value=id;
+  document.getElementById('pmEditTitle').textContent='Edit \u2014 '+p.name;
+  document.getElementById('pmEditName').value=p.name;
+  document.getElementById('pmEditMonthly').value=p.price_monthly;
+  document.getElementById('pmEditAnnual').value=p.price_annual;
+  document.getElementById('pmEditCallLimit').value=p.call_limit;
+  document.getElementById('pmEditFeatures').value=(p.features||[]).join('
+');
+  document.getElementById('pmEditPopular').checked=!!p.is_popular;
+  document.getElementById('pmEditActive').checked=p.is_active!==0;
+  document.getElementById('pmEditUpdateClients').checked=false;
+  document.getElementById('pmEditErr').style.display='none';
+  document.getElementById('pmEditModal').style.display='flex';
+  document.body.style.overflow='hidden';
+}
+function pmCloseEdit(){document.getElementById('pmEditModal').style.display='none';document.body.style.overflow='';}
+function pmSavePlan(){
+  var btn=document.getElementById('pmSaveBtn'),err=document.getElementById('pmEditErr');
+  err.style.display='none';
+  var id=document.getElementById('pmEditId').value;
+  var name=document.getElementById('pmEditName').value.trim();
+  var price_monthly=parseInt(document.getElementById('pmEditMonthly').value);
+  var price_annual=parseInt(document.getElementById('pmEditAnnual').value);
+  var call_limit=parseInt(document.getElementById('pmEditCallLimit').value);
+  var features=document.getElementById('pmEditFeatures').value.split('
+').map(function(f){return f.trim();}).filter(Boolean);
+  var is_popular=document.getElementById('pmEditPopular').checked;
+  var is_active=document.getElementById('pmEditActive').checked;
+  var update_existing_clients=document.getElementById('pmEditUpdateClients').checked;
+  if(!name){err.textContent='Plan name required';err.style.display='block';return;}
+  if(isNaN(price_monthly)||price_monthly<0){err.textContent='Valid monthly price required';err.style.display='block';return;}
+  if(isNaN(call_limit)||call_limit<0){err.textContent='Valid call limit required';err.style.display='block';return;}
+  btn.textContent='Saving...';btn.disabled=true;
+  api('/api/admin/pricing/update',{method:'POST',body:{id:id,name:name,price_monthly:price_monthly,price_annual:price_annual,call_limit:call_limit,features:features,is_popular:is_popular,is_active:is_active,update_existing_clients:update_existing_clients}}).then(function(data){
+    if(!data||!data.ok)throw new Error(data&&data.error?data.error:'Save failed');
+    var idx=pmPlans.findIndex(function(x){return x.id===id;});
+    if(idx!==-1)pmPlans[idx]=data.plan;
+    pmRenderPlans(pmPlans);pmCloseEdit();
+    if(data.clientsUpdated>0)alert('Saved. '+data.clientsUpdated+' client(s) call limit updated.');
+  }).catch(function(e){err.textContent=e.message;err.style.display='block';}).finally(function(){btn.textContent='Save Changes';btn.disabled=false;});
+}
+function pmOpenSync(){
+  document.getElementById('pmSyncModal').style.display='flex';
+  document.getElementById('pmSyncProgress').style.display='none';
+  document.getElementById('pmSyncResult').style.display='none';
+  document.getElementById('pmSyncActions').style.display='grid';
+  document.getElementById('pmSyncConfirmBtn').disabled=false;
+  document.getElementById('pmSyncConfirmBtn').textContent='Yes, sync all pages';
+  document.getElementById('pmSyncBar').style.width='0%';
+  document.getElementById('pmSyncBar').style.background='linear-gradient(90deg,#00d4ff,#0066cc)';
+  document.body.style.overflow='hidden';
+}
+function pmCloseSync(){document.getElementById('pmSyncModal').style.display='none';document.body.style.overflow='';}
+function pmConfirmSync(){
+  var btn=document.getElementById('pmSyncConfirmBtn'),bar=document.getElementById('pmSyncBar');
+  var st=document.getElementById('pmSyncStatus'),res=document.getElementById('pmSyncResult'),act=document.getElementById('pmSyncActions');
+  btn.disabled=true;btn.textContent='Syncing...';
+  document.getElementById('pmSyncProgress').style.display='block';
+  st.textContent='Updating 2,565 pages...';
+  bar.style.transition='width 8s ease';bar.style.width='60%';
+  setTimeout(function(){bar.style.transition='width 20s ease';bar.style.width='85%';},8000);
+  api('/api/admin/pricing/sync',{method:'POST',body:{}}).then(function(data){
+    bar.style.transition='width .4s';bar.style.width='100%';
+    if(!data||!data.ok)throw new Error(data&&data.error?data.error:'Sync failed');
+    st.textContent='Purging Cloudflare cache...';
+    return new Promise(function(r){setTimeout(r,800);}).then(function(){
+      res.style.cssText='display:block;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.2);border-radius:10px;padding:14px;margin-bottom:16px';
+      res.innerHTML='<div style="font-weight:700;color:#00e87a;margin-bottom:4px">Sync complete</div><div style="font-size:13px;color:#5a7a9a">'+(data.pages_updated||0).toLocaleString()+' pages updated &middot; '+((data.duration_ms||0)/1000).toFixed(1)+'s &middot; '+(data.errors||0)+' errors</div>';
+      act.innerHTML='<button onclick="pmCloseSync();loadPricingManager();" style="padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#f0f6ff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;grid-column:1/-1">Done</button>';
+    });
+  }).catch(function(e){
+    bar.style.background='#ff4466';bar.style.width='100%';
+    res.style.cssText='display:block;background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.2);border-radius:10px;padding:14px;margin-bottom:16px';
+    res.innerHTML='<div style="font-weight:700;color:#ff4466;margin-bottom:4px">Sync failed</div><div style="font-size:13px;color:#5a7a9a">'+e.message+'</div>';
+    act.innerHTML='<button onclick="pmCloseSync()" style="padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:transparent;color:#f0f6ff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;grid-column:1/-1">Close</button>';
+  });
+}
+function pmToggleAccess(adminId,el){
+  var nowEnabled=!el.classList.contains('active');
+  api('/api/admin/pricing/access',{method:'POST',body:{admin_id:adminId,enabled:nowEnabled}}).then(function(data){
+    if(data&&data.ok)el.classList.toggle('active',nowEnabled);
+    else alert('Failed to update access');
+  }).catch(function(e){alert('Error: '+e.message);});
+}
+</script>
+
 </body>
 </html>
