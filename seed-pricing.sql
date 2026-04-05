@@ -1,0 +1,8 @@
+INSERT OR REPLACE INTO system_settings (key, value, updated_at) VALUES (
+  'pricing_plans',
+  json('[{"id":"essential","name":"Essential","price_monthly":29,"price_annual":24,"call_limit":150,"is_popular":0,"is_active":1,"features":["1 UK phone number included","Divert existing number to AI","AI answering 24/7","Email notifications","Call transcripts & summaries","Call transfers","14-day free trial"]},{"id":"starter","name":"Starter","price_monthly":49,"price_annual":41,"call_limit":300,"is_popular":0,"is_active":1,"features":["Everything in Essential","Voicemail + recordings","Call dashboard & leads","Referral programme","14-day free trial"]},{"id":"professional","name":"Professional","price_monthly":149,"price_annual":124,"call_limit":1000,"is_popular":1,"is_active":1,"features":["Everything in Starter","Appointment booking","Custom AI personality & script","Google Calendar integration","Priority support","14-day free trial"]},{"id":"business","name":"Business","price_monthly":349,"price_annual":291,"call_limit":5000,"is_popular":0,"is_active":1,"features":["Everything in Professional","AI voice & language selector","CRM & webhook integration","Call recording","2 phone numbers","Dedicated account manager"]}]'),
+  strftime('%s','now')
+);
+INSERT OR REPLACE INTO system_settings (key, value, updated_at) VALUES ('pricing_sync_log', json('[]'), strftime('%s','now'));
+INSERT OR REPLACE INTO system_settings (key, value, updated_at) VALUES ('pricing_admin_access', json('{}'), strftime('%s','now'));
+SELECT key, length(value) || ' chars' FROM system_settings WHERE key LIKE 'pricing%';
