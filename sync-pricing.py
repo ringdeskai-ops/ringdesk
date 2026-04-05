@@ -129,6 +129,27 @@ def main():
             print("Homepage pricing updated")
         else:
             print("Homepage unchanged")
+
+    # Update about.html starting price stat card
+    import re as re2
+    about = '/var/www/vhosts/airingdesk.com/httpdocs/public/about.html'
+    if os.path.exists(about):
+        active = [p for p in plans if p.get('is_active', 1)]
+        if active:
+            sp = min(p['price_monthly'] for p in active)
+            with open(about, 'r', encoding='utf-8') as f:
+                ac = f.read()
+            new_ac = re2.sub(
+                r'(<div class="stat-val">£)\d+(</div><div class="stat-label">Starting price)',
+                rf'\g<1>{sp}\g<2>',
+                ac
+            )
+            if new_ac != ac:
+                with open(about, 'w', encoding='utf-8') as f:
+                    f.write(new_ac)
+                print(f"about.html starting price updated to £{sp}")
+            else:
+                print("about.html unchanged")
     print(f"PAGES_UPDATED:{updated} ERRORS:{errors}")
 
 if __name__=='__main__': main()
