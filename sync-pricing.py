@@ -2,7 +2,7 @@
 import os, re, json, sys, time, argparse
 
 PUBLIC_DIR = '/var/www/vhosts/airingdesk.com/httpdocs/public'
-SKIP_PATHS = ['dashboard','admin','index.html','index.html.bak','index.html.bak2','index.html.bak3']
+SKIP_PATHS = ['dashboard','admin','index.html','index.html.bak','index.html.bak2','index.html.bak3','locations','industries']
 
 def load_plans(p):
     with open(p) as f: return json.load(f)
@@ -56,6 +56,45 @@ def update_file(fp, plans, sp):
     with open(fp,'w',encoding='utf-8') as f: f.write(c)
     return True
 
+def update_homepage(fp, plans):
+    with open(fp, 'r', encoding='utf-8', errors='replace') as f:
+        orig = f.read()
+    c = orig
+    active = [p for p in plans if p.get('is_active', 1)]
+    for p in active:
+        pid = p['id']
+        monthly = p['price_monthly']
+        annual = p.get('price_annual', round(monthly * 0.83))
+        calls = p['call_limit']
+        calls_str = f"{calls:,}" if calls >= 1000 else str(calls)
+
+        # Update data-monthly and data-annual attributes + visible price
+        import re
+        # Find the plan block by name and update price-val span
+        pattern = rf'(<div class="plan-name">{p["name"]}</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly=")(\d+)(" data-annual=")(\d+)(">)(\d+)(</span>)'
+        replacement = rf'\g<1>{monthly}\g<3>{annual}\g<5>{monthly}\g<7>'
+        new_c = re.sub(pattern, replacement, c)
+
+        # Update calls per month
+        old_calls_pattern = rf'(\d[\d,]*) calls per month'
+        # Find the right plan section and update calls
+        plan_start = new_c.find(f'<div class="plan-name">{p["name"]}</div>')
+        if plan_start != -1:
+            plan_end = new_c.find('<div class="plan-name">', plan_start + 1)
+            if plan_end == -1:
+                plan_end = new_c.find('</section>', plan_start)
+            plan_section = new_c[plan_start:plan_end]
+            new_plan_section = re.sub(r'(\d[\d,]*) calls per month', f'{calls_str} calls per month', plan_section, count=1)
+            new_c = new_c[:plan_start] + new_plan_section + new_c[plan_end:]
+
+        c = new_c
+
+    if c == orig:
+        return False
+    with open(fp, 'w', encoding='utf-8') as f:
+        f.write(c)
+    return True
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--plans', required=True)
@@ -83,6 +122,13 @@ def main():
             except Exception as e:
                 errors+=1; print(f"ERROR: {fp} — {e}",file=sys.stderr)
     print(f"Updated:{updated} Unchanged:{unchanged} Skipped:{skipped} Errors:{errors} Time:{time.time()-start:.1f}s")
+    # Update homepage
+    homepage = '/var/www/vhosts/airingdesk.com/httpdocs/public/index.html'
+    if os.path.exists(homepage):
+        if update_homepage(homepage, plans):
+            print("Homepage pricing updated")
+        else:
+            print("Homepage unchanged")
     print(f"PAGES_UPDATED:{updated} ERRORS:{errors}")
 
 if __name__=='__main__': main()
