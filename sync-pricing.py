@@ -59,7 +59,7 @@ def update_file(fp, plans, sp):
         new_section = f'''<section id=\"pricing\" style=\"padding:60px 24px;background:var(--black)\">
 <div style=\"text-align:center;margin-bottom:32px\">
 <div style=\"font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px\"><span style=\"display:inline-block;width:24px;height:2px;background:var(--cyan)\"></span>Pricing</div>
-<h2 style=\"font-family:'Instrument Serif',Georgia,serif;font-size:42px;font-weight:400;letter-spacing:-1px;margin-bottom:8px\">Simple, <em style=\"font-style:italic;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent\">transparent</em> pricing</h2>
+<h2 style=\"font-family:'Instrument Serif',Georgia,serif;font-size:clamp(32px,5vw,56px);font-weight:400;letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px\">Simple, <em style=\"font-style:italic;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent\">transparent</em> pricing</h2>
 <p style=\"font-size:15px;color:var(--muted)\">No setup fees. No per-minute charges. One flat monthly fee.</p>
 </div>
 <div class=\"pricing-toggle\">
