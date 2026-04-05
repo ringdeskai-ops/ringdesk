@@ -38,7 +38,20 @@ def update_file(fp, plans, sp):
     c = re.sub(r'"@type":"Offer","price":"\d+"', f'"@type":"Offer","price":"{sp}"', c)
     c = re.sub(r'>From £\d+/month \+ VAT<', f'>From £{sp}/month + VAT<', c)
     nb = build_plans_block(plans)
-    c = re.sub(r'<div class="plans">.*?</div>(?=\s*\n\s*(?!</div>))', nb, c, count=1, flags=re.DOTALL)
+    if '<div class="plans">' in c:
+        # Replace existing plans block
+        c = re.sub(r'<div class="plans">.*?</div>(?=\s*\n\s*(?!</div>))', nb, c, count=1, flags=re.DOTALL)
+    else:
+        # Insert plans block before the footer <p> line
+        insert_anchors = [
+            '  <p style="font-size:12px;color:var(--dim);margin-top:24px">',
+            '<p style="font-size:12px;color:var(--dim);margin-top:24px">',
+            '<footer>',
+        ]
+        for anchor in insert_anchors:
+            if anchor in c:
+                c = c.replace(anchor, nb + '\n  ' + anchor, 1)
+                break
     if c == orig: return False
     with open(fp,'w',encoding='utf-8') as f: f.write(c)
     return True
