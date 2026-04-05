@@ -31,7 +31,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Database = require("better-sqlite3");
 
-const APP_VERSION = '2.6.0';
+const APP_VERSION = '2.6.1';
 const app = express();
 app.use(express.json());
 
@@ -272,6 +272,48 @@ app.post('/api/auth/accept-tos', authRequired, (req, res) => {
     .run(req.client.id, client.email, ip, ua.substring(0,200), '1.0', now);
   
   res.json({ success: true, accepted_at: now });
+});
+
+// ── PRICING MANAGE ──────────────────────────────────────────────────────────
+
+// GET current pricing plans
+app.get('/api/admin/pricing', (req, res) => {
+  try {
+    const row = db.prepare("SELECT value FROM system_settings WHERE key='pricing_plans'").get();
+    if (row) {
+      return res.json({ ok: true, plans: JSON.parse(row.value) });
+    }
+    // Return defaults if not yet saved
+    const defaults = [
+      {id:'essential',name:'Essential',price:'29',calls:'150/mo',popular:false,feats:['1 UK phone number','AI answering 24/7','Email notifications','Call transcripts & summaries','Call transfers']},
+      {id:'starter',name:'Starter',price:'49',calls:'300/mo',popular:true,feats:['Everything in Essential','Voicemail + recordings','Call dashboard & leads','Referral programme']},
+      {id:'professional',name:'Professional',price:'149',calls:'1,000/mo',popular:false,feats:['Everything in Starter','Appointment booking','Custom AI personality & script','Google Calendar integration','Priority support']},
+      {id:'business',name:'Business',price:'349',calls:'5,000/mo',popular:false,feats:['Everything in Professional','AI voice & language selector','CRM & webhook integration','Call recording','2 phone numbers','Dedicated account manager']}
+    ];
+    res.json({ ok: true, plans: defaults });
+  } catch(e) {
+    console.error('GET pricing error:', e);
+    res.status(500).json({ error: 'Failed to load pricing' });
+  }
+});
+
+// POST save pricing plans (superadmin only)
+app.post('/api/admin/pricing', authRequired, (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  try {
+    const { plans } = req.body;
+    if (!Array.isArray(plans) || plans.length === 0) {
+      return res.status(400).json({ error: 'Invalid plans data' });
+    }
+    const now = Math.floor(Date.now() / 1000);
+    db.prepare("INSERT INTO system_settings (key, value, updated_at) VALUES ('pricing_plans', ?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=excluded.updated_at")
+      .run(JSON.stringify(plans), now);
+    console.log('[Pricing] Plans saved by', req.client.email, 'at', new Date().toISOString());
+    res.json({ ok: true, saved: plans.length });
+  } catch(e) {
+    console.error('POST pricing error:', e);
+    res.status(500).json({ error: 'Failed to save pricing' });
+  }
 });
 
 // Suspend customer number (superadmin only)
