@@ -1529,6 +1529,31 @@ Dedicated account manager</textarea></div>
           </div>
         </div>
 
+        <!-- Pricing Change History -->
+        <div style="margin-top:32px;margin-bottom:32px">
+          <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px">Change History</div>
+          <div class="table-card">
+            <div class="table-header">
+              <div>
+                <div class="table-title">Price Update Log</div>
+                <div class="table-sub">Every save and sync to the website — who changed it and when</div>
+              </div>
+              <button onclick="syncPricingNow()" id="pricingSyncBtn" style="padding:8px 18px;border-radius:8px;border:none;background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--font-body);display:flex;align-items:center;gap:7px;box-shadow:0 0 16px rgba(0,212,255,.2)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                Sync to all pages
+              </button>
+            </div>
+            <div style="overflow-x:auto">
+              <table>
+                <thead><tr><th>Date &amp; Time</th><th>Changed by</th><th>Pages updated</th><th>Duration</th><th>Status</th></tr></thead>
+                <tbody id="pricingHistoryBody">
+                  <tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">Loading history...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
         <!-- ── HELP & GUIDE PAGE ── -->
     <div class="page" id="page-help">
       <div class="page-header">
@@ -3087,6 +3112,32 @@ Dedicated account manager</textarea></div>
       <!-- Version & System Info -->
       <div id="systemInfoCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:24px">
         <!-- Populated by JS -->
+      </div>
+
+      <!-- Pricing Status Card -->
+      <div id="healthPricingCard" style="background:var(--surface);border:1px solid rgba(0,212,255,.15);border-radius:16px;padding:20px 24px;margin-bottom:24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:36px;height:36px;border-radius:9px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+            </div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:var(--text)">Pricing Status</div>
+              <div style="font-size:11px;color:var(--muted);margin-top:1px" id="healthPricingLastSync">Loading...</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div id="healthPricingVersion" style="padding:4px 12px;border-radius:20px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);font-size:12px;font-weight:700;color:var(--cyan)">pricing_v—</div>
+            <button onclick="showPage('pricing-manage')" style="padding:6px 14px;border-radius:8px;border:1px solid rgba(0,212,255,.3);background:transparent;color:var(--cyan);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body)">Manage →</button>
+          </div>
+        </div>
+        <div id="healthPricingPlans" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px">
+          <div style="text-align:center;color:var(--muted);padding:20px;font-size:13px">Loading pricing data...</div>
+        </div>
+        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:700;color:var(--dim);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px">Last sync</div>
+          <div id="healthPricingLastSyncDetail" style="font-size:12px;color:var(--muted)">No sync recorded yet</div>
+        </div>
       </div>
 
       <!-- Services Grid -->
@@ -5806,6 +5857,8 @@ function loadHealthData() {
   .then(r => r.json())
   .then(data => {
     renderHealthDashboard(data);
+    // Load pricing status into health page
+    api('/api/admin/pricing').then(function(pd) { if(pd) renderHealthPricing(pd); }).catch(function(){});
     document.getElementById('healthLastUpdated').textContent = 'Updated ' + new Date().toLocaleTimeString();
     
     // Render system info cards
@@ -7481,6 +7534,7 @@ var _pricingPlans = [
   {id:'business',name:'Business',price:'349',calls:'5,000/mo',popular:false,feats:['Everything in Professional','AI voice & language selector','CRM & webhook integration','Call recording','2 phone numbers','Dedicated account manager']}
 ];
 function loadPricingManage() {
+  loadPricingHistory();
   _pricingPlans.forEach(function(p) {
     var n=document.getElementById('pname-'+p.id); if(n) n.value=p.name;
     var pr=document.getElementById('pprice-'+p.id); if(pr) pr.value=p.price;
@@ -7525,15 +7579,149 @@ function updatePricingPreview() {
   }).join('');
 }
 async function savePricingChanges() {
-  var btn=document.getElementById('pricingSaveBtn');
-  _pricingPlans=getPricingFormData();
-  renderBillingPlans(currentUser&&currentUser.plan);
-  if(btn){
-    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved!';
-    btn.classList.add('saved');
-    setTimeout(function(){btn.classList.remove('saved');btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save &amp; Publish';},2500);
+  var btn = document.getElementById('pricingSaveBtn');
+  var plans = getPricingFormData();
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner" style="border-top-color:#020408"></span> Saving...'; }
+  try {
+    // Save each plan individually using the proper API
+    for (var p of plans) {
+      await api('/api/admin/pricing/update', {
+        method: 'POST',
+        body: {
+          id: p.id,
+          name: p.name,
+          price_monthly: parseInt(p.price),
+          call_limit: parseInt(p.calls) || p.calls,
+          features: p.feats,
+          is_popular: p.popular ? 1 : 0,
+          is_active: 1,
+          update_existing_clients: false
+        }
+      });
+    }
+    // Reload from DB to keep in sync
+    var res = await api('/api/admin/pricing');
+    if (res && res.plans) {
+      _pricingPlans = res.plans.map(function(p) {
+        return {
+          id: p.id, name: p.name,
+          price: String(p.price_monthly),
+          calls: p.call_limit >= 1000 ? (p.call_limit/1000).toFixed(0)+',000/mo' : p.call_limit+'/mo',
+          popular: !!p.is_popular,
+          feats: p.features || []
+        };
+      });
+    }
+    renderBillingPlans(currentUser && currentUser.plan);
+    loadPricingManage();
+    if (btn) {
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved!';
+      btn.classList.add('saved');
+      setTimeout(function() {
+        btn.classList.remove('saved');
+        btn.disabled = false;
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save &amp; Publish';
+      }, 2500);
+    }
+  } catch(e) {
+    console.error('Save pricing error:', e);
+    if (btn) { btn.disabled = false; btn.innerHTML = 'Error — try again'; }
   }
-  try { await api('/api/admin/pricing',{method:'POST',body:{plans:_pricingPlans}}); } catch(e){ console.warn('Pricing API not yet wired:',e); }
+}
+
+async function syncPricingNow() {
+  var btn = document.getElementById('pricingSyncBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner" style="border-top-color:#020408"></span> Syncing...'; }
+  try {
+    var res = await api('/api/admin/pricing/sync', { method: 'POST', body: {} });
+    if (res && res.ok) {
+      if (btn) {
+        btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Synced ' + res.pages_updated + ' pages!';
+        setTimeout(function() {
+          btn.disabled = false;
+          btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg> Sync to all pages';
+        }, 3000);
+      }
+      loadPricingHistory();
+    } else {
+      if (btn) { btn.disabled = false; btn.innerHTML = 'Sync failed — retry'; }
+    }
+  } catch(e) {
+    console.error('Sync error:', e);
+    if (btn) { btn.disabled = false; btn.innerHTML = 'Error — try again'; }
+  }
+}
+
+async function loadPricingHistory() {
+  var tbody = document.getElementById('pricingHistoryBody');
+  if (!tbody) return;
+  try {
+    var res = await api('/api/admin/pricing');
+    var log = (res && res.syncLog) ? res.syncLog : [];
+    if (log.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--muted)">No syncs yet — click Sync to all pages to push changes live</td></tr>';
+      return;
+    }
+    tbody.innerHTML = log.map(function(entry) {
+      var d = new Date(entry.timestamp * 1000);
+      var dateStr = d.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) + ' ' + d.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+      var dur = entry.duration_ms ? (entry.duration_ms/1000).toFixed(1) + 's' : '—';
+      var statusColor = entry.errors > 0 ? 'var(--amber)' : 'var(--green)';
+      var statusText = entry.errors > 0 ? entry.errors + ' errors' : 'Success';
+      return '<tr>' +
+        '<td style="color:var(--text);font-weight:500">' + dateStr + '</td>' +
+        '<td>' + (entry.triggered_by || '—') + '</td>' +
+        '<td><span style="font-weight:600;color:var(--cyan)">' + (entry.pages_updated || 0) + '</span> pages</td>' +
+        '<td>' + dur + '</td>' +
+        '<td><span class="status-badge" style="background:rgba(0,232,122,.1);color:' + statusColor + ';border:1px solid ' + statusColor + '33">' + statusText + '</span></td>' +
+      '</tr>';
+    }).join('');
+  } catch(e) {
+    if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--muted)">Could not load history</td></tr>';
+  }
+}
+
+function renderHealthPricing(pricingData) {
+  if (!pricingData) return;
+  var plans = pricingData.plans || [];
+  var log = pricingData.syncLog || [];
+  var versionEl = document.getElementById('healthPricingVersion');
+  var lastSyncEl = document.getElementById('healthPricingLastSync');
+  var lastSyncDetailEl = document.getElementById('healthPricingLastSyncDetail');
+  var plansEl = document.getElementById('healthPricingPlans');
+  if (versionEl) versionEl.textContent = 'pricing_v' + log.length;
+  if (lastSyncEl) {
+    if (log.length > 0) {
+      var last = new Date(log[0].timestamp * 1000);
+      lastSyncEl.textContent = 'Last synced ' + last.toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) + ' at ' + last.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'});
+    } else {
+      lastSyncEl.textContent = 'Never synced to pages yet';
+    }
+  }
+  if (lastSyncDetailEl && log.length > 0) {
+    var l = log[0];
+    var d = new Date(l.timestamp * 1000);
+    lastSyncDetailEl.innerHTML =
+      '<span style="color:var(--text);font-weight:600">' + l.triggered_by + '</span> synced ' +
+      '<span style="color:var(--cyan);font-weight:600">' + l.pages_updated + ' pages</span> in ' +
+      (l.duration_ms/1000).toFixed(1) + 's on ' +
+      d.toLocaleDateString('en-GB', {weekday:'short',day:'2-digit',month:'short'}) + ' at ' +
+      d.toLocaleTimeString('en-GB', {hour:'2-digit',minute:'2-digit'}) +
+      (l.errors > 0 ? ' <span style="color:var(--amber)">· ' + l.errors + ' errors</span>' : ' <span style="color:var(--green)">· No errors</span>');
+  } else if (lastSyncDetailEl) {
+    lastSyncDetailEl.textContent = 'No sync recorded yet — use Pricing Manage to push changes live';
+  }
+  if (plansEl && plans.length > 0) {
+    plansEl.innerHTML = plans.map(function(p) {
+      var popBadge = p.is_popular ? '<div style="font-size:9px;font-weight:700;color:var(--cyan);letter-spacing:.05em;margin-bottom:2px">POPULAR</div>' : '';
+      return '<div style="padding:12px 14px;background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px">' +
+        popBadge +
+        '<div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em">' + p.name + '</div>' +
+        '<div style="font-size:20px;font-weight:800;color:var(--text);margin:4px 0">£' + p.price_monthly + '<span style="font-size:11px;font-weight:400;color:var(--muted)">/mo</span></div>' +
+        '<div style="font-size:11px;color:var(--green);font-weight:600">' + (p.call_limit >= 1000 ? (p.call_limit/1000).toFixed(0)+'K' : p.call_limit) + ' calls/mo</div>' +
+      '</div>';
+    }).join('');
+  }
 }
 
 </script>
