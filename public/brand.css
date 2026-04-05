@@ -31,8 +31,8 @@ footer{background:var(--surface)!important;border-top:1px solid rgba(0,212,255,.
 /* CTA sections */
 .cta-section{background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(0,102,255,.04))!important;border-top:1px solid rgba(0,212,255,.12)!important}
 /* Plan cards */
-.plan{background:linear-gradient(135deg,var(--surface2) 0%,var(--surface) 100%)!important;border:1px solid rgba(0,212,255,.12)!important}
-.plan.pop{background:linear-gradient(135deg,rgba(0,212,255,.08) 0%,var(--surface) 100%)!important;border-color:rgba(0,212,255,.35)!important;box-shadow:0 0 40px rgba(0,212,255,.1)!important}
+
+
 /* Industry chips */
 .ind-chip{background:var(--surface2)!important;border:1px solid rgba(0,212,255,.12)!important}
 .ind-chip:hover{border-color:rgba(0,212,255,.35)!important;color:var(--cyan)!important;background:rgba(0,212,255,.06)!important}

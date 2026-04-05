@@ -33,25 +33,34 @@ def should_skip(fp):
 def update_file(fp, plans, sp):
     with open(fp,'r',encoding='utf-8',errors='replace') as f: orig = f.read()
     c = orig
+    # Update meta/schema prices
     c = re.sub(r'From £\d+/month \+ VAT', f'From £{sp}/month + VAT', c)
     c = re.sub(r'from £\d+/month \+ VAT', f'from £{sp}/month + VAT', c)
     c = re.sub(r'"@type":"Offer","price":"\d+"', f'"@type":"Offer","price":"{sp}"', c)
     c = re.sub(r'>From £\d+/month \+ VAT<', f'>From £{sp}/month + VAT<', c)
-    nb = build_plans_block(plans)
-    if '<div class="plans">' in c:
-        # Replace existing plans block
-        c = re.sub(r'<div class="plans">.*?</div>(?=\s*\n\s*(?!</div>))', nb, c, count=1, flags=re.DOTALL)
-    else:
-        # Insert plans block before the footer <p> line
-        insert_anchors = [
-            '  <p style="font-size:12px;color:var(--dim);margin-top:24px">',
-            '<p style="font-size:12px;color:var(--dim);margin-top:24px">',
-            '<footer>',
-        ]
-        for anchor in insert_anchors:
-            if anchor in c:
-                c = c.replace(anchor, nb + '\n  ' + anchor, 1)
-                break
+
+    # Update data-monthly and data-annual attributes in price-val spans
+    active = [p for p in plans if p.get('is_active',1)]
+    for p in active:
+        monthly = p['price_monthly']
+        annual = p.get('price_annual', round(monthly * 0.83))
+        calls = p['call_limit']
+        calls_str = f"{calls:,}" if calls >= 1000 else str(calls)
+        name = p['name']
+
+        # Update data-monthly, data-annual AND visible price in span
+        plan_pattern = rf'(<div class="plan[^"]*">\s*(?:<div class="plan-badge">[^<]*</div>\s*)?<div class="plan-name">{name}</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly=")\d+(" data-annual=")\d+(">)\d+(</span>)'
+        replacement = rf'\g<1>{monthly}\g<2>{annual}\g<3>{monthly}\g<4>'
+        c = re.sub(plan_pattern, replacement, c, flags=re.DOTALL)
+
+        # Update calls per month for this plan
+        # Find plan name then update calls within next 500 chars
+        idx = c.find(f'<div class="plan-name">{name}</div>')
+        if idx != -1:
+            section = c[idx:idx+600]
+            new_section = re.sub(r'(\d[\d,]*) calls per month', f'{calls_str} calls per month', section, count=1)
+            c = c[:idx] + new_section + c[idx+600:]
+
     if c == orig: return False
     with open(fp,'w',encoding='utf-8') as f: f.write(c)
     return True
