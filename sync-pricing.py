@@ -2,7 +2,7 @@
 import os, re, json, sys, time, argparse
 
 PUBLIC_DIR = '/var/www/vhosts/airingdesk.com/httpdocs/public'
-SKIP_PATHS = ['dashboard','admin','index.html','index.html.bak','index.html.bak2','index.html.bak3','locations','industries']
+SKIP_PATHS = ['dashboard','admin','index.html','index.html.bak','index.html.bak2','index.html.bak3','locations','industries','about.html','contact.html','privacy.html','support.html','terms.html','intellectual-property.html']
 
 def load_plans(p):
     with open(p) as f: return json.load(f)
