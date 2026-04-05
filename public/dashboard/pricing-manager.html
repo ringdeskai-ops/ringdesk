@@ -152,6 +152,133 @@ body{background:var(--black);color:var(--text);font-family:var(--font-body);line
     </button>
   </div>
 
+
+  <!-- HOW THIS WORKS GUIDE -->
+  <div style="margin-bottom:28px">
+    <button onclick="toggleGuide()" id="guideToggleBtn" style="display:flex;align-items:center;justify-content:space-between;width:100%;background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid rgba(0,212,255,.12);border-radius:14px;padding:16px 20px;cursor:pointer;font-family:var(--font-body);text-align:left;transition:all .2s" onmouseover="this.style.borderColor='rgba(0,212,255,.25)'" onmouseout="this.style.borderColor='rgba(0,212,255,.12)'">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div style="width:30px;height:30px;border-radius:8px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        </div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--text)">How this works — Admin Guide</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:1px">Everything you need to know about managing pricing</div>
+        </div>
+      </div>
+      <svg id="guideChevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5a7a9a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+
+    <div id="guideContent" style="display:none;background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid rgba(0,212,255,.12);border-top:none;border-radius:0 0 14px 14px;padding:0 20px 20px">
+
+      <!-- Quick overview -->
+      <div style="background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.1);border-radius:10px;padding:14px 16px;margin-bottom:20px">
+        <div style="font-size:12px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Quick Overview</div>
+        <div style="font-size:13px;color:var(--muted);line-height:1.7">
+          The Pricing Manager is the <strong style="color:var(--text)">single source of truth</strong> for all plan data across AiRingDesk.
+          When you edit a plan and click <strong style="color:var(--text)">Sync to all pages</strong>, your changes update all 2,565 static location pages,
+          purge the Cloudflare cache, and go live within seconds. The homepage pricing section is the master template — location pages mirror it exactly.
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+
+        <!-- Plan fields -->
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">Plan Fields Explained</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0;margin-top:6px"></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--text)">Plan Name</div><div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">Shown on all pricing cards, billing pages, and invoices. Keep it short — Essential, Starter, Professional, Business.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0;margin-top:6px"></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--text)">Monthly Price (£)</div><div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">The price shown on pricing cards and charged monthly via GoCardless Direct Debit. Excludes VAT — VAT is added at checkout.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0;margin-top:6px"></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--text)">Annual Price (£/mo)</div><div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">Shown when annual billing is selected. Formula: <strong style="color:var(--text)">Monthly × 10 ÷ 12</strong> = ~2 months free. Example: £29 × 10 ÷ 12 = £24.17 → round to £24.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0;margin-top:6px"></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--text)">Call Limit / Month</div><div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">Maximum AI calls per client per month on this plan. When a client hits the limit, Aria politely directs callers to voicemail. Resets on billing date.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--cyan);flex-shrink:0;margin-top:6px"></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--text)">Features List</div><div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">One feature per line. These appear as bullet points on pricing cards. Start higher plans with "Everything in [previous plan]" to show value stacking.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;margin-top:6px"></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--text)">Most Popular badge</div><div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">Only one plan should have this. It adds a cyan border and "MOST POPULAR" badge on the card — draws attention to your target plan. Currently: Professional.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sync + access -->
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">Syncing & Access Control</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:6px"></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--text)">Sync to all pages</div><div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">Updates all 2,565 static location and industry pages with current plan data. Also purges the Cloudflare cache so visitors see the new prices immediately. Takes ~30 seconds. Always sync after editing plans.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:6px"></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--text)">Sync History</div><div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">Every sync is logged with timestamp, who triggered it, pages updated, duration, and error count. Use this as an audit trail.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:6px"></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--text)">Admin Access toggle</div><div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">Super admin only. Grants or revokes pricing edit access for each admin account. Admins without access can view pricing but cannot edit or sync. Toggle is instant.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--amber);flex-shrink:0;margin-top:6px"></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--text)">Update existing clients checkbox</div><div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">When ticked, changing a plan's call limit also updates the call_limit field for all current clients on that plan in the database. Leave unticked to only affect new signups. Reversible by changing the limit back.</div></div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start">
+              <div style="width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:6px"></div>
+              <div><div style="font-size:13px;font-weight:600;color:var(--text)">Important: Homepage is NOT auto-synced</div><div style="font-size:12px;color:var(--muted);margin-top:2px;line-height:1.5">The homepage (index.html) is the master template and is never overwritten by the sync script. Edit the homepage pricing section manually, then run sync to push those values to all other pages.</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Annual pricing calc -->
+        <div style="grid-column:1/-1">
+          <div style="font-size:12px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">Annual Pricing — 2 Months Free Formula</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+            <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Essential</div>
+              <div style="font-size:13px;color:var(--text);font-weight:600">£29 × 10 ÷ 12</div>
+              <div style="font-size:18px;font-weight:800;color:var(--cyan);margin:4px 0">£24<span style="font-size:12px;font-weight:400;color:var(--muted)">/mo</span></div>
+              <div style="font-size:11px;color:var(--green)">Save £60/year</div>
+            </div>
+            <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Starter</div>
+              <div style="font-size:13px;color:var(--text);font-weight:600">£49 × 10 ÷ 12</div>
+              <div style="font-size:18px;font-weight:800;color:var(--cyan);margin:4px 0">£41<span style="font-size:12px;font-weight:400;color:var(--muted)">/mo</span></div>
+              <div style="font-size:11px;color:var(--green)">Save £96/year</div>
+            </div>
+            <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Professional</div>
+              <div style="font-size:13px;color:var(--text);font-weight:600">£149 × 10 ÷ 12</div>
+              <div style="font-size:18px;font-weight:800;color:var(--cyan);margin:4px 0">£124<span style="font-size:12px;font-weight:400;color:var(--muted)">/mo</span></div>
+              <div style="font-size:11px;color:var(--green)">Save £300/year</div>
+            </div>
+            <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center">
+              <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Business</div>
+              <div style="font-size:13px;color:var(--text);font-weight:600">£349 × 10 ÷ 12</div>
+              <div style="font-size:18px;font-weight:800;color:var(--cyan);margin:4px 0">£291<span style="font-size:12px;font-weight:400;color:var(--muted)">/mo</span></div>
+              <div style="font-size:11px;color:var(--green)">Save £696/year</div>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--dim);margin-top:10px;line-height:1.6">
+            Formula: <strong style="color:var(--muted)">Annual monthly rate = Monthly price × 10 ÷ 12</strong> (rounded down to nearest £1). 
+            This gives exactly 2 months free. When you change a monthly price, recalculate the annual price using this formula and update both fields.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <div class="access-denied" id="accessDenied">Pricing edit access not enabled — contact your super admin.</div>
 
   <div id="adminSection" style="display:none;margin-bottom:24px">
@@ -252,6 +379,14 @@ body{background:var(--black);color:var(--text);font-family:var(--font-body);line
 </div>
 
 <script>
+
+function toggleGuide(){
+  const c=document.getElementById('guideContent');
+  const ch=document.getElementById('guideChevron');
+  const open=c.style.display==='none';
+  c.style.display=open?'block':'none';
+  ch.style.transform=open?'rotate(180deg)':'';
+}
 const TOKEN=localStorage.getItem('rd_token');
 const USER=(function(){try{return JSON.parse(localStorage.getItem('rd_user')||'null');}catch{return null;}})();
 if(!TOKEN||!USER||!['admin','superadmin'].includes(USER.role)){window.location.href='/dashboard';}
