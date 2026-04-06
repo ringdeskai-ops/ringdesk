@@ -2288,7 +2288,7 @@ app.get('/api/admin/gsc/data', authRequired, async (req, res) => {
     });
 
     const searchconsole = google.searchconsole({ version: 'v1', auth: oauth2Client });
-    const siteUrl = 'https://airingdesk.com/';
+    const siteUrl = 'sc-domain:airingdesk.com';
 
     // Date range — last 3 months
     const endDate   = new Date().toISOString().split('T')[0];
