@@ -701,6 +701,18 @@ app.post("/api/auth/login", async (req, res) => {
     process.env.JWT_SECRET,
     { expiresIn }
   );
+  // Track dashboard login
+  try {
+    const loginIp = (req.headers['x-forwarded-for'] || req.connection.remoteAddress || '').split(',')[0].trim();
+    const loginNow = Math.floor(Date.now() / 1000);
+    const ua = req.headers['user-agent'] || '';
+    const browser = ua.includes('Chrome') ? 'Chrome' : ua.includes('Firefox') ? 'Firefox' : ua.includes('Safari') ? 'Safari' : ua.includes('Edge') ? 'Edge' : 'Other';
+    const device = ua.includes('Mobile') ? 'Mobile' : ua.includes('Tablet') ? 'Tablet' : 'Desktop';
+    db.prepare(`INSERT INTO visitor_logs (ip, page, referrer, user_agent, browser, device, country, country_code, city, region, visited_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+      .run(loginIp, '/dashboard-login:' + client.email + ':' + client.business_name, client.plan, ua, browser, device, 'Dashboard', 'DB', client.business_name, client.role, loginNow);
+  } catch(e) { console.error('Login tracking error:', e.message); }
+
   res.json({ token, client: { id: client.id, business_name: client.business_name, email: client.email, plan: client.plan, phone_number: client.phone_number }, expires_in: expiresIn });
 });
 
@@ -5196,8 +5208,8 @@ app.get('/api/admin/analytics', (req, res) => {
   const monthTotal = db.prepare("SELECT COUNT(*) as count FROM visitor_logs WHERE visited_at > ?").get(monthStart);
   const monthUnique = db.prepare("SELECT COUNT(DISTINCT ip) as count FROM visitor_logs WHERE visited_at > ?").get(monthStart);
 
-  // Top pages today
-  const topPages = db.prepare("SELECT page, COUNT(*) as views FROM visitor_logs WHERE visited_at > ? GROUP BY page ORDER BY views DESC LIMIT 10").all(todayStart);
+  // Top pages today (exclude dashboard logins)
+  const topPages = db.prepare("SELECT page, COUNT(*) as views FROM visitor_logs WHERE visited_at > ? AND page NOT LIKE '/dashboard-login%' GROUP BY page ORDER BY views DESC LIMIT 10").all(todayStart);
 
   // Top countries
   const topCountries = db.prepare("SELECT country, country_code, COUNT(*) as visits FROM visitor_logs WHERE visited_at > ? GROUP BY country ORDER BY visits DESC LIMIT 10").all(monthStart);
@@ -5217,6 +5229,37 @@ app.get('/api/admin/analytics', (req, res) => {
   // Traffic sources
   const sources = db.prepare("SELECT CASE WHEN referrer = '' OR referrer IS NULL THEN 'Direct' WHEN referrer LIKE '%google%' THEN 'Google' WHEN referrer LIKE '%bing%' THEN 'Bing' WHEN referrer LIKE '%facebook%' THEN 'Facebook' WHEN referrer LIKE '%twitter%' OR referrer LIKE '%x.com%' THEN 'Twitter/X' WHEN referrer LIKE '%linkedin%' THEN 'LinkedIn' ELSE 'Other' END as source, COUNT(*) as visits FROM visitor_logs WHERE visited_at > ? GROUP BY source ORDER BY visits DESC").all(monthStart);
 
+  // Customer dashboard logins
+  const customerLogins = db.prepare(`
+    SELECT 
+      page,
+      ip,
+      browser,
+      device,
+      visited_at
+    FROM visitor_logs 
+    WHERE page LIKE '/dashboard-login:%'
+    ORDER BY visited_at DESC 
+    LIMIT 50
+  `).all().map(row => {
+    const parts = row.page.replace('/dashboard-login:', '').split(':');
+    return {
+      email: parts[0] || '',
+      business_name: parts[1] || '',
+      ip: row.ip,
+      browser: row.browser,
+      device: row.device,
+      visited_at: row.visited_at
+    };
+  });
+
+  // Unique customer logins this month
+  const uniqueCustomerLogins = db.prepare(`
+    SELECT COUNT(DISTINCT ip) as count 
+    FROM visitor_logs 
+    WHERE page LIKE '/dashboard-login:%' AND visited_at > ?
+  `).get(monthStart);
+
   // Recent visitors
   const recentVisitors = db.prepare("SELECT ip, country, country_code, city, region, page, device, browser, os, referrer, visited_at FROM visitor_logs ORDER BY visited_at DESC LIMIT 100").all();
 
@@ -5225,7 +5268,8 @@ app.get('/api/admin/analytics', (req, res) => {
     today: { total: todayTotal.count, unique: todayUnique.count },
     week: { total: weekTotal.count, unique: weekUnique.count },
     month: { total: monthTotal.count, unique: monthUnique.count },
-    topPages, topCountries, topCities, devices, browsers, hourly, sources, recentVisitors
+    topPages, topCountries, topCities, devices, browsers, hourly, sources, recentVisitors,
+    customerLogins, uniqueCustomerLogins
   });
 });
 

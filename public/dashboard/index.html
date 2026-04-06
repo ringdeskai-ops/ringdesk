@@ -3452,6 +3452,17 @@ Dedicated account manager</textarea></div>
       </div>
 
       <!-- Recent Visitors Table -->
+      <!-- Customer Dashboard Logins -->
+      <div style="background:var(--surface);border:1px solid rgba(0,212,255,.15);border-radius:14px;overflow:hidden;margin-bottom:16px">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+          <div style="font-size:14px;font-weight:700">🔐 Customer Dashboard Logins</div>
+          <div id="uniqueLoginCount" style="font-size:12px;color:var(--cyan);font-weight:700"></div>
+        </div>
+        <div id="customerLoginsTable" style="overflow-x:auto;max-height:350px;overflow-y:auto">
+          <div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">Loading...</div>
+        </div>
+      </div>
+
       <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
         <div style="padding:16px 20px;border-bottom:1px solid var(--border);font-size:14px;font-weight:700">👥 Recent Visitors</div>
         <div id="recentVisitorsTable" style="overflow-x:auto;max-height:400px;overflow-y:auto">
@@ -6538,6 +6549,39 @@ function renderAnalytics(data) {
   }
 
   // Recent Visitors Table
+  // Customer logins table
+  var loginCountEl = document.getElementById('uniqueLoginCount');
+  if (loginCountEl && data.uniqueCustomerLogins) {
+    loginCountEl.textContent = data.uniqueCustomerLogins.count + ' unique this month';
+  }
+  var customerLoginsTable = document.getElementById('customerLoginsTable');
+  if (customerLoginsTable) {
+    if (!data.customerLogins || data.customerLogins.length === 0) {
+      customerLoginsTable.innerHTML = '<div style="text-align:center;color:var(--muted);padding:30px;font-size:13px">No customer logins recorded yet</div>';
+    } else {
+      customerLoginsTable.innerHTML = '<table style="width:100%;border-collapse:collapse;font-size:12px">'
+        + '<thead><tr style="background:var(--surface2)">'
+        + '<th style="padding:10px 16px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase">Business</th>'
+        + '<th style="padding:10px 16px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase">Email</th>'
+        + '<th style="padding:10px 16px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase">IP Address</th>'
+        + '<th style="padding:10px 16px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase">Device</th>'
+        + '<th style="padding:10px 16px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase">Browser</th>'
+        + '<th style="padding:10px 16px;text-align:left;color:var(--muted);font-weight:600;font-size:11px;text-transform:uppercase">Time</th>'
+        + '</tr></thead><tbody>'
+        + data.customerLogins.map(function(l) {
+          return '<tr style="border-top:1px solid var(--border)">'
+            + '<td style="padding:10px 16px;color:var(--cyan);font-weight:600">' + (l.business_name || '—') + '</td>'
+            + '<td style="padding:10px 16px;color:var(--muted)">' + (l.email || '—') + '</td>'
+            + '<td style="padding:10px 16px;color:var(--text);font-family:monospace">' + (l.ip || '—') + '</td>'
+            + '<td style="padding:10px 16px;color:var(--muted)">' + (l.device || '—') + '</td>'
+            + '<td style="padding:10px 16px;color:var(--muted)">' + (l.browser || '—') + '</td>'
+            + '<td style="padding:10px 16px;color:var(--dim);font-size:11px">' + (l.visited_at ? new Date(l.visited_at*1000).toLocaleString('en-GB') : '—') + '</td>'
+            + '</tr>';
+        }).join('')
+        + '</tbody></table>';
+    }
+  }
+
   var recentTable = document.getElementById('recentVisitorsTable');
   if (!data.recentVisitors || data.recentVisitors.length === 0) {
     recentTable.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;font-size:13px">No visitors yet — visit your website to start tracking!</div>';
