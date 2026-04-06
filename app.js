@@ -646,7 +646,7 @@ app.post("/api/auth/register", async (req, res) => {
   const defaultPrompt = `You are ${business_name}'s AI receptionist. Be professional, warm, and helpful.
 Answer general enquiries, take messages, and transfer to the right team when needed.
 Keep responses under 40 words — this is a phone call.
-If the caller wants to leave a voicemail or message, or if no one is available, reply with exactly [VOICEMAIL] to transfer them to voicemail.
+If the caller EXPLICITLY asks to leave a voicemail or says they want to leave a message, reply with exactly [VOICEMAIL] to transfer them to voicemail. Do NOT send to voicemail just because the caller says "hello" or seems confused — keep trying to help them first.
 If the caller wants to book an appointment, collect their name, preferred date and time only. Then reply with [BOOK:name|YYYY-MM-DD|HH:MM|none] e.g. [BOOK:John Smith|2026-03-26|14:00|none]. Ask one question at a time. Confirm each answer before moving to next.`;
 
   try {
@@ -1309,7 +1309,11 @@ RULES:
 - No markdown, no bullet points, no special characters.
 - Be warm, professional, and concise.
 - Callers may have non-English names or accents. Accept ANY name as given — never ask them to repeat or spell it unless completely inaudible. If unsure, use the closest phonetic version and move on.
+- NEVER assume or guess the caller's name. Only use a name after the caller has explicitly told you their name in this conversation.
+- If the caller just says "Hello?" or seems to not hear you, respond warmly and ask them to go ahead — do NOT send them to voicemail.
+- Only use [VOICEMAIL] when the caller explicitly asks for it.
 - NEVER ask for information you already have. If you know the caller's name, use it.
+- Always ask for the caller's name first before phone number and address.
 - If the caller gives their name and it sounds unusual, still accept it and move on immediately.${callerContext}
 
 TRANSFER RULES — append [TRANSFER:dept] at end of reply when:
@@ -1484,9 +1488,8 @@ app.post("/voice/incoming", async (req, res) => {
     console.log(`[Deepgram] Stream URL: ${streamUrl} for call ${CallSid}`);
     const start = twiml.start();
     start.stream({ url: streamUrl, track: 'inbound_track' });
-    // Keep call alive while streaming
-    twiml.pause({ length: 60 });
-    twiml.redirect('/voice/incoming');
+    // Keep call alive for up to 10 minutes — WebSocket handler manages conversation
+    twiml.pause({ length: 600 });
   } else {
     // Twilio STT flow (existing — unchanged)
     console.log(`[STT] Using Twilio for call ${CallSid}`);
@@ -1728,8 +1731,21 @@ async function triggerPostCallSMS(client, callerNumber, callType, callerName, su
 // ── Voicemail recording route ─────────────────────────────────────────────────
 app.post("/voice/voicemail", (req, res) => {
   const { CallSid, To } = req.body;
+  console.log(`[Voicemail] Hit /voice/voicemail — CallSid: ${CallSid}, To: ${To}, body keys: ${Object.keys(req.body).join(',')}`);
   const twiml = new VoiceResponse();
-  twiml.say({ voice: 'Google.en-GB-Neural2-C' }, "Please leave your message after the tone. Press any key or hang up when done.");
+
+  // Look up client voice if possible
+  let vmVoice = 'Google.en-GB-Neural2-C';
+  let vmLang = 'en-GB';
+  if (To) {
+    const vmClient = db.prepare("SELECT ai_voice, ai_voice_language FROM clients WHERE phone_number = ?").get(To);
+    if (vmClient) {
+      vmVoice = vmClient.ai_voice || vmVoice;
+      vmLang = vmClient.ai_voice_language || vmLang;
+    }
+  }
+
+  twiml.say({ voice: vmVoice, language: vmLang }, "Please leave your message after the tone. Press star or hang up when done.");
   twiml.record({
     action: '/voice/voicemail-done',
     method: 'POST',
@@ -1739,7 +1755,7 @@ app.post("/voice/voicemail", (req, res) => {
     recordingStatusCallback: '/voice/voicemail-done',
     recordingStatusCallbackMethod: 'POST'
   });
-  twiml.say({ voice: 'Google.en-GB-Neural2-C' }, "Thank you for your message. Goodbye.");
+  twiml.say({ voice: vmVoice, language: vmLang }, "Thank you for your message. Goodbye.");
   twiml.hangup();
   res.type("text/xml").send(twiml.toString());
 });
@@ -5953,7 +5969,7 @@ wss.on('connection', (ws) => {
   let silenceTimer = null;
   let processingReply = false;
 
-  const SILENCE_MS = 800; // wait 0.8s of silence before processing
+  const SILENCE_MS = 600; // wait 0.6s of silence before processing
 
   function resetSilenceTimer() {
     if (silenceTimer) clearTimeout(silenceTimer);
@@ -5975,14 +5991,17 @@ wss.on('connection', (ws) => {
           timeoutPromise
         ]);
 
-        console.log(`[Deepgram] Claude reply for ${callSid}: "${reply}"`);
+        // Clean reply — strip all special tags first
+        const hasVoicemail = reply.includes('[VOICEMAIL]');
+        const cleanReply = reply.replace('[VOICEMAIL]', '').replace(/\[CALLERDATA:[^\]]+\]/g, '').replace(/\[TRANSFER:\w+\]/g, '').trim();
+        console.log(`[Deepgram] Claude reply for ${callSid}: "${cleanReply}"${hasVoicemail ? ' [→VOICEMAIL]' : ''}${transferDept ? ' [→TRANSFER:'+transferDept+']' : ''}`);
 
-        // Save transcript to call_sessions history so end-of-call email has content
+        // Save transcript history
         try {
           const currentSession = db.prepare("SELECT history FROM call_sessions WHERE call_sid = ?").get(callSid);
           let hist = JSON.parse(currentSession?.history || '[]');
           hist.push({ role: 'user', content: spokenText });
-          hist.push({ role: 'assistant', content: reply.replace('[VOICEMAIL]','').replace(/\[TRANSFER:\w+\]/g,'').trim() });
+          hist.push({ role: 'assistant', content: cleanReply });
           db.prepare("UPDATE call_sessions SET history = ? WHERE call_sid = ?")
             .run(JSON.stringify(hist), callSid);
         } catch(e) { console.error('[Deepgram] History save error:', e.message); }
@@ -5990,6 +6009,23 @@ wss.on('connection', (ws) => {
         // Use Twilio REST API to inject TwiML back into the live call
         const voice = clientRecord.ai_voice || 'Google.en-GB-Neural2-C';
         const lang = clientRecord.ai_voice_language || 'en-GB';
+
+        // Handle voicemail redirect
+        if (hasVoicemail) {
+          const vmSpeak = cleanReply || 'Please hold while I transfer you to voicemail.';
+          // Build full voicemail TwiML inline — avoids body loss on redirect
+          const twimlVm = `<Response><Say voice="${voice}" language="${lang}">${vmSpeak}</Say><Say voice="${voice}" language="${lang}">Please leave your message after the tone. Press star or hang up when done.</Say><Record action="/voice/voicemail-done" method="POST" maxLength="120" finishOnKey="*" playBeep="true" recordingStatusCallback="/voice/voicemail-done" recordingStatusCallbackMethod="POST"/><Say voice="${voice}" language="${lang}">Thank you for your message. Goodbye.</Say><Hangup/></Response>`;
+          await twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+            .calls(callSid).update({ twiml: twimlVm });
+          // Mark call as voicemail in DB
+          db.prepare("UPDATE calls SET status = 'voicemail' WHERE call_sid = ?").run(callSid);
+          console.log(`[Deepgram] Voicemail started for ${callSid}`);
+          // Close Deepgram connection so it stops transcribing the voicemail recording
+          if (dgConnection) { try { dgConnection.close(); } catch(e) {} dgConnection = null; }
+          if (silenceTimer) { clearTimeout(silenceTimer); silenceTimer = null; }
+          processingReply = false;
+          return;
+        }
 
         // Refresh client record to get latest departments
         const freshClient = db.prepare("SELECT * FROM clients WHERE id = ?").get(clientRecord.id);
@@ -6003,7 +6039,6 @@ wss.on('connection', (ws) => {
           if (transferNum && transferNum !== callerNum) {
             twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${cleanReply}</Say><Dial action="/voice/transfer" method="POST">${transferNum}</Dial></Response>`;
           } else {
-            // No valid transfer number — tell caller politely
             const busyReply = cleanReply + " All our team are currently busy. Someone will call you back shortly.";
             twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${busyReply}</Say><Pause length="60"/></Response>`;
           }
@@ -6044,7 +6079,7 @@ wss.on('connection', (ws) => {
         }
 
         // Connect to Deepgram via raw WebSocket
-        const dgUrl = `wss://api.deepgram.com/v1/listen?model=nova-2&language=en&encoding=mulaw&sample_rate=8000&channels=1&punctuate=true&interim_results=true&endpointing=500&smart_format=true&no_delay=true&utterance_end_ms=1500`;
+        const dgUrl = `wss://api.deepgram.com/v1/listen?model=nova-2&language=en&encoding=mulaw&sample_rate=8000&channels=1&punctuate=true&interim_results=true&endpointing=300&smart_format=true&no_delay=true&utterance_end_ms=1000`;
         dgConnection = new WebSocket(dgUrl, { headers: { Authorization: `Token ${process.env.DEEPGRAM_API_KEY}` } });
 
         dgConnection.on('open', () => console.log(`[Deepgram] Connected to Deepgram for ${callSid}`));
