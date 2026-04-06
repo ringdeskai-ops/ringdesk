@@ -2344,6 +2344,175 @@ app.post('/api/admin/gsc/disconnect', authRequired, (req, res) => {
   res.json({ success: true });
 });
 
+
+// ── Google Analytics 4 Integration ────────────────────────────────────────────
+function getGA4OAuthClient() {
+  return new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.DASHBOARD_URL + '/auth/ga4/callback'
+  );
+}
+
+// Step 1: Start GA4 OAuth
+app.get('/auth/ga4', async (req, res) => {
+  const token = req.query.token || req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No token' });
+  try {
+    const jwt = require('jsonwebtoken');
+    req.client = jwt.verify(token, process.env.JWT_SECRET);
+  } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  const oauth2Client = getGA4OAuthClient();
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    prompt: 'consent',
+    scope: ['https://www.googleapis.com/auth/analytics.readonly'],
+    state: req.client.id
+  });
+  res.redirect(url);
+});
+
+// Step 2: GA4 OAuth callback — save tokens
+app.get('/auth/ga4/callback', async (req, res) => {
+  const { code } = req.query;
+  if (!code) return res.redirect('/dashboard?error=ga4_auth_failed');
+  try {
+    const oauth2Client = getGA4OAuthClient();
+    const { tokens } = await oauth2Client.getToken(code);
+    const now = Date.now();
+    db.prepare("INSERT OR REPLACE INTO system_settings (key, value, updated_at) VALUES (?, ?, ?)")
+      .run('ga4_access_token', tokens.access_token, now);
+    db.prepare("INSERT OR REPLACE INTO system_settings (key, value, updated_at) VALUES (?, ?, ?)")
+      .run('ga4_refresh_token', tokens.refresh_token || '', now);
+    db.prepare("INSERT OR REPLACE INTO system_settings (key, value, updated_at) VALUES (?, ?, ?)")
+      .run('ga4_connected', '1', now);
+    console.log('✅ Google Analytics 4 connected');
+    res.redirect('/dashboard?ga4=connected');
+  } catch(err) {
+    console.error('GA4 auth error:', err.message);
+    res.redirect('/dashboard?error=ga4_auth_failed');
+  }
+});
+
+// Step 3: GA4 data endpoint
+app.get('/api/admin/ga4/data', authRequired, async (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  try {
+    const connected = db.prepare("SELECT value FROM system_settings WHERE key='ga4_connected'").get();
+    if (!connected || connected.value !== '1') return res.json({ connected: false });
+
+    const accessToken  = db.prepare("SELECT value FROM system_settings WHERE key='ga4_access_token'").get();
+    const refreshToken = db.prepare("SELECT value FROM system_settings WHERE key='ga4_refresh_token'").get();
+
+    const oauth2Client = getGA4OAuthClient();
+    oauth2Client.setCredentials({
+      access_token:  accessToken?.value,
+      refresh_token: refreshToken?.value
+    });
+
+    // Auto-refresh token
+    oauth2Client.on('tokens', (tokens) => {
+      if (tokens.access_token) {
+        db.prepare("INSERT OR REPLACE INTO system_settings (key, value, updated_at) VALUES (?, ?, ?)")
+          .run('ga4_access_token', tokens.access_token, Date.now());
+      }
+    });
+
+    const { BetaAnalyticsDataClient } = require('@google-analytics/data');
+    const analyticsClient = new BetaAnalyticsDataClient({ authClient: oauth2Client });
+    const propertyId = '531478597';
+
+    const endDate   = 'today';
+    const startDate = '90daysAgo';
+
+    const [overviewRes, pagesRes, sourcesRes, realtimeRes] = await Promise.allSettled([
+      // Sessions & users overview
+      analyticsClient.runReport({
+        property: `properties/${propertyId}`,
+        dateRanges: [{ startDate, endDate }],
+        metrics: [
+          { name: 'sessions' },
+          { name: 'totalUsers' },
+          { name: 'newUsers' },
+          { name: 'bounceRate' },
+          { name: 'averageSessionDuration' }
+        ]
+      }),
+      // Top pages
+      analyticsClient.runReport({
+        property: `properties/${propertyId}`,
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'pagePath' }],
+        metrics: [{ name: 'screenPageViews' }, { name: 'totalUsers' }],
+        orderBys: [{ metric: { metricName: 'screenPageViews' }, desc: true }],
+        limit: 10
+      }),
+      // Traffic sources
+      analyticsClient.runReport({
+        property: `properties/${propertyId}`,
+        dateRanges: [{ startDate, endDate }],
+        dimensions: [{ name: 'sessionDefaultChannelGroup' }],
+        metrics: [{ name: 'sessions' }, { name: 'totalUsers' }],
+        orderBys: [{ metric: { metricName: 'sessions' }, desc: true }],
+        limit: 8
+      }),
+      // Realtime active users
+      analyticsClient.runRealtimeReport({
+        property: `properties/${propertyId}`,
+        metrics: [{ name: 'activeUsers' }]
+      })
+    ]);
+
+    const parseRows = (res) => {
+      if (res.status !== 'fulfilled' || !res.value[0]?.rows) return [];
+      return res.value[0].rows.map(row => ({
+        dimensions: row.dimensionValues?.map(d => d.value) || [],
+        metrics: row.metricValues?.map(m => m.value) || []
+      }));
+    };
+
+    const overviewRows = overviewRes.status === 'fulfilled' ? overviewRes.value[0] : null;
+    const overview = overviewRows?.rows?.[0] ? {
+      sessions:     overviewRows.rows[0].metricValues[0].value,
+      users:        overviewRows.rows[0].metricValues[1].value,
+      newUsers:     overviewRows.rows[0].metricValues[2].value,
+      bounceRate:   (parseFloat(overviewRows.rows[0].metricValues[3].value) * 100).toFixed(1),
+      avgDuration:  parseFloat(overviewRows.rows[0].metricValues[4].value).toFixed(0)
+    } : null;
+
+    const realtimeUsers = realtimeRes.status === 'fulfilled' 
+      ? (realtimeRes.value[0]?.rows?.[0]?.metricValues?.[0]?.value || '0') 
+      : '0';
+
+    res.json({
+      connected: true,
+      period: { startDate: '90 days ago', endDate: 'today' },
+      overview,
+      pages:   parseRows(pagesRes),
+      sources: parseRows(sourcesRes),
+      realtimeUsers
+    });
+  } catch(err) {
+    console.error('GA4 data error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GA4 status
+app.get('/api/admin/ga4/status', authRequired, (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  const connected = db.prepare("SELECT value FROM system_settings WHERE key='ga4_connected'").get();
+  res.json({ connected: connected?.value === '1' });
+});
+
+// GA4 disconnect
+app.post('/api/admin/ga4/disconnect', authRequired, (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  db.prepare("DELETE FROM system_settings WHERE key IN ('ga4_access_token','ga4_refresh_token','ga4_connected')").run();
+  res.json({ success: true });
+});
+
 // ── Delete customer (superadmin only) ─────────────────────────────────────────
 app.delete("/api/admin/customer/:id", authRequired, (req, res) => {
   if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });

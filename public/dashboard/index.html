@@ -3530,18 +3530,28 @@ Dedicated account manager</textarea></div>
       </div>
     </div>
     <div class="page" id="page-seo">
-      <div class="page-header" style="margin-bottom:24px">
+      <div class="page-header" style="margin-bottom:16px">
         <div>
-          <h1 class="page-title">SEO <em>Dashboard</em></h1>
-          <div class="page-sub" style="font-size:14px;color:var(--muted)">Google Search Console — last 3 months · airingdesk.com</div>
+          <h1 class="page-title">SEO & <em>Analytics</em></h1>
+          <div class="page-sub" style="font-size:14px;color:var(--muted)">Google Search Console & Google Analytics 4 · airingdesk.com</div>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
           <div id="gscStatusBadge"></div>
-          <button class="btn-sm btn-cyan-sm" id="gscConnectBtn" onclick="connectGSC()" style="display:none">Connect Google Search Console</button>
+          <div id="ga4StatusBadge"></div>
+          <button class="btn-sm btn-cyan-sm" id="gscConnectBtn" onclick="connectGSC()" style="display:none">Connect Search Console</button>
           <button class="btn-sm" id="gscDisconnectBtn" onclick="disconnectGSC()" style="display:none;background:rgba(255,68,102,.1);color:var(--red);border:1px solid rgba(255,68,102,.2)">Disconnect</button>
           <button class="btn-sm btn-ghost-sm" onclick="loadGSCData()" id="gscRefreshBtn" style="display:none">↻ Refresh</button>
         </div>
       </div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:4px;margin-bottom:24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px;width:fit-content">
+        <button id="tabSEO" onclick="switchSEOTab('seo')" style="padding:8px 20px;border-radius:9px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;background:rgba(0,212,255,.15);color:var(--cyan)">🔍 Search Console</button>
+        <button id="tabGA4" onclick="switchSEOTab('ga4')" style="padding:8px 20px;border-radius:9px;border:none;cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;background:transparent;color:var(--muted)">📊 Analytics</button>
+      </div>
+
+      <!-- SEO TAB -->
+      <div id="seoTab">
 
       <!-- Not connected state -->
       <div id="gscNotConnected" style="display:none;text-align:center;padding:60px 20px">
@@ -3617,7 +3627,77 @@ Dedicated account manager</textarea></div>
           </div>
         </div>
       </div>
-    </div>
+      </div><!-- end seoTab -->
+
+      <!-- GA4 TAB -->
+      <div id="ga4Tab" style="display:none">
+
+        <!-- Not connected -->
+        <div id="ga4NotConnected" style="display:none;text-align:center;padding:60px 20px">
+          <div style="width:64px;height:64px;border-radius:16px;background:rgba(0,232,122,.08);border:1px solid rgba(0,232,122,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:700;margin-bottom:8px">Connect Google Analytics 4</div>
+          <div style="font-size:14px;color:var(--muted);margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto">See sessions, users, top pages, traffic sources and real-time visitors.</div>
+          <button class="btn-sm btn-cyan-sm" onclick="connectGA4()" style="font-size:14px;padding:12px 28px">Connect Google Analytics 4 →</button>
+        </div>
+
+        <!-- Loading -->
+        <div id="ga4Loading" style="display:none;text-align:center;padding:60px 20px">
+          <div style="font-size:14px;color:var(--muted)">Loading Analytics data...</div>
+        </div>
+
+        <!-- Data -->
+        <div id="ga4Data" style="display:none">
+
+          <!-- Stats row -->
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+              <div style="font-size:28px;font-weight:800;color:var(--cyan)" id="ga4Sessions">-</div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Sessions</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+              <div style="font-size:28px;font-weight:800;color:var(--purple)" id="ga4Users">-</div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Users</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+              <div style="font-size:28px;font-weight:800;color:var(--green)" id="ga4NewUsers">-</div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">New Users</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+              <div style="font-size:28px;font-weight:800;color:var(--amber)" id="ga4BounceRate">-</div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Bounce Rate</div>
+            </div>
+            <div style="background:var(--surface);border:1px solid rgba(0,212,255,.2);border-radius:12px;padding:16px;text-align:center;position:relative">
+              <div style="font-size:28px;font-weight:800;color:var(--cyan)" id="ga4Realtime">-</div>
+              <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Live Now</div>
+              <div style="position:absolute;top:10px;right:10px;width:7px;height:7px;border-radius:50%;background:var(--green)" id="ga4LiveDot"></div>
+            </div>
+          </div>
+
+          <!-- Pages + Sources -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <!-- Top Pages -->
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px">
+              <div style="font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px">📄 Top Pages by Views</div>
+              <div style="display:grid;grid-template-columns:1fr auto auto;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:8px">
+                <div>Page</div><div style="text-align:right">Views</div><div style="text-align:right;padding-left:12px">Users</div>
+              </div>
+              <div id="ga4PagesTable"></div>
+            </div>
+            <!-- Traffic Sources -->
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px">
+              <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px">🌐 Traffic Sources</div>
+              <div style="display:grid;grid-template-columns:1fr auto auto;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:8px">
+                <div>Source</div><div style="text-align:right">Sessions</div><div style="text-align:right;padding-left:12px">Users</div>
+              </div>
+              <div id="ga4SourcesTable"></div>
+            </div>
+          </div>
+        </div>
+      </div><!-- end ga4Tab -->
+
+    </div><!-- end page-seo -->
   </main>
 
   <!-- Call detail panel -->
@@ -8164,6 +8244,122 @@ function renderHealthPricing(pricingData) {
         document.getElementById('gscNotConnected').style.display = 'block';
       }
     } catch(e) { console.error('GSC status error:', e); }
+  }
+
+
+  // ── GA4 Functions ──────────────────────────────────────────────────────────
+  function switchSEOTab(tab) {
+    const seoTab = document.getElementById('seoTab');
+    const ga4Tab = document.getElementById('ga4Tab');
+    const tabSEO = document.getElementById('tabSEO');
+    const tabGA4 = document.getElementById('tabGA4');
+    if (tab === 'seo') {
+      seoTab.style.display = 'block';
+      ga4Tab.style.display = 'none';
+      tabSEO.style.background = 'rgba(0,212,255,.15)';
+      tabSEO.style.color = 'var(--cyan)';
+      tabGA4.style.background = 'transparent';
+      tabGA4.style.color = 'var(--muted)';
+    } else {
+      seoTab.style.display = 'none';
+      ga4Tab.style.display = 'block';
+      tabSEO.style.background = 'transparent';
+      tabSEO.style.color = 'var(--muted)';
+      tabGA4.style.background = 'rgba(0,232,122,.15)';
+      tabGA4.style.color = 'var(--green)';
+      loadGA4Page();
+    }
+  }
+
+  function connectGA4() {
+    const token = localStorage.getItem('rd_token') || localStorage.getItem('ard_token') || authToken;
+    if (!token) { alert('Session error — please log out and log back in.'); return; }
+    window.location.href = '/auth/ga4?token=' + token;
+  }
+
+  async function disconnectGA4() {
+    if (!confirm('Disconnect Google Analytics 4?')) return;
+    const token = localStorage.getItem('rd_token') || localStorage.getItem('ard_token') || authToken;
+    await fetch('/api/admin/ga4/disconnect', { method:'POST', headers:{ Authorization:'Bearer '+token } });
+    loadGA4Page();
+  }
+
+  async function loadGA4Data() {
+    const token = localStorage.getItem('rd_token') || localStorage.getItem('ard_token') || authToken;
+    document.getElementById('ga4Loading').style.display = 'block';
+    document.getElementById('ga4Data').style.display = 'none';
+    try {
+      const r = await fetch('/api/admin/ga4/data', { headers:{ Authorization:'Bearer '+token } });
+      const d = await r.json();
+      document.getElementById('ga4Loading').style.display = 'none';
+      if (!d.connected) { loadGA4Page(); return; }
+      document.getElementById('ga4Data').style.display = 'block';
+
+      // Stats
+      if (d.overview) {
+        document.getElementById('ga4Sessions').textContent  = parseInt(d.overview.sessions).toLocaleString();
+        document.getElementById('ga4Users').textContent     = parseInt(d.overview.users).toLocaleString();
+        document.getElementById('ga4NewUsers').textContent  = parseInt(d.overview.newUsers).toLocaleString();
+        document.getElementById('ga4BounceRate').textContent = d.overview.bounceRate + '%';
+      } else {
+        ['ga4Sessions','ga4Users','ga4NewUsers','ga4BounceRate'].forEach(id => document.getElementById(id).textContent = '0');
+      }
+      document.getElementById('ga4Realtime').textContent = d.realtimeUsers || '0';
+
+      // Pages table
+      const pEl = document.getElementById('ga4PagesTable');
+      pEl.innerHTML = (d.pages||[]).length === 0 ? '<div style="font-size:13px;color:var(--muted);padding:12px 0">No data yet — check back after 24 hours</div>' :
+        (d.pages||[]).map(p => {
+          const slug = p.dimensions[0] || '/';
+          return `<div style="display:grid;grid-template-columns:1fr auto auto;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:12px;align-items:center">
+            <div style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px" title="${slug}">${slug}</div>
+            <div style="text-align:right;color:var(--purple);font-weight:700">${parseInt(p.metrics[0]).toLocaleString()}</div>
+            <div style="text-align:right;padding-left:12px;color:var(--muted)">${parseInt(p.metrics[1]).toLocaleString()}</div>
+          </div>`;
+        }).join('');
+
+      // Sources table
+      const sourceColors = { 'Organic Search':'var(--green)', 'Direct':'var(--cyan)', 'Referral':'var(--purple)', 'Organic Social':'var(--amber)', 'Email':'var(--red)' };
+      const sEl = document.getElementById('ga4SourcesTable');
+      sEl.innerHTML = (d.sources||[]).length === 0 ? '<div style="font-size:13px;color:var(--muted);padding:12px 0">No data yet — check back after 24 hours</div>' :
+        (d.sources||[]).map(s => {
+          const name = s.dimensions[0] || 'Unknown';
+          const color = sourceColors[name] || 'var(--muted)';
+          return `<div style="display:grid;grid-template-columns:1fr auto auto;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:12px;align-items:center">
+            <div style="color:${color};font-weight:600">${name}</div>
+            <div style="text-align:right;color:var(--green);font-weight:700">${parseInt(s.metrics[0]).toLocaleString()}</div>
+            <div style="text-align:right;padding-left:12px;color:var(--muted)">${parseInt(s.metrics[1]).toLocaleString()}</div>
+          </div>`;
+        }).join('');
+
+    } catch(err) {
+      document.getElementById('ga4Loading').style.display = 'none';
+      console.error('GA4 error:', err);
+    }
+  }
+
+  async function loadGA4Page() {
+    const token = localStorage.getItem('rd_token') || localStorage.getItem('ard_token') || authToken;
+    document.getElementById('ga4NotConnected').style.display = 'none';
+    document.getElementById('ga4Loading').style.display = 'none';
+    document.getElementById('ga4Data').style.display = 'none';
+    try {
+      const r = await fetch('/api/admin/ga4/status', { headers:{ Authorization:'Bearer '+token } });
+      const d = await r.json();
+      if (d.connected) {
+        document.getElementById('ga4StatusBadge').innerHTML = '<div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.2);font-size:11px;font-weight:700;color:var(--green)"><div style="width:6px;height:6px;border-radius:50%;background:var(--green)"></div>GA4 Connected</div>';
+        loadGA4Data();
+      } else {
+        document.getElementById('ga4StatusBadge').innerHTML = '';
+        document.getElementById('ga4NotConnected').style.display = 'block';
+      }
+    } catch(e) { console.error('GA4 status error:', e); }
+  }
+
+  // Handle GA4 connected redirect
+  if (window.location.search.includes('ga4=connected')) {
+    history.replaceState({}, '', '/dashboard');
+    setTimeout(() => { showPage('seo'); switchSEOTab('ga4'); }, 500);
   }
 
   // Handle GSC connected redirect
