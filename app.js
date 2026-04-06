@@ -6054,7 +6054,7 @@ wss.on('connection', (ws) => {
 
         // Clean reply — strip all special tags first
         const hasVoicemail = reply.includes('[VOICEMAIL]');
-        const cleanReply = reply.replace('[VOICEMAIL]', '').replace(/\[CALLERDATA:[^\]]+\]/g, '').replace(/\[TRANSFER:\w+\]/g, '').trim();
+        const cleanReply = reply.replace('[VOICEMAIL]', '').replace(/\[CALLERDATA:[^\]]+\]/g, '').replace(/\[TRANSFER:\w+\]/g, '').replace(/\[BOOK:[^\]]+\]/g, '').trim();
         console.log(`[Deepgram] Claude reply for ${callSid}: "${cleanReply}"${hasVoicemail ? ' [→VOICEMAIL]' : ''}${transferDept ? ' [→TRANSFER:'+transferDept+']' : ''}`);
 
         // Save transcript history
@@ -6072,12 +6072,13 @@ wss.on('connection', (ws) => {
         const lang = clientRecord.ai_voice_language || 'en-GB';
 
         // Handle appointment booking
-        const bookMatch = cleanReply.match(/\[BOOK:([^|\]]+)\|([^|\]]+)\|([^|\]]+)\|([^\]]+)\]/);
+        // Match BOOK tag from raw reply BEFORE stripping
+        const bookMatch = reply.match(/\[BOOK:([^|\]]+)\|([^|\]]+)\|([^|\]]+)\|([^\]]+)\]/);
         if (bookMatch) {
           handleBooking(bookMatch, clientRecord, callSid).catch(e => console.error('[Deepgram] Booking error:', e.message));
         }
-        // Strip BOOK tag from spoken reply
-        const spokenReply = cleanReply.replace(/\[BOOK:[^\]]+\]/g, '').trim();
+        // spokenReply is cleanReply (BOOK already stripped)
+        const spokenReply = cleanReply;
 
         // Handle voicemail redirect
         if (hasVoicemail) {
