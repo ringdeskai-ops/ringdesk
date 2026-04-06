@@ -1462,7 +1462,10 @@ app.post("/voice/incoming", async (req, res) => {
   const callId = uuidv4();
   const existingSession = db.prepare("SELECT call_sid FROM call_sessions WHERE call_sid = ?").get(CallSid);
   if (!existingSession) {
-    db.prepare("INSERT INTO call_sessions (call_sid, client_id) VALUES (?, ?)").run(CallSid, client.id);
+    const greetingHistory = JSON.stringify([
+      { role: 'assistant', content: `Thank you for calling ${client.business_name}. My name is ${client.ai_name || 'Aria'}, how can I help you today?` }
+    ]);
+    db.prepare("INSERT INTO call_sessions (call_sid, client_id, history) VALUES (?, ?, ?)").run(CallSid, client.id, greetingHistory);
     db.prepare("INSERT INTO calls (id, client_id, call_sid, caller_number) VALUES (?, ?, ?, ?)").run(callId, client.id, CallSid, From);
     db.prepare("UPDATE clients SET calls_this_month = calls_this_month + 1 WHERE id = ?").run(client.id);
 
@@ -6157,9 +6160,10 @@ wss.on('connection', (ws) => {
           'Priya','Kavitha','Lalitha','Meena','Nithya','Sathya','Geetha',
           'Mohammed','Muhammad','Ahmed','Hassan','Ibrahim','Hussain','Ali',
           'Patel','Shah','Khan','Singh','Sharma','Gupta','Mehta','Verma',
-          'SatFocus','Hikvision','Dahua','Texecom','Pyronix','Ajax'
+          'SatFocus','Hikvision','Dahua','Texecom','Pyronix','Ajax',
+          'Harrow','Balmoral','Wembley','Stanmore','Pinner','Ruislip','Uxbridge'
         ].map(k => `keyterm=${encodeURIComponent(k)}`).join('&');
-        const dgUrl = `wss://api.deepgram.com/v1/listen?model=nova-3&detect_language=true&encoding=mulaw&sample_rate=8000&channels=1&punctuate=true&interim_results=true&endpointing=300&smart_format=true&no_delay=true&utterance_end_ms=1000&${keyterms}`;
+        const dgUrl = `wss://api.deepgram.com/v1/listen?model=nova-3&language=en&encoding=mulaw&sample_rate=8000&channels=1&punctuate=true&interim_results=true&endpointing=300&smart_format=true&no_delay=true&utterance_end_ms=1000&${keyterms}`;
         dgConnection = new WebSocket(dgUrl, { headers: { Authorization: `Token ${process.env.DEEPGRAM_API_KEY}` } });
 
         dgConnection.on('open', () => console.log(`[Deepgram] Connected to Deepgram for ${callSid}`));
