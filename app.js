@@ -1080,13 +1080,20 @@ if (event.type === "customer.subscription.deleted") {
       console.log(`Payment failed for client ${sub.id}`);
       // Send payment failed email
       const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(sub.id);
-      if (client) sendBrevoEmail(client.email, 'Payment failed - Action required', `
-        <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:40px">
-          <h2>Payment failed for your AiRingDesk subscription</h2>
-          <p>We were unable to process your payment. Please update your payment details to continue using AiRingDesk.</p>
-          <a href="https://airingdesk.com/dashboard" style="display:inline-block;background:#00d4ff;color:#020408;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700">Update payment details →</a>
-        </div>
-      `).catch(e => console.error('Payment failed email error:', e.message));
+      if (client) sendBrevoEmail(client.email, '⚠️ Payment failed — action required', 
+        '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
+        + '<div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span><sup style="font-size:8px;color:#3d5470;vertical-align:super;margin-left:1px">®</sup></div></div>'
+        + '<div style="display:inline-block;background:rgba(255,68,102,.1);border:1px solid rgba(255,68,102,.3);border-radius:100px;padding:6px 16px;font-size:13px;font-weight:700;color:#ff4466;margin-bottom:16px">⚠️ Payment failed</div>'
+        + '<h2 style="font-size:20px;margin-bottom:8px">We could not process your payment</h2>'
+        + '<p style="color:#8896a8;line-height:1.7;margin-bottom:24px">Hi ' + client.business_name + ', we were unable to charge your card. Please update your payment details to keep your AI receptionist active.</p>'
+        + '<div style="background:#0d1117;border:1px solid rgba(255,68,102,.2);border-radius:12px;padding:20px;margin-bottom:24px">'
+        + '<p style="font-size:14px;margin-bottom:8px;color:#f0f4f8">&#8226; Your AI receptionist may stop answering calls</p>'
+        + '<p style="font-size:14px;margin-bottom:8px;color:#f0f4f8">&#8226; Stripe will retry the payment automatically</p>'
+        + '<p style="font-size:14px;color:#f0f4f8">&#8226; Update your card to avoid any interruption</p>'
+        + '</div>'
+        + '<a href="https://airingdesk.com/dashboard" style="display:block;text-align:center;background:#ff4466;color:#fff;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;margin-bottom:24px">Update payment details &rarr;</a>'
+        + '<p style="color:#3d4f63;font-size:12px;border-top:1px solid #1a2332;padding-top:16px">AiRingDesk &middot; hello@airingdesk.com</p></div>'
+      ).catch(e => console.error('Payment failed email error:', e.message));
     }
   }
 
@@ -1179,6 +1186,36 @@ if (event.type === "customer.subscription.updated") {
       db.prepare("UPDATE clients SET plan_status = ?, cancel_at_period_end = ? WHERE id = ?")
         .run(newStatus, subscription.cancel_at_period_end ? 1 : 0, sub.id);
       console.log(`Subscription updated for client ${sub.id}: ${subscription.status} | cancel_at_period_end: ${subscription.cancel_at_period_end}`);
+    }
+  }
+
+  // Handle refunds
+  if (event.type === "charge.refunded") {
+    const charge = event.data.object;
+    const customerId = charge.customer;
+    if (customerId) {
+      const client = db.prepare("SELECT * FROM clients WHERE stripe_customer_id = ?").get(customerId);
+      if (client) {
+        const refundAmount = (charge.amount_refunded / 100).toFixed(2);
+        const refundHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
+          + '<div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span><sup style="font-size:8px;color:#3d5470;vertical-align:super;margin-left:1px">®</sup></div></div>'
+          + '<div style="display:inline-block;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);border-radius:100px;padding:6px 16px;font-size:13px;font-weight:700;color:#00e87a;margin-bottom:16px">✅ Refund processed</div>'
+          + '<h2 style="font-size:20px;margin-bottom:8px">Your refund has been issued</h2>'
+          + '<p style="color:#8896a8;line-height:1.7;margin-bottom:24px">Hi ' + client.business_name + ', a refund of £' + refundAmount + ' has been issued to your original payment method. It may take 5-10 business days to appear on your statement.</p>'
+          + '<div style="background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:20px;margin-bottom:24px">'
+          + '<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a2332"><span style="color:#8896a8">Refund amount</span><strong style="color:#00e87a">£' + refundAmount + '</strong></div>'
+          + '<div style="display:flex;justify-content:space-between;padding:10px 0"><span style="color:#8896a8">Processing time</span><strong>5-10 business days</strong></div>'
+          + '</div>'
+          + '<a href="https://airingdesk.com/dashboard" style="display:block;text-align:center;background:#00d4ff;color:#020408;padding:14px 24px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px;margin-bottom:24px">Go to dashboard &rarr;</a>'
+          + '<p style="color:#3d4f63;font-size:12px;border-top:1px solid #1a2332;padding-top:16px">AiRingDesk &middot; hello@airingdesk.com</p></div>';
+        sendBrevoEmail(client.email, 'Refund confirmed — £' + refundAmount + ' from AiRingDesk', refundHtml)
+          .catch(e => console.error('Refund email error:', e.message));
+        // Notify admin
+        sendBrevoEmail(process.env.NOTIFY_EMAIL, '[AiRingDesk] Refund issued: £' + refundAmount + ' — ' + client.business_name,
+          '<p>Refund of £' + refundAmount + ' issued to ' + client.business_name + ' (' + client.email + ')</p>'
+        ).catch(e => console.error('Refund admin email error:', e.message));
+        console.log('Refund processed for:', client.email, '£' + refundAmount);
+      }
     }
   }
 
