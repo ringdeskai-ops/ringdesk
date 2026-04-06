@@ -1356,35 +1356,31 @@ function buildSystemPrompt(client, session) {
     }
   } catch(e) {}
 
-  return `${base}
+  const systemRules = `
 
-RULES:
-- Keep ALL responses under 40 words. This is a phone call.
-- No markdown, no bullet points, no special characters.
-- Be warm, professional, and concise.
-- Callers may have non-English names or accents. Accept ANY name as given — never ask them to repeat or spell it unless completely inaudible. If unsure, use the closest phonetic version and move on.
-- NEVER assume or guess the caller's name. Only use a name after the caller has explicitly told you their name in this conversation.
-- If the caller just says "Hello?" or seems to not hear you, respond warmly and ask them to go ahead — do NOT send them to voicemail.
-- Only use [VOICEMAIL] when the caller explicitly asks for it.
-- If the caller just says "Hello?" or seems to not hear you, respond warmly and ask them to go ahead — do NOT send them to voicemail.
-- Only use [VOICEMAIL] when the caller explicitly asks for it.
-- NEVER ask for information you already have. If you know the caller's name, use it.
-- Always ask for the caller's name first before phone number and address.
-- If the caller gives their name and it sounds unusual, still accept it and move on immediately.${callerContext}
+SYSTEM RULES (always apply):
+- Max 40 words per response. Phone call — be concise.
+- No markdown, bullets, or special characters.
+- Be warm, professional and natural.
+- Accept ANY caller name regardless of accent or origin. Never ask to repeat a name unless completely inaudible. Use closest phonetic version and move on.
+- NEVER guess or assume a caller's name. Only use it after they explicitly say it.
+- NEVER repeat questions or ask for info already given in this call.
+- Remember everything the caller said from the START of the call.
+- If caller says "Hello?" or seems confused, respond warmly — never send to voicemail for this.${callerContext}
 
-TRANSFER RULES — append [TRANSFER:dept] at end of reply when:
-- Caller asks for a human, real person, or agent
-- Caller requests sales, support, billing, or manager
-- Caller is upset or issue is too complex
+TRANSFER — append [TRANSFER:dept] when caller asks for human/agent/department.
 Departments: sales, support, billing, manager, general
-Example: "Let me connect you with our team. [TRANSFER:billing]"
 
-CALLER DATA EXTRACTION — when caller provides details, append to your reply:
-- Name given: [CALLERDATA:name:VALUE]
-- Phone given: [CALLERDATA:phone:VALUE]
-- Address given: [CALLERDATA:address:VALUE]
-- Email given: [CALLERDATA:email:VALUE]
-Example: "Got it, Thiru! [CALLERDATA:name:Thiru]"`;
+VOICEMAIL — append [VOICEMAIL] only when caller explicitly asks to leave a voicemail.
+
+CALLER DATA — append tags when caller provides info (stripped before speaking):
+[CALLERDATA:name:VALUE] [CALLERDATA:phone:VALUE] [CALLERDATA:address:VALUE] [CALLERDATA:email:VALUE]
+
+APPOINTMENTS — when caller wants to book: collect name, date, time one at a time. Then append:
+[BOOK:name|YYYY-MM-DD|HH:MM|none]
+Example reply: "Confirmed for Monday 10am, Thiru! [BOOK:Thiru|2026-04-07|10:00|none]"`;
+
+  return `${base}${systemRules}`;
 }
 
 async function askClaude(client, session, userMessage) {
@@ -6153,7 +6149,16 @@ wss.on('connection', (ws) => {
         }
 
         // Connect to Deepgram via raw WebSocket
-        const dgUrl = `wss://api.deepgram.com/v1/listen?model=nova-3&language=en&encoding=mulaw&sample_rate=8000&channels=1&punctuate=true&interim_results=true&endpointing=300&smart_format=true&no_delay=true&utterance_end_ms=1000`;
+        // Nova-3 keyterms boost recognition of South Asian and other names
+        const keyterms = [
+          'Thiru','Thirukannan','Thirunavukarasu','Telakanathan','Kumaran','Selvam',
+          'Rajan','Suresh','Ganesh','Ramesh','Vignesh','Dinesh','Mahesh','Naresh',
+          'Priya','Kavitha','Lalitha','Meena','Nithya','Sathya','Geetha',
+          'Mohammed','Muhammad','Ahmed','Hassan','Ibrahim','Hussain','Ali',
+          'Patel','Shah','Khan','Singh','Sharma','Gupta','Mehta','Verma',
+          'SatFocus','Hikvision','Dahua','Texecom','Pyronix','Ajax'
+        ].map(k => `keyterm=${encodeURIComponent(k)}`).join('&');
+        const dgUrl = `wss://api.deepgram.com/v1/listen?model=nova-3&language=en&encoding=mulaw&sample_rate=8000&channels=1&punctuate=true&interim_results=true&endpointing=300&smart_format=true&no_delay=true&utterance_end_ms=1000&${keyterms}`;
         dgConnection = new WebSocket(dgUrl, { headers: { Authorization: `Token ${process.env.DEEPGRAM_API_KEY}` } });
 
         dgConnection.on('open', () => console.log(`[Deepgram] Connected to Deepgram for ${callSid}`));
