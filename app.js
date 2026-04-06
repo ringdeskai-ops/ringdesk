@@ -1792,7 +1792,16 @@ app.post("/voice/status", async (req, res) => {
         max_tokens: 300,
         messages: [{
           role: 'user',
-          content: `Summarise this call clearly in plain text (no markdown, no asterisks). Include: caller name, reason for call, contact details given (phone, email, address, postcode), and what action is needed next. Keep it concise and professional.\n\nTranscript:\n${history.map(m => m.role + ': ' + m.content).join('\n')}`
+          content: `Summarise this call in plain text only (no markdown, no asterisks, no bullet points, no headers). Structure it in this exact order:
+1. What the caller wants: Start with their exact request or requirement (e.g. "Caller wants to install CCTV and alarm system at their property").
+2. Caller details: Name, phone number, address, postcode, email — only include what was actually provided.
+3. Action needed: What needs to happen next.
+4. Any other notes: Only if relevant.
+
+Keep it concise, professional and factual. Do not say "not provided" or "not stated" for missing info — just omit it. Do not invent details.
+
+Transcript:
+${history.map(m => (m.role === 'user' ? 'Caller' : 'AI') + ': ' + m.content).join('\n')}`
         }]
       }, { timeout: 10000 });
       summary = summaryResp.content[0]?.text || null;
