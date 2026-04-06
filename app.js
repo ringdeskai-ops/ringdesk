@@ -1312,6 +1312,8 @@ RULES:
 - NEVER assume or guess the caller's name. Only use a name after the caller has explicitly told you their name in this conversation.
 - If the caller just says "Hello?" or seems to not hear you, respond warmly and ask them to go ahead — do NOT send them to voicemail.
 - Only use [VOICEMAIL] when the caller explicitly asks for it.
+- If the caller just says "Hello?" or seems to not hear you, respond warmly and ask them to go ahead — do NOT send them to voicemail.
+- Only use [VOICEMAIL] when the caller explicitly asks for it.
 - NEVER ask for information you already have. If you know the caller's name, use it.
 - Always ask for the caller's name first before phone number and address.
 - If the caller gives their name and it sounds unusual, still accept it and move on immediately.${callerContext}
