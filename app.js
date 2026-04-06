@@ -6016,7 +6016,8 @@ wss.on('connection', (ws) => {
         if (hasVoicemail) {
           const vmSpeak = cleanReply || 'Please hold while I transfer you to voicemail.';
           // Build full voicemail TwiML inline — avoids body loss on redirect
-          const twimlVm = `<Response><Say voice="${voice}" language="${lang}">${vmSpeak}</Say><Say voice="${voice}" language="${lang}">Please leave your message after the tone. Press star or hang up when done.</Say><Record action="/voice/voicemail-done" method="POST" maxLength="120" finishOnKey="*" playBeep="true" recordingStatusCallback="/voice/voicemail-done" recordingStatusCallbackMethod="POST"/><Say voice="${voice}" language="${lang}">Thank you for your message. Goodbye.</Say><Hangup/></Response>`;
+          const baseUrl = process.env.DASHBOARD_URL || 'https://airingdesk.com';
+          const twimlVm = `<Response><Say voice="${voice}" language="${lang}">${vmSpeak}</Say><Say voice="${voice}" language="${lang}">Please leave your message after the tone. Press star or hang up when done.</Say><Record action="${baseUrl}/voice/voicemail-done" method="POST" maxLength="120" finishOnKey="*" playBeep="true" recordingStatusCallback="${baseUrl}/voice/voicemail-status" recordingStatusCallbackMethod="POST"/></Response>`;
           await twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
             .calls(callSid).update({ twiml: twimlVm });
           // Mark call as voicemail in DB
