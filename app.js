@@ -6001,14 +6001,14 @@ wss.on('connection', (ws) => {
           const transferNum = dept?.number || null;
           const callerNum = db.prepare("SELECT caller_number FROM calls WHERE call_sid = ?").get(callSid)?.caller_number;
           if (transferNum && transferNum !== callerNum) {
-            twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${reply}</Say><Dial action="/voice/transfer" method="POST">${transferNum}</Dial></Response>`;
+            twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${cleanReply}</Say><Dial action="/voice/transfer" method="POST">${transferNum}</Dial></Response>`;
           } else {
             // No valid transfer number — tell caller politely
-            const busyReply = reply + " All our team are currently busy. Someone will call you back shortly.";
+            const busyReply = cleanReply + " All our team are currently busy. Someone will call you back shortly.";
             twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${busyReply}</Say><Pause length="60"/></Response>`;
           }
         } else {
-          twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${reply}</Say><Pause length="60"/></Response>`;
+          twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${cleanReply}</Say><Pause length="60"/></Response>`;
         }
 
         await twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
@@ -6019,7 +6019,7 @@ wss.on('connection', (ws) => {
         console.error(`[Deepgram] Reply error for ${callSid}:`, err.message);
         // Try to say something so caller isn't left in silence
         try {
-          const fallbackTwiml = `<Response><Say voice="${clientRecord?.ai_voice || 'Google.en-GB-Neural2-C'}">${clientRecord?.ai_name || 'Aria'} is still here. Please go ahead.</Say><Pause length="60"/></Response>`;
+          const fallbackTwiml = `<Response><Say voice="${clientRecord?.ai_voice || 'Google.en-GB-Neural2-C'}" language="${clientRecord?.ai_voice_language || 'en-GB'}">${clientRecord?.ai_name || 'Aria'} is still here. Please go ahead.</Say><Pause length="60"/></Response>`;
           await twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
             .calls(callSid).update({ twiml: fallbackTwiml });
         } catch(e2) {}
