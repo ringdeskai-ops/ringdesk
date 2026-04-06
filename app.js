@@ -1,9 +1,4 @@
 
-
-// Invoice and payment routers — must be before webhook handlers
-const invoiceRouter = require("./routes/invoice")(db);
-app.use("/api/invoice", invoiceRouter);
-const gcRouter = require("./routes/gocardless")(db, invoiceRouter.createInvoice, sendBrevoEmail);
 // © 2026 AiRingDesk, a trading name of SatFocus Ltd. All rights reserved.
 // Registered in England & Wales. Unauthorised copying or distribution is strictly prohibited.
 
@@ -69,6 +64,12 @@ const anthropic = new Anthropic({
 
 // ── Database setup (SQLite — swap for Postgres in prod) ───────────────────────
 const db = new Database(process.env.DB_PATH || require("path").join(__dirname, "ringdesk.db"));
+
+// Invoice and payment routers — must be before webhook handlers
+const invoiceRouter = require("./routes/invoice")(db);
+app.use("/api/invoice", invoiceRouter);
+const gcRouter = require("./routes/gocardless")(db, invoiceRouter.createInvoice, sendBrevoEmail);
+
 db.pragma("journal_mode = WAL");
 db.pragma("busy_timeout = 5000");
 db.exec(`
