@@ -6091,7 +6091,7 @@ wss.on('connection', (ws) => {
         }
 
         // Connect to Deepgram via raw WebSocket
-        const dgUrl = `wss://api.deepgram.com/v1/listen?model=nova-2&language=en&encoding=mulaw&sample_rate=8000&channels=1&punctuate=true&interim_results=true&endpointing=300&smart_format=true&no_delay=true&utterance_end_ms=1000`;
+        const dgUrl = `wss://api.deepgram.com/v1/listen?model=nova-3&language=en&encoding=mulaw&sample_rate=8000&channels=1&punctuate=true&interim_results=true&endpointing=300&smart_format=true&no_delay=true&utterance_end_ms=1000`;
         dgConnection = new WebSocket(dgUrl, { headers: { Authorization: `Token ${process.env.DEEPGRAM_API_KEY}` } });
 
         dgConnection.on('open', () => console.log(`[Deepgram] Connected to Deepgram for ${callSid}`));
