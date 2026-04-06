@@ -2212,6 +2212,138 @@ app.post('/api/calendar/disconnect', authRequired, (req, res) => {
   res.json({ success: true });
 });
 
+
+// ── Google Search Console Integration ─────────────────────────────────────────
+function getGSCOAuthClient() {
+  return new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.DASHBOARD_URL + '/auth/gsc/callback'
+  );
+}
+
+// Step 1: Start GSC OAuth
+app.get('/auth/gsc', async (req, res) => {
+  const token = req.query.token || req.headers.authorization?.split(' ')[1];
+  if (!token) return res.status(401).json({ error: 'No token' });
+  try {
+    const jwt = require('jsonwebtoken');
+    req.client = jwt.verify(token, process.env.JWT_SECRET);
+  } catch(e) { return res.status(401).json({ error: 'Invalid token' }); }
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  const oauth2Client = getGSCOAuthClient();
+  const url = oauth2Client.generateAuthUrl({
+    access_type: 'offline',
+    prompt: 'consent',
+    scope: ['https://www.googleapis.com/auth/webmasters.readonly'],
+    state: req.client.id
+  });
+  res.redirect(url);
+});
+
+// Step 2: GSC OAuth callback — save tokens to system_settings
+app.get('/auth/gsc/callback', async (req, res) => {
+  const { code } = req.query;
+  if (!code) return res.redirect('/dashboard?error=gsc_auth_failed');
+  try {
+    const oauth2Client = getGSCOAuthClient();
+    const { tokens } = await oauth2Client.getToken(code);
+    const now = Date.now();
+    db.prepare("INSERT OR REPLACE INTO system_settings (key, value, updated_at) VALUES (?, ?, ?)")
+      .run('gsc_access_token', tokens.access_token, now);
+    db.prepare("INSERT OR REPLACE INTO system_settings (key, value, updated_at) VALUES (?, ?, ?)")
+      .run('gsc_refresh_token', tokens.refresh_token || '', now);
+    db.prepare("INSERT OR REPLACE INTO system_settings (key, value, updated_at) VALUES (?, ?, ?)")
+      .run('gsc_connected', '1', now);
+    console.log('✅ Google Search Console connected');
+    res.redirect('/dashboard?gsc=connected');
+  } catch(err) {
+    console.error('GSC auth error:', err.message);
+    res.redirect('/dashboard?error=gsc_auth_failed');
+  }
+});
+
+// Step 3: GSC data endpoint
+app.get('/api/admin/gsc/data', authRequired, async (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  try {
+    const connected = db.prepare("SELECT value FROM system_settings WHERE key='gsc_connected'").get();
+    if (!connected || connected.value !== '1') return res.json({ connected: false });
+
+    const accessToken  = db.prepare("SELECT value FROM system_settings WHERE key='gsc_access_token'").get();
+    const refreshToken = db.prepare("SELECT value FROM system_settings WHERE key='gsc_refresh_token'").get();
+
+    const oauth2Client = getGSCOAuthClient();
+    oauth2Client.setCredentials({
+      access_token:  accessToken?.value,
+      refresh_token: refreshToken?.value
+    });
+
+    // Auto-refresh token if needed
+    oauth2Client.on('tokens', (tokens) => {
+      if (tokens.access_token) {
+        db.prepare("INSERT OR REPLACE INTO system_settings (key, value, updated_at) VALUES (?, ?, ?)")
+          .run('gsc_access_token', tokens.access_token, Date.now());
+      }
+    });
+
+    const searchconsole = google.searchconsole({ version: 'v1', auth: oauth2Client });
+    const siteUrl = 'https://airingdesk.com/';
+
+    // Date range — last 3 months
+    const endDate   = new Date().toISOString().split('T')[0];
+    const startDate = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    const [queriesRes, pagesRes, indexRes, mobileRes] = await Promise.allSettled([
+      // Top queries
+      searchconsole.searchanalytics.query({
+        siteUrl,
+        requestBody: { startDate, endDate, dimensions: ['query'], rowLimit: 10, dataState: 'all' }
+      }),
+      // Top pages
+      searchconsole.searchanalytics.query({
+        siteUrl,
+        requestBody: { startDate, endDate, dimensions: ['page'], rowLimit: 10, dataState: 'all' }
+      }),
+      // Indexing coverage
+      searchconsole.urlInspection.index.inspect({
+        requestBody: { inspectionUrl: siteUrl, siteUrl }
+      }).catch(() => null),
+      // Mobile usability — use query with device filter
+      searchconsole.searchanalytics.query({
+        siteUrl,
+        requestBody: { startDate, endDate, dimensions: ['page'], dimensionFilterGroups: [{ filters: [{ dimension: 'device', operator: 'equals', expression: 'MOBILE' }] }], rowLimit: 5, dataState: 'all' }
+      })
+    ]);
+
+    res.json({
+      connected: true,
+      period: { startDate, endDate },
+      queries: queriesRes.status === 'fulfilled' ? queriesRes.value.data.rows || [] : [],
+      pages:   pagesRes.status   === 'fulfilled' ? pagesRes.value.data.rows   || [] : [],
+      mobile:  mobileRes.status  === 'fulfilled' ? mobileRes.value.data.rows  || [] : [],
+      indexing: indexRes.status  === 'fulfilled' && indexRes.value ? indexRes.value.data : null
+    });
+  } catch(err) {
+    console.error('GSC data error:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GSC connection status
+app.get('/api/admin/gsc/status', authRequired, (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  const connected = db.prepare("SELECT value FROM system_settings WHERE key='gsc_connected'").get();
+  res.json({ connected: connected?.value === '1' });
+});
+
+// GSC disconnect
+app.post('/api/admin/gsc/disconnect', authRequired, (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  db.prepare("DELETE FROM system_settings WHERE key IN ('gsc_access_token','gsc_refresh_token','gsc_connected')").run();
+  res.json({ success: true });
+});
+
 // ── Delete customer (superadmin only) ─────────────────────────────────────────
 app.delete("/api/admin/customer/:id", authRequired, (req, res) => {
   if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });

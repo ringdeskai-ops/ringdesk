@@ -587,6 +587,10 @@ select option{background-color:#0c1520;color:#f0f6ff}
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
           Pricing Manage
         </button>
+        <button class="nav-btn superadmin-only" id="navSEO" onclick="showPage('seo')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          SEO
+        </button>
       </div>
     </nav>
 
@@ -3525,6 +3529,95 @@ Dedicated account manager</textarea></div>
         </div>
       </div>
     </div>
+    <div class="page" id="page-seo">
+      <div class="page-header" style="margin-bottom:24px">
+        <div>
+          <h1 class="page-title">SEO <em>Dashboard</em></h1>
+          <div class="page-sub" style="font-size:14px;color:var(--muted)">Google Search Console — last 3 months · airingdesk.com</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div id="gscStatusBadge"></div>
+          <button class="btn-sm btn-cyan-sm" id="gscConnectBtn" onclick="connectGSC()" style="display:none">Connect Google Search Console</button>
+          <button class="btn-sm" id="gscDisconnectBtn" onclick="disconnectGSC()" style="display:none;background:rgba(255,68,102,.1);color:var(--red);border:1px solid rgba(255,68,102,.2)">Disconnect</button>
+          <button class="btn-sm btn-ghost-sm" onclick="loadGSCData()" id="gscRefreshBtn" style="display:none">↻ Refresh</button>
+        </div>
+      </div>
+
+      <!-- Not connected state -->
+      <div id="gscNotConnected" style="display:none;text-align:center;padding:60px 20px">
+        <div style="width:64px;height:64px;border-radius:16px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+        <div style="font-size:18px;font-weight:700;margin-bottom:8px">Connect Google Search Console</div>
+        <div style="font-size:14px;color:var(--muted);margin-bottom:24px;max-width:400px;margin-left:auto;margin-right:auto">See your top search queries, pages, indexing status and mobile usability — all in one place.</div>
+        <button class="btn-sm btn-cyan-sm" onclick="connectGSC()" style="font-size:14px;padding:12px 28px">Connect Google Search Console →</button>
+      </div>
+
+      <!-- Loading state -->
+      <div id="gscLoading" style="display:none;text-align:center;padding:60px 20px">
+        <div style="font-size:14px;color:var(--muted)">Loading Search Console data...</div>
+      </div>
+
+      <!-- Data state -->
+      <div id="gscData" style="display:none">
+        <!-- Summary stats -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+            <div style="font-size:28px;font-weight:800;color:var(--cyan)" id="gscTotalClicks">-</div>
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Total Clicks</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+            <div style="font-size:28px;font-weight:800;color:var(--purple)" id="gscTotalImpressions">-</div>
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Impressions</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+            <div style="font-size:28px;font-weight:800;color:var(--green)" id="gscAvgCTR">-</div>
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Avg CTR</div>
+          </div>
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+            <div style="font-size:28px;font-weight:800;color:var(--amber)" id="gscAvgPosition">-</div>
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Avg Position</div>
+          </div>
+        </div>
+
+        <!-- Top Queries + Top Pages -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <!-- Top Queries -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px">
+            <div style="font-size:11px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px">🔍 Top Search Queries</div>
+            <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:8px">
+              <div>Query</div><div style="text-align:right">Clicks</div><div style="text-align:right;padding-left:12px">Impr</div><div style="text-align:right;padding-left:12px">Pos</div>
+            </div>
+            <div id="gscQueriesTable"></div>
+          </div>
+          <!-- Top Pages -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px">
+            <div style="font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px">📄 Top Pages by Traffic</div>
+            <div style="display:grid;grid-template-columns:1fr auto auto;gap:0;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:8px">
+              <div>Page</div><div style="text-align:right">Clicks</div><div style="text-align:right;padding-left:12px">Impr</div>
+            </div>
+            <div id="gscPagesTable"></div>
+          </div>
+        </div>
+
+        <!-- Mobile + Indexing -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <!-- Mobile Usability -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px">
+            <div style="font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px">📱 Mobile Traffic</div>
+            <div style="display:grid;grid-template-columns:1fr auto auto;gap:0;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em;padding-bottom:8px;border-bottom:1px solid var(--border);margin-bottom:8px">
+              <div>Page</div><div style="text-align:right">Clicks</div><div style="text-align:right;padding-left:12px">Pos</div>
+            </div>
+            <div id="gscMobileTable"></div>
+          </div>
+          <!-- Indexing -->
+          <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px">
+            <div style="font-size:11px;font-weight:700;color:var(--amber);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px">🗂 Indexing Status</div>
+            <div id="gscIndexing" style="font-size:13px;color:var(--muted)">Loading...</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <!-- Call detail panel -->
@@ -4814,6 +4907,7 @@ function showPage(name) {
   if (name === 'admin-management') loadAdminManagement(); // Static page, no loading needed
   if (name === 'referral') loadReferral();
   if (name === 'pricing-manage') { loadPricingManage(); }
+  if (name === 'seo') loadGSCPage();
   if (name === 'billing') {
     loadBillingInvoices();
     renderBillingPlans(currentUser && currentUser.plan);
@@ -5933,7 +6027,7 @@ async function changePassword() {
 let healthAutoRefresh = null;
 
 function loadHealthData() {
-  const token = localStorage.getItem('rd_token');
+  const token = localStorage.getItem('rd_token') || localStorage.getItem('ard_token') || authToken;
   if (!token) return;
   document.getElementById('healthLastUpdated').textContent = 'Loading...';
   
@@ -7069,7 +7163,7 @@ async function releaseCustomerNumber() {
 // ============================================================
 async function toggleSmsFeature(feature, toggleId) {
   if (!currentDetailCustomer) return;
-  const token = localStorage.getItem('rd_token');
+  const token = localStorage.getItem('rd_token') || localStorage.getItem('ard_token') || authToken;
   const currentVal = currentDetailCustomer[feature] || 0;
   const newVal = currentVal ? 0 : 1;
   
@@ -7724,6 +7818,7 @@ function dismissPWA() {
 }
 </script>
 
+
 <!-- iOS PWA Install Banner -->
 <div id="iosInstallBanner" style="display:none;position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#0d1520;border:1px solid rgba(0,212,255,.25);border-radius:14px;padding:16px 20px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:340px;width:90%;text-align:center">
   <div style="font-size:13px;font-weight:700;color:#e8f4f8;margin-bottom:6px">Install AiRingDesk</div>
@@ -7966,6 +8061,116 @@ function renderHealthPricing(pricingData) {
     }).join('');
   }
 }
+
+
+  // ── GSC Functions ──────────────────────────────────────────────────────────
+  function connectGSC() {
+    const token = localStorage.getItem('rd_token') || localStorage.getItem('ard_token') || authToken;
+    if (!token) { alert('Session error — please log out and log back in, then try again.'); return; }
+    window.location.href = '/auth/gsc?token=' + encodeURIComponent(token);
+  }
+
+  async function disconnectGSC() {
+    if (!confirm('Disconnect Google Search Console?')) return;
+    const token = localStorage.getItem('rd_token') || localStorage.getItem('ard_token') || authToken;
+    await fetch('/api/admin/gsc/disconnect', { method:'POST', headers:{ Authorization:'Bearer '+token } });
+    loadGSCPage();
+  }
+
+  async function loadGSCData() {
+    const token = localStorage.getItem('rd_token') || localStorage.getItem('ard_token') || authToken;
+    document.getElementById('gscLoading').style.display = 'block';
+    document.getElementById('gscData').style.display = 'none';
+    try {
+      const r = await fetch('/api/admin/gsc/data', { headers:{ Authorization:'Bearer '+token } });
+      const d = await r.json();
+      document.getElementById('gscLoading').style.display = 'none';
+      if (!d.connected) { loadGSCPage(); return; }
+      document.getElementById('gscData').style.display = 'block';
+      const totalClicks = (d.queries||[]).reduce((s,q)=>s+(q.clicks||0),0);
+      const totalImpr   = (d.queries||[]).reduce((s,q)=>s+(q.impressions||0),0);
+      const avgCTR      = totalImpr > 0 ? ((totalClicks/totalImpr)*100).toFixed(1)+'%' : '0%';
+      const avgPos      = d.queries.length > 0 ? (d.queries.reduce((s,q)=>s+(q.position||0),0)/d.queries.length).toFixed(1) : '-';
+      document.getElementById('gscTotalClicks').textContent      = totalClicks.toLocaleString();
+      document.getElementById('gscTotalImpressions').textContent = totalImpr.toLocaleString();
+      document.getElementById('gscAvgCTR').textContent           = avgCTR;
+      document.getElementById('gscAvgPosition').textContent      = avgPos;
+      const qEl = document.getElementById('gscQueriesTable');
+      qEl.innerHTML = (d.queries||[]).length === 0 ? '<div style="font-size:13px;color:var(--muted);padding:12px 0">No data yet</div>' :
+        (d.queries||[]).map(q=>`<div style="display:grid;grid-template-columns:1fr auto auto auto;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:12px;align-items:center">
+          <div style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px" title="${q.keys[0]}">${q.keys[0]}</div>
+          <div style="text-align:right;color:var(--cyan);font-weight:700">${(q.clicks||0).toLocaleString()}</div>
+          <div style="text-align:right;padding-left:12px;color:var(--muted)">${(q.impressions||0).toLocaleString()}</div>
+          <div style="text-align:right;padding-left:12px;color:var(--amber)">${(q.position||0).toFixed(1)}</div>
+        </div>`).join('');
+      const pEl = document.getElementById('gscPagesTable');
+      pEl.innerHTML = (d.pages||[]).length === 0 ? '<div style="font-size:13px;color:var(--muted);padding:12px 0">No data yet</div>' :
+        (d.pages||[]).map(p=>{ const slug = p.keys[0].replace('https://airingdesk.com','') || '/';
+          return `<div style="display:grid;grid-template-columns:1fr auto auto;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:12px;align-items:center">
+            <div style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px" title="${slug}">${slug}</div>
+            <div style="text-align:right;color:var(--purple);font-weight:700">${(p.clicks||0).toLocaleString()}</div>
+            <div style="text-align:right;padding-left:12px;color:var(--muted)">${(p.impressions||0).toLocaleString()}</div>
+          </div>`; }).join('');
+      const mEl = document.getElementById('gscMobileTable');
+      mEl.innerHTML = (d.mobile||[]).length === 0 ? '<div style="font-size:13px;color:var(--muted);padding:12px 0">No mobile data yet</div>' :
+        (d.mobile||[]).map(m=>{ const slug = m.keys[0].replace('https://airingdesk.com','') || '/';
+          return `<div style="display:grid;grid-template-columns:1fr auto auto;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.03);font-size:12px;align-items:center">
+            <div style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px" title="${slug}">${slug}</div>
+            <div style="text-align:right;color:var(--green);font-weight:700">${(m.clicks||0).toLocaleString()}</div>
+            <div style="text-align:right;padding-left:12px;color:var(--amber)">${(m.position||0).toFixed(1)}</div>
+          </div>`; }).join('');
+      const iEl = document.getElementById('gscIndexing');
+      if (d.indexing && d.indexing.inspectionResult) {
+        const ir = d.indexing.inspectionResult;
+        const verdict = ir.indexStatusResult?.coverageState || 'Unknown';
+        const isIndexed = verdict.toLowerCase().includes('submitted') || verdict.toLowerCase().includes('indexed');
+        iEl.innerHTML = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <div style="width:10px;height:10px;border-radius:50%;background:${isIndexed?'var(--green)':'var(--amber)'}"></div>
+          <div style="font-size:14px;font-weight:700;color:var(--text)">${verdict}</div></div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.8">
+            <div>Crawled: <span style="color:var(--text)">${ir.indexStatusResult?.lastCrawlTime ? new Date(ir.indexStatusResult.lastCrawlTime).toLocaleDateString('en-GB') : 'Unknown'}</span></div>
+            <div>Robots: <span style="color:var(--text)">${ir.indexStatusResult?.robotsTxtState || 'Unknown'}</span></div>
+            <div>Indexing: <span style="color:var(--text)">${ir.indexStatusResult?.indexingState || 'Unknown'}</span></div>
+            <div>Mobile: <span style="color:var(--text)">${ir.mobileUsabilityResult?.verdict || 'Unknown'}</span></div>
+          </div>`;
+      } else {
+        iEl.innerHTML = '<div style="font-size:13px;color:var(--muted)">Check <a href="https://search.google.com/search-console" target="_blank" style="color:var(--cyan)">Search Console</a> directly for indexing details.</div>';
+      }
+    } catch(err) {
+      document.getElementById('gscLoading').style.display = 'none';
+      console.error('GSC error:', err);
+    }
+  }
+
+  async function loadGSCPage() {
+    const token = localStorage.getItem('rd_token') || localStorage.getItem('ard_token') || authToken;
+    document.getElementById('gscNotConnected').style.display = 'none';
+    document.getElementById('gscLoading').style.display = 'none';
+    document.getElementById('gscData').style.display = 'none';
+    document.getElementById('gscConnectBtn').style.display = 'none';
+    document.getElementById('gscDisconnectBtn').style.display = 'none';
+    document.getElementById('gscRefreshBtn').style.display = 'none';
+    try {
+      const r = await fetch('/api/admin/gsc/status', { headers:{ Authorization:'Bearer '+token } });
+      const d = await r.json();
+      if (d.connected) {
+        document.getElementById('gscStatusBadge').innerHTML = '<div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.2);font-size:11px;font-weight:700;color:var(--green)"><div style="width:6px;height:6px;border-radius:50%;background:var(--green)"></div>Connected</div>';
+        document.getElementById('gscDisconnectBtn').style.display = 'block';
+        document.getElementById('gscRefreshBtn').style.display = 'block';
+        loadGSCData();
+      } else {
+        document.getElementById('gscStatusBadge').innerHTML = '<div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.2);font-size:11px;font-weight:700;color:var(--amber)">Not Connected</div>';
+        document.getElementById('gscConnectBtn').style.display = 'block';
+        document.getElementById('gscNotConnected').style.display = 'block';
+      }
+    } catch(e) { console.error('GSC status error:', e); }
+  }
+
+  // Handle GSC connected redirect
+  if (window.location.search.includes('gsc=connected')) {
+    history.replaceState({}, '', '/dashboard');
+    setTimeout(() => showPage('seo'), 500);
+  }
 
 </script>
 </body>
