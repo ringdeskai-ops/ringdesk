@@ -4712,12 +4712,12 @@ p{color:#5a7a9a;font-size:15px;line-height:1.7;margin-bottom:8px}
   </div>
   <h1>You're all set! 🎉</h1>
   <p>Your 14-day free trial has started.</p>
-  <p>No charge until your trial ends.</p>
+  <p style="color:#00e87a;font-size:13px;font-weight:600">✓ Card saved · No charge for 14 days</p>
   <div class="steps">
     <div class="step"><div class="step-num">1</div> Log into your dashboard</div>
-    <div class="step"><div class="step-num">2</div> Pick your UK phone number</div>
-    <div class="step"><div class="step-num">3</div> Customise your AI receptionist</div>
-    <div class="step"><div class="step-num">4</div> Go live in under 30 minutes</div>
+    <div class="step"><div class="step-num">2</div> Customise your AI receptionist name & script</div>
+    <div class="step"><div class="step-num">3</div> Set your business hours and FAQs</div>
+    <div class="step"><div class="step-num">4</div> Go live — your number is already active</div>
   </div>
   <a href="/dashboard" class="btn">Go to dashboard →</a>
 </div>
