@@ -1285,6 +1285,60 @@ function getClientByNumber(phoneNumber) {
   return db.prepare("SELECT * FROM clients WHERE phone_number = ? OR phone_number = ?").get(normalised, clean);
 }
 
+// ── Shared appointment booking handler (used by both Twilio STT and Deepgram) ──
+async function handleBooking(bookMatch, clientRecord, callSid) {
+  try {
+    const [, name, date, time, email] = bookMatch;
+    const clientData = db.prepare("SELECT * FROM clients WHERE id = ?").get(clientRecord.id);
+    const callRecord = db.prepare("SELECT id FROM calls WHERE call_sid = ?").get(callSid);
+    const callerPhone = db.prepare("SELECT caller_number FROM calls WHERE call_sid = ?").get(callSid)?.caller_number || null;
+    const apptId = uuidv4();
+
+    if (clientData.google_calendar_connected && clientData.google_access_token) {
+      try {
+        const { google } = require('googleapis');
+        const oauth2Client = new google.auth.OAuth2(
+          process.env.GOOGLE_CLIENT_ID,
+          process.env.GOOGLE_CLIENT_SECRET,
+          process.env.GOOGLE_REDIRECT_URI
+        );
+        oauth2Client.setCredentials({
+          access_token: clientData.google_access_token,
+          refresh_token: clientData.google_refresh_token
+        });
+        const calendar = google.calendar({ version: 'v3', auth: oauth2Client });
+        const startDateTime = new Date(`${date}T${time}:00`);
+        const endDateTime = new Date(startDateTime.getTime() + 60 * 60000);
+        const result = await calendar.events.insert({
+          calendarId: 'primary',
+          resource: {
+            summary: `Appointment - ${name}`,
+            description: `Booked via AiRingDesk AI receptionist`,
+            start: { dateTime: startDateTime.toISOString(), timeZone: 'Europe/London' },
+            end: { dateTime: endDateTime.toISOString(), timeZone: 'Europe/London' },
+            attendees: (email && email !== 'none' && email.includes('@')) ? [{ email }] : []
+          },
+          sendUpdates: 'all'
+        });
+        db.prepare(`INSERT INTO appointments (id, client_id, call_id, caller_name, caller_phone, date, time, google_event_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+          .run(apptId, clientRecord.id, callRecord?.id || null, name, callerPhone, date, time, result?.data?.id || null);
+        console.log(`✅ Appointment booked in Google Calendar: ${name} on ${date} at ${time}`);
+      } catch(e) {
+        console.error('Google Calendar booking error:', e.message);
+        // Still save to DB even if calendar fails
+        db.prepare(`INSERT INTO appointments (id, client_id, call_id, caller_name, caller_phone, date, time, google_event_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+          .run(apptId, clientRecord.id, callRecord?.id || null, name, callerPhone, date, time, null);
+      }
+    } else {
+      db.prepare(`INSERT INTO appointments (id, client_id, call_id, caller_name, caller_phone, date, time, google_event_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+        .run(apptId, clientRecord.id, callRecord?.id || null, name, callerPhone, date, time, null);
+      console.log(`📅 Appointment saved to DB (no calendar): ${name} on ${date} at ${time}`);
+    }
+  } catch(e) {
+    console.error('handleBooking error:', e.message);
+  }
+}
+
 function buildSystemPrompt(client, session) {
   const base = client.ai_prompt || `You are ${client.ai_name || "Aria"}, the AI receptionist for ${client.business_name}.`;
   
@@ -6021,9 +6075,17 @@ wss.on('connection', (ws) => {
         const voice = clientRecord.ai_voice || 'Google.en-GB-Neural2-C';
         const lang = clientRecord.ai_voice_language || 'en-GB';
 
+        // Handle appointment booking
+        const bookMatch = cleanReply.match(/\[BOOK:([^|\]]+)\|([^|\]]+)\|([^|\]]+)\|([^\]]+)\]/);
+        if (bookMatch) {
+          handleBooking(bookMatch, clientRecord, callSid).catch(e => console.error('[Deepgram] Booking error:', e.message));
+        }
+        // Strip BOOK tag from spoken reply
+        const spokenReply = cleanReply.replace(/\[BOOK:[^\]]+\]/g, '').trim();
+
         // Handle voicemail redirect
         if (hasVoicemail) {
-          const vmSpeak = cleanReply || 'Please hold while I transfer you to voicemail.';
+          const vmSpeak = spokenReply || 'Please hold while I transfer you to voicemail.';
           // Build full voicemail TwiML inline — avoids body loss on redirect
           const baseUrl = process.env.DASHBOARD_URL || 'https://airingdesk.com';
           const twimlVm = `<Response><Say voice="${voice}" language="${lang}">${vmSpeak}</Say><Say voice="${voice}" language="${lang}">Please leave your message after the tone. Press star or hang up when done.</Say><Record action="${baseUrl}/voice/voicemail-done" method="POST" maxLength="120" finishOnKey="*" playBeep="true" recordingStatusCallback="${baseUrl}/voice/voicemail-status" recordingStatusCallbackMethod="POST"/></Response>`;
@@ -6049,13 +6111,13 @@ wss.on('connection', (ws) => {
           const transferNum = dept?.number || null;
           const callerNum = db.prepare("SELECT caller_number FROM calls WHERE call_sid = ?").get(callSid)?.caller_number;
           if (transferNum && transferNum !== callerNum) {
-            twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${cleanReply}</Say><Dial action="/voice/transfer" method="POST">${transferNum}</Dial></Response>`;
+            twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${spokenReply}</Say><Dial action="/voice/transfer" method="POST">${transferNum}</Dial></Response>`;
           } else {
-            const busyReply = cleanReply + " All our team are currently busy. Someone will call you back shortly.";
+            const busyReply = spokenReply + " All our team are currently busy. Someone will call you back shortly.";
             twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${busyReply}</Say><Pause length="60"/></Response>`;
           }
         } else {
-          twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${cleanReply}</Say><Pause length="60"/></Response>`;
+          twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${spokenReply}</Say><Pause length="60"/></Response>`;
         }
 
         await twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
