@@ -26,7 +26,7 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const http = require("http");
 const WebSocket = require("ws");
-const { createClient } = require("@deepgram/sdk");
+// Deepgram via raw WebSocket (SDK bypassed — direct WSS connection)
 const Anthropic = require("@anthropic-ai/sdk");
 const twilio = require("twilio");
 const stripe = process.env.STRIPE_SECRET_KEY ? require("stripe")(process.env.STRIPE_SECRET_KEY) : null;
@@ -1439,8 +1439,10 @@ app.post("/voice/incoming", async (req, res) => {
     // Deepgram flow: play greeting then stream audio to WebSocket
     console.log(`[STT] Using Deepgram for call ${CallSid}`);
     twiml.say({ voice: client.ai_voice || 'Google.en-GB-Neural2-C', language: client.ai_voice_language || 'en-GB' }, greeting);
+    const streamUrl = `wss://airingdesk.com/voice/stream`;
+    console.log(`[Deepgram] Stream URL: ${streamUrl} for call ${CallSid}`);
     const start = twiml.start();
-    start.stream({ url: `wss://${req.headers.host}/voice/stream`, track: 'inbound_track' });
+    start.stream({ url: streamUrl, track: 'inbound_track' });
     // Keep call alive while streaming
     twiml.pause({ length: 60 });
     twiml.redirect('/voice/incoming');
@@ -5978,45 +5980,43 @@ wss.on('connection', (ws) => {
           clientRecord = db.prepare("SELECT * FROM clients WHERE id = ?").get(session.client_id);
         }
 
-        // Connect to Deepgram
-        dgClient = createClient(process.env.DEEPGRAM_API_KEY);
-        dgConnection = dgClient.listen.live({
-          model: 'nova-2',
-          language: 'en-GB',
-          encoding: 'mulaw',
-          sample_rate: 8000,
-          channels: 1,
-          punctuate: true,
-          interim_results: true,
-          endpointing: 800,
-        });
+        // Connect to Deepgram via raw WebSocket
+        const dgUrl = `wss://api.deepgram.com/v1/listen?model=nova-2&language=en-GB&encoding=mulaw&sample_rate=8000&channels=1&punctuate=true&interim_results=true&endpointing=800`;
+        dgConnection = new WebSocket(dgUrl, { headers: { Authorization: `Token ${process.env.DEEPGRAM_API_KEY}` } });
 
         dgConnection.on('open', () => console.log(`[Deepgram] Connected to Deepgram for ${callSid}`));
 
-        dgConnection.on('Results', (result) => {
-          const alt = result?.channel?.alternatives?.[0];
-          if (!alt) return;
-          const text = alt.transcript;
-          if (!text) return;
-          if (result.is_final) {
-            transcript += (transcript ? ' ' : '') + text;
-            resetSilenceTimer();
+        dgConnection.on('message', (data) => {
+          try {
+            const result = JSON.parse(data.toString());
+            const alt = result?.channel?.alternatives?.[0];
+            if (!alt) return;
+            const text = alt.transcript;
+            if (!text) return;
+            if (result.is_final) {
+              transcript += (transcript ? ' ' : '') + text;
+              resetSilenceTimer();
+            }
+          } catch(e) {
+            console.error('[Deepgram] Parse error:', e.message);
           }
         });
 
-        dgConnection.on('error', (err) => console.error('[Deepgram] Error:', err));
+        dgConnection.on('error', (err) => console.error('[Deepgram] Error:', err.message));
         dgConnection.on('close', () => console.log(`[Deepgram] Connection closed for ${callSid}`));
       }
 
       if (data.event === 'media' && dgConnection) {
-        const audioBuffer = Buffer.from(data.media.payload, 'base64');
-        dgConnection.send(audioBuffer);
+        if (dgConnection.readyState === WebSocket.OPEN) {
+          const audioBuffer = Buffer.from(data.media.payload, 'base64');
+          dgConnection.send(audioBuffer);
+        }
       }
 
       if (data.event === 'stop') {
         console.log(`[Deepgram] Stream stopped for ${callSid}`);
         if (silenceTimer) clearTimeout(silenceTimer);
-        if (dgConnection) dgConnection.finish();
+        if (dgConnection) dgConnection.close();
       }
 
     } catch (err) {
@@ -6027,7 +6027,7 @@ wss.on('connection', (ws) => {
   ws.on('close', () => {
     console.log(`[Deepgram] WebSocket closed for ${callSid}`);
     if (silenceTimer) clearTimeout(silenceTimer);
-    if (dgConnection) dgConnection.finish();
+    if (dgConnection) dgConnection.close();
   });
 
   ws.on('error', (err) => console.error('[Deepgram] WS error:', err.message));
