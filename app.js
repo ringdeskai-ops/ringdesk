@@ -5977,6 +5977,16 @@ wss.on('connection', (ws) => {
 
         console.log(`[Deepgram] Claude reply for ${callSid}: "${reply}"`);
 
+        // Save transcript to call_sessions history so end-of-call email has content
+        try {
+          const currentSession = db.prepare("SELECT history FROM call_sessions WHERE call_sid = ?").get(callSid);
+          let hist = JSON.parse(currentSession?.history || '[]');
+          hist.push({ role: 'user', content: spokenText });
+          hist.push({ role: 'assistant', content: reply.replace('[VOICEMAIL]','').replace(/\[TRANSFER:\w+\]/g,'').trim() });
+          db.prepare("UPDATE call_sessions SET history = ? WHERE call_sid = ?")
+            .run(JSON.stringify(hist), callSid);
+        } catch(e) { console.error('[Deepgram] History save error:', e.message); }
+
         // Use Twilio REST API to inject TwiML back into the live call
         const voice = clientRecord.ai_voice || 'Google.en-GB-Neural2-C';
         const lang = clientRecord.ai_voice_language || 'en-GB';
@@ -6435,7 +6445,8 @@ async function sendCallNotificationEmail(client, call, transcript) {
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
                 <div>
                   <div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">FROM</div>
-                  <div style="font-size:15px;font-weight:600;color:#f0f4f8">${call.caller_name || call.caller_number || 'Unknown'}</div>
+                  <div style="font-size:15px;font-weight:600;color:#f0f4f8">${call.caller_name || 'Unknown'}</div>
+                  ${call.caller_number ? `<div style="font-size:12px;color:#00d4ff;margin-top:2px;font-weight:600">${call.caller_number}</div>` : ''}
                 </div>
                 <div>
                   <div style="font-size:10px;color:#5a7a9a;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">STATUS</div>
