@@ -2263,6 +2263,10 @@ Dedicated account manager</textarea></div>
               <div class="toggle" id="clientReferralToggle" onclick="toggleDetailReferral()"><div class="toggle-thumb"></div></div>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+              <div><span style="font-size:12px;color:var(--muted)">Call transfer</span><div style="font-size:10px;color:var(--dim)">Enable call transfers to departments</div></div>
+              <div class="toggle" id="clientTransferToggle" onclick="toggleDetailFeature('transfer_enabled','clientTransferToggle')"><div class="toggle-thumb"></div></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
               <div><span style="font-size:12px;color:var(--muted)">Voicemail recordings</span><div style="font-size:10px;color:var(--dim)">Customer can play back voicemails</div></div>
               <div class="toggle" id="clientVoicemailToggle" onclick="toggleDetailFeature('voicemail_enabled','clientVoicemailToggle')"><div class="toggle-thumb"></div></div>
             </div>
@@ -4469,6 +4473,8 @@ async function openCustomerDetail(clientId) {
     : 'Monthly (auto-renew)';
   const refToggle = document.getElementById('clientReferralToggle');
   refToggle.classList.toggle('on', customer.referral_programme_enabled !== 0);
+  const transferToggle = document.getElementById('clientTransferToggle');
+  if (transferToggle) transferToggle.classList.toggle('on', customer.transfer_enabled !== 0);
   const vmToggle = document.getElementById('clientVoicemailToggle');
   if (vmToggle) vmToggle.classList.toggle('on', customer.voicemail_enabled !== 0);
   const crToggle = document.getElementById('clientCallRecordingToggle');
