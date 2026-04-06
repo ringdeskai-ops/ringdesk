@@ -1090,6 +1090,20 @@ if (event.type === "customer.subscription.deleted") {
     const sub = db.prepare("SELECT * FROM clients WHERE stripe_subscription_id = ?").get(session.id);
     if (sub) {
       db.prepare("UPDATE clients SET plan = 'trial', plan_status = 'cancelled', cancel_at_period_end = 0, call_limit = 20, voicemail_enabled = 0, feature_appointments = 0, feature_ai_settings = 0, feature_voice_selector = 0, feature_crm = 0, call_recording = 0 WHERE id = ?").run(sub.id);
+      // Auto-release Twilio number on subscription cancelled/expired
+      if (sub.phone_number) {
+        try {
+          const numbers = await twilioClient.incomingPhoneNumbers.list({ phoneNumber: sub.phone_number });
+          if (numbers.length > 0) {
+            await twilioClient.incomingPhoneNumbers(numbers[0].sid).remove();
+            db.prepare('UPDATE number_assignments SET status=?, released_at=?, release_reason=? WHERE client_id=? AND status=?')
+              .run('released', Date.now(), 'Subscription cancelled/expired', sub.id, 'active');
+            console.log('📵 Number auto-released:', sub.phone_number, 'from', sub.business_name);
+          }
+        } catch (numErr) {
+          console.error('❌ Failed to release number on cancellation:', sub.phone_number, numErr.message);
+        }
+      }
       try {
         const planNames = { trial:'Trial', essential:'Essential', starter:'Starter', professional:'Professional', business:'Business' };
         const joinedDate = sub.created_at ? new Date(sub.created_at * 1000).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' }) : 'recently';
