@@ -1,3 +1,9 @@
+
+
+// Invoice and payment routers — must be before webhook handlers
+const invoiceRouter = require("./routes/invoice")(db);
+app.use("/api/invoice", invoiceRouter);
+const gcRouter = require("./routes/gocardless")(db, invoiceRouter.createInvoice, sendBrevoEmail);
 // © 2026 AiRingDesk, a trading name of SatFocus Ltd. All rights reserved.
 // Registered in England & Wales. Unauthorised copying or distribution is strictly prohibited.
 
@@ -1092,12 +1098,48 @@ if (event.type === "customer.subscription.deleted") {
         const periodStart = invoice.period_start || Math.floor(Date.now() / 1000);
         db.prepare("UPDATE clients SET plan_status = 'active', calls_this_month = 0, billing_cycle_day = ?, billing_period_start = ? WHERE id = ?").run(cycleDay, periodStart, sub.id);
         console.log("Payment succeeded - client " + sub.id + " plan activated, calls reset, cycle day: " + cycleDay);
-        // Send payment confirmation email with invoice
-        const planNames = { trial:"Trial", starter:"Starter", professional:"Professional", business:"Business" };
+        // Generate branded PDF invoice
+        const planNames = { trial:"Trial", essential:"Essential", starter:"Starter", professional:"Professional", business:"Business" };
         const amountPaid = (invoice.amount_paid / 100).toFixed(2);
         const nextDate = invoice.period_end ? new Date(invoice.period_end * 1000).toLocaleDateString("en-GB") : "N/A";
-        const invoiceUrl = invoice.hosted_invoice_url || null;
-        const invoicePdf = invoice.invoice_pdf || null;
+        const discount = sub.referral_discount ? Math.round(sub.referral_discount * 100) : 0;
+        // Generate our branded invoice PDF
+        invoiceRouter.createInvoice(
+          sub.id,
+          invoice.amount_paid,
+          discount,
+          sub.plan,
+          invoice.period_start,
+          invoice.period_end,
+          invoice.id
+        ).then(inv => {
+          const fs = require('fs');
+          const pdfBuffer = fs.readFileSync(inv.pdfPath);
+          const pdfBase64 = pdfBuffer.toString('base64');
+          // Send branded email with PDF attachment
+          sendBrevoEmail(
+            sub.email,
+            "Invoice " + inv.invoiceNumber + " — AiRingDesk " + planNames[sub.plan] + " plan",
+            "<div style=\"font-family:Helvetica Neue,sans-serif;max-width:600px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px\">"
+            + "<div style=\"font-size:28px;font-weight:800;margin-bottom:8px\"><span style=\"color:#00d4ff\">Ai</span><span style=\"color:#f0f6ff\">Ring</span><span style=\"color:#5a7a9a\">Desk®</span></div>"
+            + "<div style=\"padding:20px 0;border-bottom:1px solid #1a2332;margin-bottom:24px\">"
+            + "<div style=\"display:inline-block;background:rgba(0,232,122,.1);border:1px solid rgba(0,232,122,.3);border-radius:100px;padding:6px 16px;font-size:13px;font-weight:700;color:#00e87a;margin-bottom:16px\">✅ Payment confirmed</div>"
+            + "<h1 style=\"font-size:22px;font-weight:700;margin-bottom:8px\">Thank you, " + sub.business_name + "!</h1>"
+            + "<p style=\"color:#8896a8;font-size:15px\">Your payment has been received. Please find your invoice attached.</p></div>"
+            + "<div style=\"background:#0d1117;border:1px solid #1a2332;border-radius:12px;padding:24px;margin-bottom:24px\">"
+            + "<div style=\"font-size:12px;color:#5a7a9a;margin-bottom:16px;text-transform:uppercase\">Invoice details</div>"
+            + "<div style=\"display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a2332\"><span style=\"color:#8896a8\">Invoice number</span><strong style=\"color:#00d4ff\">" + inv.invoiceNumber + "</strong></div>"
+            + "<div style=\"display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a2332\"><span style=\"color:#8896a8\">Plan</span><strong style=\"color:#00d4ff\">" + planNames[sub.plan] + "</strong></div>"
+            + "<div style=\"display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a2332\"><span style=\"color:#8896a8\">Amount paid</span><strong style=\"color:#00e87a\">£" + amountPaid + "</strong></div>"
+            + "<div style=\"display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #1a2332\"><span style=\"color:#8896a8\">Next renewal</span><strong>" + nextDate + "</strong></div>"
+            + "</div>"
+            + "<a href=\"https://airingdesk.com/dashboard\" style=\"display:block;background:#00d4ff;color:#020408;text-decoration:none;padding:14px;border-radius:10px;font-size:15px;font-weight:700;text-align:center;margin-bottom:24px\">Go to dashboard →</a>"
+            + "<p style=\"color:#3d4f63;font-size:12px;border-top:1px solid #1a2332;padding-top:16px\">AiRingDesk® · AI Receptionist Platform · <a href=\"https://airingdesk.com\" style=\"color:#5a7a9a\">airingdesk.com</a></p></div>",
+            [{ content: pdfBase64, name: 'AiRingDesk-Invoice-' + inv.invoiceNumber + '.pdf', type: 'application/pdf' }]
+          ).catch(e => console.error("Invoice email error:", e.message));
+        }).catch(e => console.error("Invoice generation error:", e.message));
+        const invoiceUrl = null;
+        const invoicePdf = null;
         sendBrevoEmail(sub.email, "Payment confirmed — AiRingDesk " + planNames[sub.plan] + " plan", 
           "<div style=\"font-family:Helvetica Neue,sans-serif;max-width:600px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px\">"
           + "<div style=\"font-size:28px;font-weight:800;margin-bottom:8px\"><span style=\"color:#00d4ff\">Ai</span><span style=\"color:#f0f6ff\">Ring</span><span style=\"color:#5a7a9a\">Desk</span></div>"
@@ -5316,9 +5358,7 @@ app.get("/verify-email", (req, res) => {
 
 app.use("/api/admin", require("./routes/admin")(db, sendBrevoEmail));
 app.use("/api/referral", require("./routes/referral")(db, sendBrevoEmail));
-const invoiceRouter = require("./routes/invoice")(db);
-app.use("/api/invoice", invoiceRouter);
-const gcRouter = require("./routes/gocardless")(db, invoiceRouter.createInvoice, sendBrevoEmail);
+// routes registered below
 app.use("/api/gc", gcRouter);
 
 // ═══════════════════════════════════════════════════════════════
@@ -5847,9 +5887,18 @@ async function provisionNumberAfterPayment(clientId, phoneNumber) {
 //  EMAIL SYSTEM
 // ═══════════════════════════════════════════════════════════════════════════════
 // ── Brevo HTTP API email sender ───────────────────────────────────────────────
-async function sendBrevoEmail(to, subject, html) {
+async function sendBrevoEmail(to, subject, html, attachments) {
   const controller = new AbortController();
   const fetchTimeout = setTimeout(() => controller.abort(), 10000);
+  const payload = {
+    sender: { name: 'AiRingDesk', email: process.env.EMAIL_FROM || 'hello@airingdesk.com' },
+    to: [{ email: to }],
+    subject: subject,
+    htmlContent: html,
+  };
+  if (attachments && attachments.length > 0) {
+    payload.attachment = attachments;
+  }
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     signal: controller.signal,
@@ -5858,12 +5907,7 @@ async function sendBrevoEmail(to, subject, html) {
       'api-key': process.env.BREVO_API_KEY,
       'content-type': 'application/json',
     },
-    body: JSON.stringify({
-      sender: { name: 'AiRingDesk', email: process.env.EMAIL_FROM || 'hello@airingdesk.com' },
-      to: [{ email: to }],
-      subject: subject,
-      htmlContent: html,
-    }),
+    body: JSON.stringify(payload),
   });
   clearTimeout(fetchTimeout);
   const data = await response.json();
