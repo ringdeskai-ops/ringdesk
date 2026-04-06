@@ -24,6 +24,9 @@ process.on('unhandledRejection', (reason, promise) => {
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const http = require("http");
+const WebSocket = require("ws");
+const { createClient } = require("@deepgram/sdk");
 const Anthropic = require("@anthropic-ai/sdk");
 const twilio = require("twilio");
 const stripe = process.env.STRIPE_SECRET_KEY ? require("stripe")(process.env.STRIPE_SECRET_KEY) : null;
@@ -1428,9 +1431,26 @@ app.post("/voice/incoming", async (req, res) => {
   const aiName = client.ai_name || "Aria";
   const greeting = `Thank you for calling ${client.business_name}. My name is ${aiName}, how can I help you today?`;
 
-  const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB", speechModel: "phone_call", enhanced: true });
-  gather.say({ voice: client.ai_voice || 'Google.en-GB-Neural2-C', language: client.ai_voice_language || 'en-GB' }, greeting);
-  twiml.redirect("/voice/incoming");
+  // Branch on STT provider
+  const sttSetting = db.prepare("SELECT value FROM system_settings WHERE key='stt_provider'").get();
+  const sttProvider = sttSetting?.value || 'twilio';
+
+  if (sttProvider === 'deepgram') {
+    // Deepgram flow: play greeting then stream audio to WebSocket
+    console.log(`[STT] Using Deepgram for call ${CallSid}`);
+    twiml.say({ voice: client.ai_voice || 'Google.en-GB-Neural2-C', language: client.ai_voice_language || 'en-GB' }, greeting);
+    const start = twiml.start();
+    start.stream({ url: `wss://${req.headers.host}/voice/stream`, track: 'inbound_track' });
+    // Keep call alive while streaming
+    twiml.pause({ length: 60 });
+    twiml.redirect('/voice/incoming');
+  } else {
+    // Twilio STT flow (existing — unchanged)
+    console.log(`[STT] Using Twilio for call ${CallSid}`);
+    const gather = twiml.gather({ input: "speech", action: "/voice/speech", method: "POST", speechTimeout: "auto", actionOnEmptyResult: true, timeout: 5, language: "en-GB", speechModel: "phone_call", enhanced: true });
+    gather.say({ voice: client.ai_voice || 'Google.en-GB-Neural2-C', language: client.ai_voice_language || 'en-GB' }, greeting);
+    twiml.redirect("/voice/incoming");
+  }
 
   res.type("text/xml").send(twiml.toString());
 });
@@ -5875,7 +5895,145 @@ app.get('/api/admin/appointments/:clientId', authRequired, (req, res) => {
   res.json({ appointments });
 });
 
-app.listen(PORT, () => console.log(`\n🚀 RingDesk server running on port ${PORT}\n`));
+// ── HTTP + WebSocket server ──────────────────────────────────────────────────
+const httpServer = http.createServer(app);
+const wss = new WebSocket.Server({ server: httpServer, path: '/voice/stream' });
+
+wss.on('connection', (ws) => {
+  console.log('[Deepgram] WebSocket connection opened');
+
+  let dgClient = null;
+  let dgConnection = null;
+  let callSid = null;
+  let clientRecord = null;
+  let transcript = '';
+  let silenceTimer = null;
+  let processingReply = false;
+
+  const SILENCE_MS = 1500; // wait 1.5s of silence before processing
+
+  function resetSilenceTimer() {
+    if (silenceTimer) clearTimeout(silenceTimer);
+    if (!transcript.trim() || processingReply) return;
+    silenceTimer = setTimeout(async () => {
+      if (!transcript.trim() || processingReply) return;
+      processingReply = true;
+      const spokenText = transcript.trim();
+      transcript = '';
+      console.log(`[Deepgram] Transcript for ${callSid}: "${spokenText}"`);
+
+      try {
+        const session = db.prepare("SELECT * FROM call_sessions WHERE call_sid = ?").get(callSid);
+        if (!session || !clientRecord) { processingReply = false; return; }
+
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 9000));
+        let { reply, transferDept } = await Promise.race([
+          askClaude(clientRecord, session, spokenText),
+          timeoutPromise
+        ]);
+
+        console.log(`[Deepgram] Claude reply for ${callSid}: "${reply}"`);
+
+        // Use Twilio REST API to inject TwiML back into the live call
+        const voice = clientRecord.ai_voice || 'Google.en-GB-Neural2-C';
+        const lang = clientRecord.ai_voice_language || 'en-GB';
+
+        let twimlResponse;
+        if (transferDept) {
+          const depts = JSON.parse(clientRecord.departments || '[]');
+          const dept = depts.find(d => d.name?.toLowerCase() === transferDept.toLowerCase()) || depts[0];
+          const transferNum = dept?.number || null;
+          if (transferNum) {
+            twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${reply}</Say><Dial action="/voice/transfer" method="POST">${transferNum}</Dial></Response>`;
+          } else {
+            twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${reply}</Say><Pause length="60"/><Redirect>/voice/stream-continue</Redirect></Response>`;
+          }
+        } else {
+          twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${reply}</Say><Pause length="60"/></Response>`;
+        }
+
+        await twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+          .calls(callSid)
+          .update({ twiml: twimlResponse });
+
+      } catch (err) {
+        console.error(`[Deepgram] Reply error for ${callSid}:`, err.message);
+      } finally {
+        processingReply = false;
+      }
+    }, SILENCE_MS);
+  }
+
+  ws.on('message', async (message) => {
+    try {
+      const data = JSON.parse(message);
+
+      if (data.event === 'start') {
+        callSid = data.start?.callSid;
+        console.log(`[Deepgram] Stream started for call ${callSid}`);
+
+        // Look up client from call session
+        const session = db.prepare("SELECT * FROM call_sessions WHERE call_sid = ?").get(callSid);
+        if (session) {
+          clientRecord = db.prepare("SELECT * FROM clients WHERE id = ?").get(session.client_id);
+        }
+
+        // Connect to Deepgram
+        dgClient = createClient(process.env.DEEPGRAM_API_KEY);
+        dgConnection = dgClient.listen.live({
+          model: 'nova-2',
+          language: 'en-GB',
+          encoding: 'mulaw',
+          sample_rate: 8000,
+          channels: 1,
+          punctuate: true,
+          interim_results: true,
+          endpointing: 800,
+        });
+
+        dgConnection.on('open', () => console.log(`[Deepgram] Connected to Deepgram for ${callSid}`));
+
+        dgConnection.on('Results', (result) => {
+          const alt = result?.channel?.alternatives?.[0];
+          if (!alt) return;
+          const text = alt.transcript;
+          if (!text) return;
+          if (result.is_final) {
+            transcript += (transcript ? ' ' : '') + text;
+            resetSilenceTimer();
+          }
+        });
+
+        dgConnection.on('error', (err) => console.error('[Deepgram] Error:', err));
+        dgConnection.on('close', () => console.log(`[Deepgram] Connection closed for ${callSid}`));
+      }
+
+      if (data.event === 'media' && dgConnection) {
+        const audioBuffer = Buffer.from(data.media.payload, 'base64');
+        dgConnection.send(audioBuffer);
+      }
+
+      if (data.event === 'stop') {
+        console.log(`[Deepgram] Stream stopped for ${callSid}`);
+        if (silenceTimer) clearTimeout(silenceTimer);
+        if (dgConnection) dgConnection.finish();
+      }
+
+    } catch (err) {
+      console.error('[Deepgram] WS message error:', err.message);
+    }
+  });
+
+  ws.on('close', () => {
+    console.log(`[Deepgram] WebSocket closed for ${callSid}`);
+    if (silenceTimer) clearTimeout(silenceTimer);
+    if (dgConnection) dgConnection.finish();
+  });
+
+  ws.on('error', (err) => console.error('[Deepgram] WS error:', err.message));
+});
+
+httpServer.listen(PORT, () => console.log(`\n🚀 RingDesk server running on port ${PORT}\n`));
 
 // ═══════════════════════════════════════════════════════════════════════════════
 //  PHONE NUMBER PROVISIONING
