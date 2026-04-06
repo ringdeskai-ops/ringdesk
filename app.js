@@ -843,7 +843,7 @@ app.post("/api/billing/checkout", authRequired, async (req, res) => {
     subscription_data: { trial_period_days: 14 },
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${process.env.DASHBOARD_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+    success_url: `${process.env.DASHBOARD_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}&client_id=${client.id}`,
     cancel_url: `${process.env.DASHBOARD_URL}/billing`,
     metadata: { client_id: client.id, plan, phone_number: phone_number || '' },
   });
@@ -4719,13 +4719,65 @@ p{color:#5a7a9a;font-size:15px;line-height:1.7;margin-bottom:8px}
     <div class="step"><div class="step-num">3</div> Set your business hours and FAQs</div>
     <div class="step"><div class="step-num">4</div> Go live — your number is already active</div>
   </div>
-  <a href="/dashboard" class="btn">Go to dashboard →</a>
+  <a href="/dashboard" class="btn" id="dashBtn">Go to dashboard →</a>
+<script>
+// Auto-login after Stripe checkout
+(async function(){
+  const params = new URLSearchParams(window.location.search);
+  const clientId = params.get('client_id');
+  const sessionId = params.get('session_id');
+  if (clientId && sessionId) {
+    try {
+      const r = await fetch('/api/billing/verify-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: sessionId, client_id: clientId })
+      });
+      const d = await r.json();
+      if (d.token) {
+        localStorage.setItem('rd_token', d.token);
+        localStorage.setItem('rd_user', JSON.stringify(d.user));
+        localStorage.setItem('rd_login_time', Date.now().toString());
+        document.getElementById('dashBtn').textContent = 'Go to dashboard →';
+      }
+    } catch(e) { console.log('Auto-login failed:', e.message); }
+  }
+})();
+</script>
 </div>
 </body>
 </html>`);
 });
 
 app.get('/billing/cancel', (req, res) => res.redirect('/'));
+
+// Verify Stripe session and return auth token for auto-login
+app.post('/api/billing/verify-session', async (req, res) => {
+  try {
+    const { session_id, client_id } = req.body;
+    if (!session_id || !client_id) return res.status(400).json({ error: 'Missing params' });
+    // Verify session with Stripe
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+    if (!session || session.status !== 'complete') return res.status(400).json({ error: 'Invalid session' });
+    // Get client
+    const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(client_id);
+    if (!client) return res.status(404).json({ error: 'Client not found' });
+    // Generate token
+    const jwt = require('jsonwebtoken');
+    const token = jwt.sign(
+      { id: client.id, email: client.email, business_name: client.business_name },
+      process.env.JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+    res.json({
+      token,
+      user: { id: client.id, email: client.email, business_name: client.business_name, plan: client.plan }
+    });
+  } catch(e) {
+    console.error('verify-session error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
 
 // Temp invoice preview (remove after testing)
 app.get('/invoice-preview/:id', (req, res) => {
