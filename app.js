@@ -317,6 +317,55 @@ app.post('/api/admin/unsuspend/:clientId', authRequired, (req, res) => {
   res.json({ success: true, message: 'Customer reactivated' });
 });
 
+// STT spend stats (superadmin only)
+app.get('/api/admin/stt-spend', authRequired, (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  const month = db.prepare(`
+    SELECT COUNT(*) as calls, ROUND(SUM(duration)/60.0,2) as minutes
+    FROM calls WHERE deleted_at IS NULL AND status='completed' AND duration>0
+    AND started_at >= strftime('%s','now','start of month')
+  `).get();
+  const allTime = db.prepare(`
+    SELECT COUNT(*) as calls, ROUND(SUM(duration)/60.0,2) as minutes
+    FROM calls WHERE deleted_at IS NULL AND status='completed' AND duration>0
+  `).get();
+  const mMins = month.minutes || 0;
+  const aMins = allTime.minutes || 0;
+  res.json({
+    month: {
+      calls: month.calls || 0,
+      minutes: mMins,
+      twilio_cost: (mMins * 0.01).toFixed(2),
+      deepgram_cost: (mMins * 0.0043).toFixed(2),
+      saving: ((mMins * 0.01) - (mMins * 0.0043)).toFixed(2)
+    },
+    all_time: {
+      calls: allTime.calls || 0,
+      minutes: aMins,
+      twilio_cost: (aMins * 0.01).toFixed(2),
+      deepgram_cost: (aMins * 0.0043).toFixed(2),
+      saving: ((aMins * 0.01) - (aMins * 0.0043)).toFixed(2)
+    }
+  });
+});
+
+// STT provider toggle (superadmin only)
+app.get('/api/admin/stt-provider', authRequired, (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  const row = db.prepare("SELECT value FROM system_settings WHERE key='stt_provider'").get();
+  res.json({ stt_provider: row?.value || 'twilio' });
+});
+
+app.post('/api/admin/stt-provider', authRequired, (req, res) => {
+  if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
+  const { provider } = req.body;
+  if (!['twilio', 'deepgram'].includes(provider)) return res.status(400).json({ error: 'Invalid provider' });
+  db.prepare("INSERT OR REPLACE INTO system_settings (key, value, updated_at) VALUES ('stt_provider', ?, ?)")
+    .run(provider, Date.now());
+  console.log(`[STT] Provider switched to: ${provider} by ${req.client.email}`);
+  res.json({ success: true, stt_provider: provider });
+});
+
 // Get number assignment audit log (superadmin only)
 app.get('/api/admin/number-audit', authRequired, (req, res) => {
   if (!['admin','superadmin'].includes(req.client.role)) return res.status(403).json({ error: 'Forbidden' });
@@ -5164,10 +5213,20 @@ app.get('/api/admin/health', async (req, res) => {
   try {
     const t0 = Date.now();
     const account = await twilioClient.api.accounts(process.env.TWILIO_ACCOUNT_SID).fetch();
+    const twilioStats = db.prepare(`
+      SELECT
+        SUM(CASE WHEN phone_number IS NOT NULL AND phone_number != '' THEN 1 ELSE 0 END) as active_numbers,
+        SUM(CASE WHEN plan_status = 'trialing' THEN 1 ELSE 0 END) as on_trial,
+        SUM(CASE WHEN plan_status = 'active' THEN 1 ELSE 0 END) as paid,
+        SUM(CASE WHEN suspended = 1 THEN 1 ELSE 0 END) as suspended,
+        COUNT(*) as total
+      FROM clients WHERE role = 'client'
+    `).get();
     results.services.twilio = {
       status: account.status === 'active' ? 'ok' : 'warning',
       message: 'Account ' + account.status,
-      latency: Date.now() - t0
+      latency: Date.now() - t0,
+      numbers: twilioStats
     };
   } catch(e) {
     results.services.twilio = { status: 'error', message: e.message };
