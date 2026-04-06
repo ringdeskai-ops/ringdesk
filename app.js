@@ -4738,7 +4738,21 @@ p{color:#5a7a9a;font-size:15px;line-height:1.7;margin-bottom:8px}
         localStorage.setItem('rd_token', d.token);
         localStorage.setItem('rd_user', JSON.stringify(d.user));
         localStorage.setItem('rd_login_time', Date.now().toString());
-        document.getElementById('dashBtn').textContent = 'Go to dashboard →';
+        // Wait 3 seconds for webhook to activate plan, then auto-redirect
+        const btn = document.getElementById('dashBtn');
+        btn.textContent = 'Setting up your account...';
+        btn.style.background = 'rgba(0,212,255,.2)';
+        btn.style.color = '#00d4ff';
+        let secs = 5;
+        const timer = setInterval(() => {
+          secs--;
+          if (secs <= 0) {
+            clearInterval(timer);
+            window.location.href = '/dashboard';
+          } else {
+            btn.textContent = 'Taking you to dashboard in ' + secs + 's...';
+          }
+        }, 1000);
       }
     } catch(e) { console.log('Auto-login failed:', e.message); }
   }
