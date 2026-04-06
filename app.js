@@ -1285,33 +1285,58 @@ function getClientByNumber(phoneNumber) {
   return db.prepare("SELECT * FROM clients WHERE phone_number = ? OR phone_number = ?").get(normalised, clean);
 }
 
-function buildSystemPrompt(client) {
+function buildSystemPrompt(client, session) {
   const base = client.ai_prompt || `You are ${client.ai_name || "Aria"}, the AI receptionist for ${client.business_name}.`;
+  
+  // Inject known caller details so Claude never asks for them again
+  let callerContext = '';
+  try {
+    const callerData = JSON.parse(session?.caller_data || '{}');
+    const parts = [];
+    if (callerData.name) parts.push(`Caller name: ${callerData.name}`);
+    if (callerData.phone) parts.push(`Caller phone: ${callerData.phone}`);
+    if (callerData.address) parts.push(`Caller address: ${callerData.address}`);
+    if (callerData.email) parts.push(`Caller email: ${callerData.email}`);
+    if (parts.length > 0) {
+      callerContext = `\n\nKNOWN CALLER DETAILS (do NOT ask for these again):\n` + parts.join('\n');
+    }
+  } catch(e) {}
+
   return `${base}
 
 RULES:
 - Keep ALL responses under 40 words. This is a phone call.
 - No markdown, no bullet points, no special characters.
 - Be warm, professional, and concise.
+- Callers may have non-English names or accents. Accept ANY name as given — never ask them to repeat or spell it unless completely inaudible. If unsure, use the closest phonetic version and move on.
+- NEVER ask for information you already have. If you know the caller's name, use it.
+- If the caller gives their name and it sounds unusual, still accept it and move on immediately.${callerContext}
 
 TRANSFER RULES — append [TRANSFER:dept] at end of reply when:
 - Caller asks for a human, real person, or agent
 - Caller requests sales, support, billing, or manager
 - Caller is upset or issue is too complex
 Departments: sales, support, billing, manager, general
-Example: "Let me connect you with our team. [TRANSFER:billing]"`;
+Example: "Let me connect you with our team. [TRANSFER:billing]"
+
+CALLER DATA EXTRACTION — when caller provides details, append to your reply:
+- Name given: [CALLERDATA:name:VALUE]
+- Phone given: [CALLERDATA:phone:VALUE]
+- Address given: [CALLERDATA:address:VALUE]
+- Email given: [CALLERDATA:email:VALUE]
+Example: "Got it, Thiru! [CALLERDATA:name:Thiru]"`;
 }
 
 async function askClaude(client, session, userMessage) {
   let history = JSON.parse(session.history || "[]");
-  // Keep only last 6 messages to prevent history bloat and timeouts
-  if (history.length > 6) history = history.slice(-6);
+  // Keep only last 10 messages to prevent history bloat and timeouts
+  if (history.length > 10) history = history.slice(-10);
   history.push({ role: "user", content: userMessage });
 
   const response = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 80,
-    system: buildSystemPrompt(client),
+    max_tokens: 100,
+    system: buildSystemPrompt(client, session),
     messages: history,
   }, { timeout: 8000 });
 
@@ -1320,14 +1345,30 @@ async function askClaude(client, session, userMessage) {
   const transferDept = transferMatch?.[1] || null;
   reply = reply.replace(/\[TRANSFER:\w+\]/g, "").trim();
 
+  // Extract and persist caller data tags
+  const callerDataMatches = [...reply.matchAll(/\[CALLERDATA:(\w+):([^\]]+)\]/g)];
+  if (callerDataMatches.length > 0) {
+    try {
+      const existingData = JSON.parse(session.caller_data || '{}');
+      for (const match of callerDataMatches) {
+        existingData[match[1]] = match[2].trim();
+      }
+      db.prepare("UPDATE call_sessions SET caller_data = ? WHERE call_sid = ?")
+        .run(JSON.stringify(existingData), session.call_sid);
+      // Update caller_name if name was extracted
+      if (existingData.name) {
+        db.prepare("UPDATE call_sessions SET caller_name = ? WHERE call_sid = ?")
+          .run(existingData.name, session.call_sid);
+      }
+    } catch(e) { console.error('Caller data parse error:', e.message); }
+  }
+
+  // Strip CALLERDATA tags from spoken reply
+  reply = reply.replace(/\[CALLERDATA:[^\]]+\]/g, '').trim();
+
   history.push({ role: "assistant", content: reply });
   db.prepare("UPDATE call_sessions SET history = ? WHERE call_sid = ?")
     .run(JSON.stringify(history), session.call_sid);
-
-  const nameMatch = userMessage.match(/(?:my name is|i'm|i am|this is)\s+([A-Za-z]+)/i);
-  if (nameMatch && !session.caller_name) {
-    db.prepare("UPDATE call_sessions SET caller_name = ? WHERE call_sid = ?").run(nameMatch[1], session.call_sid);
-  }
 
   return { reply, transferDept };
 }
@@ -5912,7 +5953,7 @@ wss.on('connection', (ws) => {
   let silenceTimer = null;
   let processingReply = false;
 
-  const SILENCE_MS = 1500; // wait 1.5s of silence before processing
+  const SILENCE_MS = 800; // wait 0.8s of silence before processing
 
   function resetSilenceTimer() {
     if (silenceTimer) clearTimeout(silenceTimer);
@@ -5940,15 +5981,21 @@ wss.on('connection', (ws) => {
         const voice = clientRecord.ai_voice || 'Google.en-GB-Neural2-C';
         const lang = clientRecord.ai_voice_language || 'en-GB';
 
+        // Refresh client record to get latest departments
+        const freshClient = db.prepare("SELECT * FROM clients WHERE id = ?").get(clientRecord.id);
         let twimlResponse;
         if (transferDept) {
-          const depts = JSON.parse(clientRecord.departments || '[]');
-          const dept = depts.find(d => d.name?.toLowerCase() === transferDept.toLowerCase()) || depts[0];
+          let depts = [];
+          try { depts = JSON.parse(freshClient.departments || '[]'); } catch(e) {}
+          const dept = Array.isArray(depts) ? (depts.find(d => d.name?.toLowerCase() === transferDept.toLowerCase()) || depts[0]) : null;
           const transferNum = dept?.number || null;
-          if (transferNum) {
+          const callerNum = db.prepare("SELECT caller_number FROM calls WHERE call_sid = ?").get(callSid)?.caller_number;
+          if (transferNum && transferNum !== callerNum) {
             twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${reply}</Say><Dial action="/voice/transfer" method="POST">${transferNum}</Dial></Response>`;
           } else {
-            twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${reply}</Say><Pause length="60"/><Redirect>/voice/stream-continue</Redirect></Response>`;
+            // No valid transfer number — tell caller politely
+            const busyReply = reply + " All our team are currently busy. Someone will call you back shortly.";
+            twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${busyReply}</Say><Pause length="60"/></Response>`;
           }
         } else {
           twimlResponse = `<Response><Say voice="${voice}" language="${lang}">${reply}</Say><Pause length="60"/></Response>`;
@@ -5960,6 +6007,12 @@ wss.on('connection', (ws) => {
 
       } catch (err) {
         console.error(`[Deepgram] Reply error for ${callSid}:`, err.message);
+        // Try to say something so caller isn't left in silence
+        try {
+          const fallbackTwiml = `<Response><Say voice="${clientRecord?.ai_voice || 'Google.en-GB-Neural2-C'}">${clientRecord?.ai_name || 'Aria'} is still here. Please go ahead.</Say><Pause length="60"/></Response>`;
+          await twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
+            .calls(callSid).update({ twiml: fallbackTwiml });
+        } catch(e2) {}
       } finally {
         processingReply = false;
       }
@@ -5981,7 +6034,7 @@ wss.on('connection', (ws) => {
         }
 
         // Connect to Deepgram via raw WebSocket
-        const dgUrl = `wss://api.deepgram.com/v1/listen?model=nova-2&language=en-GB&encoding=mulaw&sample_rate=8000&channels=1&punctuate=true&interim_results=true&endpointing=800`;
+        const dgUrl = `wss://api.deepgram.com/v1/listen?model=nova-2&language=en&encoding=mulaw&sample_rate=8000&channels=1&punctuate=true&interim_results=true&endpointing=500&smart_format=true&no_delay=true&utterance_end_ms=1500`;
         dgConnection = new WebSocket(dgUrl, { headers: { Authorization: `Token ${process.env.DEEPGRAM_API_KEY}` } });
 
         dgConnection.on('open', () => console.log(`[Deepgram] Connected to Deepgram for ${callSid}`));
