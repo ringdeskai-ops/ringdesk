@@ -174,5 +174,17 @@ if(!r.ok)throw new Error(d.error||'Checkout failed.');
 window.location.href=d.url;
 }catch(e){showE(3,e.message);btn.disabled=false;bt.textContent='Pay with Stripe →'}
 }
+async function handleGCSignup(){
+const btn=document.getElementById('s3gcBtn'),bt=document.getElementById('s3gcTxt');
+const s3btn=document.getElementById('s3btn');
+btn.disabled=true;s3btn.disabled=true;bt.innerHTML='<div class="spinner"></div> Setting up...';
+try{
+const r=await fetch('/api/gc/setup',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({plan:selPlan,phone_number:selNum})});
+const d=await r.json();
+if(!r.ok)throw new Error(d.error||'Direct Debit setup failed.');
+if(d.url){window.location.href=d.url;}
+else throw new Error('No redirect URL received.');
+}catch(e){showE(3,e.message);btn.disabled=false;s3btn.disabled=false;bt.textContent='🏦 Direct Debit';}
+}
 function showE(s,m){const el=document.getElementById('e'+s);el.textContent=m;el.classList.add('show')}
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('signupModal').classList.contains('active')){if(curStep===1)goStep2();else if(curStep===2)goStep3();else if(curStep===3)handleSignup()}});
