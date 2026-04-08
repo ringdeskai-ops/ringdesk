@@ -1089,6 +1089,15 @@ app.get('/brand.css', (req, res) => { res.setHeader('Cache-Control', 'no-cache, 
 app.get('/home.css', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.sendFile(__dirname + '/public/home.css'); });
 app.get('/home.js', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.sendFile(__dirname + '/public/home.js'); });
 app.get('/plans.js', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.sendFile(__dirname + '/public/plans.js'); });
+// Auto-rebuild all pages when pricing changes
+function rebuildPricing() {
+  const { execFile } = require('child_process');
+  execFile('node', ['rebuild-pricing.js'], { cwd: __dirname }, (err, stdout, stderr) => {
+    if (err) console.error('Pricing rebuild error:', err.message);
+    else console.log('✅ Pricing rebuilt:', stdout.trim());
+  });
+}
+
 app.get('/api/pricing-plans', (req, res) => {
   try {
     const setting = db.prepare("SELECT value FROM system_settings WHERE key='pricing_plans'").get();
@@ -6273,6 +6282,7 @@ app.post('/api/admin/pricing/update', authRequired, (req, res) => {
       clientsUpdated = r.changes;
     }
     res.json({ ok: true, plan: plans[idx], clientsUpdated });
+    rebuildPricing();
   } catch(e) { console.error('POST /api/admin/pricing/update', e); res.status(500).json({ error: 'Server error' }); }
 });
 
