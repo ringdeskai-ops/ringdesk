@@ -588,7 +588,7 @@ select option{background-color:#0c1520;color:#f0f6ff}
           <span>Super Admin</span>
           <svg id="superAdminChevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s;transform:rotate(-90deg)"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div id="superAdminNavItems">
+        <div id="superAdminNavItems" style="display:none">
           <button class="nav-btn superadmin-only" onclick="showPage('admin-management')">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
             Admin Users
@@ -4161,7 +4161,6 @@ function showDashboard() {
   const isAdmin = ['superadmin','admin'].includes(currentUser?.role);
   updateIncidentNavVisibility();
   document.getElementById('adminNav').style.display = isAdmin ? 'block' : 'none';
-  restoreNavSections();
   document.getElementById('sidebarRole').textContent = isSuperAdmin ? 'Super Admin' : isAdmin ? 'Admin' : 'Client';
   // Show admin/customer number in sidebar
   var sidebarNum = document.getElementById('sidebarNum');
@@ -8072,16 +8071,15 @@ function dismissIosBanner() {
 }
 
 // ── PRICING MANAGE ───────────────────────────────────────────────────────
-var _pricingPlans = [];
+var _pricingPlans = [
+  {id:'essential',name:'Essential',price:'29',calls:'150/mo',popular:false,feats:['1 UK phone number','AI answering 24/7','Email notifications','Call transcripts & summaries','Call transfers']},
+  {id:'starter',name:'Starter',price:'49',calls:'300/mo',popular:true,feats:['Everything in Essential','Voicemail + recordings','Call dashboard & leads','Referral programme']},
+  {id:'professional',name:'Professional',price:'149',calls:'1,000/mo',popular:false,feats:['Everything in Starter','Appointment booking','Custom AI personality & script','Google Calendar integration','Priority support']},
+  {id:'business',name:'Business',price:'349',calls:'5,000/mo',popular:false,feats:['Everything in Professional','AI voice & language selector','CRM & webhook integration','Call recording','2 phone numbers','Dedicated account manager']}
+];
 function loadPricingManage() {
   loadPricingHistory();
-  api('/api/admin/pricing').then(function(res) {
-    if (res && res.plans && res.plans.length) {
-      _pricingPlans = res.plans.map(function(p) {
-        return {id:p.id, name:p.name, price:String(p.price_monthly), calls:p.call_limit, popular:!!p.is_popular, feats:p.features||[]};
-      });
-    }
-    _pricingPlans.forEach(function(p) {
+  _pricingPlans.forEach(function(p) {
     var n=document.getElementById('pname-'+p.id); if(n) n.value=p.name;
     var pr=document.getElementById('pprice-'+p.id); if(pr) pr.value=p.price;
     var c=document.getElementById('pcalls-'+p.id); if(c) c.value=p.call_limit||p.calls.replace(/[^0-9]/g,'');
@@ -8612,30 +8610,28 @@ function renderHealthPricing(pricingData) {
     var isOpen = section.style.display !== 'none';
     section.style.display = isOpen ? 'none' : 'block';
     if (chevron) chevron.style.transform = isOpen ? 'rotate(-90deg)' : 'rotate(0deg)';
+    // Save state
     localStorage.setItem('nav_' + sectionId, isOpen ? '0' : '1');
   }
-  window.toggleNavSection = toggleNavSection;
 
   function restoreNavSections() {
-    // Only restore configure section - admin sections always visible when shown
-    var configSection = document.getElementById('configureNav');
-    var configChevron = document.getElementById('configureChevron');
-    var saved = localStorage.getItem('nav_configureNav');
-    var isOpen = saved !== null ? saved === '1' : true;
-    if (configSection) configSection.style.display = isOpen ? 'block' : 'none';
-    if (configChevron) configChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
-    // Always show admin sections
-    var adminItems = document.getElementById('adminNavItems');
-    var superItems = document.getElementById('superAdminNavItems');
-    if (adminItems) adminItems.style.display = 'block';
-    if (superItems) superItems.style.display = 'block';
-    var ac = document.getElementById('adminChevron');
-    var sc = document.getElementById('superAdminChevron');
-    if (ac) ac.style.transform = 'rotate(0deg)';
-    if (sc) sc.style.transform = 'rotate(0deg)';
+    ['configureNav','adminNavItems','superAdminNavItems'].forEach(function(id) {
+      var saved = localStorage.getItem('nav_' + id);
+      var section = document.getElementById(id);
+      if (!section) return;
+      // configureNav open by default, others closed by default
+      var defaultOpen = id === 'configureNav';
+      var isOpen = saved !== null ? saved === '1' : defaultOpen;
+      section.style.display = isOpen ? 'block' : 'none';
+      var chevronMap = { configureNav: 'configureChevron', adminNavItems: 'adminChevron', superAdminNavItems: 'superAdminChevron' };
+      var chevron = document.getElementById(chevronMap[id]);
+      if (chevron) chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
+    });
   }
 
   // Handle GSC connected redirect
+  restoreNavSections();
+
   if (window.location.search.includes('gsc=connected')) {
     history.replaceState({}, '', '/dashboard');
     setTimeout(() => showPage('seo'), 500);
