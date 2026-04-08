@@ -336,6 +336,33 @@ app.post('/api/admin/suspend/:clientId', authRequired, async (req, res) => {
     } catch(e) { console.error('Suspend GoCardless cancel error:', e.message); }
   }
   
+  // Send suspension emails
+  try {
+    const suspendCustomerHtml = '<div style="font-family:Helvetica Neue,sans-serif;max-width:560px;margin:0 auto;background:#060912;color:#f0f4f8;padding:40px;border-radius:16px">'
+      + '<div style="margin-bottom:24px"><div style="font-size:28px;font-weight:800"><span style="color:#00d4ff">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span></div></div>'
+      + '<h2 style="font-size:20px;margin-bottom:16px;color:#ff4466">Your account has been suspended</h2>'
+      + '<p style="color:#8896a8;line-height:1.7">Hi ' + client.business_name + ', your AiRingDesk account has been temporarily suspended.</p>'
+      + '<div style="background:#0d1117;border:1px solid rgba(255,68,102,.2);border-radius:12px;padding:20px;margin:24px 0">'
+      + '<p style="font-size:13px;color:#8896a8;margin-bottom:8px">Reason: <strong style="color:#f0f4f8">' + (reason || 'Suspended by admin') + '</strong></p>'
+      + '<p style="font-size:13px;color:#8896a8">Your AI receptionist has stopped answering calls. Please contact us to resolve this.</p>'
+      + '</div>'
+      + '<p style="color:#5a7a9a;font-size:13px;text-align:center">Contact us at <a href="mailto:hello@airingdesk.com" style="color:#00d4ff">hello@airingdesk.com</a></p>'
+      + '<p style="color:#3d4f63;font-size:12px;margin-top:24px;border-top:1px solid #1a2332;padding-top:16px">AiRingDesk &middot; hello@airingdesk.com</p></div>';
+    await sendBrevoEmail(client.email, 'Your AiRingDesk account has been suspended', suspendCustomerHtml);
+
+    const suspendAdminHtml = '<div style="font-family:sans-serif;max-width:560px;padding:24px"><h2 style="color:#ff8c00">Customer Suspended</h2>'
+      + '<table style="width:100%;border-collapse:collapse">'
+      + '<tr><td style="padding:8px 0;color:#888;font-size:13px">Business</td><td style="font-weight:600">' + client.business_name + '</td></tr>'
+      + '<tr><td style="padding:8px 0;color:#888;font-size:13px">Email</td><td>' + client.email + '</td></tr>'
+      + '<tr><td style="padding:8px 0;color:#888;font-size:13px">Suspended by</td><td>' + req.client.email + '</td></tr>'
+      + '<tr><td style="padding:8px 0;color:#888;font-size:13px">Reason</td><td>' + (reason || 'No reason given') + '</td></tr>'
+      + '<tr><td style="padding:8px 0;color:#888;font-size:13px">Number released</td><td>' + (release_number ? 'Yes' : 'No') + '</td></tr>'
+      + '<tr><td style="padding:8px 0;color:#888;font-size:13px">Time</td><td>' + new Date().toLocaleString('en-GB',{timeZone:'Europe/London'}) + '</td></tr>'
+      + '</table><p style="margin-top:16px"><a href="https://airingdesk.com/dashboard">View in admin</a></p></div>';
+    await sendBrevoEmail(process.env.NOTIFY_EMAIL, '[AiRingDesk] Customer suspended: ' + client.business_name, suspendAdminHtml);
+    console.log('📧 Suspension emails sent for:', client.email);
+  } catch(emailErr) { console.error('Suspension email error:', emailErr.message); }
+
   console.log('⚠️ Customer suspended:', client.business_name, '| Reason:', reason);
   res.json({ success: true, message: 'Customer suspended' });
 });
