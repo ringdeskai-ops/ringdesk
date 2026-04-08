@@ -4161,6 +4161,7 @@ function showDashboard() {
   const isAdmin = ['superadmin','admin'].includes(currentUser?.role);
   updateIncidentNavVisibility();
   document.getElementById('adminNav').style.display = isAdmin ? 'block' : 'none';
+  restoreNavSections();
   document.getElementById('sidebarRole').textContent = isSuperAdmin ? 'Super Admin' : isAdmin ? 'Admin' : 'Client';
   // Show admin/customer number in sidebar
   var sidebarNum = document.getElementById('sidebarNum');
@@ -8631,8 +8632,6 @@ function renderHealthPricing(pricingData) {
   }
 
   // Handle GSC connected redirect
-  restoreNavSections();
-
   if (window.location.search.includes('gsc=connected')) {
     history.replaceState({}, '', '/dashboard');
     setTimeout(() => showPage('seo'), 500);
