@@ -1098,6 +1098,12 @@ function rebuildPricing() {
   });
 }
 
+// Redirect directory URLs to homepage to avoid 404s
+app.get('/industries', (req, res) => res.redirect(301, '/'));
+app.get('/industries/', (req, res) => res.redirect(301, '/'));
+app.get('/locations', (req, res) => res.redirect(301, '/'));
+app.get('/locations/', (req, res) => res.redirect(301, '/'));
+
 app.get('/api/pricing-plans', (req, res) => {
   try {
     const setting = db.prepare("SELECT value FROM system_settings WHERE key='pricing_plans'").get();
