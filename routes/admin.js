@@ -95,6 +95,41 @@ module.exports = function(db, sendBrevoEmail) {
     }
 
     if (plan_status === 'cancelled' && client) {
+      // Cancel Stripe subscription
+      if (client.stripe_subscription_id) {
+        try {
+          const Stripe = require('stripe');
+          const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+          await stripe.subscriptions.cancel(client.stripe_subscription_id);
+          console.log('💳 Stripe subscription cancelled by admin for:', client.business_name);
+        } catch(stripeErr) { console.error('Admin Stripe cancel error:', stripeErr.message); }
+      }
+
+      // Cancel GoCardless subscription
+      if (client.gc_subscription_id) {
+        try {
+          const { GoCardlessClient, Environments } = require('gocardless-nodejs');
+          const gc = new GoCardlessClient(process.env.GOCARDLESS_ACCESS_TOKEN, Environments.Live);
+          await gc.subscriptions.cancel(client.gc_subscription_id, {});
+          db.prepare('UPDATE clients SET gc_subscription_id = NULL WHERE id = ?').run(client.id);
+          console.log('🏦 GoCardless subscription cancelled by admin for:', client.business_name);
+        } catch(gcErr) { console.error('Admin GoCardless cancel error:', gcErr.message); }
+      }
+
+      // Release Twilio number
+      if (client.phone_number) {
+        try {
+          const twilio = require('twilio');
+          const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+          const numbers = await twilioClient.incomingPhoneNumbers.list({ phoneNumber: client.phone_number });
+          if (numbers.length > 0) {
+            await twilioClient.incomingPhoneNumbers(numbers[0].sid).remove();
+            db.prepare('UPDATE clients SET phone_number = NULL WHERE id = ?').run(client.id);
+            console.log('📵 Twilio number released by admin for:', client.business_name);
+          }
+        } catch(twilioErr) { console.error('Admin Twilio release error:', twilioErr.message); }
+      }
+
       try {
         const cancelBody = '<p style="color:#8896a8;line-height:1.8;margin-bottom:20px">Hi <strong style="color:#f0f4f8">' + client.business_name + '</strong>, your AiRingDesk subscription has been cancelled by our team. If you believe this is an error, please contact us immediately.</p>'
           + '<div style="background:#0d1117;border:1px solid rgba(255,68,102,.2);border-radius:12px;padding:20px;margin-bottom:24px">'
