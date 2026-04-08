@@ -588,7 +588,7 @@ select option{background-color:#0c1520;color:#f0f6ff}
           <span>Super Admin</span>
           <svg id="superAdminChevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s;transform:rotate(-90deg)"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
-        <div id="superAdminNavItems" style="display:none">
+        <div id="superAdminNavItems">
           <button class="nav-btn superadmin-only" onclick="showPage('admin-management')">
             <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
             Admin Users
@@ -8612,18 +8612,17 @@ function renderHealthPricing(pricingData) {
     var isOpen = section.style.display !== 'none';
     section.style.display = isOpen ? 'none' : 'block';
     if (chevron) chevron.style.transform = isOpen ? 'rotate(-90deg)' : 'rotate(0deg)';
-    // Save state
     localStorage.setItem('nav_' + sectionId, isOpen ? '0' : '1');
   }
+  window.toggleNavSection = toggleNavSection;
 
   function restoreNavSections() {
     ['configureNav','adminNavItems','superAdminNavItems'].forEach(function(id) {
       var saved = localStorage.getItem('nav_' + id);
       var section = document.getElementById(id);
       if (!section) return;
-      // configureNav open by default, others closed by default
-      var defaultOpen = id === 'configureNav';
-      var isOpen = saved !== null ? saved === '1' : defaultOpen;
+      // All sections open by default
+      var isOpen = saved !== null ? saved === '1' : true;
       section.style.display = isOpen ? 'block' : 'none';
       var chevronMap = { configureNav: 'configureChevron', adminNavItems: 'adminChevron', superAdminNavItems: 'superAdminChevron' };
       var chevron = document.getElementById(chevronMap[id]);
