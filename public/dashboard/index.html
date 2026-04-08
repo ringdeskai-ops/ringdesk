@@ -8617,17 +8617,22 @@ function renderHealthPricing(pricingData) {
   window.toggleNavSection = toggleNavSection;
 
   function restoreNavSections() {
-    ['configureNav','adminNavItems','superAdminNavItems'].forEach(function(id) {
-      var saved = localStorage.getItem('nav_' + id);
-      var section = document.getElementById(id);
-      if (!section) return;
-      // All sections open by default
-      var isOpen = saved !== null ? saved === '1' : true;
-      section.style.display = isOpen ? 'block' : 'none';
-      var chevronMap = { configureNav: 'configureChevron', adminNavItems: 'adminChevron', superAdminNavItems: 'superAdminChevron' };
-      var chevron = document.getElementById(chevronMap[id]);
-      if (chevron) chevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
-    });
+    // Only restore configure section - admin sections always visible when shown
+    var configSection = document.getElementById('configureNav');
+    var configChevron = document.getElementById('configureChevron');
+    var saved = localStorage.getItem('nav_configureNav');
+    var isOpen = saved !== null ? saved === '1' : true;
+    if (configSection) configSection.style.display = isOpen ? 'block' : 'none';
+    if (configChevron) configChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(-90deg)';
+    // Always show admin sections
+    var adminItems = document.getElementById('adminNavItems');
+    var superItems = document.getElementById('superAdminNavItems');
+    if (adminItems) adminItems.style.display = 'block';
+    if (superItems) superItems.style.display = 'block';
+    var ac = document.getElementById('adminChevron');
+    var sc = document.getElementById('superAdminChevron');
+    if (ac) ac.style.transform = 'rotate(0deg)';
+    if (sc) sc.style.transform = 'rotate(0deg)';
   }
 
   // Handle GSC connected redirect
