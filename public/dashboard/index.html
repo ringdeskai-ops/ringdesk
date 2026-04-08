@@ -8072,20 +8072,15 @@ function dismissIosBanner() {
 
 // ── PRICING MANAGE ───────────────────────────────────────────────────────
 var _pricingPlans = [];
-// Load pricing from DB on init
-(async function() {
-  try {
-    var res = await api('/api/admin/pricing');
+function loadPricingManage() {
+  loadPricingHistory();
+  api('/api/admin/pricing').then(function(res) {
     if (res && res.plans && res.plans.length) {
       _pricingPlans = res.plans.map(function(p) {
         return {id:p.id, name:p.name, price:String(p.price_monthly), calls:p.call_limit, popular:!!p.is_popular, feats:p.features||[]};
       });
     }
-  } catch(e) {}
-})();
-function loadPricingManage() {
-  loadPricingHistory();
-  _pricingPlans.forEach(function(p) {
+    _pricingPlans.forEach(function(p) {
     var n=document.getElementById('pname-'+p.id); if(n) n.value=p.name;
     var pr=document.getElementById('pprice-'+p.id); if(pr) pr.value=p.price;
     var c=document.getElementById('pcalls-'+p.id); if(c) c.value=p.call_limit||p.calls.replace(/[^0-9]/g,'');
