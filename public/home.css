@@ -10,7 +10,7 @@
 }
 html{scroll-behavior:smooth;overflow-x:hidden}
 body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.6;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4;will-change:transform;transform:translateZ(0)}
 /* NAV */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;height:80px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,60px);background:rgba(6,9,18,0.97);backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,212,255,0.1)}
 .nav-brand{display:flex;align-items:center;gap:12px;text-decoration:none}
@@ -324,7 +324,7 @@ footer{padding:40px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 .toggle-switch.annual .toggle-thumb{left:25px}
 .annual-badge{background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.25);border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:.04em}
 /* DEMO CALL BANNER */
-#demo-banner{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,102,204,.05));border-top:1px solid rgba(0,212,255,.15);border-bottom:1px solid rgba(0,212,255,.15);padding:20px clamp(20px,5vw,60px);margin-top:80px;position:relative;z-index:90}
+#demo-banner{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,102,204,.05));border-top:1px solid rgba(0,212,255,.15);border-bottom:1px solid rgba(0,212,255,.15);padding:20px clamp(20px,5vw,60px);margin-top:80px;position:relative;z-index:90;min-height:80px;contain:layout}
 .demo-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
 .demo-text{display:flex;align-items:center;gap:14px}
 .demo-pulse{width:44px;height:44px;border-radius:12px;background:rgba(0,212,255,.12);border:1px solid rgba(0,212,255,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;position:relative}
