@@ -3702,6 +3702,71 @@ Dedicated account manager</textarea></div>
       </div><!-- end ga4Tab -->
 
     </div><!-- end page-seo -->
+    <div class="page" id="page-audit-log">
+      <div class="page-header" style="margin-bottom:24px">
+        <div>
+          <h1 class="page-title">Audit <em>Log</em></h1>
+          <div class="page-sub" style="font-size:14px;color:var(--muted)">Complete history of all admin actions, cancellations and account changes</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <select id="auditActionFilter" onchange="loadAuditLog()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;font-family:inherit">
+            <option value="">All Actions</option>
+            <option value="subscription_activated">Subscription Activated</option>
+            <option value="subscription_cancelled">Subscription Cancelled (Stripe)</option>
+            <option value="subscription_cancelled_admin">Subscription Cancelled (Admin)</option>
+            <option value="subscription_cancel_requested">Cancel Requested (Customer)</option>
+            <option value="customer_suspended">Customer Suspended</option>
+            <option value="customer_unsuspended">Customer Unsuspended</option>
+            <option value="number_released">Number Released</option>
+          </select>
+          <button class="btn-sm btn-ghost-sm" onclick="loadAuditLog()">↻ Refresh</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--cyan)" id="auditTotalCount">-</div>
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Total Actions</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--green)" id="auditActivatedCount">-</div>
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Activations</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--red)" id="auditCancelledCount">-</div>
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Cancellations</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--amber)" id="auditSuspendedCount">-</div>
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Suspensions</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:13px;font-weight:700;color:var(--text)">Action History</div>
+          <div style="font-size:12px;color:var(--muted)" id="auditLogCount"></div>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border)">
+                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Action</th>
+                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Customer</th>
+                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Performed By</th>
+                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Details</th>
+                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Date & Time</th>
+              </tr>
+            </thead>
+            <tbody id="auditLogBody">
+              <tr><td colspan="5" style="padding:40px;text-align:center;color:var(--muted)">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </main>
 
 
@@ -7915,71 +7980,6 @@ function dismissPWA() {
 </script>
 
 
-    <div class="page" id="page-audit-log">
-      <div class="page-header" style="margin-bottom:24px">
-        <div>
-          <h1 class="page-title">Audit <em>Log</em></h1>
-          <div class="page-sub" style="font-size:14px;color:var(--muted)">Complete history of all admin actions, cancellations and account changes</div>
-        </div>
-        <div style="display:flex;gap:10px;align-items:center">
-          <select id="auditActionFilter" onchange="loadAuditLog()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;font-family:inherit">
-            <option value="">All Actions</option>
-            <option value="subscription_activated">Subscription Activated</option>
-            <option value="subscription_cancelled">Subscription Cancelled (Stripe)</option>
-            <option value="subscription_cancelled_admin">Subscription Cancelled (Admin)</option>
-            <option value="subscription_cancel_requested">Cancel Requested (Customer)</option>
-            <option value="customer_suspended">Customer Suspended</option>
-            <option value="customer_unsuspended">Customer Unsuspended</option>
-            <option value="number_released">Number Released</option>
-          </select>
-          <button class="btn-sm btn-ghost-sm" onclick="loadAuditLog()">↻ Refresh</button>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
-          <div style="font-size:28px;font-weight:800;color:var(--cyan)" id="auditTotalCount">-</div>
-          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Total Actions</div>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
-          <div style="font-size:28px;font-weight:800;color:var(--green)" id="auditActivatedCount">-</div>
-          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Activations</div>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
-          <div style="font-size:28px;font-weight:800;color:var(--red)" id="auditCancelledCount">-</div>
-          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Cancellations</div>
-        </div>
-        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
-          <div style="font-size:28px;font-weight:800;color:var(--amber)" id="auditSuspendedCount">-</div>
-          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Suspensions</div>
-        </div>
-      </div>
-
-      <!-- Table -->
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
-        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
-          <div style="font-size:13px;font-weight:700;color:var(--text)">Action History</div>
-          <div style="font-size:12px;color:var(--muted)" id="auditLogCount"></div>
-        </div>
-        <div style="overflow-x:auto">
-          <table style="width:100%;border-collapse:collapse;font-size:12px">
-            <thead>
-              <tr style="border-bottom:1px solid var(--border)">
-                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Action</th>
-                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Customer</th>
-                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Performed By</th>
-                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Details</th>
-                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Date & Time</th>
-              </tr>
-            </thead>
-            <tbody id="auditLogBody">
-              <tr><td colspan="5" style="padding:40px;text-align:center;color:var(--muted)">Loading...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
 
 <!-- iOS PWA Install Banner -->
 <div id="iosInstallBanner" style="display:none;position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#0d1520;border:1px solid rgba(0,212,255,.25);border-radius:14px;padding:16px 20px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:340px;width:90%;text-align:center">
