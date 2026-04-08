@@ -1456,7 +1456,7 @@ select option{background-color:#0c1520;color:#f0f6ff}
                     <div class="form-group" style="margin:0"><label class="form-label">Price (£/mo)</label><input class="form-input" type="number" id="pprice-essential" value="29" min="0" oninput="updatePricingPreview()"/></div>
                   </div>
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-                    <div class="form-group" style="margin:0"><label class="form-label">Calls per month</label><input class="form-input" type="text" id="pcalls-essential" value="150/mo" oninput="updatePricingPreview()"/></div>
+                    <div class="form-group" style="margin:0"><label class="form-label">Calls per month</label><input class="form-input" type="text" id="pcalls-essential" value="150" oninput="updatePricingPreview()"/></div>
                     <div class="form-group" style="margin:0"><label class="form-label">Mark as popular</label><div style="margin-top:10px"><div style="display:flex;align-items:center;gap:8px"><div class="toggle" id="ppopular-essential" onclick="togglePlanPopular('essential')"></div><span style="font-size:12px;color:var(--muted)">Show badge</span></div></div></div>
                   </div>
                   <div class="form-group" style="margin-bottom:6px"><label class="form-label">Features (one per line)</label><textarea class="form-textarea" id="pfeats-essential" rows="6" oninput="updatePricingPreview()" style="min-height:140px">1 UK phone number
@@ -1475,7 +1475,7 @@ Call transfers</textarea></div>
                     <div class="form-group" style="margin:0"><label class="form-label">Price (£/mo)</label><input class="form-input" type="number" id="pprice-starter" value="49" min="0" oninput="updatePricingPreview()"/></div>
                   </div>
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-                    <div class="form-group" style="margin:0"><label class="form-label">Calls per month</label><input class="form-input" type="text" id="pcalls-starter" value="300/mo" oninput="updatePricingPreview()"/></div>
+                    <div class="form-group" style="margin:0"><label class="form-label">Calls per month</label><input class="form-input" type="text" id="pcalls-starter" value="300" oninput="updatePricingPreview()"/></div>
                     <div class="form-group" style="margin:0"><label class="form-label">Mark as popular</label><div style="margin-top:10px"><div style="display:flex;align-items:center;gap:8px"><div class="toggle on" id="ppopular-starter" onclick="togglePlanPopular('starter')"></div><span style="font-size:12px;color:var(--muted)">Show badge</span></div></div></div>
                   </div>
                   <div class="form-group" style="margin-bottom:6px"><label class="form-label">Features (one per line)</label><textarea class="form-textarea" id="pfeats-starter" rows="6" oninput="updatePricingPreview()" style="min-height:140px">Everything in Essential
@@ -1493,7 +1493,7 @@ Referral programme</textarea></div>
                     <div class="form-group" style="margin:0"><label class="form-label">Price (£/mo)</label><input class="form-input" type="number" id="pprice-professional" value="149" min="0" oninput="updatePricingPreview()"/></div>
                   </div>
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-                    <div class="form-group" style="margin:0"><label class="form-label">Calls per month</label><input class="form-input" type="text" id="pcalls-professional" value="1,000/mo" oninput="updatePricingPreview()"/></div>
+                    <div class="form-group" style="margin:0"><label class="form-label">Calls per month</label><input class="form-input" type="text" id="pcalls-professional" value="1000" oninput="updatePricingPreview()"/></div>
                     <div class="form-group" style="margin:0"><label class="form-label">Mark as popular</label><div style="margin-top:10px"><div style="display:flex;align-items:center;gap:8px"><div class="toggle" id="ppopular-professional" onclick="togglePlanPopular('professional')"></div><span style="font-size:12px;color:var(--muted)">Show badge</span></div></div></div>
                   </div>
                   <div class="form-group" style="margin-bottom:6px"><label class="form-label">Features (one per line)</label><textarea class="form-textarea" id="pfeats-professional" rows="7" oninput="updatePricingPreview()" style="min-height:160px">Everything in Starter
@@ -1512,7 +1512,7 @@ Priority support</textarea></div>
                     <div class="form-group" style="margin:0"><label class="form-label">Price (£/mo)</label><input class="form-input" type="number" id="pprice-business" value="349" min="0" oninput="updatePricingPreview()"/></div>
                   </div>
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
-                    <div class="form-group" style="margin:0"><label class="form-label">Calls per month</label><input class="form-input" type="text" id="pcalls-business" value="5,000/mo" oninput="updatePricingPreview()"/></div>
+                    <div class="form-group" style="margin:0"><label class="form-label">Calls per month</label><input class="form-input" type="text" id="pcalls-business" value="5000" oninput="updatePricingPreview()"/></div>
                     <div class="form-group" style="margin:0"><label class="form-label">Mark as popular</label><div style="margin-top:10px"><div style="display:flex;align-items:center;gap:8px"><div class="toggle" id="ppopular-business" onclick="togglePlanPopular('business')"></div><span style="font-size:12px;color:var(--muted)">Show badge</span></div></div></div>
                   </div>
                   <div class="form-group" style="margin-bottom:6px"><label class="form-label">Features (one per line)</label><textarea class="form-textarea" id="pfeats-business" rows="8" oninput="updatePricingPreview()" style="min-height:180px">Everything in Professional
@@ -8082,7 +8082,7 @@ function loadPricingManage() {
   _pricingPlans.forEach(function(p) {
     var n=document.getElementById('pname-'+p.id); if(n) n.value=p.name;
     var pr=document.getElementById('pprice-'+p.id); if(pr) pr.value=p.price;
-    var c=document.getElementById('pcalls-'+p.id); if(c) c.value=p.calls;
+    var c=document.getElementById('pcalls-'+p.id); if(c) c.value=p.call_limit||p.calls.replace(/[^0-9]/g,'');
     var f=document.getElementById('pfeats-'+p.id); if(f) f.value=p.feats.join('\n');
     var pop=document.getElementById('ppopular-'+p.id); if(pop) pop.classList.toggle('on',!!p.popular);
   });
@@ -8109,7 +8109,7 @@ function getPricingFormData() {
     var featsEl=document.getElementById('pfeats-'+id);
     var feats=featsEl?featsEl.value.split('\n').map(function(f){return f.trim();}).filter(Boolean):[];
     var popEl=document.getElementById('ppopular-'+id);
-    return {id:id,name:(document.getElementById('pname-'+id)||{}).value||id,price:(document.getElementById('pprice-'+id)||{}).value||'0',calls:(document.getElementById('pcalls-'+id)||{}).value||'',popular:popEl?popEl.classList.contains('on'):false,feats:feats};
+    return {id:id,name:(document.getElementById('pname-'+id)||{}).value||id,price:(document.getElementById('pprice-'+id)||{}).value||'0',calls:parseInt((document.getElementById('pcalls-'+id)||{}).value||'0'),popular:popEl?popEl.classList.contains('on'):false,feats:feats};
   });
 }
 function updatePricingPreview() {
