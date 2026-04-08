@@ -8632,6 +8632,10 @@ function renderHealthPricing(pricingData) {
   // Handle GSC connected redirect
   restoreNavSections();
 
+  if (window.location.search.includes('signup=1')) {
+    history.replaceState({}, '', '/dashboard');
+    setTimeout(function() { if(typeof switchTab === 'function') switchTab('signup'); }, 300);
+  }
   if (window.location.search.includes('gsc=connected')) {
     history.replaceState({}, '', '/dashboard');
     setTimeout(() => showPage('seo'), 500);
