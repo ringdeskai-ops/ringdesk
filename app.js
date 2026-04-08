@@ -1088,6 +1088,14 @@ app.get('/favicon.svg', (req, res) => { res.setHeader('Cache-Control', 'public, 
 app.get('/brand.css', (req, res) => { res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate'); res.sendFile(__dirname + '/public/brand.css'); });
 app.get('/home.css', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.sendFile(__dirname + '/public/home.css'); });
 app.get('/home.js', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.sendFile(__dirname + '/public/home.js'); });
+app.get('/plans.js', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.sendFile(__dirname + '/public/plans.js'); });
+app.get('/api/pricing-plans', (req, res) => {
+  try {
+    const setting = db.prepare("SELECT value FROM system_settings WHERE key='pricing_plans'").get();
+    if (!setting) return res.json([]);
+    res.json(JSON.parse(setting.value));
+  } catch(e) { res.json([]); }
+});
 app.get('/schema.json', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=3600'); res.setHeader('Content-Type', 'application/json'); res.sendFile(__dirname + '/public/schema.json'); });
 app.get('/manifest.json', (req, res) => { res.setHeader('Cache-Control', 'public, max-age=86400'); res.setHeader('Content-Type', 'application/manifest+json'); res.sendFile(__dirname + '/public/manifest.json'); });
 app.get('/sw.js', (req, res) => { res.setHeader('Cache-Control', 'no-cache'); res.setHeader('Content-Type', 'application/javascript'); res.sendFile(__dirname + '/public/sw.js'); });
