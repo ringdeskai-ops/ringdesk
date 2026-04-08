@@ -292,9 +292,9 @@ app.post('/api/auth/accept-tos', authRequired, (req, res) => {
 // ── PRICING MANAGE ──────────────────────────────────────────────────────────
 
 // Suspend customer number (superadmin only)
-app.post('/api/admin/suspend/:clientId', authRequired, (req, res) => {
+app.post('/api/admin/suspend/:clientId', authRequired, async (req, res) => {
   if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
-  const { reason } = req.body;
+  const { reason, release_number } = req.body;
   const now = Math.floor(Date.now() / 1000);
   const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.params.clientId);
   if (!client) return res.status(404).json({ error: 'Client not found' });
@@ -305,6 +305,36 @@ app.post('/api/admin/suspend/:clientId', authRequired, (req, res) => {
   // Log the action
   db.prepare('UPDATE number_assignments SET status=?, released_at=?, released_by=?, release_reason=? WHERE client_id=? AND status=?')
     .run('suspended', now, req.client.email, reason || 'Suspended by admin', req.params.clientId, 'active');
+
+  // Optionally release Twilio number on suspension
+  if (release_number && client.phone_number) {
+    try {
+      const numbers = await twilioClient.incomingPhoneNumbers.list({ phoneNumber: client.phone_number });
+      if (numbers.length > 0) {
+        await twilioClient.incomingPhoneNumbers(numbers[0].sid).remove();
+        db.prepare('UPDATE clients SET phone_number=NULL WHERE id=?').run(req.params.clientId);
+        console.log('📵 Number released on suspension:', client.phone_number);
+      }
+    } catch(e) { console.error('Suspend number release error:', e.message); }
+  }
+
+  // Cancel Stripe subscription on suspension if requested
+  if (release_number && client.stripe_subscription_id) {
+    try {
+      await stripe.subscriptions.cancel(client.stripe_subscription_id);
+      console.log('💳 Stripe subscription cancelled on suspension for:', client.business_name);
+    } catch(e) { console.error('Suspend Stripe cancel error:', e.message); }
+  }
+
+  // Cancel GoCardless subscription on suspension if exists
+  if (release_number && client.gc_subscription_id) {
+    try {
+      const { GoCardlessClient, Environments } = require('gocardless-nodejs');
+      const gcClient = new GoCardlessClient(process.env.GOCARDLESS_ACCESS_TOKEN, Environments.Live);
+      await gcClient.subscriptions.cancel(client.gc_subscription_id, {});
+      console.log('🏦 GoCardless subscription cancelled on suspension for:', client.business_name);
+    } catch(e) { console.error('Suspend GoCardless cancel error:', e.message); }
+  }
   
   console.log('⚠️ Customer suspended:', client.business_name, '| Reason:', reason);
   res.json({ success: true, message: 'Customer suspended' });
@@ -930,8 +960,25 @@ app.post("/api/billing/portal", authRequired, async (req, res) => {
 app.post("/api/billing/cancel", authRequired, async (req, res) => {
   try {
     const client = db.prepare("SELECT * FROM clients WHERE id = ?").get(req.client.id);
-    if (!client.stripe_subscription_id) return res.status(400).json({ error: "No active subscription" });
-    await stripe.subscriptions.update(client.stripe_subscription_id, { cancel_at_period_end: true });
+    if (!client.stripe_subscription_id && !client.gc_subscription_id) return res.status(400).json({ error: "No active subscription" });
+
+    // Cancel Stripe subscription if exists
+    if (client.stripe_subscription_id) {
+      await stripe.subscriptions.update(client.stripe_subscription_id, { cancel_at_period_end: true });
+    }
+
+    // Cancel GoCardless subscription if exists
+    if (client.gc_subscription_id) {
+      try {
+        const { GoCardlessClient, Environments } = require('gocardless-nodejs');
+        const gc = new GoCardlessClient(process.env.GOCARDLESS_ACCESS_TOKEN, Environments.Live);
+        await gc.subscriptions.cancel(client.gc_subscription_id, {});
+        console.log('📵 GoCardless subscription cancelled for:', client.business_name);
+      } catch(gcErr) {
+        console.error('GoCardless cancel error:', gcErr.message);
+      }
+    }
+
     db.prepare("UPDATE clients SET plan_status = 'cancelling', cancel_at_period_end = 1 WHERE id = ?").run(client.id);
     await sendBrevoEmail(process.env.NOTIFY_EMAIL,
       '[AiRingDesk] Cancellation requested: ' + client.business_name,
@@ -1090,6 +1137,18 @@ if (event.type === "customer.subscription.deleted") {
     const sub = db.prepare("SELECT * FROM clients WHERE stripe_subscription_id = ?").get(session.id);
     if (sub) {
       db.prepare("UPDATE clients SET plan = 'trial', plan_status = 'cancelled', cancel_at_period_end = 0, call_limit = 20, voicemail_enabled = 0, feature_appointments = 0, feature_ai_settings = 0, feature_voice_selector = 0, feature_crm = 0, call_recording = 0 WHERE id = ?").run(sub.id);
+      // Cancel GoCardless subscription if exists
+      if (sub.gc_subscription_id) {
+        try {
+          const { GoCardlessClient, Environments } = require('gocardless-nodejs');
+          const gcClient = new GoCardlessClient(process.env.GOCARDLESS_ACCESS_TOKEN, Environments.Live);
+          await gcClient.subscriptions.cancel(sub.gc_subscription_id, {});
+          db.prepare("UPDATE clients SET gc_subscription_id = NULL WHERE id = ?").run(sub.id);
+          console.log('📵 GoCardless subscription cancelled via Stripe webhook for:', sub.business_name);
+        } catch(gcErr) {
+          console.error('GoCardless webhook cancel error:', gcErr.message);
+        }
+      }
       // Auto-release Twilio number on subscription cancelled/expired
       if (sub.phone_number) {
         try {
