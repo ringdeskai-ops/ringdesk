@@ -4580,9 +4580,11 @@ async function upgradePlan(plan) {
 }
 
 async function cancelGCSubscription() {
-  if (!confirm('Are you sure you want to cancel your subscription?')) return;
+  if (!confirm('Are you sure you want to cancel your GoCardless Direct Debit subscription? Your account will remain active until the end of your billing period.')) return;
   try {
     await api('/api/gc/cancel', { method: 'POST', body: {} });
+    // Also set cancelling status
+    await api('/api/billing/cancel', { method: 'POST', body: {} }).catch(() => {});
     showToast('Subscription cancelled', 'success');
     setTimeout(() => location.reload(), 2000);
   } catch(e) { showToast('Error: ' + e.message, 'error'); }
@@ -7289,13 +7291,18 @@ async function suspendCustomer() {
   var action = isSuspended ? 'unsuspend' : 'suspend';
   var reason = isSuspended ? '' : prompt('Reason for suspension:');
   if (!isSuspended && !reason) return;
+  var releaseNumber = false;
+  if (!isSuspended && currentDetailCustomer.phone_number) {
+    releaseNumber = confirm('Also release Twilio number ' + currentDetailCustomer.phone_number + ' and cancel Stripe/GoCardless subscriptions?');
+  }
   if (!confirm((isSuspended ? 'Reactivate' : 'Suspend') + ' ' + currentDetailCustomer.business_name + '?')) return;
   
   try {
     var url = isSuspended ? '/api/admin/unsuspend/' + currentDetailCustomer.id : '/api/admin/suspend/' + currentDetailCustomer.id;
-    var r = await api(url, { method: 'POST', body: { reason } });
-    showToast(isSuspended ? 'Customer reactivated' : 'Customer suspended', isSuspended ? 'success' : 'warning');
+    var r = await api(url, { method: 'POST', body: { reason, release_number: releaseNumber } });
+    showToast(isSuspended ? 'Customer reactivated' : 'Customer suspended' + (releaseNumber ? ' + number released' : ''), isSuspended ? 'success' : 'warning');
     currentDetailCustomer.suspended = isSuspended ? 0 : 1;
+    if (releaseNumber) currentDetailCustomer.phone_number = null;
     var btn = document.getElementById('suspendCustomerBtn');
     if (btn) { btn.textContent = isSuspended ? '⚠️ Suspend' : '✅ Unsuspend'; btn.style.color = isSuspended ? '#ff8c00' : '#00e87a'; btn.style.borderColor = isSuspended ? 'rgba(255,140,0,.3)' : 'rgba(0,232,122,.3)'; }
     loadCustomers();
@@ -7307,11 +7314,16 @@ async function releaseCustomerNumber() {
   var reason = prompt('Reason for releasing number ' + currentDetailCustomer.phone_number + ':');
   if (!reason) return;
   if (!confirm('Release ' + currentDetailCustomer.phone_number + ' from Twilio? This cannot be undone.')) return;
+  var cancelSubs = confirm('Also cancel Stripe and GoCardless subscriptions for this customer?');
   
   try {
     await api('/api/admin/release-number/' + currentDetailCustomer.id, { method: 'POST', body: { reason } });
-    showToast('Number released from Twilio', 'success');
+    if (cancelSubs) {
+      await api('/api/admin/set-status', { method: 'POST', body: { client_id: currentDetailCustomer.id, plan_status: 'cancelled' } });
+    }
+    showToast('Number released' + (cancelSubs ? ' + subscriptions cancelled' : ''), 'success');
     currentDetailCustomer.phone_number = null;
+    if (cancelSubs) currentDetailCustomer.plan_status = 'cancelled';
     document.getElementById('releaseNumberBtn').style.display = 'none';
     loadCustomers();
   } catch(e) { showToast('Error: ' + e.message, 'error'); }
