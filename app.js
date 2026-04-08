@@ -363,6 +363,7 @@ app.post('/api/admin/suspend/:clientId', authRequired, async (req, res) => {
     console.log('📧 Suspension emails sent for:', client.email);
   } catch(emailErr) { console.error('Suspension email error:', emailErr.message); }
 
+  logAudit('customer_suspended', req.client.email, req.params.clientId, client.business_name, JSON.stringify({ reason: reason || 'No reason', release_number: !!release_number }), req.ip);
   console.log('⚠️ Customer suspended:', client.business_name, '| Reason:', reason);
   res.json({ success: true, message: 'Customer suspended' });
 });
@@ -374,6 +375,8 @@ app.post('/api/admin/unsuspend/:clientId', authRequired, (req, res) => {
     .run(req.params.clientId);
   db.prepare('UPDATE number_assignments SET status=? WHERE client_id=? AND status=?')
     .run('active', req.params.clientId, 'suspended');
+  const unsuspClient = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.params.clientId);
+  logAudit('customer_unsuspended', req.client.email, req.params.clientId, unsuspClient?.business_name, null, req.ip);
   res.json({ success: true, message: 'Customer reactivated' });
 });
 
@@ -455,6 +458,7 @@ app.post('/api/admin/release-number/:clientId', authRequired, async (req, res) =
     // Clear number from client
     db.prepare('UPDATE clients SET phone_number=NULL WHERE id=?').run(req.params.clientId);
     
+    logAudit('number_released', req.client.email, req.params.clientId, client.business_name, JSON.stringify({ number: client.phone_number, reason: reason || 'Released by admin' }), req.ip);
     console.log('📵 Number released:', client.phone_number, 'from', client.business_name);
     res.json({ success: true, message: 'Number released from Twilio' });
   } catch(e) {
@@ -992,6 +996,7 @@ app.post("/api/billing/cancel", authRequired, async (req, res) => {
     // Cancel Stripe subscription if exists
     if (client.stripe_subscription_id) {
       await stripe.subscriptions.update(client.stripe_subscription_id, { cancel_at_period_end: true });
+      logAudit('subscription_cancel_requested', client.email, client.id, client.business_name, 'Customer requested cancellation', req.ip);
     }
 
     // Cancel GoCardless subscription if exists
@@ -1127,6 +1132,7 @@ app.post("/stripe-webhook", async (req, res) => {
     const _smsAfter = ['starter','professional','business'].includes(plan) ? 1 : 0;
     const _smsVoicemail = ['professional','business'].includes(plan) ? 1 : 0;
     db.prepare('UPDATE clients SET sms_missed_call=?, sms_after_call=?, sms_voicemail=? WHERE id=?').run(_smsMissed, _smsAfter, _smsVoicemail, client_id);
+    logAudit('subscription_activated', 'stripe_webhook', client_id, null, JSON.stringify({ plan, source: 'checkout' }), null);
     console.log('📱 SMS auto-enabled for plan:', plan, '| missed:1 after:', _smsAfter, 'voicemail:', _smsVoicemail);
 
     // Auto-set feature flags based on plan
@@ -1232,6 +1238,7 @@ if (event.type === "customer.subscription.deleted") {
           '[AiRingDesk] Subscription ended: ' + sub.business_name,
           '<div style="font-family:sans-serif;max-width:560px;padding:24px"><h2 style="color:#ff4466">Customer churned</h2><table style="width:100%;border-collapse:collapse"><tr><td style="padding:8px 0;color:#888;font-size:13px">Business</td><td style="font-weight:600">' + sub.business_name + '</td></tr><tr><td style="padding:8px 0;color:#888;font-size:13px">Email</td><td>' + sub.email + '</td></tr><tr><td style="padding:8px 0;color:#888;font-size:13px">Plan</td><td>' + (planNames[sub.plan]||sub.plan) + '</td></tr><tr><td style="padding:8px 0;color:#888;font-size:13px">Member for</td><td>' + memberDays + ' days</td></tr></table><p style="margin-top:16px"><a href="https://airingdesk.com/dashboard">View in admin</a></p></div>'
         );
+        logAudit('subscription_cancelled', 'stripe_webhook', sub.id, sub.business_name, JSON.stringify({ plan: sub.plan, email: sub.email }), null);
         console.log('Cancellation emails sent for:', sub.email);
       } catch(emailErr) { console.error('Cancellation email error:', emailErr.message); }
     }
@@ -2089,6 +2096,44 @@ db.exec(`CREATE TABLE IF NOT EXISTS leads (
   source TEXT DEFAULT 'website',
   created_at INTEGER DEFAULT (strftime('%s','now'))
 )`);
+
+db.exec(`CREATE TABLE IF NOT EXISTS audit_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  action TEXT NOT NULL,
+  performed_by TEXT,
+  client_id TEXT,
+  client_name TEXT,
+  details TEXT,
+  ip TEXT,
+  created_at INTEGER DEFAULT (strftime('%s','now'))
+)`);
+
+// ── Audit Log Helper ──────────────────────────────────────────────────────────
+function logAudit(action, performedBy, clientId, clientName, details, ip) {
+  try {
+    db.prepare("INSERT INTO audit_log (action, performed_by, client_id, client_name, details, ip) VALUES (?, ?, ?, ?, ?, ?)")
+      .run(action, performedBy || 'system', clientId || null, clientName || null, details || null, ip || null);
+  } catch(e) { console.error('Audit log error:', e.message); }
+}
+
+db.exec(`CREATE TABLE IF NOT EXISTS audit_log (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  action TEXT NOT NULL,
+  performed_by TEXT,
+  client_id TEXT,
+  client_name TEXT,
+  details TEXT,
+  ip TEXT,
+  created_at INTEGER DEFAULT (strftime('%s','now'))
+)`);
+
+// ── Audit Log Helper ──────────────────────────────────────────────────────────
+function logAudit(action, performedBy, clientId, clientName, details, ip) {
+  try {
+    db.prepare("INSERT INTO audit_log (action, performed_by, client_id, client_name, details, ip) VALUES (?, ?, ?, ?, ?, ?)")
+      .run(action, performedBy || 'system', clientId || null, clientName || null, details || null, ip || null);
+  } catch(e) { console.error('Audit log error:', e.message); }
+}
 try { db.exec("ALTER TABLE clients ADD COLUMN admin_permissions TEXT"); } catch(e) {}
 try { db.exec("ALTER TABLE clients ADD COLUMN admin_active INTEGER DEFAULT 1"); } catch(e) {}
 // Set superadmin role
@@ -2597,6 +2642,24 @@ app.post('/api/admin/ga4/disconnect', authRequired, (req, res) => {
   if (req.client.role !== 'superadmin') return res.status(403).json({ error: 'Superadmin only' });
   db.prepare("DELETE FROM system_settings WHERE key IN ('ga4_access_token','ga4_refresh_token','ga4_connected')").run();
   res.json({ success: true });
+});
+
+
+// ── Audit Log API ─────────────────────────────────────────────────────────────
+app.get('/api/admin/audit-log', authRequired, (req, res) => {
+  if (!['admin','superadmin'].includes(req.client.role)) return res.status(403).json({ error: 'Admin only' });
+  const { limit = 100, offset = 0, action, client_id } = req.query;
+  let query = "SELECT * FROM audit_log";
+  const params = [];
+  const conditions = [];
+  if (action) { conditions.push("action = ?"); params.push(action); }
+  if (client_id) { conditions.push("client_id = ?"); params.push(client_id); }
+  if (conditions.length) query += " WHERE " + conditions.join(" AND ");
+  query += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+  params.push(parseInt(limit), parseInt(offset));
+  const logs = db.prepare(query).all(...params);
+  const total = db.prepare("SELECT COUNT(*) as c FROM audit_log" + (conditions.length ? " WHERE " + conditions.join(" AND ") : "")).get(...params.slice(0,-2)).c;
+  res.json({ logs, total });
 });
 
 // ── Delete customer (superadmin only) ─────────────────────────────────────────

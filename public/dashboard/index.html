@@ -571,6 +571,10 @@ select option{background-color:#0c1520;color:#f0f6ff}
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
           Incident Log
         </button>
+        <button class="nav-btn superadmin-only" id="navAuditLog" onclick="showPage('audit-log')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          Audit Log
+        </button>
         <button class="nav-btn superadmin-only" id="navSystemHealth" onclick="showPage('system-health')">
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
           System Health
@@ -4998,6 +5002,7 @@ function showPage(name) {
   if (name === 'referral') loadReferral();
   if (name === 'pricing-manage') { loadPricingManage(); }
   if (name === 'seo') loadGSCPage();
+  if (name === 'audit-log') loadAuditLog();
   if (name === 'billing') {
     loadBillingInvoices();
     renderBillingPlans(currentUser && currentUser.plan);
@@ -7910,6 +7915,72 @@ function dismissPWA() {
 </script>
 
 
+    <div class="page" id="page-audit-log">
+      <div class="page-header" style="margin-bottom:24px">
+        <div>
+          <h1 class="page-title">Audit <em>Log</em></h1>
+          <div class="page-sub" style="font-size:14px;color:var(--muted)">Complete history of all admin actions, cancellations and account changes</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <select id="auditActionFilter" onchange="loadAuditLog()" style="background:var(--surface);border:1px solid var(--border);color:var(--text);padding:8px 12px;border-radius:8px;font-size:13px;font-family:inherit">
+            <option value="">All Actions</option>
+            <option value="subscription_activated">Subscription Activated</option>
+            <option value="subscription_cancelled">Subscription Cancelled (Stripe)</option>
+            <option value="subscription_cancelled_admin">Subscription Cancelled (Admin)</option>
+            <option value="subscription_cancel_requested">Cancel Requested (Customer)</option>
+            <option value="customer_suspended">Customer Suspended</option>
+            <option value="customer_unsuspended">Customer Unsuspended</option>
+            <option value="number_released">Number Released</option>
+          </select>
+          <button class="btn-sm btn-ghost-sm" onclick="loadAuditLog()">↻ Refresh</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--cyan)" id="auditTotalCount">-</div>
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Total Actions</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--green)" id="auditActivatedCount">-</div>
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Activations</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--red)" id="auditCancelledCount">-</div>
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Cancellations</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--amber)" id="auditSuspendedCount">-</div>
+          <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px">Suspensions</div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:13px;font-weight:700;color:var(--text)">Action History</div>
+          <div style="font-size:12px;color:var(--muted)" id="auditLogCount"></div>
+        </div>
+        <div style="overflow-x:auto">
+          <table style="width:100%;border-collapse:collapse;font-size:12px">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border)">
+                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Action</th>
+                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Customer</th>
+                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Performed By</th>
+                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Details</th>
+                <th style="padding:10px 16px;text-align:left;font-size:10px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em">Date & Time</th>
+              </tr>
+            </thead>
+            <tbody id="auditLogBody">
+              <tr><td colspan="5" style="padding:40px;text-align:center;color:var(--muted)">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
 <!-- iOS PWA Install Banner -->
 <div id="iosInstallBanner" style="display:none;position:fixed;top:70px;left:50%;transform:translateX(-50%);background:#0d1520;border:1px solid rgba(0,212,255,.25);border-radius:14px;padding:16px 20px;z-index:9999;box-shadow:0 8px 32px rgba(0,0,0,.5);max-width:340px;width:90%;text-align:center">
   <div style="font-size:13px;font-weight:700;color:#e8f4f8;margin-bottom:6px">Install AiRingDesk</div>
@@ -8153,6 +8224,65 @@ function renderHealthPricing(pricingData) {
   }
 }
 
+
+
+  // ── Audit Log ──────────────────────────────────────────────────────────────
+  const auditActionLabels = {
+    'subscription_activated': { label: 'Subscription Activated', color: 'var(--green)' },
+    'subscription_cancelled': { label: 'Cancelled (Stripe)', color: 'var(--red)' },
+    'subscription_cancelled_admin': { label: 'Cancelled (Admin)', color: 'var(--red)' },
+    'subscription_cancel_requested': { label: 'Cancel Requested', color: 'var(--amber)' },
+    'customer_suspended': { label: 'Account Suspended', color: 'var(--amber)' },
+    'customer_unsuspended': { label: 'Account Unsuspended', color: 'var(--green)' },
+    'number_released': { label: 'Number Released', color: 'var(--purple)' },
+  };
+
+  async function loadAuditLog() {
+    const token = localStorage.getItem('rd_token') || localStorage.getItem('ard_token') || authToken;
+    const action = document.getElementById('auditActionFilter')?.value || '';
+    const tbody = document.getElementById('auditLogBody');
+    tbody.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--muted)">Loading...</td></tr>';
+    try {
+      const url = '/api/admin/audit-log?limit=200' + (action ? '&action=' + action : '');
+      const r = await fetch(url, { headers: { Authorization: 'Bearer ' + token } });
+      const d = await r.json();
+      const logs = d.logs || [];
+
+      // Stats
+      document.getElementById('auditTotalCount').textContent = d.total || logs.length;
+      document.getElementById('auditActivatedCount').textContent = logs.filter(l => l.action === 'subscription_activated').length;
+      document.getElementById('auditCancelledCount').textContent = logs.filter(l => l.action.includes('cancelled')).length;
+      document.getElementById('auditSuspendedCount').textContent = logs.filter(l => l.action === 'customer_suspended').length;
+      document.getElementById('auditLogCount').textContent = logs.length + ' records';
+
+      if (!logs.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--muted)">No audit records yet</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = logs.map(log => {
+        const meta = auditActionLabels[log.action] || { label: log.action, color: 'var(--muted)' };
+        const date = log.created_at ? new Date(log.created_at * 1000).toLocaleString('en-GB', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' }) : '—';
+        let details = '';
+        try {
+          const d = JSON.parse(log.details || '{}');
+          details = Object.entries(d).map(([k,v]) => `<span style="color:var(--muted)">${k}:</span> ${v}`).join(' · ');
+        } catch(e) { details = log.details || '—'; }
+        return `<tr style="border-bottom:1px solid rgba(255,255,255,.04)">
+          <td style="padding:12px 16px">
+            <span style="display:inline-flex;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700;background:${meta.color}20;color:${meta.color}">${meta.label}</span>
+          </td>
+          <td style="padding:12px 16px;color:var(--text);font-weight:600">${log.client_name || '—'}</td>
+          <td style="padding:12px 16px;color:var(--muted)">${log.performed_by || '—'}</td>
+          <td style="padding:12px 16px;color:var(--muted);font-size:11px;max-width:200px">${details}</td>
+          <td style="padding:12px 16px;color:var(--muted);white-space:nowrap">${date}</td>
+        </tr>`;
+      }).join('');
+    } catch(err) {
+      tbody.innerHTML = '<tr><td colspan="5" style="padding:40px;text-align:center;color:var(--red)">Error loading audit log</td></tr>';
+      console.error('Audit log error:', err);
+    }
+  }
 
   // ── GSC Functions ──────────────────────────────────────────────────────────
   function connectGSC() {

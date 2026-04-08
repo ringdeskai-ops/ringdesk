@@ -155,6 +155,8 @@ module.exports = function(db, sendBrevoEmail) {
           brandedEmail('❌', 'Admin Cancellation Alert', 'Subscription cancelled by admin', adminCancelBody, 'View in dashboard', 'https://airingdesk.com/dashboard', 'AiRingDesk Admin Notification'));
         console.log('Cancellation emails sent for:', client.email);
       } catch(e) { console.error('Cancel email error:', e.message); }
+      // Audit log
+      try { db.prepare("INSERT INTO audit_log (action, performed_by, client_id, client_name, details) VALUES (?, ?, ?, ?, ?)").run('subscription_cancelled_admin', req.client.email, client.id, client.business_name, JSON.stringify({ reason: 'Admin manual cancel' })); } catch(e) {}
     }
 
     if (plan_status === 'active' && client) {
