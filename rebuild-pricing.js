@@ -8,6 +8,15 @@ console.log('🔄 Starting pricing rebuild...');
 const plans = JSON.parse(db.prepare("SELECT value FROM system_settings WHERE key='pricing_plans'").get().value);
 
 // Build the pricing HTML block
+const GA4_TAG = `<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1ZJ2W7DSKP"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-1ZJ2W7DSKP");</script>`;
+
+function ensureGA4(content) {
+  if (content.includes('G-1ZJ2W7DSKP')) return content;
+  return content.replace('</head>', GA4_TAG + '\n</head>');
+}
+
 function buildPricingHTML(plans) {
   return '<div class="plans">' + plans.map(function(plan) {
     const isPopular = plan.is_popular;
@@ -42,7 +51,7 @@ function updateFile(filePath) {
     const end = content.indexOf('</div>', content.lastIndexOf('<button', start + newPricingHTML.length)) + 6;
     if (end <= start) return false;
     const newContent = content.substring(0, start) + newPricingHTML + content.substring(end);
-    fs.writeFileSync(filePath, newContent);
+    fs.writeFileSync(filePath, ensureGA4(newContent));
     return true;
   } catch(e) {
     return false;
