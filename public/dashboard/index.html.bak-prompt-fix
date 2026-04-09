@@ -1203,13 +1203,6 @@ select option{background-color:#0c1520;color:#f0f6ff}
               Call Transfer Numbers
             </div>
             <p style="font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6">When Aria detects a caller needs a human, she'll transfer to these numbers.</p>
-            <div style="margin-bottom:14px;padding:12px 14px;background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:10px">
-              <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:10px">📞 Main Transfer Number (used for all general transfers)</div>
-              <div class="dept-row"><span class="dept-label">Work</span><input class="form-input" type="tel" id="settingsWorkPhone" placeholder="+44 7700 900000" style="flex:1"/></div>
-              <div class="dept-row" style="margin-top:8px"><span class="dept-label">Mobile</span><input class="form-input" type="tel" id="settingsMobilePhone" placeholder="+44 7700 900001" style="flex:1"/></div>
-              <p style="font-size:11px;color:var(--dim);margin-top:8px;margin-bottom:0">When a caller asks to speak to someone, Aria transfers to Work first, then Mobile as backup.</p>
-            </div>
-            <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">Department numbers (optional — for specific team routing)</div>
             <div id="deptFields">
               <div class="dept-row"><span class="dept-label">Sales</span><input class="form-input" type="tel" id="dept-sales" placeholder="+44 7700 900000" style="flex:1"/></div>
               <div class="dept-row"><span class="dept-label">Support</span><input class="form-input" type="tel" id="dept-support" placeholder="+44 7700 900001" style="flex:1"/></div>
@@ -4264,10 +4257,6 @@ async function loadProfile() {
     updateVoicePreview();
   }
   document.getElementById('settingsPrompt').value = profile.ai_prompt || '';
-  const wpEl = document.getElementById('settingsWorkPhone');
-  const mpEl = document.getElementById('settingsMobilePhone');
-  if (wpEl) wpEl.value = profile.work_phone || '';
-  if (mpEl) mpEl.value = profile.mobile_phone || '';
   loadSmsSettings(profile);
   const depts = profile.departments || {};
   ['sales','support','billing','manager','general'].forEach(d => {
@@ -4571,9 +4560,7 @@ async function saveSettings() {
       ai_prompt: document.getElementById('settingsPrompt').value,
       departments: depts,
       ai_voice: voiceVal[0] || 'Google.en-GB-Neural2-C',
-      ai_voice_language: voiceVal[1] || 'en-GB',
-      work_phone: document.getElementById('settingsWorkPhone')?.value?.trim() || null,
-      mobile_phone: document.getElementById('settingsMobilePhone')?.value?.trim() || null
+      ai_voice_language: voiceVal[1] || 'en-GB'
     }});
     btn.classList.add('saved');
     btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Saved!';

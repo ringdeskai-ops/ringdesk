@@ -35,7 +35,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Database = require("better-sqlite3");
 
-const APP_VERSION = '2.7.5';
+const APP_VERSION = '2.7.3';
 const app = express();
 // In-memory store for OAuth state tokens (CSRF protection)
 const oauthStates = new Map();
@@ -716,13 +716,11 @@ app.post("/api/auth/register", async (req, res) => {
     console.error("Stripe customer creation failed:", err.message);
   }
 
-  const defaultPrompt = `You are the professional AI receptionist for ${business_name}. Warm, natural and concise.
-RULES: Max 40 words per response. Natural British English. One question at a time. Never repeat yourself. No markdown or special characters.
-ACCENT RULE: Understand English with any accent. Understand slang, broken English and informal speech. Interpret meaning not literal words.
-COLLECT IN ORDER: 1. Caller first name. 2. Phone number (combine digits given across multiple responses — only ask to repeat if fewer than 10 digits total, always confirm full number back). 3. Reason for calling.
-Once collected say: Thank you, a team member will be in touch shortly.
-If asked for pricing say it varies by requirements and offer a free consultation or callback.
-TRANSFER: If caller says speak to someone, speak to a person, talk to someone, real person, human, agent, staff, your team, someone else, put me through, or similar — transfer them immediately. Do NOT offer a callback instead.`;
+  const defaultPrompt = `You are ${business_name}'s AI receptionist. Be professional, warm, and helpful.
+Answer general enquiries, take messages, and transfer to the right team when needed.
+Keep responses under 40 words — this is a phone call.
+If the caller EXPLICITLY asks to leave a voicemail or says they want to leave a message, reply with exactly [VOICEMAIL] to transfer them to voicemail. Do NOT send to voicemail just because the caller says "hello" or seems confused — keep trying to help them first.
+If the caller wants to book an appointment, collect their name, preferred date and time only. Then reply with [BOOK:name|YYYY-MM-DD|HH:MM|none] e.g. [BOOK:John Smith|2026-03-26|14:00|none]. Ask one question at a time. Confirm each answer before moving to next.`;
 
   try {
     db.prepare('INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, voicemail_enabled, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, call_recording, show_demo_banner, sms_missed_call) VALUES (?, ?, ?, ?, ?, ?, ?, \'client\', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1, 0, 0, 0, 0, 0, 1, 1)')
@@ -748,7 +746,7 @@ TRANSFER: If caller says speak to someone, speak to a person, talk to someone, r
       );
     });
 
-    res.json({ success: true, message: "Registration successful. Please check your email to verify your account.", client_id: id });
+    res.json({ success: true, message: "Registration successful. Please check your email to verify your account." });
   } catch (err) {
     if (err.message.includes("UNIQUE")) return res.status(409).json({ error: "Email already registered" });
     res.status(500).json({ error: err.message });
@@ -982,7 +980,7 @@ app.post("/api/billing/checkout", authRequired, async (req, res) => {
     subscription_data: { trial_period_days: 14 },
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${process.env.DASHBOARD_URL}/?payment=success&session_id={CHECKOUT_SESSION_ID}&client_id=${client.id}`,
+    success_url: `${process.env.DASHBOARD_URL}/billing/success?session_id={CHECKOUT_SESSION_ID}&client_id=${client.id}`,
     cancel_url: `${process.env.DASHBOARD_URL}/billing`,
     metadata: { client_id: client.id, plan, phone_number: phone_number || '' },
   });
@@ -6216,99 +6214,6 @@ app.post("/api/auth/reset-password", async (req, res) => {
   res.json({ success: true });
 });
 
-
-// ── Check email verified (polling from homepage modal) ────────────────────────
-app.post('/api/auth/check-verified', async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email required' });
-    const client = db.prepare('SELECT * FROM clients WHERE email = ?').get(email);
-    if (!client) return res.status(404).json({ verified: false });
-    if (!client.email_verified) return res.json({ verified: false });
-    // Generate token for verified client
-    const jwt = require('jsonwebtoken');
-    const token = jwt.sign(
-      { id: client.id, email: client.email, business_name: client.business_name },
-      process.env.JWT_SECRET,
-      { expiresIn: '2h' }
-    );
-    res.json({ verified: true, token, client_id: client.id });
-  } catch(e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// ── Resend verification email ─────────────────────────────────────────────────
-app.post('/api/auth/resend-verification', async (req, res) => {
-  try {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Email required' });
-    const client = db.prepare('SELECT * FROM clients WHERE email = ?').get(email);
-    if (!client) return res.status(404).json({ error: 'Not found' });
-    if (client.email_verified) return res.json({ success: true, message: 'Already verified' });
-    // Generate new token
-    const crypto = require('crypto');
-    const verToken = crypto.randomBytes(32).toString('hex');
-    const verExpires = Math.floor(Date.now() / 1000) + 86400;
-    db.prepare('UPDATE clients SET verification_token = ?, verification_expires = ? WHERE id = ?')
-      .run(verToken, verExpires, client.id);
-    const verifyUrl = process.env.DASHBOARD_URL + '/verify-email?token=' + verToken;
-    await sendBrevoEmail(
-      email,
-      client.business_name || 'there',
-      'Verify your AiRingDesk email',
-      `<p>Click the link below to verify your email address:</p>
-      <p><a href="${verifyUrl}" style="background:#00d4ff;color:#020408;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700">Verify email →</a></p>
-      <p style="color:#888;font-size:13px">Link expires in 24 hours.</p>`
-    );
-    res.json({ success: true });
-  } catch(e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
-// ── GoCardless complete — called after mandate redirect back to homepage ────────
-app.post('/api/gc/complete', async (req, res) => {
-  try {
-    const { client_id, plan } = req.body;
-    if (!client_id) return res.status(400).json({ error: 'client_id required' });
-    const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(client_id);
-    if (!client) return res.status(404).json({ error: 'Client not found' });
-    // Complete the GoCardless billing request if pending
-    if (client.gc_billing_request_id && !client.gc_mandate_id) {
-      try {
-        const { GoCardlessClient, Environments } = require('gocardless-nodejs');
-        const gcClient = new GoCardlessClient(process.env.GOCARDLESS_ACCESS_TOKEN, Environments.Live);
-        const fulfilled = await gcClient.billingRequests.fulfil(client.gc_billing_request_id, {});
-        const mandateId = fulfilled.links.mandate;
-        const planAmounts = { essential:2900, starter:4900, professional:14900, business:34900 };
-        const amount = planAmounts[plan] || planAmounts.essential;
-        const subscription = await gcClient.subscriptions.create({
-          amount, currency: 'GBP', interval_unit: 'monthly', name: 'AiRingDesk ' + plan,
-          links: { mandate: mandateId }
-        });
-        const PLAN_LIMITS = { essential:150, starter:300, professional:1000, business:5000 };
-        const limit = PLAN_LIMITS[plan] || 300;
-        db.prepare(`UPDATE clients SET gc_mandate_id=?, gc_subscription_id=?, plan=?, plan_status='active', call_limit=? WHERE id=?`)
-          .run(mandateId, subscription.id, plan, limit, client_id);
-      } catch(gcErr) {
-        console.error('GC complete error:', gcErr.message);
-      }
-    }
-    // Generate login token
-    const jwt = require('jsonwebtoken');
-    const token = jwt.sign(
-      { id: client.id, email: client.email, business_name: client.business_name },
-      process.env.JWT_SECRET,
-      { expiresIn: '30d' }
-    );
-    localStorage && localStorage.setItem; // noop
-    res.json({ success: true, token, user: { id: client.id, email: client.email, business_name: client.business_name, plan } });
-  } catch(e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
 // Email verification route
 app.get("/verify-email", (req, res) => {
   const { token } = req.query;
@@ -6319,14 +6224,7 @@ app.get("/verify-email", (req, res) => {
   if (client.verification_expires && client.verification_expires < now)
     return res.redirect('/?error=token-expired');
   db.prepare("UPDATE clients SET email_verified = 1, verification_token = NULL, verification_expires = NULL WHERE id = ?").run(client.id);
-  // Generate a temp token so modal can resume at payment step
-  const jwtMod = require('jsonwebtoken');
-  const verifyToken = jwtMod.sign(
-    { id: client.id, email: client.email, business_name: client.business_name },
-    process.env.JWT_SECRET,
-    { expiresIn: '2h' }
-  );
-  res.redirect('/?verified=true&client_id=' + client.id + '&token=' + encodeURIComponent(verifyToken) + '&plan=' + (client.plan || 'starter'));
+  res.redirect('/?verified=true');
 });
 
 app.use("/api/admin", require("./routes/admin")(db, sendBrevoEmail));
@@ -6958,9 +6856,6 @@ app.post('/api/numbers/provision', authRequired, async (req, res) => {
   const client = db.prepare('SELECT * FROM clients WHERE id = ?').get(req.client.id);
   if (!client) return res.status(404).json({ error: 'Client not found' });
   if (client.phone_number) return res.status(400).json({ error: 'Already have a number' });
-  // Payment gate — must have active Stripe or GoCardless subscription
-  const hasPaid = client.stripe_subscription_id || client.gc_mandate_id;
-  if (!hasPaid) return res.status(402).json({ error: 'Payment required. Please complete checkout before activating your number.' });
 
   try {
     // Step 1: Determine bundle SID based on number type
