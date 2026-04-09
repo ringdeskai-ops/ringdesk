@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title id="pageTitle">Loading... — AiRingDesk Blog</title>
+<meta name="description" id="metaDesc" content=""/>
+<link rel="canonical" id="canonical" href="https://airingdesk.com/blog"/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<script id="schemaScript" type="application/ld+json"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#060912;color:#f0f4f8;font-family:'DM Sans',sans-serif;min-height:100vh}
+.blog-nav{background:#060912;border-bottom:1px solid rgba(0,212,255,.08);padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+.blog-nav-brand{font-size:20px;font-weight:800;text-decoration:none}
+.blog-nav-brand .ai{color:#00d4ff}.blog-nav-brand .ring{color:#f0f4f8}.blog-nav-brand .desk{color:#5a7a9a}
+.post-container{max-width:780px;margin:0 auto;padding:48px 24px}
+.post-breadcrumb{font-size:13px;color:#5a7a9a;margin-bottom:24px}
+.post-breadcrumb a{color:#00d4ff;text-decoration:none}
+.post-cat{font-size:11px;font-weight:700;color:#00d4ff;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+.post-title{font-family:'Sora',sans-serif;font-size:clamp(28px,4vw,42px);font-weight:800;line-height:1.2;margin-bottom:16px}
+.post-meta{display:flex;align-items:center;gap:16px;font-size:13px;color:#5a7a9a;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid #1a2d45}
+.post-body{font-size:16px;line-height:1.8;color:#d0dce8}
+.post-body h2{font-family:'Sora',sans-serif;font-size:26px;font-weight:700;color:#f0f4f8;margin:36px 0 14px;padding-bottom:10px;border-bottom:1px solid #1a2d45}
+.post-body h3{font-family:'Sora',sans-serif;font-size:20px;font-weight:700;color:#f0f4f8;margin:24px 0 10px}
+.post-body p{margin-bottom:18px}
+.post-body ul,.post-body ol{margin:16px 0 18px 24px}
+.post-body li{margin-bottom:8px}
+.post-body strong{color:#f0f4f8;font-weight:700}
+.post-body a{color:#00d4ff;text-decoration:none}
+.post-body a:hover{text-decoration:underline}
+.post-cta-box{background:linear-gradient(135deg,#0d1a2e,#071020);border:1px solid rgba(0,212,255,.3);border-radius:16px;padding:32px;margin:40px 0;text-align:center}
+.post-cta-box h3{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:10px}
+.post-cta-box p{color:#5a7a9a;margin-bottom:20px;font-size:15px}
+.post-cta-box a{display:inline-block;background:#00d4ff;color:#020408;padding:12px 28px;border-radius:10px;font-weight:700;text-decoration:none}
+.related-section{margin-top:60px;padding-top:40px;border-top:1px solid #1a2d45}
+.related-section h2{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:24px}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.related-card{background:#0d1520;border:1px solid #1a2d45;border-radius:12px;padding:16px;text-decoration:none;display:block;transition:all .2s}
+.related-card:hover{border-color:rgba(0,212,255,.3)}
+.related-card-title{font-size:14px;font-weight:700;color:#f0f4f8;line-height:1.4;margin-bottom:8px}
+.related-card-date{font-size:12px;color:#5a7a9a}
+.spinner{width:32px;height:32px;border:3px solid rgba(0,212,255,.2);border-top-color:#00d4ff;border-radius:50%;animation:spin .7s linear infinite;margin:80px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<nav class="blog-nav">
+  <a href="/" class="blog-nav-brand"><span class="ai">Ai</span><span class="ring">Ring</span><span class="desk">Desk</span>®</a>
+  <div style="display:flex;gap:16px;align-items:center">
+    <a href="/blog" style="color:#00d4ff;font-size:13px;font-weight:600;text-decoration:none">← Blog</a>
+    <a href="/#pricing" style="background:#00d4ff;color:#020408;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Start free trial</a>
+  </div>
+</nav>
+
+<div class="post-container" id="postContainer">
+  <div class="spinner"></div>
+</div>
+
+<script>
+function formatDate(ts) {
+  return new Date(ts * 1000).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+}
+
+async function loadPost() {
+  const slug = window.location.pathname.replace('/blog/', '').replace(/\/$/, '');
+  if (!slug) { window.location.href = '/blog'; return; }
+
+  try {
+    const r = await fetch('/api/blog/post/' + slug);
+    if (!r.ok) { window.location.href = '/blog'; return; }
+    const { post, related } = await r.json();
+
+    // Update meta
+    document.getElementById('pageTitle').textContent = post.title + ' — AiRingDesk Blog';
+    document.getElementById('metaDesc').setAttribute('content', post.meta_description || '');
+    document.getElementById('canonical').setAttribute('href', 'https://airingdesk.com/blog/' + post.slug);
+    if (post.schema_json) document.getElementById('schemaScript').textContent = post.schema_json;
+
+    // Render post
+    const relatedHtml = related && related.length > 0 ? `
+      <div class="related-section">
+        <h2>Related Articles</h2>
+        <div class="related-grid">
+          ${related.map(r => `
+            <a href="/blog/${r.slug}" class="related-card">
+              <div class="related-card-title">${r.title}</div>
+              <div class="related-card-date">${formatDate(r.published_at)}</div>
+            </a>
+          `).join('')}
+        </div>
+      </div>` : '';
+
+    document.getElementById('postContainer').innerHTML = `
+      <div class="post-breadcrumb"><a href="/">Home</a> → <a href="/blog">Blog</a> → ${post.title}</div>
+      <div class="post-cat">${post.category}</div>
+      <h1 class="post-title">${post.title}</h1>
+      <div class="post-meta">
+        <span>By ${post.author || 'AiRingDesk Team'}</span>
+        <span>·</span>
+        <span>${formatDate(post.published_at)}</span>
+        <span>·</span>
+        <span>${post.word_count || 1200} words</span>
+      </div>
+      <div class="post-body">${post.content}</div>
+      <div class="post-cta-box">
+        <h3>Ready to never miss a call again?</h3>
+        <p>AiRingDesk answers every call 24/7 with AI. Start your 14-day free trial today — no charge until your trial ends.</p>
+        <a href="/#pricing">Start free trial →</a>
+      </div>
+      ${relatedHtml}
+    `;
+  } catch(e) {
+    document.getElementById('postContainer').innerHTML = '<p style="text-align:center;color:#5a7a9a;padding:60px">Post not found. <a href="/blog" style="color:#00d4ff">Back to blog →</a></p>';
+  }
+}
+
+loadPost();
+</script>
+</body>
+</html>

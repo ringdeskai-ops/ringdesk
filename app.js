@@ -84,6 +84,7 @@ const db = new Database(process.env.DB_PATH || require("path").join(__dirname, "
 const invoiceRouter = require("./routes/invoice")(db);
 app.use("/api/invoice", invoiceRouter);
 const gcRouter = require("./routes/gocardless")(db, invoiceRouter.createInvoice, sendBrevoEmail);
+const blogRouter = require("./routes/blog")(db);
 
 db.pragma("journal_mode = WAL");
 db.pragma("busy_timeout = 5000");
@@ -6333,6 +6334,11 @@ app.use("/api/admin", require("./routes/admin")(db, sendBrevoEmail));
 app.use("/api/referral", require("./routes/referral")(db, sendBrevoEmail));
 // routes registered below
 app.use("/api/gc", gcRouter);
+app.use("/api/blog", blogRouter);
+
+// Blog pages
+app.get('/blog', (req, res) => res.sendFile(__dirname + '/public/blog/index.html'));
+app.get('/blog/:slug', (req, res) => res.sendFile(__dirname + '/public/blog/post.html'));
 
 // ═══════════════════════════════════════════════════════════════
 // PRICING MANAGER ROUTES — v2.6.2
