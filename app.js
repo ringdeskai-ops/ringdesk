@@ -5381,7 +5381,7 @@ app.post('/api/leads/submit', async (req, res) => {
       + '<div style="font-size:11px;color:#00d4ff;text-transform:uppercase;font-weight:700;letter-spacing:.06em;margin-bottom:12px">What happens next</div>'
       + '<div style="font-size:13px;color:#8896a8;line-height:1.8">'
       + '&#10003; Our team will call you back within 1 business hour<br>'
-      + '&#10003; We will set up your AI receptionist in under 30 minutes<br>'
+      + '&#10003; We will set up your AI receptionist in under 10 minutes<br>'
       + '&#10003; You will start your 14-day free trial immediately<br>'
       + '&#10003; No contracts, cancel anytime'
       + '</div></div>'
@@ -7155,7 +7155,7 @@ async function sendWelcomeEmail(business_name, email, referral_code, id) {
             <div style="font-size:14px;color:#f0f4f8;margin-bottom:8px">✅ Account created</div>
             <div style="font-size:14px;color:#f0f4f8;margin-bottom:8px">📞 Pick your phone number</div>
             <div style="font-size:14px;color:#f0f4f8;margin-bottom:8px">🤖 Customise your AI receptionist</div>
-            <div style="font-size:14px;color:#f0f4f8">🚀 Go live in 30 minutes</div>
+            <div style="font-size:14px;color:#f0f4f8">🚀 Go live in 10 minutes</div>
           </div>
           <a href="https://airingdesk.com/dashboard" style="display:inline-block;background:#00d4ff;color:#020408;text-decoration:none;padding:14px 32px;border-radius:50px;font-size:15px;font-weight:700;margin-bottom:24px">Go to your dashboard →</a>
           <p style="color:#3d4f63;font-size:12px;margin-top:24px;border-top:1px solid #1a2332;padding-top:16px">
