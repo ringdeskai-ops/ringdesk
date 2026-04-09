@@ -8,136 +8,225 @@
 <link rel="canonical" href="https://airingdesk.com/blog"/>
 <link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="/home.css"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#060912;color:#f0f4f8;font-family:'DM Sans',sans-serif;min-height:100vh}
-.blog-hero{background:linear-gradient(135deg,#060912 0%,#0d1520 100%);border-bottom:1px solid rgba(0,212,255,.1);padding:80px 24px 60px;text-align:center}
-.blog-hero .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:100px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#00d4ff;margin-bottom:24px}
-.blog-hero h1{font-family:'Sora',sans-serif;font-size:clamp(32px,5vw,52px);font-weight:800;line-height:1.15;margin-bottom:16px}
-.blog-hero h1 em{color:#00d4ff;font-style:normal}
-.blog-hero p{font-size:18px;color:#8896a8;max-width:560px;margin:0 auto}
-.blog-container{max-width:1100px;margin:0 auto;padding:60px 24px}
-.blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:28px;margin-bottom:60px}
-.blog-card{background:#0d1520;border:1px solid #1a2d45;border-radius:16px;overflow:hidden;transition:all .2s;cursor:pointer;text-decoration:none;display:block}
-.blog-card:hover{border-color:rgba(0,212,255,.3);transform:translateY(-2px);box-shadow:0 8px 40px rgba(0,0,0,.4)}
-.blog-card-img{height:180px;background:linear-gradient(135deg,#0d1a2e,#0a2040);display:flex;align-items:center;justify-content:center;font-size:48px;border-bottom:1px solid #1a2d45}
-.blog-card-body{padding:20px}
-.blog-card-cat{font-size:11px;font-weight:700;color:#00d4ff;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
-.blog-card-title{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;line-height:1.4;margin-bottom:10px;color:#f0f4f8}
-.blog-card-excerpt{font-size:13px;color:#5a7a9a;line-height:1.7;margin-bottom:14px}
-.blog-card-meta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#3d5470}
-.blog-card-readmore{color:#00d4ff;font-size:13px;font-weight:600}
-.blog-empty{text-align:center;padding:80px 24px;color:#5a7a9a}
-.blog-empty h2{font-size:24px;margin-bottom:12px;color:#f0f4f8}
-.cat-filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px}
-.cat-btn{padding:6px 16px;border-radius:20px;border:1px solid #1a2d45;background:transparent;color:#5a7a9a;font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s}
-.cat-btn.active,.cat-btn:hover{border-color:rgba(0,212,255,.4);color:#00d4ff;background:rgba(0,212,255,.05)}
-.blog-nav{background:#060912;border-bottom:1px solid rgba(0,212,255,.08);padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+:root{--bg:#060912;--surface:#0d1520;--border:#1a2d45;--cyan:#00d4ff;--text:#f0f4f8;--muted:#8896a8;--dim:#5a7a9a}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+/* Nav */
+.blog-nav{background:rgba(6,9,18,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,212,255,.08);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .blog-nav-brand{font-size:20px;font-weight:800;text-decoration:none}
 .blog-nav-brand .ai{color:#00d4ff}.blog-nav-brand .ring{color:#f0f4f8}.blog-nav-brand .desk{color:#5a7a9a}
-.blog-cta{background:linear-gradient(135deg,#0d1a2e,#071020);border:1px solid rgba(0,212,255,.2);border-radius:20px;padding:48px;text-align:center;margin-top:40px}
-.blog-cta h2{font-family:'Sora',sans-serif;font-size:28px;font-weight:700;margin-bottom:12px}
-.blog-cta p{color:#5a7a9a;margin-bottom:24px}
-.blog-cta a{display:inline-block;background:#00d4ff;color:#020408;padding:14px 32px;border-radius:10px;font-weight:700;text-decoration:none;font-size:15px}
-.spinner{width:32px;height:32px;border:3px solid rgba(0,212,255,.2);border-top-color:#00d4ff;border-radius:50%;animation:spin .7s linear infinite;margin:40px auto}
+.nav-links{display:flex;gap:16px;align-items:center}
+.nav-link{color:#8896a8;font-size:13px;text-decoration:none;transition:color .2s}
+.nav-link:hover{color:#f0f4f8}
+.nav-cta{background:#00d4ff;color:#020408;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none}
+
+/* Hero */
+.blog-hero{padding:80px 24px 64px;text-align:center;position:relative;overflow:hidden;border-bottom:1px solid rgba(0,212,255,.08)}
+.blog-hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(0,212,255,.08) 0%,transparent 70%);pointer-events:none}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:100px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#00d4ff;margin-bottom:24px}
+.blog-hero h1{font-family:'Sora',sans-serif;font-size:clamp(36px,6vw,64px);font-weight:800;line-height:1.1;margin-bottom:20px}
+.blog-hero h1 em{color:#00d4ff;font-style:normal}
+.blog-hero p{font-size:18px;color:#8896a8;max-width:540px;margin:0 auto 32px;line-height:1.7}
+.hero-stats{display:flex;gap:40px;justify-content:center;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat-num{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#00d4ff}
+.hero-stat-label{font-size:12px;color:#5a7a9a;margin-top:2px}
+
+/* Main layout */
+.blog-container{max-width:1200px;margin:0 auto;padding:60px 24px}
+
+/* Featured post */
+.featured-post{display:grid;grid-template-columns:1fr 1fr;gap:0;background:#0d1520;border:1px solid #1a2d45;border-radius:20px;overflow:hidden;margin-bottom:48px;text-decoration:none;transition:all .2s}
+.featured-post:hover{border-color:rgba(0,212,255,.3);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+@media(max-width:700px){.featured-post{grid-template-columns:1fr}}
+.featured-img{background:linear-gradient(135deg,#0a1628 0%,#0d2040 50%,#081830 100%);display:flex;align-items:center;justify-content:center;font-size:80px;min-height:280px;position:relative;overflow:hidden}
+.featured-img::after{content:'FEATURED';position:absolute;top:16px;left:16px;background:rgba(0,212,255,.15);border:1px solid rgba(0,212,255,.3);color:#00d4ff;font-size:10px;font-weight:700;letter-spacing:.1em;padding:4px 10px;border-radius:20px}
+.featured-body{padding:36px}
+.featured-cat{font-size:11px;font-weight:700;color:#00d4ff;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.featured-title{font-family:'Sora',sans-serif;font-size:26px;font-weight:800;line-height:1.3;margin-bottom:14px;color:#f0f4f8}
+.featured-excerpt{font-size:14px;color:#8896a8;line-height:1.7;margin-bottom:20px}
+.featured-meta{display:flex;align-items:center;gap:10px;font-size:12px;color:#5a7a9a}
+.featured-readmore{color:#00d4ff;font-weight:700;font-size:14px;margin-top:20px;display:inline-flex;align-items:center;gap:6px}
+
+/* Category filter */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px}
+.section-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:700}
+.cat-filter{display:flex;gap:8px;flex-wrap:wrap}
+.cat-btn{padding:6px 16px;border-radius:20px;border:1px solid #1a2d45;background:transparent;color:#8896a8;font-size:13px;cursor:pointer;font-family:inherit;transition:all .2s}
+.cat-btn.active,.cat-btn:hover{border-color:rgba(0,212,255,.4);color:#00d4ff;background:rgba(0,212,255,.05)}
+
+/* Blog grid */
+.blog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px;margin-bottom:60px}
+@media(max-width:400px){.blog-grid{grid-template-columns:1fr}}
+
+/* Blog card */
+.blog-card{background:#0d1520;border:1px solid #1a2d45;border-radius:16px;overflow:hidden;transition:all .2s;text-decoration:none;display:flex;flex-direction:column}
+.blog-card:hover{border-color:rgba(0,212,255,.3);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.blog-card-img{height:160px;display:flex;align-items:center;justify-content:center;font-size:48px;border-bottom:1px solid #1a2d45;position:relative}
+.blog-card-img.cat-ai{background:linear-gradient(135deg,#060d1a,#0a1a30)}
+.blog-card-img.cat-dental{background:linear-gradient(135deg,#060d1a,#0a1e2a)}
+.blog-card-img.cat-small{background:linear-gradient(135deg,#06100a,#0a1e14)}
+.blog-card-img.cat-real{background:linear-gradient(135deg,#100a06,#1e1408)}
+.blog-card-img.cat-trade{background:linear-gradient(135deg,#10060a,#1e0810)}
+.blog-card-img.cat-default{background:linear-gradient(135deg,#0a0a14,#0f0f20)}
+.blog-card-body{padding:20px;flex:1;display:flex;flex-direction:column}
+.blog-card-cat{font-size:10px;font-weight:700;color:#00d4ff;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.blog-card-title{font-family:'Sora',sans-serif;font-size:17px;font-weight:700;line-height:1.4;margin-bottom:10px;color:#f0f4f8;flex:1}
+.blog-card-excerpt{font-size:13px;color:#5a7a9a;line-height:1.6;margin-bottom:16px}
+.blog-card-footer{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:#3d5470;border-top:1px solid #1a2d45;padding-top:12px}
+.blog-card-readmore{color:#00d4ff;font-size:13px;font-weight:600}
+
+/* CTA */
+.blog-cta{background:linear-gradient(135deg,#0d1a2e,#071020);border:1px solid rgba(0,212,255,.2);border-radius:20px;padding:60px 40px;text-align:center;margin-top:20px}
+.blog-cta h2{font-family:'Sora',sans-serif;font-size:32px;font-weight:800;margin-bottom:14px}
+.blog-cta h2 em{color:#00d4ff;font-style:normal}
+.blog-cta p{color:#8896a8;margin-bottom:28px;font-size:16px;max-width:460px;margin-left:auto;margin-right:auto}
+.blog-cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.blog-cta-primary{background:#00d4ff;color:#020408;padding:14px 32px;border-radius:10px;font-weight:700;text-decoration:none;font-size:15px}
+.blog-cta-secondary{background:transparent;color:#8896a8;padding:14px 32px;border-radius:10px;font-weight:600;text-decoration:none;font-size:15px;border:1px solid #1a2d45}
+
+/* Empty */
+.blog-empty{text-align:center;padding:80px 24px;color:#5a7a9a}
+.blog-empty h2{font-size:24px;margin-bottom:12px;color:#f0f4f8}
+
+/* Footer */
+.blog-footer{border-top:1px solid #1a2d45;padding:32px 24px;text-align:center;color:#3d5470;font-size:13px;margin-top:60px}
+.blog-footer a{color:#5a7a9a;text-decoration:none}
+
+.spinner{width:32px;height:32px;border:3px solid rgba(0,212,255,.2);border-top-color:#00d4ff;border-radius:50%;animation:spin .7s linear infinite;margin:60px auto}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
+
 <nav class="blog-nav">
-  <a href="/" class="blog-nav-brand"><span class="ai">Ai</span><span class="ring">Ring</span><span class="desk">Desk</span>®</a>
-  <div style="display:flex;gap:16px;align-items:center">
-    <a href="/blog" style="color:#00d4ff;font-size:13px;font-weight:600;text-decoration:none">Blog</a>
-    <a href="/" style="color:#5a7a9a;font-size:13px;text-decoration:none">Home</a>
-    <a href="/#pricing" style="background:#00d4ff;color:#020408;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Start free trial</a>
+  <a href="/" class="blog-nav-brand"><span class="ai">Ai</span><span class="ring">Ring</span><span class="desk">Desk</span><sup style="font-size:9px;vertical-align:super;color:#5a7a9a;margin-left:1px">®</sup></a>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/#pricing" class="nav-link">Pricing</a>
+    <a href="/dashboard" class="nav-link">Sign in</a>
+    <a href="/#pricing" class="nav-cta">Start free trial</a>
   </div>
 </nav>
 
 <div class="blog-hero">
-  <div class="eyebrow">📝 AiRingDesk Blog</div>
-  <h1>AI Receptionist Insights<br>for <em>UK Businesses</em></h1>
-  <p>Expert guides, tips and insights on how UK businesses are using AI to never miss a customer call.</p>
+  <div class="hero-eyebrow">📝 AiRingDesk Blog</div>
+  <h1>Insights for <em>UK Businesses</em><br>that never miss a call</h1>
+  <p>Expert guides on AI receptionists, call handling, and how smart UK businesses are growing with AI.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="hero-stat-num" id="statPosts">—</div><div class="hero-stat-label">Articles published</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">3x</div><div class="hero-stat-label">Posts per week</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">Free</div><div class="hero-stat-label">Always free to read</div></div>
+  </div>
 </div>
 
 <div class="blog-container">
-  <div class="cat-filter" id="catFilter">
-    <button class="cat-btn active" onclick="filterCat('all')">All Posts</button>
-    <button class="cat-btn" onclick="filterCat('AI Receptionist')">AI Receptionist</button>
-    <button class="cat-btn" onclick="filterCat('Small Business')">Small Business</button>
-    <button class="cat-btn" onclick="filterCat('Dental')">Dental</button>
-    <button class="cat-btn" onclick="filterCat('Real Estate')">Real Estate</button>
-    <button class="cat-btn" onclick="filterCat('Trades')">Trades</button>
+  <div id="featuredPost"></div>
+
+  <div class="section-header">
+    <div class="section-title">Latest Articles</div>
+    <div class="cat-filter" id="catFilter">
+      <button class="cat-btn active" onclick="filterCat(this,'all')">All</button>
+      <button class="cat-btn" onclick="filterCat(this,'AI Receptionist')">🤖 AI Receptionist</button>
+      <button class="cat-btn" onclick="filterCat(this,'Small Business')">🏢 Small Business</button>
+      <button class="cat-btn" onclick="filterCat(this,'Dental')">🦷 Dental</button>
+      <button class="cat-btn" onclick="filterCat(this,'Real Estate')">🏠 Real Estate</button>
+      <button class="cat-btn" onclick="filterCat(this,'Trades')">🔧 Trades</button>
+    </div>
   </div>
 
   <div id="blogGrid" class="blog-grid">
-    <div style="grid-column:1/-1;text-align:center;padding:40px"><div class="spinner"></div></div>
+    <div style="grid-column:1/-1"><div class="spinner"></div></div>
   </div>
 
   <div class="blog-cta">
-    <h2>Ready to never miss a call again?</h2>
-    <p>Join UK businesses using AiRingDesk to answer every call 24/7 with AI.</p>
-    <a href="/#pricing">Start your 14-day free trial →</a>
+    <h2>Ready to never miss a<br><em>customer call</em> again?</h2>
+    <p>Join UK businesses using AiRingDesk to answer every call 24/7 with AI. From £29/month.</p>
+    <div class="blog-cta-btns">
+      <a href="/#pricing" class="blog-cta-primary">Start 14-day free trial →</a>
+      <a href="/" class="blog-cta-secondary">Learn more</a>
+    </div>
   </div>
 </div>
 
+<div class="blog-footer">
+  <p>© 2026 <a href="/">AiRingDesk</a> · Trading name of SatFocus Ltd · VAT: GB 321211372 · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></p>
+</div>
+
 <script>
-let allPosts = [];
-let currentCat = 'all';
+var allPosts=[];
+var currentCat='all';
 
-const EMOJIS = {
-  'AI Receptionist': '🤖',
-  'Small Business': '🏢',
-  'Dental': '🦷',
-  'Real Estate': '🏠',
-  'Trades': '🔧',
-  'Legal': '⚖️',
-  'Finance': '💰',
-  'default': '📝'
-};
+var EMOJIS={'AI Receptionist':'🤖','Small Business':'🏢','Dental':'🦷','Real Estate':'🏠','Trades':'🔧','Legal':'⚖️','Finance':'💰','default':'📝'};
+var CAT_CLASS={'AI Receptionist':'cat-ai','Small Business':'cat-small','Dental':'cat-dental','Real Estate':'cat-real','Trades':'cat-trade'};
 
-function formatDate(ts) {
-  return new Date(ts * 1000).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+function formatDate(ts){return new Date(ts*1000).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});}
+
+function filterCat(btn,cat){
+  currentCat=cat;
+  document.querySelectorAll('.cat-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  renderGrid();
 }
 
-function filterCat(cat) {
-  currentCat = cat;
-  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-  event.target.classList.add('active');
-  renderPosts();
-}
-
-function renderPosts() {
-  const grid = document.getElementById('blogGrid');
-  const filtered = currentCat === 'all' ? allPosts : allPosts.filter(p => p.category === currentCat);
-  if (filtered.length === 0) {
-    grid.innerHTML = '<div class="blog-empty"><h2>No posts yet</h2><p>Check back soon — we publish 3 times a week.</p></div>';
+function renderGrid(){
+  var grid=document.getElementById('blogGrid');
+  var posts=currentCat==='all'?allPosts:allPosts.filter(function(p){return p.category===currentCat;});
+  if(posts.length===0){
+    grid.innerHTML='<div class="blog-empty" style="grid-column:1/-1"><h2>No posts in this category yet</h2><p>Check back soon — we publish 3 times a week.</p></div>';
     return;
   }
-  grid.innerHTML = filtered.map(p => `
-    <a href="/blog/${p.slug}" class="blog-card">
-      <div class="blog-card-img">${EMOJIS[p.category] || EMOJIS.default}</div>
-      <div class="blog-card-body">
-        <div class="blog-card-cat">${p.category}</div>
-        <div class="blog-card-title">${p.title}</div>
-        <div class="blog-card-excerpt">${p.excerpt || ''}</div>
-        <div class="blog-card-meta">
-          <span>${formatDate(p.published_at)}</span>
-          <span class="blog-card-readmore">Read more →</span>
-        </div>
-      </div>
-    </a>
-  `).join('');
+  grid.innerHTML=posts.map(function(p){
+    var catClass=CAT_CLASS[p.category]||'cat-default';
+    var emoji=EMOJIS[p.category]||EMOJIS['default'];
+    return '<a href="/blog/'+p.slug+'" class="blog-card">'+
+      '<div class="blog-card-img '+catClass+'">'+emoji+'</div>'+
+      '<div class="blog-card-body">'+
+        '<div class="blog-card-cat">'+p.category+'</div>'+
+        '<div class="blog-card-title">'+p.title+'</div>'+
+        '<div class="blog-card-excerpt">'+(p.excerpt||'')+'</div>'+
+        '<div class="blog-card-footer">'+
+          '<span>'+formatDate(p.published_at)+'</span>'+
+          '<span class="blog-card-readmore">Read more →</span>'+
+        '</div>'+
+      '</div>'+
+    '</a>';
+  }).join('');
 }
 
-async function loadPosts() {
-  try {
-    const r = await fetch('/api/blog/');
-    const d = await r.json();
-    allPosts = d.posts || [];
-    renderPosts();
-  } catch(e) {
-    document.getElementById('blogGrid').innerHTML = '<div class="blog-empty"><h2>Coming soon</h2><p>Our blog is launching soon with weekly AI insights.</p></div>';
+function renderFeatured(post){
+  if(!post)return;
+  var emoji=EMOJIS[post.category]||EMOJIS['default'];
+  var catClass=CAT_CLASS[post.category]||'cat-default';
+  document.getElementById('featuredPost').innerHTML=
+    '<a href="/blog/'+post.slug+'" class="featured-post">'+
+      '<div class="featured-img '+catClass+'">'+emoji+'</div>'+
+      '<div class="featured-body">'+
+        '<div class="featured-cat">'+post.category+'</div>'+
+        '<div class="featured-title">'+post.title+'</div>'+
+        '<div class="featured-excerpt">'+(post.excerpt||'')+'</div>'+
+        '<div class="featured-meta">'+
+          '<span>'+formatDate(post.published_at)+'</span>'+
+          '<span>·</span>'+
+          '<span>'+(post.word_count||1200)+' words</span>'+
+        '</div>'+
+        '<div class="featured-readmore">Read full article →</div>'+
+      '</div>'+
+    '</a>';
+}
+
+async function loadPosts(){
+  try{
+    var r=await fetch('/api/blog/');
+    var d=await r.json();
+    allPosts=d.posts||[];
+    document.getElementById('statPosts').textContent=d.total||allPosts.length;
+    if(allPosts.length>0)renderFeatured(allPosts[0]);
+    renderGrid();
+  }catch(e){
+    document.getElementById('blogGrid').innerHTML='<div class="blog-empty" style="grid-column:1/-1"><h2>Coming soon</h2><p>Our blog launches with new posts every Monday, Wednesday and Friday.</p></div>';
   }
 }
 

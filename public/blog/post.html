@@ -11,34 +11,54 @@
 <script id="schemaScript" type="application/ld+json"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#060912;color:#f0f4f8;font-family:'DM Sans',sans-serif;min-height:100vh}
-.blog-nav{background:#060912;border-bottom:1px solid rgba(0,212,255,.08);padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+:root{--bg:#060912;--surface:#0d1520;--border:#1a2d45;--cyan:#00d4ff;--text:#f0f4f8;--muted:#8896a8;--dim:#5a7a9a}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,#00d4ff,#0066cc);z-index:200;width:0%;transition:width .1s}
+.blog-nav{background:rgba(6,9,18,.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,212,255,.08);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .blog-nav-brand{font-size:20px;font-weight:800;text-decoration:none}
 .blog-nav-brand .ai{color:#00d4ff}.blog-nav-brand .ring{color:#f0f4f8}.blog-nav-brand .desk{color:#5a7a9a}
-.post-container{max-width:780px;margin:0 auto;padding:48px 24px}
-.post-breadcrumb{font-size:13px;color:#5a7a9a;margin-bottom:24px}
+.nav-links{display:flex;gap:16px;align-items:center}
+.nav-link{color:#8896a8;font-size:13px;text-decoration:none}
+.nav-link:hover{color:#f0f4f8}
+.nav-cta{background:#00d4ff;color:#020408;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none}
+.post-layout{max-width:1200px;margin:0 auto;padding:48px 24px;display:grid;grid-template-columns:1fr 300px;gap:60px;align-items:start}
+@media(max-width:900px){.post-layout{grid-template-columns:1fr}.post-sidebar{display:none}}
+.post-breadcrumb{font-size:12px;color:#5a7a9a;margin-bottom:20px;display:flex;align-items:center;gap:6px}
 .post-breadcrumb a{color:#00d4ff;text-decoration:none}
-.post-cat{font-size:11px;font-weight:700;color:#00d4ff;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
-.post-title{font-family:'Sora',sans-serif;font-size:clamp(28px,4vw,42px);font-weight:800;line-height:1.2;margin-bottom:16px}
-.post-meta{display:flex;align-items:center;gap:16px;font-size:13px;color:#5a7a9a;margin-bottom:32px;padding-bottom:24px;border-bottom:1px solid #1a2d45}
-.post-body{font-size:16px;line-height:1.8;color:#d0dce8}
-.post-body h2{font-family:'Sora',sans-serif;font-size:26px;font-weight:700;color:#f0f4f8;margin:36px 0 14px;padding-bottom:10px;border-bottom:1px solid #1a2d45}
-.post-body h3{font-family:'Sora',sans-serif;font-size:20px;font-weight:700;color:#f0f4f8;margin:24px 0 10px}
-.post-body p{margin-bottom:18px}
-.post-body ul,.post-body ol{margin:16px 0 18px 24px}
-.post-body li{margin-bottom:8px}
+.post-cat-badge{display:inline-flex;padding:4px 12px;border-radius:20px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);color:#00d4ff;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px}
+.post-title{font-family:'Sora',sans-serif;font-size:clamp(30px,4vw,46px);font-weight:800;line-height:1.15;margin-bottom:20px}
+.post-meta{display:flex;align-items:center;gap:12px;font-size:13px;color:#5a7a9a;margin-bottom:36px;padding-bottom:28px;border-bottom:1px solid #1a2d45;flex-wrap:wrap}
+.post-body{font-size:17px;line-height:1.85;color:#c8d8e8}
+.post-body h2{font-family:'Sora',sans-serif;font-size:26px;font-weight:700;color:#f0f4f8;margin:44px 0 16px;padding-bottom:12px;border-bottom:1px solid #1a2d45;line-height:1.3}
+.post-body h3{font-family:'Sora',sans-serif;font-size:20px;font-weight:700;color:#f0f4f8;margin:28px 0 10px}
+.post-body p{margin-bottom:20px}
+.post-body ul,.post-body ol{margin:16px 0 20px 0;padding-left:0;list-style:none}
+.post-body li{margin-bottom:10px;padding-left:24px;position:relative}
+.post-body ul li::before{content:'→';position:absolute;left:0;color:#00d4ff;font-size:13px;top:3px}
 .post-body strong{color:#f0f4f8;font-weight:700}
-.post-body a{color:#00d4ff;text-decoration:none}
-.post-body a:hover{text-decoration:underline}
-.post-cta-box{background:linear-gradient(135deg,#0d1a2e,#071020);border:1px solid rgba(0,212,255,.3);border-radius:16px;padding:32px;margin:40px 0;text-align:center}
+.post-body a{color:#00d4ff;text-decoration:none;border-bottom:1px solid rgba(0,212,255,.3)}
+.post-cta-box{background:linear-gradient(135deg,#0d1a2e,#071828);border:1px solid rgba(0,212,255,.25);border-radius:16px;padding:32px;margin:44px 0;text-align:center}
 .post-cta-box h3{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:10px}
-.post-cta-box p{color:#5a7a9a;margin-bottom:20px;font-size:15px}
-.post-cta-box a{display:inline-block;background:#00d4ff;color:#020408;padding:12px 28px;border-radius:10px;font-weight:700;text-decoration:none}
+.post-cta-box p{color:#8896a8;margin-bottom:20px;font-size:15px}
+.post-cta-box a{display:inline-block;background:#00d4ff;color:#020408;padding:13px 28px;border-radius:10px;font-weight:700;text-decoration:none;font-size:15px}
+.share-bar{display:flex;align-items:center;gap:12px;margin:40px 0;padding:20px;background:#0d1520;border:1px solid #1a2d45;border-radius:12px;flex-wrap:wrap}
+.share-bar span{font-size:13px;color:#8896a8;font-weight:600}
+.share-btn{padding:7px 16px;border-radius:8px;border:1px solid #1a2d45;background:transparent;color:#8896a8;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:none;display:inline-block}
+.share-btn:hover{border-color:#00d4ff;color:#00d4ff}
+.post-sidebar{position:sticky;top:80px}
+.sidebar-card{background:#0d1520;border:1px solid #1a2d45;border-radius:14px;padding:20px;margin-bottom:20px}
+.sidebar-card h4{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #1a2d45}
+.toc-item{font-size:13px;color:#8896a8;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.03);cursor:pointer;line-height:1.4;transition:color .2s}
+.toc-item:hover{color:#00d4ff}
+.sidebar-trial{background:linear-gradient(135deg,rgba(0,212,255,.08),rgba(0,102,204,.08));border:1px solid rgba(0,212,255,.2);border-radius:14px;padding:20px;text-align:center}
+.sidebar-trial h4{font-size:15px;font-weight:700;margin-bottom:8px}
+.sidebar-trial p{font-size:12px;color:#8896a8;margin-bottom:14px;line-height:1.6}
+.sidebar-trial a{display:block;background:#00d4ff;color:#020408;padding:10px;border-radius:8px;font-weight:700;text-decoration:none;font-size:13px}
 .related-section{margin-top:60px;padding-top:40px;border-top:1px solid #1a2d45}
 .related-section h2{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;margin-bottom:24px}
 .related-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
 .related-card{background:#0d1520;border:1px solid #1a2d45;border-radius:12px;padding:16px;text-decoration:none;display:block;transition:all .2s}
-.related-card:hover{border-color:rgba(0,212,255,.3)}
+.related-card:hover{border-color:rgba(0,212,255,.3);transform:translateY(-2px)}
 .related-card-title{font-size:14px;font-weight:700;color:#f0f4f8;line-height:1.4;margin-bottom:8px}
 .related-card-date{font-size:12px;color:#5a7a9a}
 .spinner{width:32px;height:32px;border:3px solid rgba(0,212,255,.2);border-top-color:#00d4ff;border-radius:50%;animation:spin .7s linear infinite;margin:80px auto}
@@ -46,76 +66,102 @@ body{background:#060912;color:#f0f4f8;font-family:'DM Sans',sans-serif;min-heigh
 </style>
 </head>
 <body>
+<div class="progress-bar" id="progressBar"></div>
 <nav class="blog-nav">
-  <a href="/" class="blog-nav-brand"><span class="ai">Ai</span><span class="ring">Ring</span><span class="desk">Desk</span>®</a>
-  <div style="display:flex;gap:16px;align-items:center">
-    <a href="/blog" style="color:#00d4ff;font-size:13px;font-weight:600;text-decoration:none">← Blog</a>
-    <a href="/#pricing" style="background:#00d4ff;color:#020408;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:700;text-decoration:none">Start free trial</a>
+  <a href="/" class="blog-nav-brand"><span class="ai">Ai</span><span class="ring">Ring</span><span class="desk">Desk</span><sup style="font-size:9px;vertical-align:super;color:#5a7a9a;margin-left:1px">®</sup></a>
+  <div class="nav-links">
+    <a href="/blog" class="nav-link">← Blog</a>
+    <a href="/" class="nav-link">Home</a>
+    <a href="/#pricing" class="nav-cta">Start free trial</a>
   </div>
 </nav>
-
-<div class="post-container" id="postContainer">
-  <div class="spinner"></div>
+<div class="post-layout" id="postLayout">
+  <div style="grid-column:1/-1;text-align:center"><div class="spinner"></div></div>
 </div>
-
 <script>
-function formatDate(ts) {
-  return new Date(ts * 1000).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+function formatDate(ts){return new Date(ts*1000).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});}
+window.addEventListener('scroll',function(){
+  var el=document.getElementById('progressBar');
+  if(!el)return;
+  var total=document.body.scrollHeight-window.innerHeight;
+  el.style.width=(window.scrollY/total*100)+'%';
+});
+function scrollToH(i){
+  var hs=document.querySelectorAll('.post-body h2');
+  if(hs[i])hs[i].scrollIntoView({behavior:'smooth',block:'start'});
 }
-
-async function loadPost() {
-  const slug = window.location.pathname.replace('/blog/', '').replace(/\/$/, '');
-  if (!slug) { window.location.href = '/blog'; return; }
-
-  try {
-    const r = await fetch('/api/blog/post/' + slug);
-    if (!r.ok) { window.location.href = '/blog'; return; }
-    const { post, related } = await r.json();
-
-    // Update meta
-    document.getElementById('pageTitle').textContent = post.title + ' — AiRingDesk Blog';
-    document.getElementById('metaDesc').setAttribute('content', post.meta_description || '');
-    document.getElementById('canonical').setAttribute('href', 'https://airingdesk.com/blog/' + post.slug);
-    if (post.schema_json) document.getElementById('schemaScript').textContent = post.schema_json;
-
-    // Render post
-    const relatedHtml = related && related.length > 0 ? `
-      <div class="related-section">
-        <h2>Related Articles</h2>
-        <div class="related-grid">
-          ${related.map(r => `
-            <a href="/blog/${r.slug}" class="related-card">
-              <div class="related-card-title">${r.title}</div>
-              <div class="related-card-date">${formatDate(r.published_at)}</div>
-            </a>
-          `).join('')}
-        </div>
-      </div>` : '';
-
-    document.getElementById('postContainer').innerHTML = `
-      <div class="post-breadcrumb"><a href="/">Home</a> → <a href="/blog">Blog</a> → ${post.title}</div>
-      <div class="post-cat">${post.category}</div>
-      <h1 class="post-title">${post.title}</h1>
-      <div class="post-meta">
-        <span>By ${post.author || 'AiRingDesk Team'}</span>
-        <span>·</span>
-        <span>${formatDate(post.published_at)}</span>
-        <span>·</span>
-        <span>${post.word_count || 1200} words</span>
-      </div>
-      <div class="post-body">${post.content}</div>
-      <div class="post-cta-box">
-        <h3>Ready to never miss a call again?</h3>
-        <p>AiRingDesk answers every call 24/7 with AI. Start your 14-day free trial today — no charge until your trial ends.</p>
-        <a href="/#pricing">Start free trial →</a>
-      </div>
-      ${relatedHtml}
-    `;
-  } catch(e) {
-    document.getElementById('postContainer').innerHTML = '<p style="text-align:center;color:#5a7a9a;padding:60px">Post not found. <a href="/blog" style="color:#00d4ff">Back to blog →</a></p>';
+function cleanContent(html,title){
+  var div=document.createElement('div');
+  div.innerHTML=html;
+  var first=div.querySelector('h1,h2');
+  if(first&&first.textContent.trim().toLowerCase()===title.trim().toLowerCase())first.remove();
+  return div.innerHTML;
+}
+function buildTOC(html){
+  var div=document.createElement('div');
+  div.innerHTML=html;
+  var hs=Array.from(div.querySelectorAll('h2'));
+  if(!hs.length)return '';
+  return hs.map(function(h,i){return '<div class="toc-item" onclick="scrollToH('+i+')">'+h.textContent+'</div>';}).join('');
+}
+async function loadPost(){
+  var slug=window.location.pathname.replace('/blog/','').replace(/\/$/,'');
+  if(!slug){window.location.href='/blog';return;}
+  try{
+    var r=await fetch('/api/blog/post/'+slug);
+    if(!r.ok){window.location.href='/blog';return;}
+    var d=await r.json();
+    var post=d.post,related=d.related;
+    document.getElementById('pageTitle').textContent=post.title+' — AiRingDesk Blog';
+    document.getElementById('metaDesc').setAttribute('content',post.meta_description||'');
+    document.getElementById('canonical').setAttribute('href','https://airingdesk.com/blog/'+post.slug);
+    if(post.schema_json)document.getElementById('schemaScript').textContent=post.schema_json;
+    var content=cleanContent(post.content,post.title);
+    var toc=buildTOC(content);
+    var pu=encodeURIComponent('https://airingdesk.com/blog/'+post.slug);
+    var pt=encodeURIComponent(post.title);
+    var relHtml='';
+    if(related&&related.length){
+      relHtml='<div class="related-section"><h2>Related Articles</h2><div class="related-grid">';
+      related.forEach(function(rp){relHtml+='<a href="/blog/'+rp.slug+'" class="related-card"><div class="related-card-title">'+rp.title+'</div><div class="related-card-date">'+formatDate(rp.published_at)+'</div></a>';});
+      relHtml+='</div></div>';
+    }
+    var sidebarHtml='';
+    if(toc)sidebarHtml+='<div class="sidebar-card"><h4>📋 Table of Contents</h4>'+toc+'</div>';
+    sidebarHtml+='<div class="sidebar-trial"><h4>🤖 Try AiRingDesk Free</h4><p>AI receptionist for UK businesses. Answer every call 24/7. From £29/month.</p><a href="/#pricing">Start 14-day free trial →</a></div>';
+    document.getElementById('postLayout').innerHTML=
+      '<article>'+
+        '<div class="post-breadcrumb"><a href="/">Home</a><span>→</span><a href="/blog">Blog</a><span>→</span><span>'+post.title+'</span></div>'+
+        '<div class="post-cat-badge">'+post.category+'</div>'+
+        '<h1 class="post-title">'+post.title+'</h1>'+
+        '<div class="post-meta">'+
+          '<span class="post-meta-item">✍️ '+(post.author||'AiRingDesk Team')+'</span>'+
+          '<span>·</span>'+
+          '<span>📅 '+formatDate(post.published_at)+'</span>'+
+          '<span>·</span>'+
+          '<span>📖 '+(post.word_count||1200)+' words</span>'+
+          '<span>·</span>'+
+          '<span>⏱️ '+Math.ceil((post.word_count||1200)/200)+' min read</span>'+
+        '</div>'+
+        '<div class="post-body">'+content+'</div>'+
+        '<div class="share-bar">'+
+          '<span>Share:</span>'+
+          '<a href="https://twitter.com/intent/tweet?url='+pu+'&text='+pt+'" target="_blank" class="share-btn">🐦 Twitter</a>'+
+          '<a href="https://www.linkedin.com/sharing/share-offsite/?url='+pu+'" target="_blank" class="share-btn">💼 LinkedIn</a>'+
+          '<a href="https://www.facebook.com/sharer/sharer.php?u='+pu+'" target="_blank" class="share-btn">📘 Facebook</a>'+
+        '</div>'+
+        '<div class="post-cta-box">'+
+          '<h3>Never miss a customer call again 📞</h3>'+
+          '<p>AiRingDesk answers every call 24/7 with AI. Start your 14-day free trial — no charge until your trial ends. From £29/month.</p>'+
+          '<a href="/#pricing">Start your free trial →</a>'+
+        '</div>'+
+        relHtml+
+      '</article>'+
+      '<aside class="post-sidebar">'+sidebarHtml+'</aside>';
+  }catch(e){
+    document.getElementById('postLayout').innerHTML='<p style="text-align:center;color:#5a7a9a;padding:60px;grid-column:1/-1">Post not found. <a href="/blog" style="color:#00d4ff">Back to blog</a></p>';
   }
 }
-
 loadPost();
 </script>
 </body>
