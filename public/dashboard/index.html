@@ -372,6 +372,43 @@ select option{background-color:#0c1520;color:#f0f6ff}
 .pricing-plan-editor{display:none}
 .pricing-plan-editor.active{display:block}
 @media(max-width:900px){#pricingEditGrid{grid-template-columns:1fr !important}}
+
+.call-tab{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .15s;white-space:nowrap}
+.call-tab:hover{border-color:rgba(0,212,255,.3);color:var(--text)}
+.call-tab.active{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.4);color:var(--cyan)}
+.call-tab.active.active-red{background:rgba(255,68,102,.1);border-color:rgba(255,68,102,.4);color:var(--red)}
+.tab-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;font-size:10px;font-weight:700;background:rgba(255,255,255,.08);color:var(--muted)}
+.tab-badge-red{background:rgba(255,68,102,.2);color:var(--red)}
+.call-card-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;transition:border-color .15s}
+.call-card-item:hover{border-color:rgba(0,212,255,.2)}
+.call-card-item.priority-high{border-left:3px solid var(--red)}
+.call-card-item.priority-med{border-left:3px solid #f59e0b}
+.call-card-item.priority-low{border-left:3px solid var(--border)}
+.call-card-item.priority-junk{opacity:.55}
+.call-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.call-card-left{display:flex;align-items:center;gap:12px}
+.call-avatar-lg{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;flex-shrink:0}
+.call-card-name{font-size:14px;font-weight:700;color:var(--text)}
+.call-card-num{font-size:12px;color:var(--muted);margin-top:2px}
+.call-card-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;flex-shrink:0}
+.call-dur-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:11px;font-weight:700}
+.call-dur-long{background:rgba(0,232,122,.1);color:var(--green)}
+.call-dur-med{background:rgba(0,212,255,.1);color:var(--cyan)}
+.call-dur-short{background:rgba(255,255,255,.06);color:var(--muted)}
+.call-summary-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:10px}
+.call-summary-row{display:flex;align-items:flex-start;gap:8px;font-size:12px;margin-bottom:4px}
+.call-summary-row:last-child{margin-bottom:0}
+.call-summary-label{color:var(--muted);min-width:60px;flex-shrink:0;font-weight:600}
+.call-summary-val{color:var(--text);line-height:1.5}
+.call-summary-val.urgent{color:#ff6b6b;font-weight:600}
+.call-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.call-action-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:7px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .15s;text-decoration:none;white-space:nowrap}
+.call-action-btn:hover{border-color:rgba(0,212,255,.3);color:var(--cyan)}
+.call-action-btn.btn-done{border-color:rgba(0,232,122,.3);color:var(--green)}
+.call-action-btn.btn-call{border-color:rgba(0,212,255,.3);color:var(--cyan)}
+.call-action-btn.btn-block{border-color:rgba(255,68,102,.3);color:var(--red)}
+.call-action-btn.btn-del{border-color:rgba(255,68,102,.2);color:var(--red)}
+.call-time-tag{font-size:11px;color:var(--dim)}
 </style>
 <link rel="stylesheet" href="/brand.css"></head>
 <body>
@@ -908,14 +945,19 @@ select option{background-color:#0c1520;color:#f0f6ff}
       <div class="table-card">
         <div class="table-header">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-            <div class="table-actions">
-              <button class="filter-btn active" onclick="filterCalls('all',this)">All</button>
-              <button class="filter-btn" onclick="filterCalls('completed',this)">Completed</button>
-              <button class="filter-btn" onclick="filterCalls('transferred',this)">Transferred</button>
-              <button class="filter-btn" onclick="filterCalls('voicemail',this)">Voicemail</button>
-              <button class="filter-btn" onclick="filterCalls('missed',this)">Missed</button>
+            <div style="display:flex;gap:6px;flex-wrap:wrap" id="callTabBar">
+              <button class="call-tab active active-red" id="tab-action" onclick="setCallTab('action',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> Needs Action <span class="tab-badge tab-badge-red" id="badge-action">0</span></button>
+              <button class="call-tab" id="tab-completed" onclick="setCallTab('completed',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Completed <span class="tab-badge" id="badge-completed">0</span></button>
+              <button class="call-tab" id="tab-transferred" onclick="setCallTab('transferred',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 3 21 3 21 9"/><path d="M10 14L21 3"/><path d="M21 16v5a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h5"/></svg> Transferred <span class="tab-badge" id="badge-transferred">0</span></button>
+              <button class="call-tab" id="tab-voicemail" onclick="setCallTab('voicemail',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.07 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg> Voicemail <span class="tab-badge" id="badge-voicemail">0</span></button>
+              <button class="call-tab" id="tab-junk" onclick="setCallTab('junk',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg> Junk <span class="tab-badge" id="badge-junk">0</span></button>
+              <button class="call-tab" id="tab-all" onclick="setCallTab('all',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> All <span class="tab-badge" id="badge-all">0</span></button>
             </div>
             <div style="display:flex;gap:6px;margin-left:auto;align-items:center">
+              <div style="position:relative;display:inline-block">
+                <svg style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#5a7a9a;pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="callSearch" oninput="renderCalls()" placeholder="Search..." style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:5px 10px 5px 28px;border-radius:6px;font-size:12px;font-family:inherit;outline:none;width:150px"/>
+              </div>
               <input type="date" id="callDateFrom" onchange="filterCallsByDate()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:5px 10px;border-radius:6px;font-size:12px;font-family:inherit;outline:none" placeholder="From"/>
               <span style="font-size:11px;color:var(--muted)">to</span>
               <input type="date" id="callDateTo" onchange="filterCallsByDate()" style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:5px 10px;border-radius:6px;font-size:12px;font-family:inherit;outline:none" placeholder="To"/>
@@ -923,21 +965,12 @@ select option{background-color:#0c1520;color:#f0f6ff}
             </div>
           </div>
         </div>
-        <div style="overflow-x:auto">
-          <table>
-            <thead>
-              <tr>
-                <th>Caller</th>
-                <th>Status</th>
-                <th>Duration</th>
-                <th>Summary</th>
-                <th>Lead</th>
-                <th>Date & Time</th>
-                <th></th>
-              </tr>
-            </thead>
+        <div id="callCardsContainer" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;min-height:120px">
+          <div style="text-align:center;padding:40px;color:var(--muted)">Loading calls...</div>
+        </div>
+        <div style="display:none"><table><thead><tr><th></th></tr></thead>
             <tbody id="callsTableBody">
-              <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--muted)">Loading calls...</td></tr>
+              <tr><td colspan="7"></td></tr>
             </tbody>
           </table>
         </div>
@@ -8655,5 +8688,6 @@ function renderHealthPricing(pricingData) {
   }
 
 </script>
+<script src="/dashboard/calls.js"></script>
 </body>
 </html>
