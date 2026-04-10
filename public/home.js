@@ -165,6 +165,10 @@ function goStep(n){
   document.querySelectorAll('.spanel').forEach(p=>p.classList.remove('active'));
   const panel=document.getElementById('step'+n);
   if(panel)panel.classList.add('active');
+  // Fire Google Ads conversion when user reaches Step 5 (signup complete)
+  if(n===5 && typeof gtag !== 'undefined'){
+    gtag('event', 'conversion_event_begin_checkout');
+  }
   for(let i=1;i<=5;i++){
     const d=document.getElementById('sd'+i);
     if(!d)continue;

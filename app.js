@@ -5449,6 +5449,10 @@ p{color:#5a7a9a;font-size:15px;line-height:1.7;margin-bottom:8px}
   </div>
   <a href="/dashboard" class="btn" id="dashBtn">Go to dashboard →</a>
 <script>
+// Fire Google Ads conversion
+if (typeof gtag !== 'undefined') {
+  gtag('event', 'conversion_event_begin_checkout');
+}
 // Auto-login after Stripe checkout
 (async function(){
   const params = new URLSearchParams(window.location.search);
@@ -6335,6 +6339,9 @@ app.use("/api/referral", require("./routes/referral")(db, sendBrevoEmail));
 // routes registered below
 app.use("/api/gc", gcRouter);
 app.use("/api/blog", blogRouter);
+
+// Blog static assets (images etc)
+app.use('/blog/assets', require('express').static(__dirname + '/public/blog/assets'));
 
 // Blog pages
 app.get('/blog', (req, res) => res.sendFile(__dirname + '/public/blog/index.html'));
