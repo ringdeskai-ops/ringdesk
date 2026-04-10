@@ -110,6 +110,25 @@ Respond ONLY with the JSON object, no other text.`;
       // Update schedule last_run
       db.prepare("UPDATE blog_schedule SET last_run = ? WHERE enabled = 1").run(now);
 
+      // Auto-update sitemap
+      try {
+        const sitemapPath = require('path').join(__dirname, '../public/sitemap.xml');
+        let sitemap = require('fs').readFileSync(sitemapPath, 'utf8');
+        sitemap = sitemap.replace(/<url>\s*<loc>https:\/\/airingdesk\.com\/blog[^<]*<\/loc>[\s\S]*?<\/url>\s*/g, '');
+        const allPosts = db.prepare("SELECT slug, published_at, updated_at FROM blog_posts WHERE status = 'published' ORDER BY published_at DESC").all();
+        const today = new Date().toISOString().split('T')[0];
+        let blogEntries = `\n  <url><loc>https://airingdesk.com/blog</loc><lastmod>${today}</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>`;
+        allPosts.forEach(p => {
+          const lm = new Date((p.updated_at||p.published_at)*1000).toISOString().split('T')[0];
+          blogEntries += `\n  <url><loc>https://airingdesk.com/blog/${p.slug}</loc><lastmod>${lm}</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>`;
+        });
+        sitemap = sitemap.replace('</urlset>', blogEntries + '\n</urlset>');
+        require('fs').writeFileSync(sitemapPath, sitemap);
+        // Ping Google
+        require('https').get('https://www.google.com/ping?sitemap=https://airingdesk.com/sitemap.xml');
+        console.log('[Blog] ✅ Sitemap updated and Google pinged');
+      } catch(sErr) { console.error('[Blog] Sitemap update failed:', sErr.message); }
+
       console.log('[Blog] ✅ Published:', post.title);
       return { id, slug, title: post.title };
     } catch(e) {
