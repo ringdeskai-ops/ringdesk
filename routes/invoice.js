@@ -192,7 +192,7 @@ module.exports = function(db) {
       doc.fontSize(9).font('Helvetica').fillColor('#888888');
       doc.text('AiRingDesk® · Your 24/7 AI Call Desk · airingdesk.com', 50, 772, { lineBreak: false });
       doc.text('hello@airingdesk.com · +44 20 4634 8499', 50, 787, { lineBreak: false });
-      doc.text('AiRingDesk is a trading name of SatFocus Ltd · Registered in England & Wales · VAT No: GB 321211372', 50, 802, { lineBreak: false });
+      doc.text('AiRingDesk is a trading name of SatFocus Ltd · 124 City Road, London, EC1V 2NX · Registered in England & Wales · VAT No: GB 321211372', 50, 802, { lineBreak: false });
       doc.fontSize(9).font('Helvetica-Bold').fillColor('#0099bb').text('Thank you for your business!', 350, 787, { lineBreak: false });
 
       doc.end();
