@@ -181,8 +181,10 @@ function renderGrid(){
   grid.innerHTML=posts.map(function(p){
     var catClass=CAT_CLASS[p.category]||'cat-default';
     var emoji=EMOJIS[p.category]||EMOJIS['default'];
+    var CAT_IMAGES={'AI Receptionist':'/blog/assets/ai-receptionist.jpg','Dental':'/blog/assets/dental.jpg','Real Estate':'/blog/assets/real-estate.jpg','Trades':'/blog/assets/trades.jpg','Small Business':'/blog/assets/small-business.jpg'};
+    var imgUrl=CAT_IMAGES[p.category];
     return '<a href="/blog/'+p.slug+'" class="blog-card">'+
-      '<div class="blog-card-img '+catClass+'">'+emoji+'</div>'+
+      '<div class="blog-card-img '+catClass+'">'+(imgUrl?'<img src="'+imgUrl+'" alt="'+p.category+'" style="width:100%;height:100%;object-fit:cover;display:block">':emoji)+'</div>'+
       '<div class="blog-card-body">'+
         '<div class="blog-card-cat">'+p.category+'</div>'+
         '<div class="blog-card-title">'+p.title+'</div>'+
@@ -200,9 +202,11 @@ function renderFeatured(post){
   if(!post)return;
   var emoji=EMOJIS[post.category]||EMOJIS['default'];
   var catClass=CAT_CLASS[post.category]||'cat-default';
+  var FEAT_IMAGES={'AI Receptionist':'/blog/assets/ai-receptionist.jpg','Dental':'/blog/assets/dental.jpg','Real Estate':'/blog/assets/real-estate.jpg','Trades':'/blog/assets/trades.jpg','Small Business':'/blog/assets/small-business.jpg'};
+  var featImg=FEAT_IMAGES[post.category];
   document.getElementById('featuredPost').innerHTML=
     '<a href="/blog/'+post.slug+'" class="featured-post">'+
-      '<div class="featured-img '+catClass+'">'+emoji+'</div>'+
+      '<div class="featured-img '+catClass+'">'+(featImg?'<img src="'+featImg+'" alt="'+post.category+'" style="width:100%;height:100%;object-fit:cover;display:block">':emoji)+'</div>'+
       '<div class="featured-body">'+
         '<div class="featured-cat">'+post.category+'</div>'+
         '<div class="featured-title">'+post.title+'</div>'+
