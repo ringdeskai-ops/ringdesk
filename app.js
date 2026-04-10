@@ -6345,7 +6345,16 @@ app.use('/blog/assets', require('express').static(__dirname + '/public/blog/asse
 
 // Blog pages
 app.get('/blog', (req, res) => res.sendFile(__dirname + '/public/blog/index.html'));
-app.get('/blog/:slug', (req, res) => res.sendFile(__dirname + '/public/blog/post.html'));
+app.get('/blog/:slug', (req, res) => {
+  const staticPath = __dirname + '/public/blog/posts/' + req.params.slug + '.html';
+  if (require('fs').existsSync(staticPath)) {
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.setHeader('X-Robots-Tag', 'index, follow');
+    return res.sendFile(staticPath);
+  }
+  // Fallback to dynamic renderer for new posts not yet generated
+  res.sendFile(__dirname + '/public/blog/post.html');
+});
 
 // ═══════════════════════════════════════════════════════════════
 // PRICING MANAGER ROUTES — v2.6.2
