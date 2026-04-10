@@ -22,39 +22,88 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
   // ── Helper: generate blog post with Claude ───────────────────────────────────
   async function generateBlogPost(keyword, titleHint, category) {
-    const prompt = `You are an expert SEO content writer for AiRingDesk, a UK-based AI phone receptionist service for small businesses. Write a comprehensive, SEO-optimised blog post.
+    const currentDate = new Date().toLocaleDateString('en-GB', {day:'numeric',month:'long',year:'numeric'});
+    const prompt = `You are an expert SEO content writer for AiRingDesk, a UK-based AI phone receptionist service. Write a comprehensive blog post fully optimised for Google 2026, AEO (Answer Engine Optimisation), and GEO (Generative Engine Optimisation).
 
 TARGET KEYWORD: "${keyword}"
 TITLE HINT: "${titleHint}"
 CATEGORY: ${category}
+DATE: ${currentDate}
 
-REQUIREMENTS:
-- Write in British English
-- Minimum 1,200 words
-- Title: compelling, includes the keyword naturally
-- Meta description: 150-160 characters, includes keyword
-- Structure: Introduction, 4-6 H2 sections with H3 subsections, Conclusion with CTA
-- Include statistics and specific examples
-- Mention AiRingDesk naturally 3-4 times as the solution
-- CTA at the end pointing to airingdesk.com
-- Tone: professional but friendly, written for UK small business owners
-- Include practical tips and actionable advice
-- Do NOT use markdown bold (**text**) — use HTML <strong> tags instead
+CRITICAL SEO REQUIREMENTS FOR 2026:
 
-RESPOND IN THIS EXACT JSON FORMAT:
+1. DIRECT ANSWER PARAGRAPH (first 100 words):
+Start with a concise, direct answer to what the keyword implies. Google AI Overviews and ChatGPT pull from this. Example: "An answering service for dentists is a..."
+
+2. KEY TAKEAWAYS BOX:
+After the intro, include a styled HTML box with 4-5 bullet points summarising the article. Use this HTML:
+<div style="background:#f0f9ff;border-left:4px solid #0099cc;padding:20px;margin:24px 0;border-radius:0 8px 8px 0">
+<strong>Key Takeaways</strong><ul style="margin-top:10px">
+<li>Takeaway 1</li><li>Takeaway 2</li><li>Takeaway 3</li><li>Takeaway 4</li>
+</ul></div>
+
+3. STRUCTURE (minimum 1,500 words):
+- H2: What is [topic]? (direct definition — targets featured snippets)
+- H2: Why UK Businesses Need [topic]
+- H2: Key Benefits (with H3 subsections)
+- H2: How [topic] Works
+- H2: How to Choose the Right [topic]
+- H2: Real-World Examples
+- H2: Frequently Asked Questions (MUST include this section)
+
+4. FAQ SECTION (critical for AEO/GEO):
+Include exactly 5 FAQ questions and answers in this HTML format:
+<div class="faq-section">
+<h2>Frequently Asked Questions</h2>
+<div class="faq-item"><h3>Question here?</h3><p>Direct answer here in 2-3 sentences.</p></div>
+<div class="faq-item"><h3>Question here?</h3><p>Direct answer here in 2-3 sentences.</p></div>
+</div>
+Questions should be real "People Also Ask" style questions for the keyword.
+
+5. UK STATISTICS:
+Include at least 3 specific UK statistics with context. Examples:
+- "According to Ofcom, UK adults make an average of X calls per week"
+- "Research shows 62% of callers hang up without leaving voicemail"
+- "UK small businesses lose an estimated £X billion annually to missed calls"
+
+6. INTERNAL LINKS:
+Naturally mention and link to airingdesk.com with anchor text like:
+<a href="https://airingdesk.com">AiRingDesk</a> or 
+<a href="https://airingdesk.com/#pricing">start a free trial</a>
+
+7. AUTHOR & TRUST SIGNALS:
+End the content (before FAQ) with:
+<div style="background:#f8f9fa;border:1px solid #e0e0e0;border-radius:8px;padding:16px;margin:24px 0;display:flex;gap:16px;align-items:flex-start">
+<div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#0066cc);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:18px;flex-shrink:0">A</div>
+<div><strong>Written by the AiRingDesk Team</strong><br><span style="font-size:13px;color:#666">The AiRingDesk team specialises in AI telephony solutions for UK small businesses. With expertise in call handling, AI technology, and business communications, we help UK businesses never miss a customer call.</span></div>
+</div>
+
+8. E-E-A-T SIGNALS:
+- Write as an expert — use specific numbers, real scenarios, industry terminology
+- Include a "Last updated: ${currentDate}" note at the top of content
+- Reference real UK regulations, industry bodies where relevant (CQC for dental, RICS for real estate etc.)
+
+9. CONTENT RULES:
+- British English throughout
+- Mention AiRingDesk naturally 4-5 times as the solution
+- Do NOT use markdown — use HTML tags only
+- Do NOT start content with the title as H1 or H2
+- Every H2 section minimum 150 words
+- Use <strong> not **bold**
+
+RESPOND ONLY WITH THIS JSON (no other text, no markdown):
 {
-  "title": "Full blog post title",
-  "meta_description": "150-160 char meta description with keyword",
-  "excerpt": "2-3 sentence summary of the post",
-  "content": "Full HTML content of the post body (just the body content, no <html> or <head> tags). Use <h2>, <h3>, <p>, <ul>, <li>, <strong> tags. Include proper paragraph spacing.",
-  "word_count": 1200
-}
-
-Respond ONLY with the JSON object, no other text.`;
+  "title": "SEO-optimised title including keyword naturally",
+  "meta_description": "150-160 chars including keyword and a benefit",
+  "excerpt": "2-3 sentence compelling summary for blog cards",
+  "faq_schema": [{"question": "Q1?", "answer": "A1"}, {"question": "Q2?", "answer": "A2"}, {"question": "Q3?", "answer": "A3"}, {"question": "Q4?", "answer": "A4"}, {"question": "Q5?", "answer": "A5"}],
+  "content": "Full HTML body content starting with last updated note then direct answer paragraph",
+  "word_count": 1500
+}`;
 
     const response = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 4000,
+      max_tokens: 8000,
       messages: [{ role: 'user', content: prompt }]
     });
 
@@ -80,22 +129,42 @@ Respond ONLY with the JSON object, no other text.`;
       const slug = slugify(post.title);
       const now = Math.floor(Date.now() / 1000);
 
-      // Build schema JSON
-      const schema = JSON.stringify({
+      // Build schema JSON with FAQ schema
+      const faqSchema = post.faq_schema && post.faq_schema.length > 0 ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": post.faq_schema.map(f => ({
+          "@type": "Question",
+          "name": f.question,
+          "acceptedAnswer": { "@type": "Answer", "text": f.answer }
+        }))
+      } : null;
+
+      const blogSchema = {
         "@context": "https://schema.org",
         "@type": "BlogPosting",
         "headline": post.title,
         "description": post.meta_description,
-        "author": { "@type": "Organization", "name": "AiRingDesk" },
+        "author": {
+          "@type": "Organization",
+          "name": "AiRingDesk",
+          "url": "https://airingdesk.com"
+        },
         "publisher": {
           "@type": "Organization",
           "name": "AiRingDesk",
           "logo": { "@type": "ImageObject", "url": "https://airingdesk.com/logo.svg" }
         },
         "datePublished": new Date(now * 1000).toISOString(),
+        "dateModified": new Date(now * 1000).toISOString(),
         "mainEntityOfPage": { "@type": "WebPage", "@id": "https://airingdesk.com/blog/" + slug },
-        "keywords": topic.keyword
-      });
+        "keywords": topic.keyword,
+        "articleSection": topic.category,
+        "inLanguage": "en-GB",
+        "about": { "@type": "Thing", "name": topic.keyword }
+      };
+
+      const schema = JSON.stringify(faqSchema ? [blogSchema, faqSchema] : blogSchema);
 
       // Save to DB
       db.prepare(`INSERT INTO blog_posts (id, slug, title, meta_description, content, excerpt, keyword, category, status, word_count, schema_json, published_at, created_at, updated_at)
