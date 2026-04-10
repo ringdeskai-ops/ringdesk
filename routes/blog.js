@@ -242,7 +242,7 @@ RESPOND ONLY WITH THIS JSON (no other text, no markdown):
 
   // Blog index
   router.get('/', (req, res) => {
-    const posts = db.prepare("SELECT id, slug, title, excerpt, keyword, category, published_at, word_count FROM blog_posts WHERE status = 'published' ORDER BY published_at DESC LIMIT 20").all();
+    const posts = db.prepare("SELECT id, slug, title, excerpt, keyword, category, published_at, word_count, featured_image FROM blog_posts WHERE status = 'published' ORDER BY published_at DESC LIMIT 20").all();
     const totalPosts = db.prepare("SELECT COUNT(*) as c FROM blog_posts WHERE status = 'published'").get().c;
     res.json({ posts, total: totalPosts });
   });

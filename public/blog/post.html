@@ -132,7 +132,7 @@ async function loadPost(){
     document.getElementById('postLayout').innerHTML=
       '<article>'+
         '<div class="post-breadcrumb"><a href="/">Home</a><span>→</span><a href="/blog">Blog</a><span>→</span><span>'+post.title+'</span></div>'+
-        '<div style="width:100%;border-radius:16px;overflow:hidden;margin-bottom:28px;max-height:380px">'+({"AI Receptionist":"/blog/assets/ai-receptionist.jpg","Dental":"/blog/assets/dental.jpg","Real Estate":"/blog/assets/real-estate.jpg","Trades":"/blog/assets/trades.jpg","Small Business":"/blog/assets/small-business.jpg"}[post.category]?'<img src="'+({"AI Receptionist":"/blog/assets/ai-receptionist.jpg","Dental":"/blog/assets/dental.jpg","Real Estate":"/blog/assets/real-estate.jpg","Trades":"/blog/assets/trades.jpg","Small Business":"/blog/assets/small-business.jpg"}[post.category])+'" alt="'+post.title+'" style="width:100%;height:380px;object-fit:cover;display:block" loading="lazy">':'')+'</div>'+
+        (post.featured_image?'<div style="width:100%;border-radius:16px;overflow:hidden;margin-bottom:28px"><img src="'+post.featured_image+'" alt="'+post.title+'" style="width:100%;height:380px;object-fit:cover;display:block" loading="lazy"></div>':'')+
         '<div class="post-cat-badge">'+post.category+'</div>'+
         '<h1 class="post-title">'+post.title+'</h1>'+
         '<div class="post-meta">'+
