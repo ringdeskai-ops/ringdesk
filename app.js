@@ -5314,6 +5314,41 @@ app.get('/api/leads', authRequired, (req, res) => {
   res.json({ leads });
 });
 
+// Update lead priority
+app.post('/api/leads/priority', authRequired, (req, res) => {
+  const { id, priority } = req.body;
+  if (!id || !priority) return res.status(400).json({ error: 'Missing fields' });
+  db.prepare("UPDATE leads SET priority=? WHERE id=? AND client_id=?").run(priority, id, req.client.id);
+  res.json({ ok: true });
+});
+
+// Update lead notes
+app.post('/api/leads/notes', authRequired, (req, res) => {
+  const { id, notes } = req.body;
+  if (!id) return res.status(400).json({ error: 'Missing id' });
+  db.prepare("UPDATE leads SET notes=? WHERE id=? AND client_id=?").run(notes||'', id, req.client.id);
+  res.json({ ok: true });
+});
+
+// Delete lead
+app.delete('/api/leads/:id', authRequired, (req, res) => {
+  db.prepare("DELETE FROM leads WHERE id=? AND client_id=?").run(req.params.id, req.client.id);
+  res.json({ ok: true });
+});
+
+// Create lead from call
+app.post('/api/leads/from-call', authRequired, (req, res) => {
+  const { call_id, caller_name, caller_number, summary } = req.body;
+  if (!call_id) return res.status(400).json({ error: 'Missing call_id' });
+  const existing = db.prepare("SELECT id FROM leads WHERE call_id=? AND client_id=?").get(call_id, req.client.id);
+  if (existing) return res.json({ ok: true, id: existing.id, existed: true });
+  const id = require('crypto').randomUUID();
+  const now = Math.floor(Date.now()/1000);
+  db.prepare("INSERT INTO leads (id, client_id, first_name, phone, message, status, source, priority, notes, call_id, created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)")
+    .run(id, req.client.id, caller_name||'Unknown', caller_number||'', summary||'', 'new', 'call', 'warm', '', call_id, now);
+  res.json({ ok: true, id });
+});
+
 app.post('/api/leads/status', authRequired, (req, res) => {
   const { lead_id, status } = req.body;
   if (!['new','contacted','converted','lost'].includes(status)) return res.status(400).json({ error: 'Invalid status' });

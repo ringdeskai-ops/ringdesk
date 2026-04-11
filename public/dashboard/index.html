@@ -434,6 +434,22 @@ select option{background-color:#0c1520;color:#f0f6ff}
 .appt-card-phone{font-size:12px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:4px}
 .appt-card-right{display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
 .appt-date-box{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:13px;font-weight:600;color:var(--text)}
+
+.lead-tab{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .15s;white-space:nowrap}
+.lead-tab.active{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.4);color:var(--cyan)}
+.lead-tab.active.active-red{background:rgba(255,68,102,.1);border-color:rgba(255,68,102,.4);color:var(--red)}
+.lead-tab.active.active-cyan{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.4);color:#00d4ff}
+.tab-badge-cyan{background:rgba(0,212,255,.2);color:#00d4ff}
+.lead-card-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;transition:border-color .15s}
+.lead-card-item:hover{border-color:rgba(0,212,255,.15)}
+.lead-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.lead-card-left{display:flex;align-items:center;gap:12px;min-width:0}
+.lead-card-name{font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.lead-card-meta{display:flex;flex-wrap:wrap;gap:10px;font-size:11px;color:var(--muted)}
+.lead-card-meta span{display:flex;align-items:center;gap:4px}
+.lead-card-right{display:flex;align-items:center;gap:6px;flex-shrink:0;flex-wrap:wrap}
+.lead-msg-preview{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px;font-size:12px;color:var(--muted);line-height:1.6}
+.lead-notes-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 </style>
 <link rel="stylesheet" href="/brand.css"></head>
 <body>
@@ -1101,46 +1117,59 @@ select option{background-color:#0c1520;color:#f0f6ff}
       <div class="page-header">
         <div>
           <div class="page-title">Lead <em>Tracker</em></div>
-          <div class="page-sub">Track and manage enquiries from your AI receptionist</div>
+          <div class="page-sub">Manage and convert your enquiries</div>
         </div>
+        <button class="btn-sm btn-ghost-sm" onclick="loadAllLeads()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px">
-        <div class="stat-card" style="--c:rgba(0,212,255,.3)"><div class="stat-val" id="leadsNew" style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">—</div><div class="stat-label">New leads</div></div>
-        <div class="stat-card" style="--c:rgba(255,184,0,.3)"><div class="stat-val" id="leadsFollowup" style="background:linear-gradient(135deg,#ffb800,#ff8800);-webkit-background-clip:text;-webkit-text-fill-color:transparent">—</div><div class="stat-label">Needs follow-up</div></div>
-        <div class="stat-card" style="--c:rgba(0,232,122,.3)"><div class="stat-val" id="leadsConverted" style="background:linear-gradient(135deg,#00e87a,#00aa55);-webkit-background-clip:text;-webkit-text-fill-color:transparent">—</div><div class="stat-label">Converted</div></div>
-        <div class="stat-card"><div class="stat-val" id="leadsTotal">—</div><div class="stat-label">Total leads</div></div>
-      </div>
-              <!-- Website enquiries table -->
-        <div class="table-card" style="margin-bottom:20px">
-          <div class="table-header">
-            <div class="table-title">🎯 Website Enquiries</div>
-            <button onclick="loadWebsiteLeads()" style="background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);color:var(--cyan);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600">🔄 Refresh</button>
-          </div>
-          <div style="overflow-x:auto">
-            <table>
-              <thead><tr><th>Date</th><th>Business</th><th>Contact</th><th>Email</th><th>Phone</th><th>Industry</th><th>Status</th><th>Actions</th></tr></thead>
-              <tbody id="websiteLeadsBody"><tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">Loading...</td></tr></tbody>
-            </table>
-          </div>
-        </div>
 
-        <div class="table-card">
-        <div class="table-header"><div class="table-title">All leads</div></div>
-        <div style="overflow-x:auto">
-          <table>
-            <thead>
-              <tr>
-                <th>Caller</th>
-                <th>AI Summary</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="leadsTableBody">
-              
-            </tbody>
-          </table>
+      <!-- Stats Row -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--cyan)" id="leadsTotal">—</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Total</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:#00d4ff" id="leadsNew">—</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">New</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:#ffb800" id="leadsFollowup">—</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Follow-up</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--green)" id="leadsConverted">—</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Converted</div>
+        </div>
+      </div>
+
+      <!-- Smart Tabs + Search -->
+      <div class="table-card">
+        <div class="table-header" style="flex-direction:column;align-items:stretch;gap:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="call-tab lead-tab" id="lead-tab-all" onclick="setLeadTab('all',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> All <span class="tab-badge" id="lead-badge-all">0</span></button>
+              <button class="call-tab lead-tab active active-red" id="lead-tab-hot" onclick="setLeadTab('hot',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2c0 6-6 10-6 14a6 6 0 0012 0c0-4-6-8-6-14z"/></svg> Hot <span class="tab-badge tab-badge-red" id="lead-badge-hot">0</span></button>
+              <button class="call-tab lead-tab active active-cyan" id="lead-tab-new" onclick="setLeadTab('new',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> New <span class="tab-badge tab-badge-cyan" id="lead-badge-new">0</span></button>
+              <button class="call-tab lead-tab" id="lead-tab-followup" onclick="setLeadTab('followup',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Follow-up <span class="tab-badge" id="lead-badge-followup">0</span></button>
+              <button class="call-tab lead-tab" id="lead-tab-converted" onclick="setLeadTab('converted',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Converted <span class="tab-badge" id="lead-badge-converted">0</span></button>
+              <button class="call-tab lead-tab" id="lead-tab-website" onclick="setLeadTab('website',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg> Website <span class="tab-badge" id="lead-badge-website">0</span></button>
+              <button class="call-tab lead-tab" id="lead-tab-call" onclick="setLeadTab('call',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.07 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg> From Calls <span class="tab-badge" id="lead-badge-call">0</span></button>
+            </div>
+            <div style="position:relative">
+              <svg style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#5a7a9a;pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="leadSearch" oninput="renderLeadsPage()" placeholder="Search leads..." style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:5px 10px 5px 28px;border-radius:6px;font-size:12px;font-family:inherit;outline:none;width:170px"/>
+            </div>
+          </div>
+        </div>
+        <div id="leadsCardsContainer" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;min-height:120px">
+          <div style="text-align:center;padding:40px;color:var(--muted)">Loading leads...</div>
+        </div>
+        <div style="display:none">
+          <table><tbody id="leadsTableBody"><tr><td></td></tr></tbody></table>
+          <table><tbody id="websiteLeadsBody"><tr><td></td></tr></tbody></table>
         </div>
       </div>
     </div>
@@ -5196,7 +5225,7 @@ function showPage(name) {
   });
   closeDetail();
   if (name === 'calls') renderCalls();
-  if (name === 'leads') { renderLeads(); loadWebsiteLeads(); }
+  if (name === 'leads') { if(typeof loadAllLeads==='function') loadAllLeads(); else renderLeads(); }
   if (name === 'appointments') loadAppointments();
   if (name === 'settings') loadWebhookSettings();
   if (name === 'help') {}
@@ -8753,5 +8782,6 @@ function renderHealthPricing(pricingData) {
 <script src="/dashboard/calls.js"></script>
 <script src="/dashboard/sms.js"></script>
 <script src="/dashboard/appointments.js"></script>
+<script src="/dashboard/leads.js"></script>
 </body>
 </html>
