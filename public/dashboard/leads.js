@@ -5,32 +5,58 @@ var allCallLeads = [];
 
 function loadAllLeads() {
   var token = localStorage.getItem('ard_token');
-  if (!token) return;
+  if (!token) {
+    // Try api() helper if available
+    if (typeof api === 'function') {
+      api('/api/leads').then(function(data) {
+        if (!data) return;
+        allLeads = data.leads || [];
+        buildCallLeads();
+        renderLeadsPage();
+        updateLeadStats();
+      });
+      return;
+    }
+    return;
+  }
+  var container = document.getElementById('leadsCardsContainer');
+  if (container) container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">Loading leads...</div>';
   fetch('/api/leads', { headers: { 'Authorization': 'Bearer ' + token } })
     .then(function(r) { return r.json(); })
     .then(function(data) {
       allLeads = data.leads || [];
-      // Merge call leads
-      allCallLeads = (typeof allCalls !== 'undefined' ? allCalls : [])
-        .filter(function(c) { return c.status !== 'active' && typeof window.callNeedsAction === 'function' && !window.callIsJunk(c); })
-        .map(function(c) {
-          return {
-            id: 'call_' + c.id,
-            call_id: c.id,
-            first_name: c.caller_name || 'Unknown',
-            phone: c.caller_number || '',
-            message: c.summary || '',
-            status: 'new',
-            source: 'call',
-            priority: 'warm',
-            notes: '',
-            created_at: c.started_at
-          };
-        });
+      buildCallLeads();
       renderLeadsPage();
       updateLeadStats();
     })
-    .catch(function(e) { console.error('Failed to load leads:', e); });
+    .catch(function(e) {
+      console.error('Failed to load leads:', e);
+      var c = document.getElementById('leadsCardsContainer');
+      if (c) c.innerHTML = '<div style="text-align:center;padding:40px;color:var(--red)">Failed to load leads. Try refreshing.</div>';
+    });
+}
+
+function buildCallLeads() {
+  var calls = typeof allCalls !== 'undefined' ? allCalls : [];
+  allCallLeads = calls
+    .filter(function(c) {
+      return c.status !== 'active' && (c.duration||0) > 10;
+    })
+    .map(function(c) {
+      return {
+        id: 'call_' + c.id,
+        call_id: c.id,
+        first_name: c.caller_name || 'Unknown caller',
+        last_name: '',
+        phone: c.caller_number || '',
+        message: c.summary || '',
+        status: 'new',
+        source: 'call',
+        priority: 'warm',
+        notes: '',
+        created_at: c.started_at
+      };
+    });
 }
 
 function getLeadPriorityConfig(priority) {
