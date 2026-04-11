@@ -4,7 +4,7 @@ var allLeads = [];
 var allCallLeads = [];
 
 function loadAllLeads() {
-  var token = localStorage.getItem('ard_token');
+  var token = localStorage.getItem('rd_token');
   if (!token) {
     // Try api() helper if available
     if (typeof api === 'function') {
@@ -264,7 +264,7 @@ function renderLeadsPage() {
 }
 
 function updateLeadPriority(id, priority, selectEl) {
-  var token = localStorage.getItem('ard_token');
+  var token = localStorage.getItem('rd_token');
   if (!token || id.startsWith('call_')) {
     // Update local call lead
     var lead = allCallLeads.find(function(l) { return l.id === id; });
@@ -284,7 +284,7 @@ function updateLeadPriority(id, priority, selectEl) {
 }
 
 function updateLeadStatus(id, status, selectEl) {
-  var token = localStorage.getItem('ard_token');
+  var token = localStorage.getItem('rd_token');
   if (!token || id.startsWith('call_')) {
     var lead = allCallLeads.find(function(l) { return l.id === id; });
     if (lead) lead.status = status;
@@ -304,7 +304,7 @@ function updateLeadStatus(id, status, selectEl) {
 }
 
 function saveLeadNote(id, notes) {
-  var token = localStorage.getItem('ard_token');
+  var token = localStorage.getItem('rd_token');
   if (!token || id.startsWith('call_')) return;
   fetch('/api/leads/notes', {
     method: 'POST',
@@ -324,7 +324,7 @@ function convertLead(id, btn) {
 
 function deleteLead(id, btn) {
   if (!confirm('Delete this lead? This cannot be undone.')) return;
-  var token = localStorage.getItem('ard_token');
+  var token = localStorage.getItem('rd_token');
   if (!token) return;
   if (btn) { btn.disabled = true; }
   fetch('/api/leads/' + id, {
