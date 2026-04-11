@@ -967,6 +967,34 @@ select option{background-color:#0c1520;color:#f0f6ff}
           </button>
         </div>
       </div>
+      <!-- Call Stats Row -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--cyan)" id="callStatTotal">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Total</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--green)" id="callStatAnswered">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Answered</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:#6699ff" id="callStatTransferred">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Transferred</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:#a78bfa" id="callStatVoicemail">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Voicemail</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--red)" id="callStatAction">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Needs Action</div>
+        </div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:var(--muted)" id="callStatJunk">-</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.06em">Junk</div>
+        </div>
+      </div>
+
       <div class="table-card">
         <div class="table-header">
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
@@ -4400,6 +4428,8 @@ async function loadCalls() {
   renderCalls();
   renderRecentCalls();
   renderLeads();
+  if (typeof updateCallStats === 'function') updateCallStats();
+  if (typeof updateCallBadges === 'function') updateCallBadges();
 }
 
 function renderCalls() {

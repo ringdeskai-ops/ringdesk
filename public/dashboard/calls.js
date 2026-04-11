@@ -271,3 +271,22 @@ function blockCallNumber(num, btn) {
   if (!confirm('Block ' + num + '?\nFuture calls from this number will be rejected.')) return;
   if (btn) { btn.textContent = 'Blocked ✓'; btn.disabled = true; btn.style.opacity = '0.5'; }
 }
+
+// ── Populate call stats row ───────────────────────────────────────────────────
+function updateCallStats() {
+  if (!allCalls || !allCalls.length) return;
+  var total = allCalls.length;
+  var answered = allCalls.filter(function(c) { return !callIsJunk(c) && !callIsVoicemail(c); }).length;
+  var transferred = allCalls.filter(function(c) { return callIsTransferred(c); }).length;
+  var voicemail = allCalls.filter(function(c) { return callIsVoicemail(c); }).length;
+  var action = allCalls.filter(function(c) { return !callIsJunk(c) && callNeedsAction(c); }).length;
+  var junk = allCalls.filter(function(c) { return callIsJunk(c); }).length;
+
+  var el = function(id) { return document.getElementById(id); };
+  if (el('callStatTotal'))      el('callStatTotal').textContent = total;
+  if (el('callStatAnswered'))   el('callStatAnswered').textContent = answered;
+  if (el('callStatTransferred'))el('callStatTransferred').textContent = transferred;
+  if (el('callStatVoicemail'))  el('callStatVoicemail').textContent = voicemail;
+  if (el('callStatAction'))     el('callStatAction').textContent = action;
+  if (el('callStatJunk'))       el('callStatJunk').textContent = junk;
+}
