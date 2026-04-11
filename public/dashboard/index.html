@@ -419,6 +419,21 @@ select option{background-color:#0c1520;color:#f0f6ff}
 .sms-card-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .sms-msg-preview{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:var(--muted);line-height:1.6;word-break:break-word}
 .sms-card-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+
+.appt-tab{display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font-body);transition:all .15s;white-space:nowrap}
+.appt-tab.active{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.4);color:var(--cyan)}
+.appt-tab.active.active-green{background:rgba(255,184,0,.1);border-color:rgba(255,184,0,.4);color:#ffb800}
+.appt-tab.active.active-red{background:rgba(255,68,102,.1);border-color:rgba(255,68,102,.4);color:var(--red)}
+.tab-badge-amber{background:rgba(255,184,0,.2);color:#ffb800}
+.tab-badge-green{background:rgba(0,232,122,.2);color:var(--green)}
+.appt-card-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px;transition:border-color .15s}
+.appt-card-item:hover{border-color:rgba(0,212,255,.2)}
+.appt-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.appt-card-left{display:flex;align-items:center;gap:12px}
+.appt-card-name{font-size:14px;font-weight:700;color:var(--text)}
+.appt-card-phone{font-size:12px;color:var(--muted);margin-top:2px;display:flex;align-items:center;gap:4px}
+.appt-card-right{display:flex;align-items:center;gap:8px;flex-shrink:0;flex-wrap:wrap}
+.appt-date-box{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:13px;font-weight:600;color:var(--text)}
 </style>
 <link rel="stylesheet" href="/brand.css"></head>
 <body>
@@ -1113,8 +1128,26 @@ select option{background-color:#0c1520;color:#f0f6ff}
       </div>
       <div id="apptNoCalendar" style="display:none;background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.2);border-radius:12px;padding:16px 20px;margin-bottom:20px;align-items:center;gap:14px"><div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--text)">Google Calendar not connected</div><div style="font-size:12px;color:var(--muted)">Connect Google Calendar in AI Settings so your AI can automatically book appointments.</div></div><button onclick="showPage('settings')" style="background:rgba(255,184,0,.1);border:1px solid rgba(255,184,0,.3);color:var(--amber);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600">Connect Calendar</button></div>
       <div class="table-card">
-        <div class="table-header"><div><div class="table-title">All Appointments</div><div class="table-sub">Booked automatically by your AI receptionist</div></div><div class="table-actions"><button class="filter-btn active" onclick="filterAppts('all',this)">All</button><button class="filter-btn" onclick="filterAppts('pending',this)">Pending</button><button class="filter-btn" onclick="filterAppts('confirmed',this)">Confirmed</button><button class="filter-btn" onclick="filterAppts('cancelled',this)">Cancelled</button><button class="filter-btn" onclick="filterAppts('completed',this)">Completed</button></div></div>
-        <div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Date</th><th>Time</th><th>Phone</th><th>AI Summary</th><th>Status</th><th>Booked</th><th>Actions</th></tr></thead><tbody id="apptsTableBody"><tr><td colspan="8" style="text-align:center;padding:40px;color:var(--muted)">Loading appointments...</td></tr></tbody></table></div>
+        <div class="table-header" style="flex-direction:column;align-items:stretch;gap:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div><div class="table-title">All Appointments</div><div class="table-sub">Booked automatically by your AI receptionist</div></div>
+            <div style="position:relative">
+              <svg style="position:absolute;left:8px;top:50%;transform:translateY(-50%);color:#5a7a9a;pointer-events:none" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" id="apptSearch" oninput="renderAppointments()" placeholder="Search name or phone..." style="background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:5px 10px 5px 28px;border-radius:6px;font-size:12px;font-family:inherit;outline:none;width:180px"/>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <button class="call-tab appt-tab" id="appt-tab-all" onclick="setApptTab('all',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> All <span class="tab-badge" id="appt-badge-all">0</span></button>
+            <button class="call-tab appt-tab active active-green" id="appt-tab-pending" onclick="setApptTab('pending',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Pending <span class="tab-badge tab-badge-amber" id="appt-badge-pending">0</span></button>
+            <button class="call-tab appt-tab" id="appt-tab-confirmed" onclick="setApptTab('confirmed',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Confirmed <span class="tab-badge" id="appt-badge-confirmed">0</span></button>
+            <button class="call-tab appt-tab" id="appt-tab-completed" onclick="setApptTab('completed',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Completed <span class="tab-badge" id="appt-badge-completed">0</span></button>
+            <button class="call-tab appt-tab" id="appt-tab-cancelled" onclick="setApptTab('cancelled',this)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Cancelled <span class="tab-badge" id="appt-badge-cancelled">0</span></button>
+          </div>
+        </div>
+        <div id="apptCardsContainer" style="padding:12px 16px;display:flex;flex-direction:column;gap:8px;min-height:120px">
+          <div style="text-align:center;padding:40px;color:var(--muted)">Loading appointments...</div>
+        </div>
+        <div style="display:none"><table><tbody id="apptsTableBody"><tr><td></td></tr></tbody></table></div>
       </div>
     </div>
 
@@ -8689,5 +8722,6 @@ function renderHealthPricing(pricingData) {
 </script>
 <script src="/dashboard/calls.js"></script>
 <script src="/dashboard/sms.js"></script>
+<script src="/dashboard/appointments.js"></script>
 </body>
 </html>
