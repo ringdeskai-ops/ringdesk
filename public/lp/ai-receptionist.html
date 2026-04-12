@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Virtual Receptionist UK — AiRingDesk | Answer Every Call 24/7</title>
+<meta name="description" content="Never miss a customer call again. AiRingDesk is the UK's leading AI virtual receptionist — answers every call 24/7 from £29/month. 14-day free trial."/>
+<meta name="robots" content="noindex,nofollow"/>
+<link rel="canonical" href="https://airingdesk.com/lp/ai-receptionist"/>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+
+<!-- Google Ads Conversion Tracking -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-1ZJ2W7DSKP"></script>
+<script>
+window.dataLayer=window.dataLayer||[];
+function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());
+gtag('config','G-1ZJ2W7DSKP');
+function trackConversion(){
+  gtag('event','conversion',{'send_to':'AW-XXXXXXXXX/XXXXXXXXX'});
+  gtag('event','begin_checkout',{'event_category':'signup','event_label':'lp-ai-receptionist'});
+}
+</script>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8fafc;
+  --white:#ffffff;
+  --navy:#0a1628;
+  --navy2:#1a2e4a;
+  --blue:#0066cc;
+  --cyan:#00d4ff;
+  --cyan2:#0099ff;
+  --muted:#4a6080;
+  --dim:#8a9ab0;
+  --border:#e2e8f0;
+  --green:#059669;
+  --red:#dc2626;
+  --shadow:0 4px 24px rgba(0,0,0,.08);
+  --shadow-lg:0 8px 40px rgba(0,0,0,.12);
+}
+body{background:var(--bg);color:var(--navy);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;line-height:1.6;min-height:100vh}
+
+/* NAV */
+.lp-nav{background:var(--white);border-bottom:1px solid var(--border);padding:14px clamp(20px,5vw,60px);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+.lp-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.lp-logo-icon{width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,#00d4ff,#0066cc);display:flex;align-items:center;justify-content:center}
+.lp-logo-text{font-size:20px;font-weight:800;letter-spacing:-.5px}
+.lp-logo-text .ai{color:#00d4ff}.lp-logo-text .ring{color:#0a1628}.lp-logo-text .desk{color:#64748b}
+.lp-nav-right{display:flex;align-items:center;gap:12px}
+.lp-phone{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;text-decoration:none}
+.lp-cta-btn{background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;border:none;padding:10px 22px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .15s}
+.lp-cta-btn:hover{opacity:.9}
+
+/* HERO */
+.lp-hero{background:linear-gradient(135deg,#0a1628 0%,#0f2040 50%,#0a1628 100%);padding:80px clamp(20px,5vw,60px);text-align:center;position:relative;overflow:hidden}
+.lp-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(0,212,255,.12) 0%,transparent 70%)}
+.lp-hero-eyebrow{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:100px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#00d4ff;margin-bottom:24px}
+.lp-hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:#00e87a;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.lp-hero h1{font-size:clamp(36px,6vw,68px);font-weight:800;color:#fff;letter-spacing:-2px;line-height:1.05;margin-bottom:20px}
+.lp-hero h1 span{background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lp-hero-sub{font-size:clamp(16px,2vw,20px);color:rgba(255,255,255,.7);max-width:600px;margin:0 auto 36px;line-height:1.6}
+.lp-hero-ctas{display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin-bottom:32px}
+.btn-primary{background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;border:none;padding:18px 40px;border-radius:12px;font-size:18px;font-weight:700;cursor:pointer;box-shadow:0 8px 32px rgba(0,212,255,.3);transition:all .2s}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,212,255,.4)}
+.btn-secondary{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.2);padding:18px 32px;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;transition:all .2s}
+.btn-secondary:hover{background:rgba(255,255,255,.15)}
+.lp-hero-proof{display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap}
+.proof-pill{display:flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,.6)}
+.proof-pill svg{flex-shrink:0}
+.proof-div{width:1px;height:16px;background:rgba(255,255,255,.15)}
+
+/* STATS BAR */
+.lp-stats{background:var(--white);border-bottom:1px solid var(--border);padding:28px clamp(20px,5vw,60px)}
+.lp-stats-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:wrap}
+.lp-stat{text-align:center;padding:0 32px;border-right:1px solid var(--border);flex:1;min-width:120px}
+.lp-stat:last-child{border-right:none}
+.lp-stat-val{font-size:28px;font-weight:800;color:var(--blue);letter-spacing:-1px}
+.lp-stat-label{font-size:12px;color:var(--dim);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+
+/* FEATURES */
+.lp-features{padding:80px clamp(20px,5vw,60px);max-width:1200px;margin:0 auto}
+.lp-section-label{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:100px;background:rgba(0,102,204,.08);border:1px solid rgba(0,102,204,.2);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:16px}
+.lp-section-h{font-size:clamp(28px,4vw,44px);font-weight:800;color:var(--navy);letter-spacing:-1.5px;line-height:1.1;margin-bottom:12px}
+.lp-section-sub{font-size:16px;color:var(--muted);max-width:500px;line-height:1.7;margin-bottom:48px}
+.lp-features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.lp-feat-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:28px;transition:all .2s;position:relative;overflow:hidden}
+.lp-feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#00d4ff,#0066cc)}
+.lp-feat-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.lp-feat-icon{width:48px;height:48px;border-radius:12px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.lp-feat-h{font-size:18px;font-weight:700;color:var(--navy);margin-bottom:8px}
+.lp-feat-p{font-size:14px;color:var(--muted);line-height:1.7}
+
+/* SOCIAL PROOF */
+.lp-proof{background:var(--white);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:60px clamp(20px,5vw,60px)}
+.lp-proof-inner{max-width:1100px;margin:0 auto}
+.lp-proof-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-top:40px}
+.lp-testimonial{background:var(--bg);border:1px solid var(--border);border-radius:16px;padding:24px}
+.lp-stars{color:#f59e0b;font-size:16px;margin-bottom:12px}
+.lp-quote{font-size:15px;color:var(--navy);line-height:1.7;margin-bottom:16px;font-style:italic}
+.lp-author{display:flex;align-items:center;gap:10px}
+.lp-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#0066cc);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0}
+.lp-author-name{font-size:14px;font-weight:700;color:var(--navy)}
+.lp-author-biz{font-size:12px;color:var(--dim)}
+
+/* PRICING */
+.lp-pricing{padding:80px clamp(20px,5vw,60px);max-width:900px;margin:0 auto;text-align:center}
+.lp-price-card{background:var(--white);border:2px solid var(--cyan);border-radius:20px;padding:40px;box-shadow:var(--shadow-lg);position:relative;overflow:hidden;max-width:500px;margin:40px auto 0}
+.lp-price-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#00d4ff,#0066cc)}
+.lp-price-badge{display:inline-block;background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;padding:6px 16px;border-radius:100px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:20px}
+.lp-price-val{font-size:56px;font-weight:800;color:var(--navy);letter-spacing:-2px;line-height:1}
+.lp-price-val sup{font-size:28px;vertical-align:super;margin-right:2px}
+.lp-price-val sub{font-size:18px;font-weight:500;color:var(--dim)}
+.lp-price-vat{font-size:13px;color:var(--dim);margin-top:4px;margin-bottom:24px}
+.lp-price-feats{list-style:none;text-align:left;margin-bottom:28px}
+.lp-price-feats li{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--navy);padding:8px 0;border-bottom:1px solid var(--border)}
+.lp-price-feats li:last-child{border-bottom:none}
+.lp-price-feats li svg{flex-shrink:0;color:var(--green)}
+
+/* CTA SECTION */
+.lp-cta-section{background:linear-gradient(135deg,#0a1628,#0f2040);padding:80px clamp(20px,5vw,60px);text-align:center}
+.lp-cta-section h2{font-size:clamp(28px,4vw,44px);font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:16px}
+.lp-cta-section p{font-size:17px;color:rgba(255,255,255,.6);margin-bottom:36px}
+
+/* TRUST FOOTER */
+.lp-footer{background:var(--white);border-top:1px solid var(--border);padding:24px clamp(20px,5vw,60px)}
+.lp-footer-inner{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.lp-trust-badges{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.lp-trust-badge{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);font-weight:600}
+.lp-footer-copy{font-size:12px;color:var(--dim)}
+
+/* SIGNUP MODAL */
+.lp-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.lp-modal-overlay.open{display:flex}
+.lp-modal{background:var(--white);border-radius:20px;padding:36px;max-width:480px;width:100%;position:relative;box-shadow:var(--shadow-lg)}
+.lp-modal-close{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;background:var(--bg);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted)}
+.lp-modal h2{font-size:24px;font-weight:800;color:var(--navy);margin-bottom:6px}
+.lp-modal p{font-size:14px;color:var(--muted);margin-bottom:24px}
+.lp-form-group{margin-bottom:16px}
+.lp-label{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:6px;display:block}
+.lp-input{width:100%;padding:11px 14px;border:1px solid var(--border);border-radius:9px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s;background:var(--bg)}
+.lp-input:focus{border-color:var(--cyan);background:var(--white)}
+.lp-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lp-submit{width:100%;background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;border:none;padding:14px;border-radius:10px;font-size:16px;font-weight:700;cursor:pointer;margin-top:8px;transition:opacity .15s}
+.lp-submit:hover{opacity:.9}
+.lp-modal-footer{font-size:12px;color:var(--dim);text-align:center;margin-top:14px}
+.lp-error{background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--red);margin-top:12px;display:none}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .lp-nav-right .lp-phone{display:none}
+  .lp-stat{padding:0 16px}
+  .lp-form-grid{grid-template-columns:1fr}
+  .proof-div{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="lp-nav">
+  <a href="/" class="lp-logo">
+    <div class="lp-logo-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
+    </div>
+    <div class="lp-logo-text"><span class="ai">Ai</span><span class="ring">Ring</span><span class="desk">Desk</span><sup style="font-size:9px;color:#64748b;vertical-align:super;margin-left:1px">®</sup></div>
+  </a>
+  <div class="lp-nav-right">
+    <a href="tel:+442046348499" class="lp-phone">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
+      +44 20 4634 8499
+    </a>
+    <button class="lp-cta-btn" onclick="openModal()">Start free trial</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="lp-hero">
+  <div class="lp-hero-eyebrow">
+    <div class="dot"></div>
+    UK's #1 AI Virtual Receptionist
+  </div>
+  <h1>Never miss a customer<br><span>call again</span></h1>
+  <p class="lp-hero-sub">AiRingDesk answers every call 24/7 with natural AI — taking messages, booking appointments and routing urgent calls. From just £29/month.</p>
+  <div class="lp-hero-ctas">
+    <button class="btn-primary" onclick="openModal()">
+      Start your 14-day free trial →
+    </button>
+    <a href="tel:+442046348499" class="btn-secondary">
+      📞 Call us: +44 20 4634 8499
+    </a>
+  </div>
+  <div class="lp-hero-proof">
+    <div class="proof-pill">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      No setup fees
+    </div>
+    <div class="proof-div"></div>
+    <div class="proof-pill">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Cancel anytime
+    </div>
+    <div class="proof-div"></div>
+    <div class="proof-pill">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Live in 10 minutes
+    </div>
+    <div class="proof-div"></div>
+    <div class="proof-pill">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      No charge for 14 days
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="lp-stats">
+  <div class="lp-stats-inner">
+    <div class="lp-stat">
+      <div class="lp-stat-val">50+</div>
+      <div class="lp-stat-label">UK Businesses</div>
+    </div>
+    <div class="lp-stat">
+      <div class="lp-stat-val">10k+</div>
+      <div class="lp-stat-label">Calls Handled</div>
+    </div>
+    <div class="lp-stat">
+      <div class="lp-stat-val">4.9★</div>
+      <div class="lp-stat-label">Average Rating</div>
+    </div>
+    <div class="lp-stat">
+      <div class="lp-stat-val">99.9%</div>
+      <div class="lp-stat-label">Uptime</div>
+    </div>
+    <div class="lp-stat">
+      <div class="lp-stat-val">£29</div>
+      <div class="lp-stat-label">From per month</div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div class="lp-features">
+  <div class="lp-section-label">Why AiRingDesk</div>
+  <h2 class="lp-section-h">Your business never<br>misses another call</h2>
+  <p class="lp-section-sub">62% of callers never call back after reaching voicemail. Every missed call is a missed customer.</p>
+  <div class="lp-features-grid">
+    <div class="lp-feat-card">
+      <div class="lp-feat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+      </div>
+      <div class="lp-feat-h">24/7 call answering</div>
+      <p class="lp-feat-p">Aria answers every call instantly — day, night, weekends and bank holidays. Your business is always open.</p>
+    </div>
+    <div class="lp-feat-card">
+      <div class="lp-feat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <div class="lp-feat-h">Appointment booking</div>
+      <p class="lp-feat-p">Aria books appointments directly into your Google Calendar during the call — no back and forth needed.</p>
+    </div>
+    <div class="lp-feat-card">
+      <div class="lp-feat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+      </div>
+      <div class="lp-feat-h">Smart call transfers</div>
+      <p class="lp-feat-p">Urgent calls get transferred to you instantly with a full summary. Callers never have to repeat themselves.</p>
+    </div>
+    <div class="lp-feat-card">
+      <div class="lp-feat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <div class="lp-feat-h">Instant email summaries</div>
+      <p class="lp-feat-p">Get a full call transcript and AI summary by email within seconds — know exactly what every caller said.</p>
+    </div>
+    <div class="lp-feat-card">
+      <div class="lp-feat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+      </div>
+      <div class="lp-feat-h">Fully customisable AI</div>
+      <p class="lp-feat-p">Name your AI, set your hours, write your script. Aria sounds like a real member of your team — not a robot.</p>
+    </div>
+    <div class="lp-feat-card">
+      <div class="lp-feat-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <div class="lp-feat-h">UK-based & GDPR compliant</div>
+      <p class="lp-feat-p">Registered in England & Wales. Your data never leaves the UK. ICO registered. VAT No: GB 321211372.</p>
+    </div>
+  </div>
+</div>
+
+<!-- SOCIAL PROOF -->
+<div class="lp-proof">
+  <div class="lp-proof-inner">
+    <div style="text-align:center">
+      <div class="lp-section-label">What our customers say</div>
+      <h2 class="lp-section-h" style="margin-bottom:0">Real businesses. Real results.</h2>
+    </div>
+    <div class="lp-proof-grid">
+      <div class="lp-testimonial">
+        <div class="lp-stars">★★★★★</div>
+        <p class="lp-quote">"We were missing 30–40% of calls after hours. AiRingDesk completely solved that. It books appointments, answers FAQs and only transfers the complex ones to us."</p>
+        <div class="lp-author">
+          <div class="lp-avatar">J</div>
+          <div>
+            <div class="lp-author-name">Dr. James Whitfield</div>
+            <div class="lp-author-biz">Whitfield Dental, Manchester</div>
+          </div>
+        </div>
+      </div>
+      <div class="lp-testimonial">
+        <div class="lp-stars">★★★★★</div>
+        <p class="lp-quote">"I'm a one-person plumbing business. I used to lose jobs because I couldn't answer calls on site. Now Aria answers, takes details and I call back when free. Paid for itself week one."</p>
+        <div class="lp-author">
+          <div class="lp-avatar">D</div>
+          <div>
+            <div class="lp-author-name">Dave Thornton</div>
+            <div class="lp-author-biz">Thornton Plumbing, Leeds</div>
+          </div>
+        </div>
+      </div>
+      <div class="lp-testimonial">
+        <div class="lp-stars">★★★★★</div>
+        <p class="lp-quote">"The call transcripts alone are worth it. I can see every conversation my AI has with customers. It handles difficult callers better than some of my staff!"</p>
+        <div class="lp-author">
+          <div class="lp-avatar">P</div>
+          <div>
+            <div class="lp-author-name">Priya Sharma</div>
+            <div class="lp-author-biz">Serenity Spa, London</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div class="lp-pricing">
+  <div class="lp-section-label">Simple pricing</div>
+  <h2 class="lp-section-h">One flat monthly fee.<br>No surprises.</h2>
+  <p style="font-size:16px;color:var(--muted);line-height:1.7">No setup fees. No per-minute charges. No contracts. Cancel anytime.</p>
+  <div class="lp-price-card">
+    <div class="lp-price-badge">Most popular</div>
+    <div class="lp-price-val"><sup>£</sup>49<sub>/mo</sub></div>
+    <div class="lp-price-vat">+ VAT · 14-day free trial</div>
+    <ul class="lp-price-feats">
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        300 calls per month
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        1 UK phone number included
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        AI answering 24/7
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Call transcripts & summaries
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Voicemail + recordings
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Smart call transfers
+      </li>
+      <li>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        Full dashboard & leads tracker
+      </li>
+    </ul>
+    <button class="lp-submit" onclick="openModal()">Start your free 14-day trial →</button>
+    <p style="font-size:12px;color:var(--dim);margin-top:12px;text-align:center">Card required — no charge for 14 days</p>
+  </div>
+  <p style="font-size:13px;color:var(--dim);margin-top:16px">Plans from £29/month. <a href="/#pricing" style="color:var(--blue)">View all plans →</a></p>
+</div>
+
+<!-- CTA SECTION -->
+<div class="lp-cta-section">
+  <h2>Ready to never miss a call again?</h2>
+  <p>Join 50+ UK businesses using AiRingDesk. Start your free trial today — no charge for 14 days.</p>
+  <button class="btn-primary" onclick="openModal()" style="font-size:18px;padding:18px 48px">
+    Start free trial — it's free for 14 days →
+  </button>
+  <p style="font-size:13px;color:rgba(255,255,255,.4);margin-top:16px">124 City Road, London, EC1V 2NX · SatFocus Ltd · VAT: GB 321211372</p>
+</div>
+
+<!-- TRUST FOOTER -->
+<footer class="lp-footer">
+  <div class="lp-footer-inner">
+    <div class="lp-trust-badges">
+      <div class="lp-trust-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+        GDPR Compliant
+      </div>
+      <div class="lp-trust-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        ICO Registered
+      </div>
+      <div class="lp-trust-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        SSL Secured
+      </div>
+      <div class="lp-trust-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" stroke-width="2.5"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Stripe Payments
+      </div>
+      <div class="lp-trust-badge">
+        <svg width="14" height="14" viewBox="0 0 60 40" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="60" height="40" rx="3" fill="#012169"/><path d="M0 0L60 40M60 0L0 40" stroke="white" stroke-width="8"/><path d="M0 0L60 40M60 0L0 40" stroke="#C8102E" stroke-width="4.5"/><path d="M30 0V40M0 20H60" stroke="white" stroke-width="13"/><path d="M30 0V40M0 20H60" stroke="#C8102E" stroke-width="8"/></svg>
+        UK-Based
+      </div>
+    </div>
+    <div class="lp-footer-copy">© 2026 AiRingDesk · SatFocus Ltd · <a href="/privacy" style="color:var(--dim)">Privacy</a> · <a href="/terms" style="color:var(--dim)">Terms</a></div>
+  </div>
+</footer>
+
+<!-- SIGNUP MODAL -->
+<div class="lp-modal-overlay" id="lpModal">
+  <div class="lp-modal">
+    <button class="lp-modal-close" onclick="closeModal()">×</button>
+    <h2>Start your free trial</h2>
+    <p>14-day free trial — no charge until your trial ends</p>
+    <div class="lp-form-grid">
+      <div class="lp-form-group">
+        <label class="lp-label">First name *</label>
+        <input class="lp-input" type="text" id="lpFirst" placeholder="John" autocomplete="given-name"/>
+      </div>
+      <div class="lp-form-group">
+        <label class="lp-label">Last name *</label>
+        <input class="lp-input" type="text" id="lpLast" placeholder="Smith" autocomplete="family-name"/>
+      </div>
+    </div>
+    <div class="lp-form-group">
+      <label class="lp-label">Business name *</label>
+      <input class="lp-input" type="text" id="lpBiz" placeholder="e.g. Thornton Plumbing" autocomplete="organization"/>
+    </div>
+    <div class="lp-form-group">
+      <label class="lp-label">Email address *</label>
+      <input class="lp-input" type="email" id="lpEmail" placeholder="you@yourbusiness.com" autocomplete="email"/>
+    </div>
+    <div class="lp-form-group">
+      <label class="lp-label">Phone number *</label>
+      <input class="lp-input" type="tel" id="lpPhone" placeholder="+44 7700 900000" autocomplete="tel"/>
+    </div>
+    <div class="lp-form-group">
+      <label class="lp-label">Password *</label>
+      <input class="lp-input" type="password" id="lpPass" placeholder="Min. 8 characters" autocomplete="new-password"/>
+    </div>
+    <div id="lpError" class="lp-error"></div>
+    <button class="lp-submit" id="lpSubmit" onclick="submitLP()">Create my free account →</button>
+    <p class="lp-modal-footer">By signing up you agree to our <a href="/terms" style="color:var(--blue)">Terms</a> and <a href="/privacy" style="color:var(--blue)">Privacy Policy</a></p>
+  </div>
+</div>
+
+<script>
+function openModal() {
+  document.getElementById('lpModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  trackConversion();
+}
+function closeModal() {
+  document.getElementById('lpModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.getElementById('lpModal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+async function submitLP() {
+  var btn = document.getElementById('lpSubmit');
+  var err = document.getElementById('lpError');
+  var first = document.getElementById('lpFirst').value.trim();
+  var last = document.getElementById('lpLast').value.trim();
+  var biz = document.getElementById('lpBiz').value.trim();
+  var email = document.getElementById('lpEmail').value.trim();
+  var phone = document.getElementById('lpPhone').value.trim();
+  var pass = document.getElementById('lpPass').value;
+
+  err.style.display = 'none';
+  if (!first || !email || !pass || !biz) {
+    err.textContent = 'Please fill in all required fields.';
+    err.style.display = 'block';
+    return;
+  }
+  if (pass.length < 8) {
+    err.textContent = 'Password must be at least 8 characters.';
+    err.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Creating your account...';
+
+  try {
+    var res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        first_name: first, last_name: last,
+        business_name: biz, email: email,
+        contact_phone: phone, password: pass,
+        country: 'GB', source: 'lp-ai-receptionist'
+      })
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Registration failed');
+
+    // Track conversion
+    gtag('event', 'sign_up', { method: 'lp-ai-receptionist' });
+
+    // Redirect to dashboard or verification step
+    window.location.href = '/?verified=pending&email=' + encodeURIComponent(email);
+  } catch(e) {
+    err.textContent = e.message || 'Something went wrong. Please try again.';
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Create my free account →';
+  }
+}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(function(a) {
+  a.addEventListener('click', function(e) {
+    var id = this.getAttribute('href').slice(1);
+    var el = document.getElementById(id);
+    if (el) { e.preventDefault(); el.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+</script>
+</body>
+</html>
