@@ -129,6 +129,42 @@ body.light-mode .nav-tagline{color:#64748b}
 .theme-toggle{width:36px;height:36px;border-radius:50%;background:var(--surface);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s;flex-shrink:0;margin-left:4px}
 .theme-toggle:hover{transform:rotate(20deg)}
 /* END LIGHT MODE */
+
+/* PRICING CARDS — fix button visibility */
+body.light-mode .plan{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15)}
+body.light-mode .plan.pop{background:rgba(255,255,255,.12);border-color:#00d4ff}
+body.light-mode .plan-name{color:rgba(255,255,255,.6)}
+body.light-mode .plan-price{color:#ffffff}
+body.light-mode .plan-vat{color:rgba(255,255,255,.4)}
+body.light-mode .plan-calls{color:#00d4ff;background:rgba(0,212,255,.08);border-color:rgba(0,212,255,.15)}
+body.light-mode .pf{color:rgba(255,255,255,.75)}
+body.light-mode .pcta-g{background:rgba(255,255,255,.15);color:#ffffff;border:1px solid rgba(255,255,255,.3)}
+body.light-mode .pcta-g:hover{background:rgba(255,255,255,.25)}
+
+/* VOICE GUIDE — fix dark card */
+body.light-mode #voice-guide > div > div:last-child > div{
+  background:#ffffff;
+  border:1px solid #e2e8f0;
+  border-radius:24px;
+}
+body.light-mode #voice-guide [style*="background:linear-gradient(135deg,#060912"]{
+  background:#ffffff;
+  border:1px solid #e2e8f0;
+}
+body.light-mode #voice-guide [style*="color:#f0f4f8"]{color:#0a1628}
+body.light-mode #voice-guide [style*="color:#3d5470"]{color:#64748b}
+body.light-mode #voice-guide [style*="color:#2a3f55"]{color:#94a3b8}
+body.light-mode #voice-guide [style*="color:#8090a0"]{color:#475569}
+body.light-mode #voice-guide [style*="color:#1a2d42"]{color:#cbd5e1}
+body.light-mode #voice-guide [style*="border-right:1px solid rgba(255,255,255,.04)"]{border-right-color:#e2e8f0}
+body.light-mode #voice-guide [style*="border:1px solid transparent"]{border-color:transparent}
+body.light-mode .hp-sr:hover{background:#f1f5f9}
+body.light-mode .hp-sr.hp-active{background:#e8f8ff}
+body.light-mode [style*="height:2px;background:rgba(255,255,255,.04)"]{background:#e2e8f0}
+body.light-mode .hp-sw{background:linear-gradient(to top,#0066cc,#00d4ff)}
+body.light-mode #hp-progress{background:linear-gradient(90deg,#00d4ff,#0066cc)}
+body.light-mode [id^="hp-r"]{border-color:rgba(0,102,204,.15)}
+
 </style><div id="cookie"><div class="cookie-text">
 🍪 We use cookies to improve your experience and analyse site traffic. By clicking "Accept", you agree to our <a href="/privacy" style="color:var(--cyan)">Cookie Policy</a> and <a href="/privacy" style="color:var(--cyan)">Privacy Policy</a>. We comply with UK GDPR and PECR regulations.
 </div><div class="cookie-btns"><button class="cookie-decline" onclick="dismissCookie(false)">Decline</button><button class="cookie-accept" onclick="dismissCookie(true)">Accept all</button></div></div><div id="demo-banner"><div class="demo-inner"><div class="demo-text"><div class="demo-pulse"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg></div><div><div class="demo-title">Hear Aria in action — call our live demo</div><div class="demo-sub">Experience exactly what your customers will hear. No sign-up needed.</div></div></div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><a href="tel:+447492879452" class="demo-btn" onclick="event.stopPropagation();window.location.href='tel:+447492879452'"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
