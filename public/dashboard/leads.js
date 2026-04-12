@@ -131,9 +131,29 @@ function buildLeadCard(l) {
   var name = ((l.first_name || '') + ' ' + (l.last_name || '')).trim() || 'Unknown';
   var date = l.created_at ? new Date(l.created_at * 1000).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'}) : '—';
   var initial = name[0].toUpperCase();
-  var msgPreview = (l.message || '').replace(/\n/g,' ').substring(0, 120);
+  // Smart parse the message — show only key info
+  var msgPreview = '';
+  if (l.message) {
+    var msg = l.message;
+    // Extract Action needed
+    var actionMatch = msg.match(/Action needed[:\s]+([^\n]+)/i);
+    var wantsMatch = msg.match(/What the caller wants[:\s]+([^\n]+)/i);
+    var nameMatch = msg.match(/Name[:\s]+([^\n]+)/i);
+    if (actionMatch && actionMatch[1] && actionMatch[1].trim().length > 5 && !actionMatch[1].toLowerCase().includes('not established') && !actionMatch[1].toLowerCase().includes('not stated')) {
+      msgPreview = '⚡ ' + actionMatch[1].trim().substring(0, 100);
+    } else if (wantsMatch && wantsMatch[1] && wantsMatch[1].trim().length > 5 && !wantsMatch[1].toLowerCase().includes('not established') && !wantsMatch[1].toLowerCase().includes('not stated')) {
+      msgPreview = '💬 ' + wantsMatch[1].trim().substring(0, 100);
+    } else if (l.message_text || l.message) {
+      // For website leads use message directly
+      msgPreview = (l.message || '').replace(/\n/g,' ').substring(0, 120);
+    }
+  }
 
   // Source badge
+  // Industry tag for website leads
+  var industryTag = (!isCall && l.industry) ?
+    '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(167,139,250,.08);color:#a78bfa">' + l.industry + '</span>' : '';
+
   var sourceBadge = isCall
     ? '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(0,212,255,.08);color:#00d4ff"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.07 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>Call</span>'
     : '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;background:rgba(0,232,122,.08);color:#00e87a"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg>Website</span>';
@@ -158,7 +178,7 @@ function buildLeadCard(l) {
   var notesHtml = '<div class="lead-notes-row">' +
     '<input type="text" class="lead-notes-input" placeholder="Add a note..." value="' + (l.notes||'').replace(/"/g,'&quot;') + '" ' +
     'onblur="saveLeadNote(\'' + lid + '\',this.value)" ' +
-    'onkeydown="if(event.key===\'Enter\')saveLeadNote(\'' + lid + '\',this.value)" ' +
+    'onkeydown="if(event.key===\'Enter\'){saveLeadNote(\'' + lid + '\',this.value);this.style.borderColor=\'#00e87a\';setTimeout(()=>this.style.borderColor=\'\',1500)}" ' +
     'style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:7px;font-size:12px;font-family:inherit;outline:none;flex:1"/>' +
     '</div>';
 
@@ -186,6 +206,7 @@ function buildLeadCard(l) {
       '</div>' +
       '<div class="lead-card-right">' +
         sourceBadge +
+        industryTag +
         priorSelect +
         statusSelect +
         '<span style="font-size:11px;color:var(--dim)">' + date + '</span>' +
