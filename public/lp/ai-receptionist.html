@@ -16,6 +16,28 @@ window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
 gtag('config','G-1ZJ2W7DSKP');
+
+// Capture UTM parameters and store for conversion attribution
+(function(){
+  var params = new URLSearchParams(window.location.search);
+  var utm = {
+    source: params.get('utm_source') || 'direct',
+    medium: params.get('utm_medium') || 'none',
+    campaign: params.get('utm_campaign') || 'none',
+    keyword: params.get('utm_term') || 'none',
+    ad: params.get('utm_content') || 'none',
+    gclid: params.get('gclid') || 'none'
+  };
+  sessionStorage.setItem('ard_utm', JSON.stringify(utm));
+  // Send UTM data to GA4
+  gtag('event', 'page_view_lp', {
+    utm_source: utm.source,
+    utm_medium: utm.medium,
+    utm_campaign: utm.campaign,
+    utm_keyword: utm.keyword,
+    gclid: utm.gclid
+  });
+})();
 function trackConversion(){
   gtag('event','conversion',{'send_to':'AW-XXXXXXXXX/XXXXXXXXX'});
   gtag('event','begin_checkout',{'event_category':'signup','event_label':'lp-ai-receptionist'});
@@ -182,7 +204,23 @@ body{background:var(--bg);color:var(--navy);font-family:-apple-system,BlinkMacSy
     <div class="dot"></div>
     UK's #1 AI Virtual Receptionist
   </div>
-  <h1>Never miss a customer<br><span>call again</span></h1>
+  <h1 id="lp-headline">Never miss a customer<br><span>call again</span></h1>
+<script>
+// Dynamic keyword insertion from Google Ads
+(function(){
+  var kw = new URLSearchParams(window.location.search).get('utm_term');
+  if (kw) {
+    var h = document.getElementById('lp-headline');
+    if (h && kw.toLowerCase().includes('dentist')) {
+      h.innerHTML = 'The AI receptionist<br><span>dentists trust</span>';
+    } else if (kw && kw.toLowerCase().includes('plumber')) {
+      h.innerHTML = 'Never miss a job<br><span>call again</span>';
+    } else if (kw && kw.toLowerCase().includes('small business')) {
+      h.innerHTML = 'Your small business<br><span>always answers</span>';
+    }
+  }
+})();
+</script>
   <p class="lp-hero-sub">AiRingDesk answers every call 24/7 with natural AI — taking messages, booking appointments and routing urgent calls. From just £29/month.</p>
   <div class="lp-hero-ctas">
     <button class="btn-primary" onclick="openModal()">
@@ -506,7 +544,8 @@ async function submitLP() {
         first_name: first, last_name: last,
         business_name: biz, email: email,
         contact_phone: phone, password: pass,
-        country: 'GB', source: 'lp-ai-receptionist'
+        country: 'GB', source: 'lp-ai-receptionist',
+        utm: JSON.parse(sessionStorage.getItem('ard_utm') || '{}')
       })
     });
     var data = await res.json();
