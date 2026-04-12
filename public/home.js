@@ -200,7 +200,8 @@ async function goStep2(){
   btn.disabled=true;bt.innerHTML='<div class="spinner"></div> Creating account...';
   try{
     const refCode=sessionStorage.getItem('referral_code')||new URLSearchParams(window.location.search).get('ref')||'';
-    const r=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    var _utm={};try{_utm=JSON.parse(sessionStorage.getItem('ard_utm')||'{}');}catch(e){}
+    const r=await fetch('/api/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({utm_source:_utm.source||'direct',utm_medium:_utm.medium||'none',utm_campaign:_utm.campaign||'none',utm_keyword:_utm.keyword||'none',gclid:_utm.gclid||'none',
       business_name:biz,email,password:pass,referral_code:refCode,
       first_name:document.getElementById('sFirst').value.trim(),
       last_name:document.getElementById('sLast').value.trim(),
