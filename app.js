@@ -696,7 +696,7 @@ app.use(async (req, res, next) => {
 
 // Register new client
 app.post("/api/auth/register", async (req, res) => {
-  const { business_name, email, password, referral_code, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region } = req.body;
+  const { business_name, email, password, referral_code, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, utm_source, utm_medium, utm_campaign, utm_keyword, gclid, source } = req.body;
   if (!business_name || !email || !password || !first_name || !last_name || !contact_phone || !country)
     return res.status(400).json({ error: "All required fields must be completed" });
 
@@ -728,6 +728,12 @@ TRANSFER: If caller says speak to someone, speak to a person, talk to someone, r
   try {
     db.prepare('INSERT INTO clients (id, business_name, email, password_hash, stripe_customer_id, ai_prompt, customer_number, role, first_name, last_name, contact_phone, address_line1, address_line2, city, county, postcode, country, region, voicemail_enabled, feature_email, feature_appointments, feature_ai_settings, feature_voice_selector, feature_crm, call_recording, show_demo_banner, sms_missed_call) VALUES (?, ?, ?, ?, ?, ?, ?, \'client\', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 1, 0, 0, 0, 0, 0, 1, 1)')
       .run(id, business_name, email, password_hash, stripeCustomerId, defaultPrompt, customerNumber, first_name||'', last_name||'', contact_phone||'', address_line1||'', address_line2||'', city||'', county||'', postcode||'', country||'United Kingdom', region||'');
+
+    // Save UTM attribution data
+    try {
+      db.prepare('UPDATE clients SET utm_source=?,utm_medium=?,utm_campaign=?,utm_keyword=?,gclid=? WHERE id=?')
+        .run(utm_source||'direct', utm_medium||'none', utm_campaign||'none', utm_keyword||'none', gclid||'none', id);
+    } catch(e) { console.log('UTM save skipped:', e.message); }
 
     // Generate email verification token
     const verifyToken = require('crypto').randomBytes(32).toString('hex');
