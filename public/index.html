@@ -174,6 +174,24 @@ body.light-mode .plan .plan-price sup{color:#0a1628}
 body.light-mode .plan .plan-price sub{color:#94a3b8}
 body.light-mode .plan.pop .plan-price{color:#00d4ff}
 body.light-mode .plan.pop .plan-price sup{color:#00d4ff}
+
+/* Pricing prices — force dark with webkit override */
+body.light-mode #pricing .plan:not(.pop) .plan-price,
+body.light-mode #pricing .plan:not(.pop) .plan-price sup,
+body.light-mode #pricing .plan:not(.pop) .plan-price span{
+  color:#0a1628;
+  -webkit-text-fill-color:#0a1628;
+  background:none;
+  -webkit-background-clip:unset;
+}
+body.light-mode #pricing .plan.pop .plan-price,
+body.light-mode #pricing .plan.pop .plan-price sup,
+body.light-mode #pricing .plan.pop .plan-price span{
+  color:#00d4ff;
+  -webkit-text-fill-color:#00d4ff;
+  background:none;
+  -webkit-background-clip:unset;
+}
 /* END LIGHT MODE */
 </style><div id="cookie"><div class="cookie-text">
 🍪 We use cookies to improve your experience and analyse site traffic. By clicking "Accept", you agree to our <a href="/privacy" style="color:var(--cyan)">Cookie Policy</a> and <a href="/privacy" style="color:var(--cyan)">Privacy Policy</a>. We comply with UK GDPR and PECR regulations.
