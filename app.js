@@ -6377,6 +6377,7 @@ app.use("/api/blog", blogRouter);
 
 // Blog static assets (images etc)
 app.use('/blog/assets', require('express').static(__dirname + '/public/blog/assets'));
+app.use('/images', require('express').static(__dirname + '/public/images', { maxAge: '7d' }));
 
 // Blog pages
 app.get('/blog', (req, res) => res.sendFile(__dirname + '/public/blog/index.html'));
