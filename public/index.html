@@ -300,4 +300,15 @@ function toggleTheme(){
   var btn=document.getElementById('themeToggle');
   if(btn)btn.textContent=isLight?'🌙':'☀️';
 }
+</script>
+<script>
+// Auto-open signup modal if redirected from setup guide
+(function(){
+  if(sessionStorage.getItem('ard_open_signup')==='1'){
+    sessionStorage.removeItem('ard_open_signup');
+    window.addEventListener('load', function(){
+      setTimeout(function(){ openModal('professional'); }, 500);
+    });
+  }
+})();
 </script></body></html>
