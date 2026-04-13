@@ -6386,6 +6386,7 @@ app.use('/blog/assets', require('express').static(__dirname + '/public/blog/asse
 
 // Blog pages
 app.get('/blog', (req, res) => res.sendFile(__dirname + '/public/blog/index.html'));
+app.get('/setup-guide',(req,res)=>res.sendFile(__dirname+'/public/setup-guide.html'));
 app.get('/index-light', (req, res) => res.sendFile(__dirname + '/public/index-light.html'));
 app.get('/lp/ai-receptionist', (req, res) => res.sendFile(__dirname + '/public/lp/ai-receptionist.html'));
 app.get('/blog/:slug', (req, res) => {
