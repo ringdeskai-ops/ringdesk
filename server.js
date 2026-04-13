@@ -69,6 +69,55 @@ db.exec(`
     caller_name TEXT,
     started_at INTEGER DEFAULT (unixepoch())
   );
+
+  -- ── Marketing platform ──────────────────────────────────────────────────────
+  CREATE TABLE IF NOT EXISTS marketing_leads (
+    id TEXT PRIMARY KEY,
+    name TEXT,
+    email TEXT NOT NULL,
+    phone TEXT,
+    business TEXT,
+    message TEXT,
+    source TEXT,                 -- utm_source or 'direct'|'organic'|'referral'
+    medium TEXT,                 -- utm_medium
+    campaign TEXT,               -- utm_campaign
+    landing_page TEXT,           -- first page hit
+    referrer TEXT,
+    status TEXT DEFAULT 'new',   -- new|contacted|qualified|demo|trial|won|lost
+    assigned_to TEXT,            -- clients.id of team member
+    notes TEXT,
+    client_id TEXT,              -- set when lead converts to a client
+    created_at INTEGER DEFAULT (unixepoch()),
+    updated_at INTEGER DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS marketing_subscribers (
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    confirmed INTEGER DEFAULT 1,
+    unsubscribe_token TEXT UNIQUE,
+    source TEXT,
+    created_at INTEGER DEFAULT (unixepoch())
+  );
+
+  CREATE TABLE IF NOT EXISTS marketing_events (
+    id TEXT PRIMARY KEY,
+    visitor_id TEXT,             -- first-party cookie id
+    type TEXT,                   -- pageview|lead|form_submit|click
+    path TEXT,
+    referrer TEXT,
+    utm_source TEXT,
+    utm_medium TEXT,
+    utm_campaign TEXT,
+    user_agent TEXT,
+    ip TEXT,
+    created_at INTEGER DEFAULT (unixepoch())
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_leads_status ON marketing_leads(status);
+  CREATE INDEX IF NOT EXISTS idx_leads_created ON marketing_leads(created_at);
+  CREATE INDEX IF NOT EXISTS idx_events_type ON marketing_events(type, created_at);
+  CREATE INDEX IF NOT EXISTS idx_events_visitor ON marketing_events(visitor_id);
 `);
 
 // ── Middleware ─────────────────────────────────────────────────────────────────
@@ -500,8 +549,307 @@ app.post("/voice/status", (req, res) => {
   res.sendStatus(200);
 });
 
+// ═══════════════════════════════════════════════════════════════════════════════
+//  MARKETING PLATFORM
+//  Public endpoints are called from AiRingDesk.com (cross-origin allowed).
+//  Admin endpoints require JWT auth and are consumed by Platform.jsx.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Permissive CORS for public marketing endpoints (AiRingDesk.com + any campaign domain)
+const marketingCors = cors({ origin: true, credentials: false });
+
+// Simple in-memory rate limiter (per IP + path, sliding 1-min window)
+const _rlStore = new Map();
+function rateLimit(maxPerMin = 30) {
+  return (req, res, next) => {
+    const ip = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress || "unknown";
+    const key = `${ip}:${req.path}`;
+    const now = Date.now();
+    const entry = _rlStore.get(key) || { count: 0, reset: now + 60_000 };
+    if (now > entry.reset) { entry.count = 0; entry.reset = now + 60_000; }
+    entry.count++;
+    _rlStore.set(key, entry);
+    if (entry.count > maxPerMin) return res.status(429).json({ error: "Too many requests — slow down" });
+    next();
+  };
+}
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, v] of _rlStore) if (now > v.reset + 300_000) _rlStore.delete(k);
+}, 600_000).unref?.();
+
+const getIp = (req) => (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress || null;
+const isEmail = (e) => typeof e === "string" && /^\S+@\S+\.\S+$/.test(e);
+
+// ─── Public: capture a lead (from any form on AiRingDesk.com) ─────────────────
+app.post("/api/leads", marketingCors, rateLimit(10), (req, res) => {
+  const { name, email, phone, business, message, source, medium, campaign, landing_page, referrer } = req.body || {};
+  if (!isEmail(email)) return res.status(400).json({ error: "Valid email required" });
+  try {
+    const id = uuidv4();
+    db.prepare(`INSERT INTO marketing_leads
+      (id, name, email, phone, business, message, source, medium, campaign, landing_page, referrer)
+      VALUES (?,?,?,?,?,?,?,?,?,?,?)`)
+      .run(
+        id,
+        (name || "").slice(0, 120) || null,
+        email.toLowerCase().slice(0, 200),
+        (phone || "").slice(0, 40) || null,
+        (business || "").slice(0, 200) || null,
+        (message || "").slice(0, 2000) || null,
+        (source || "direct").slice(0, 80),
+        (medium || "").slice(0, 80) || null,
+        (campaign || "").slice(0, 120) || null,
+        (landing_page || "").slice(0, 300) || null,
+        (referrer || "").slice(0, 300) || null
+      );
+    res.json({ success: true, id });
+  } catch (err) {
+    console.error("lead capture error:", err.message);
+    res.status(500).json({ error: "Failed to save lead" });
+  }
+});
+
+// CORS preflight for public endpoints
+app.options("/api/leads", marketingCors);
+app.options("/api/subscribe", marketingCors);
+app.options("/api/track", marketingCors);
+
+// ─── Public: newsletter signup ────────────────────────────────────────────────
+app.post("/api/subscribe", marketingCors, rateLimit(5), (req, res) => {
+  const { email, source } = req.body || {};
+  if (!isEmail(email)) return res.status(400).json({ error: "Valid email required" });
+  try {
+    const id = uuidv4();
+    const token = uuidv4().replace(/-/g, "");
+    db.prepare(`INSERT OR IGNORE INTO marketing_subscribers (id, email, unsubscribe_token, source)
+                VALUES (?,?,?,?)`)
+      .run(id, email.toLowerCase().slice(0, 200), token, (source || "website").slice(0, 80));
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to subscribe" });
+  }
+});
+
+// ─── Public: one-click unsubscribe (for email footers) ───────────────────────
+app.get("/api/unsubscribe", marketingCors, (req, res) => {
+  const { token } = req.query;
+  if (!token) return res.status(400).send("Missing token");
+  const row = db.prepare("SELECT id FROM marketing_subscribers WHERE unsubscribe_token = ?").get(token);
+  if (!row) return res.status(404).send("Not found");
+  db.prepare("UPDATE marketing_subscribers SET confirmed = 0 WHERE id = ?").run(row.id);
+  res.type("text/html").send(`<html><body style="font-family:sans-serif;padding:40px;text-align:center;background:#f9fafb"><h2>You've been unsubscribed</h2><p>You won't receive any more emails from us.</p></body></html>`);
+});
+
+// ─── Public: record an event (pageview, form submit, etc) ─────────────────────
+app.post("/api/track", marketingCors, rateLimit(120), (req, res) => {
+  const { visitor_id, type, path, referrer, utm_source, utm_medium, utm_campaign } = req.body || {};
+  if (!type) return res.status(400).json({ error: "type required" });
+  try {
+    db.prepare(`INSERT INTO marketing_events
+      (id, visitor_id, type, path, referrer, utm_source, utm_medium, utm_campaign, user_agent, ip)
+      VALUES (?,?,?,?,?,?,?,?,?,?)`)
+      .run(
+        uuidv4(),
+        (visitor_id || "").slice(0, 80) || null,
+        String(type).slice(0, 40),
+        (path || "").slice(0, 300) || null,
+        (referrer || "").slice(0, 300) || null,
+        (utm_source || "").slice(0, 80) || null,
+        (utm_medium || "").slice(0, 80) || null,
+        (utm_campaign || "").slice(0, 120) || null,
+        (req.headers["user-agent"] || "").slice(0, 200),
+        getIp(req)
+      );
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to track" });
+  }
+});
+
+// ─── Public: tracking snippet — drop <script src="/api/marketing/track.js"> ──
+app.get("/api/marketing/track.js", marketingCors, (req, res) => {
+  const serverUrl = process.env.SERVER_URL || "";
+  res.type("application/javascript").set("Cache-Control", "public, max-age=3600").send(`/* AiRingDesk tracking snippet */
+(function(){
+  var API=${JSON.stringify(serverUrl)};
+  try{var s=document.currentScript;if(s&&s.src){API=new URL(s.src).origin;}}catch(e){}
+  function cid(){var k="_rdv",m=document.cookie.match(new RegExp("(?:^|; )"+k+"=([^;]+)"));if(m)return m[1];var id="v_"+Date.now().toString(36)+Math.random().toString(36).slice(2,8);document.cookie=k+"="+id+"; max-age=31536000; path=/; SameSite=Lax";return id;}
+  function q(n){return new URLSearchParams(location.search).get(n);}
+  function post(url,body){try{if(navigator.sendBeacon){navigator.sendBeacon(url,new Blob([JSON.stringify(body)],{type:"application/json"}));return;}}catch(e){}fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body),keepalive:true}).catch(function(){});}
+  var utmKey="_rdutm",saved={};try{saved=JSON.parse(sessionStorage.getItem(utmKey)||"{}");}catch(e){}
+  var cur={utm_source:q("utm_source"),utm_medium:q("utm_medium"),utm_campaign:q("utm_campaign")};
+  if(cur.utm_source||cur.utm_medium||cur.utm_campaign){saved=cur;try{sessionStorage.setItem(utmKey,JSON.stringify(saved));}catch(e){}}
+  var ctx={visitor_id:cid(),path:location.pathname+location.search,referrer:document.referrer||null,utm_source:saved.utm_source,utm_medium:saved.utm_medium,utm_campaign:saved.utm_campaign};
+  post(API+"/api/track",Object.assign({type:"pageview"},ctx));
+  document.addEventListener("submit",function(e){
+    var f=e.target;if(!f||!f.matches||!f.matches("form[data-rd-lead]"))return;
+    e.preventDefault();
+    var fd=new FormData(f),body={};fd.forEach(function(v,k){body[k]=v;});
+    Object.assign(body,{source:ctx.utm_source||"direct",medium:ctx.utm_medium,campaign:ctx.utm_campaign,landing_page:ctx.path,referrer:ctx.referrer});
+    var btn=f.querySelector("[type=submit]");if(btn){btn.disabled=true;btn.dataset.__orig=btn.textContent;btn.textContent="Sending...";}
+    fetch(API+"/api/leads",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})
+      .then(function(r){if(!r.ok)throw 0;return r.json();})
+      .then(function(){
+        post(API+"/api/track",Object.assign({type:"lead"},ctx));
+        var t=f.getAttribute("data-rd-thanks")||"Thanks! We'll be in touch shortly.";
+        f.innerHTML='<div style="padding:16px;color:#10b981;font-weight:600;text-align:center">'+t+'</div>';
+      })
+      .catch(function(){if(btn){btn.disabled=false;btn.textContent=btn.dataset.__orig||"Submit";}alert("Something went wrong. Please try again.");});
+  },true);
+  // newsletter forms: <form data-rd-subscribe>
+  document.addEventListener("submit",function(e){
+    var f=e.target;if(!f||!f.matches||!f.matches("form[data-rd-subscribe]"))return;
+    e.preventDefault();
+    var fd=new FormData(f),email=fd.get("email");
+    if(!email)return;
+    fetch(API+"/api/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email:email,source:"newsletter"})})
+      .then(function(){f.innerHTML='<div style="padding:12px;color:#10b981;font-weight:600">Subscribed ✓</div>';})
+      .catch(function(){alert("Please try again.");});
+  },true);
+})();`);
+});
+
+// ─── Admin: list leads with filters ───────────────────────────────────────────
+app.get("/api/marketing/leads", authRequired, (req, res) => {
+  const { status, q, limit = 200, offset = 0 } = req.query;
+  let sql = "SELECT * FROM marketing_leads";
+  const where = [], params = [];
+  if (status && status !== "all") { where.push("status = ?"); params.push(status); }
+  if (q) { where.push("(email LIKE ? OR name LIKE ? OR business LIKE ?)"); params.push(`%${q}%`, `%${q}%`, `%${q}%`); }
+  if (where.length) sql += " WHERE " + where.join(" AND ");
+  sql += " ORDER BY created_at DESC LIMIT ? OFFSET ?";
+  params.push(Number(limit), Number(offset));
+  const leads = db.prepare(sql).all(...params);
+  const total = db.prepare("SELECT COUNT(*) as c FROM marketing_leads").get().c;
+  res.json({ leads, total });
+});
+
+// ─── Admin: update a lead (status, notes, assignment, conversion) ─────────────
+app.patch("/api/marketing/leads/:id", authRequired, (req, res) => {
+  const { status, notes, assigned_to, client_id } = req.body || {};
+  const valid = ["new", "contacted", "qualified", "demo", "trial", "won", "lost"];
+  const fields = [], values = [];
+  if (status !== undefined) {
+    if (!valid.includes(status)) return res.status(400).json({ error: "Invalid status" });
+    fields.push("status = ?"); values.push(status);
+  }
+  if (notes !== undefined) { fields.push("notes = ?"); values.push(notes); }
+  if (assigned_to !== undefined) { fields.push("assigned_to = ?"); values.push(assigned_to || null); }
+  if (client_id !== undefined) { fields.push("client_id = ?"); values.push(client_id || null); }
+  if (!fields.length) return res.status(400).json({ error: "No fields to update" });
+  fields.push("updated_at = unixepoch()");
+  values.push(req.params.id);
+  const info = db.prepare(`UPDATE marketing_leads SET ${fields.join(", ")} WHERE id = ?`).run(...values);
+  if (info.changes === 0) return res.status(404).json({ error: "Lead not found" });
+  res.json({ success: true });
+});
+
+// ─── Admin: delete a lead ─────────────────────────────────────────────────────
+app.delete("/api/marketing/leads/:id", authRequired, (req, res) => {
+  db.prepare("DELETE FROM marketing_leads WHERE id = ?").run(req.params.id);
+  res.json({ success: true });
+});
+
+// ─── Admin: list newsletter subscribers ───────────────────────────────────────
+app.get("/api/marketing/subscribers", authRequired, (req, res) => {
+  const subs = db.prepare(
+    "SELECT id, email, confirmed, source, created_at FROM marketing_subscribers ORDER BY created_at DESC LIMIT 1000"
+  ).all();
+  const total = db.prepare("SELECT COUNT(*) as c FROM marketing_subscribers WHERE confirmed = 1").get().c;
+  res.json({ subscribers: subs, total });
+});
+
+// ─── Admin: export subscribers as CSV ─────────────────────────────────────────
+app.get("/api/marketing/subscribers.csv", authRequired, (req, res) => {
+  const subs = db.prepare(
+    "SELECT email, source, created_at FROM marketing_subscribers WHERE confirmed = 1 ORDER BY created_at DESC"
+  ).all();
+  const csv = "email,source,subscribed_at\n" +
+    subs.map(s => `${s.email},${s.source || ""},${new Date(s.created_at * 1000).toISOString()}`).join("\n");
+  res.type("text/csv").set("Content-Disposition", 'attachment; filename="subscribers.csv"').send(csv);
+});
+
+// ─── Admin: marketing overview stats ──────────────────────────────────────────
+app.get("/api/marketing/stats", authRequired, (req, res) => {
+  const now = Math.floor(Date.now() / 1000);
+  const d30 = now - 30 * 86400;
+  const d7 = now - 7 * 86400;
+
+  const totalLeads = db.prepare("SELECT COUNT(*) as c FROM marketing_leads").get().c;
+  const leadsMonth = db.prepare("SELECT COUNT(*) as c FROM marketing_leads WHERE created_at > ?").get(d30).c;
+  const leadsWeek = db.prepare("SELECT COUNT(*) as c FROM marketing_leads WHERE created_at > ?").get(d7).c;
+
+  const byStatus = db.prepare("SELECT status, COUNT(*) as count FROM marketing_leads GROUP BY status").all();
+  const statusMap = { new: 0, contacted: 0, qualified: 0, demo: 0, trial: 0, won: 0, lost: 0 };
+  byStatus.forEach(r => { statusMap[r.status] = r.count; });
+
+  const bySource = db.prepare(
+    "SELECT COALESCE(source,'direct') as source, COUNT(*) as count FROM marketing_leads WHERE created_at > ? GROUP BY source ORDER BY count DESC LIMIT 10"
+  ).all(d30);
+
+  const subscribers = db.prepare("SELECT COUNT(*) as c FROM marketing_subscribers WHERE confirmed = 1").get().c;
+  const newSubs30 = db.prepare(
+    "SELECT COUNT(*) as c FROM marketing_subscribers WHERE confirmed = 1 AND created_at > ?"
+  ).get(d30).c;
+
+  const pageviews30 = db.prepare(
+    "SELECT COUNT(*) as c FROM marketing_events WHERE type = 'pageview' AND created_at > ?"
+  ).get(d30).c;
+  const uniqueVisitors30 = db.prepare(
+    "SELECT COUNT(DISTINCT visitor_id) as c FROM marketing_events WHERE type = 'pageview' AND created_at > ? AND visitor_id IS NOT NULL"
+  ).get(d30).c;
+
+  // conversion: lead → paying client (joined via client_id) OR marked won
+  const converted30 = db.prepare(`
+    SELECT COUNT(*) as c FROM marketing_leads l
+    LEFT JOIN clients c ON c.id = l.client_id
+    WHERE l.created_at > ? AND (l.status = 'won' OR (c.plan IS NOT NULL AND c.plan != 'trial'))
+  `).get(d30).c;
+
+  const conversionRate = leadsMonth > 0 ? Math.round((converted30 / leadsMonth) * 1000) / 10 : 0;
+
+  // leads by day for the chart
+  const leadsByDay = db.prepare(`
+    SELECT date(created_at, 'unixepoch') as day, COUNT(*) as count
+    FROM marketing_leads WHERE created_at > ?
+    GROUP BY day ORDER BY day
+  `).all(d30);
+
+  // top landing pages (from events)
+  const topPages = db.prepare(`
+    SELECT path, COUNT(*) as count
+    FROM marketing_events
+    WHERE type = 'pageview' AND created_at > ? AND path IS NOT NULL
+    GROUP BY path ORDER BY count DESC LIMIT 8
+  `).all(d30);
+
+  res.json({
+    total_leads: totalLeads,
+    leads_this_month: leadsMonth,
+    leads_this_week: leadsWeek,
+    by_status: statusMap,
+    by_source: bySource,
+    subscribers,
+    new_subscribers_30d: newSubs30,
+    pageviews_30d: pageviews30,
+    unique_visitors_30d: uniqueVisitors30,
+    converted_30d: converted30,
+    conversion_rate: conversionRate,
+    leads_by_day: leadsByDay,
+    top_pages: topPages,
+  });
+});
+
 // ── Health & Admin ─────────────────────────────────────────────────────────────
 app.get("/health", (req, res) => res.json({ status: "ok", uptime: process.uptime(), clients: db.prepare("SELECT COUNT(*) as c FROM clients").get().c }));
+
+app.get("/api/marketing/health", (req, res) => res.json({
+  status: "ok",
+  leads: db.prepare("SELECT COUNT(*) as c FROM marketing_leads").get().c,
+  subscribers: db.prepare("SELECT COUNT(*) as c FROM marketing_subscribers WHERE confirmed=1").get().c,
+  events_24h: db.prepare("SELECT COUNT(*) as c FROM marketing_events WHERE created_at > ?").get(Math.floor(Date.now()/1000) - 86400).c,
+}));
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`\n🚀 RingDesk server running on port ${PORT}\n`));

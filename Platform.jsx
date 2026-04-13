@@ -201,6 +201,7 @@ function SuperAdminDashboard({ user, onLogout }) {
     { id:"customers", icon:"👥", label:"Customers" },
     { id:"calls", icon:"📞", label:"All Calls" },
     { id:"revenue", icon:"💰", label:"Revenue" },
+    { id:"marketing", icon:"📣", label:"Marketing" },
     { id:"system", icon:"⚙", label:"System" },
   ];
 
@@ -299,6 +300,7 @@ function SuperAdminDashboard({ user, onLogout }) {
 
       {page === "calls" && <AllCallsPage />}
       {page === "revenue" && <RevenuePage customers={customers} totalMRR={totalMRR} />}
+      {page === "marketing" && <MarketingPage />}
       {page === "system" && <SystemPage />}
     </Shell>
   );
@@ -319,6 +321,7 @@ function AdminDashboard({ user, onLogout }) {
     { id:"overview", icon:"⬛", label:"Overview" },
     { id:"customers", icon:"👥", label:"Customers" },
     { id:"calls", icon:"📞", label:"Calls" },
+    { id:"marketing", icon:"📣", label:"Marketing" },
   ];
 
   return (
@@ -354,6 +357,7 @@ function AdminDashboard({ user, onLogout }) {
         </div>
       )}
       {page === "calls" && <AllCallsPage />}
+      {page === "marketing" && <MarketingPage />}
     </Shell>
   );
 }
@@ -649,6 +653,437 @@ function SystemPage() {
           ))}
         </SectionCard>
       )}
+    </div>
+  );
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+// MARKETING PAGE — Leads inbox + Overview + Subscribers + Tracking snippet
+// ═════════════════════════════════════════════════════════════════════════════
+const LEAD_STATUSES = [
+  { id:"new",        label:"New",        color:"#60a5fa" },
+  { id:"contacted",  label:"Contacted",  color:"#a78bfa" },
+  { id:"qualified",  label:"Qualified",  color:"#06b6d4" },
+  { id:"demo",       label:"Demo",       color:"#f59e0b" },
+  { id:"trial",      label:"Trial",      color:"#ec4899" },
+  { id:"won",        label:"Won",        color:"#10b981" },
+  { id:"lost",       label:"Lost",       color:"#6b7280" },
+];
+const STATUS_COLOR = Object.fromEntries(LEAD_STATUSES.map(s => [s.id, s.color]));
+const STATUS_LABEL = Object.fromEntries(LEAD_STATUSES.map(s => [s.id, s.label]));
+
+function MarketingPage() {
+  const [tab, setTab] = useState("overview");
+  const [stats, setStats] = useState(null);
+  const [leads, setLeads] = useState([]);
+  const [subs, setSubs] = useState([]);
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const loadStats = () => apiFetch("/api/marketing/stats").then(setStats).catch(console.error);
+  const loadLeads = () => {
+    setLoading(true);
+    const qp = new URLSearchParams();
+    if (filter !== "all") qp.set("status", filter);
+    if (search) qp.set("q", search);
+    apiFetch(`/api/marketing/leads?${qp}`).then(d => setLeads(d.leads || [])).catch(console.error).finally(() => setLoading(false));
+  };
+  const loadSubs = () => apiFetch("/api/marketing/subscribers").then(d => setSubs(d.subscribers || [])).catch(console.error);
+
+  useEffect(() => { loadStats(); }, []);
+  useEffect(() => { if (tab === "leads") loadLeads(); }, [tab, filter, search]);
+  useEffect(() => { if (tab === "subscribers") loadSubs(); }, [tab]);
+
+  const tabs = [
+    { id:"overview",    label:"Overview" },
+    { id:"leads",       label:"Leads" },
+    { id:"subscribers", label:"Subscribers" },
+    { id:"install",     label:"Install" },
+  ];
+
+  return (
+    <div style={{ padding:32 }}>
+      <PageHeader title="Marketing" sub="Leads, conversions & growth" />
+
+      {/* Tab strip */}
+      <div style={{ display:"flex", gap:4, background:"#0d1117", padding:4, borderRadius:12, marginBottom:24, border:"1px solid #1f2937", width:"fit-content" }}>
+        {tabs.map(t => (
+          <button key={t.id} onClick={() => setTab(t.id)}
+            style={{ padding:"8px 20px", borderRadius:8, border:"none", background:tab===t.id?"#1f2937":"transparent", color:tab===t.id?"#fff":"#6b7280", fontSize:12, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === "overview" && <MarketingOverview stats={stats} />}
+
+      {tab === "leads" && (
+        <MarketingLeads
+          leads={leads} loading={loading}
+          filter={filter} setFilter={setFilter}
+          search={search} setSearch={setSearch}
+          onSelect={setSelected}
+          stats={stats}
+        />
+      )}
+
+      {tab === "subscribers" && <MarketingSubscribers subs={subs} />}
+
+      {tab === "install" && <MarketingInstall />}
+
+      {selected && (
+        <LeadDetailModal
+          lead={selected}
+          onClose={() => setSelected(null)}
+          onSaved={() => { loadLeads(); loadStats(); }}
+          onDeleted={() => { setSelected(null); loadLeads(); loadStats(); }}
+        />
+      )}
+    </div>
+  );
+}
+
+function MarketingOverview({ stats }) {
+  if (!stats) return <div style={{ color:"#6b7280", fontSize:13 }}>Loading…</div>;
+
+  const maxDay = Math.max(1, ...(stats.leads_by_day || []).map(d => d.count));
+  const days30 = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date(Date.now() - (29 - i) * 86400000).toISOString().slice(0, 10);
+    const row = (stats.leads_by_day || []).find(r => r.day === d);
+    return { day: d, count: row?.count || 0 };
+  });
+
+  return (
+    <div>
+      {/* KPI cards */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))", gap:16, marginBottom:24 }}>
+        <StatCard label="New Leads (30d)"    value={stats.leads_this_month} color="#60a5fa" icon="🎯" />
+        <StatCard label="New Leads (7d)"     value={stats.leads_this_week}  color="#a78bfa" icon="📈" />
+        <StatCard label="Converted (30d)"    value={stats.converted_30d}    color="#10b981" icon="💰" />
+        <StatCard label="Conv. Rate"         value={`${stats.conversion_rate}%`} color="#f59e0b" icon="⚡" />
+        <StatCard label="Visitors (30d)"     value={stats.unique_visitors_30d} color="#8b5cf6" icon="👁" />
+        <StatCard label="Subscribers"        value={stats.subscribers}      color="#ec4899" icon="✉" />
+      </div>
+
+      {/* Leads-by-day chart */}
+      <SectionCard title="Leads — Last 30 Days">
+        <div style={{ display:"flex", alignItems:"flex-end", gap:3, height:120, paddingTop:8 }}>
+          {days30.map((d, i) => (
+            <div key={i} title={`${d.day}: ${d.count}`}
+              style={{ flex:1, background: d.count > 0 ? "linear-gradient(180deg,#60a5fa,#3b82f6)" : "#1f2937", height:`${(d.count / maxDay) * 100}%`, minHeight:2, borderRadius:"3px 3px 0 0", transition:"all 0.3s" }} />
+          ))}
+        </div>
+        <div style={{ display:"flex", justifyContent:"space-between", marginTop:8, fontSize:10, color:"#4a5568" }}>
+          <span>{days30[0]?.day}</span>
+          <span>{days30[29]?.day}</span>
+        </div>
+      </SectionCard>
+
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:16 }}>
+        {/* Pipeline */}
+        <SectionCard title="Pipeline">
+          {LEAD_STATUSES.map(s => {
+            const count = stats.by_status?.[s.id] || 0;
+            const total = Object.values(stats.by_status || {}).reduce((a, b) => a + b, 0) || 1;
+            const pct = (count / total) * 100;
+            return (
+              <div key={s.id} style={{ marginBottom:10 }}>
+                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4, fontSize:12 }}>
+                  <span style={{ color:"#9ca3af" }}>{s.label}</span>
+                  <span style={{ color:"#e5e7eb", fontWeight:600 }}>{count}</span>
+                </div>
+                <div style={{ height:6, background:"#1f2937", borderRadius:3, overflow:"hidden" }}>
+                  <div style={{ height:"100%", background:s.color, width:`${pct}%`, transition:"width 0.4s" }} />
+                </div>
+              </div>
+            );
+          })}
+        </SectionCard>
+
+        {/* Top sources */}
+        <SectionCard title="Top Sources (30d)">
+          {(stats.by_source || []).length === 0 ? (
+            <div style={{ color:"#4a5568", fontSize:12, padding:"8px 0" }}>No lead data yet — install the tracking snippet to start collecting.</div>
+          ) : (
+            stats.by_source.map((s, i) => (
+              <div key={i} style={{ display:"flex", justifyContent:"space-between", padding:"8px 0", borderBottom:"1px solid #1f2937", fontSize:12 }}>
+                <span style={{ color:"#e5e7eb" }}>{s.source || "direct"}</span>
+                <span style={{ color:"#60a5fa", fontWeight:700 }}>{s.count}</span>
+              </div>
+            ))
+          )}
+        </SectionCard>
+      </div>
+
+      {/* Top pages */}
+      {(stats.top_pages || []).length > 0 && (
+        <SectionCard title="Top Landing Pages (30d)">
+          {stats.top_pages.map((p, i) => (
+            <div key={i} style={{ display:"flex", justifyContent:"space-between", padding:"8px 0", borderBottom:"1px solid #1f2937", fontSize:12 }}>
+              <span style={{ color:"#9ca3af", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", maxWidth:"70%" }}>{p.path}</span>
+              <span style={{ color:"#60a5fa", fontWeight:700 }}>{p.count}</span>
+            </div>
+          ))}
+        </SectionCard>
+      )}
+    </div>
+  );
+}
+
+function MarketingLeads({ leads, loading, filter, setFilter, search, setSearch, onSelect, stats }) {
+  return (
+    <div>
+      {/* Filters */}
+      <div style={{ display:"flex", gap:8, marginBottom:16, flexWrap:"wrap", alignItems:"center" }}>
+        <button onClick={() => setFilter("all")}
+          style={{ padding:"6px 14px", borderRadius:8, border:"none", cursor:"pointer", background:filter==="all"?"rgba(59,130,246,0.2)":"rgba(255,255,255,0.04)", color:filter==="all"?"#60a5fa":"#6b7280", fontSize:12, fontFamily:"inherit" }}>
+          All {stats && <span style={{ opacity:0.6 }}>({stats.total_leads})</span>}
+        </button>
+        {LEAD_STATUSES.map(s => (
+          <button key={s.id} onClick={() => setFilter(s.id)}
+            style={{ padding:"6px 14px", borderRadius:8, border:"none", cursor:"pointer", background:filter===s.id?`${s.color}22`:"rgba(255,255,255,0.04)", color:filter===s.id?s.color:"#6b7280", fontSize:12, fontFamily:"inherit" }}>
+            {s.label} {stats?.by_status?.[s.id] !== undefined && <span style={{ opacity:0.6 }}>({stats.by_status[s.id]})</span>}
+          </button>
+        ))}
+        <div style={{ flex:1 }} />
+        <input placeholder="Search by name, email, business…" value={search} onChange={e => setSearch(e.target.value)}
+          style={{ background:"#1f2937", border:"1px solid #374151", borderRadius:8, padding:"8px 12px", color:"#f9fafb", fontSize:12, outline:"none", fontFamily:"inherit", minWidth:240 }} />
+      </div>
+
+      <div style={{ background:"#0d1117", border:"1px solid #1f2937", borderRadius:12, overflow:"hidden" }}>
+        {loading ? (
+          <div style={{ padding:40, textAlign:"center", color:"#4a5568", fontSize:13 }}>Loading…</div>
+        ) : leads.length === 0 ? (
+          <div style={{ padding:40, textAlign:"center", color:"#4a5568", fontSize:13 }}>
+            No leads yet.<br />
+            <span style={{ fontSize:11 }}>Install the tracking snippet from the Install tab to start capturing leads from AiRingDesk.com.</span>
+          </div>
+        ) : (
+          <table style={{ width:"100%", borderCollapse:"collapse" }}>
+            <thead>
+              <tr style={{ background:"rgba(255,255,255,0.02)" }}>
+                {["Name / Business","Email","Source","Status","Received"].map(h => (
+                  <th key={h} style={{ padding:"10px 14px", textAlign:"left", fontSize:10, color:"#6b7280", letterSpacing:1, textTransform:"uppercase" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {leads.map(l => (
+                <tr key={l.id} onClick={() => onSelect(l)} style={{ borderTop:"1px solid #1a2332", cursor:"pointer" }}>
+                  <td style={{ padding:"12px 14px" }}>
+                    <div style={{ fontSize:13, fontWeight:600, color:"#e5e7eb" }}>{l.name || "—"}</div>
+                    <div style={{ fontSize:11, color:"#6b7280" }}>{l.business || " "}</div>
+                  </td>
+                  <td style={{ padding:"12px 14px", fontSize:12, color:"#9ca3af" }}>{l.email}</td>
+                  <td style={{ padding:"12px 14px", fontSize:12, color:"#9ca3af" }}>
+                    {l.source || "direct"}
+                    {l.campaign && <div style={{ fontSize:10, color:"#4a5568" }}>{l.campaign}</div>}
+                  </td>
+                  <td style={{ padding:"12px 14px" }}>
+                    <span style={{ background:`${STATUS_COLOR[l.status] || "#6b7280"}20`, color:STATUS_COLOR[l.status] || "#6b7280", padding:"3px 10px", borderRadius:20, fontSize:11, fontWeight:600 }}>
+                      {STATUS_LABEL[l.status] || l.status}
+                    </span>
+                  </td>
+                  <td style={{ padding:"12px 14px", fontSize:11, color:"#6b7280" }}>{fmtDate(l.created_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function LeadDetailModal({ lead, onClose, onSaved, onDeleted }) {
+  const [status, setStatus] = useState(lead.status || "new");
+  const [notes, setNotes] = useState(lead.notes || "");
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      await apiFetch(`/api/marketing/leads/${lead.id}`, { method:"PATCH", body:{ status, notes } });
+      onSaved();
+      onClose();
+    } catch (err) { alert(err.message); }
+    finally { setSaving(false); }
+  };
+
+  const remove = async () => {
+    if (!confirm("Delete this lead? This cannot be undone.")) return;
+    try {
+      await apiFetch(`/api/marketing/leads/${lead.id}`, { method:"DELETE" });
+      onDeleted();
+    } catch (err) { alert(err.message); }
+  };
+
+  return (
+    <Modal onClose={onClose} title={lead.name || lead.email} subtitle={lead.business || undefined}>
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:8, marginBottom:14 }}>
+        {[
+          ["Email", lead.email],
+          ["Phone", lead.phone || "—"],
+          ["Source", lead.source || "direct"],
+          ["Campaign", lead.campaign || "—"],
+          ["Landing page", lead.landing_page || "—"],
+          ["Received", fmtDate(lead.created_at)],
+        ].map(([k, v]) => (
+          <div key={k} style={{ background:"#1a2332", borderRadius:8, padding:"8px 12px" }}>
+            <div style={{ fontSize:10, color:"#4a5568", textTransform:"uppercase", letterSpacing:1, marginBottom:2 }}>{k}</div>
+            <div style={{ fontSize:12, color:"#e5e7eb", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{v}</div>
+          </div>
+        ))}
+      </div>
+
+      {lead.message && (
+        <div style={{ background:"#1a2332", borderRadius:8, padding:"10px 12px", marginBottom:14 }}>
+          <div style={{ fontSize:10, color:"#4a5568", textTransform:"uppercase", letterSpacing:1, marginBottom:4 }}>Message</div>
+          <div style={{ fontSize:12, color:"#9ca3af", lineHeight:1.6 }}>{lead.message}</div>
+        </div>
+      )}
+
+      <Label>Status</Label>
+      <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:14 }}>
+        {LEAD_STATUSES.map(s => (
+          <button key={s.id} onClick={() => setStatus(s.id)}
+            style={{ padding:"6px 12px", borderRadius:20, border:"none", cursor:"pointer", background:status===s.id?`${s.color}30`:"rgba(255,255,255,0.04)", color:status===s.id?s.color:"#6b7280", fontSize:11, fontWeight:600, fontFamily:"inherit" }}>
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      <Label>Notes</Label>
+      <textarea value={notes} onChange={e => setNotes(e.target.value)} rows={4}
+        placeholder="Follow-up notes, next steps, outcome of calls…"
+        style={{ width:"100%", background:"#1a2332", border:"1px solid #283548", borderRadius:8, padding:"10px 12px", color:"#e5e7eb", fontSize:13, outline:"none", resize:"vertical", fontFamily:"inherit", boxSizing:"border-box", lineHeight:1.6, marginBottom:14 }} />
+
+      <div style={{ display:"flex", gap:10 }}>
+        <Btn label={saving ? "Saving..." : "Save changes"} onClick={save} disabled={saving} />
+        <button onClick={remove}
+          style={{ padding:"11px 16px", borderRadius:8, border:"1px solid rgba(239,68,68,0.3)", background:"rgba(239,68,68,0.08)", color:"#ef4444", cursor:"pointer", fontFamily:"inherit", fontSize:12 }}>
+          Delete
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
+function MarketingSubscribers({ subs }) {
+  const active = subs.filter(s => s.confirmed);
+  return (
+    <div>
+      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+        <div style={{ fontSize:13, color:"#9ca3af" }}>{active.length} active subscribers</div>
+        <a href={`${API}/api/marketing/subscribers.csv`}
+           style={{ padding:"8px 16px", borderRadius:8, background:"rgba(59,130,246,0.15)", color:"#60a5fa", fontSize:12, fontWeight:600, textDecoration:"none", border:"1px solid rgba(59,130,246,0.3)" }}>
+          Export CSV
+        </a>
+      </div>
+      <div style={{ background:"#0d1117", border:"1px solid #1f2937", borderRadius:12, overflow:"hidden" }}>
+        {subs.length === 0 ? (
+          <div style={{ padding:40, textAlign:"center", color:"#4a5568", fontSize:13 }}>No subscribers yet.</div>
+        ) : (
+          <table style={{ width:"100%", borderCollapse:"collapse" }}>
+            <thead>
+              <tr style={{ background:"rgba(255,255,255,0.02)" }}>
+                {["Email","Source","Status","Subscribed"].map(h => (
+                  <th key={h} style={{ padding:"10px 14px", textAlign:"left", fontSize:10, color:"#6b7280", letterSpacing:1, textTransform:"uppercase" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {subs.map(s => (
+                <tr key={s.id} style={{ borderTop:"1px solid #1a2332" }}>
+                  <td style={{ padding:"12px 14px", fontSize:13, color:"#e5e7eb" }}>{s.email}</td>
+                  <td style={{ padding:"12px 14px", fontSize:12, color:"#9ca3af" }}>{s.source || "—"}</td>
+                  <td style={{ padding:"12px 14px" }}>
+                    <span style={{ background:s.confirmed?"rgba(16,185,129,0.15)":"rgba(107,114,128,0.15)", color:s.confirmed?"#10b981":"#6b7280", padding:"3px 10px", borderRadius:20, fontSize:11, fontWeight:600 }}>
+                      {s.confirmed ? "Active" : "Unsubscribed"}
+                    </span>
+                  </td>
+                  <td style={{ padding:"12px 14px", fontSize:11, color:"#6b7280" }}>{fmtDate(s.created_at)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function MarketingInstall() {
+  const [copied, setCopied] = useState("");
+  const snippet = `<script src="${API}/api/marketing/track.js" async></script>`;
+  const leadForm = `<form data-rd-lead data-rd-thanks="Thanks! We'll be in touch within 24 hours.">
+  <input name="name" placeholder="Your name" required />
+  <input name="email" type="email" placeholder="Email" required />
+  <input name="phone" placeholder="Phone (optional)" />
+  <input name="business" placeholder="Business name" />
+  <textarea name="message" placeholder="How can we help?"></textarea>
+  <button type="submit">Get a demo</button>
+</form>`;
+  const subForm = `<form data-rd-subscribe>
+  <input name="email" type="email" placeholder="Your email" required />
+  <button type="submit">Subscribe</button>
+</form>`;
+
+  const copy = (txt, key) => {
+    navigator.clipboard.writeText(txt);
+    setCopied(key);
+    setTimeout(() => setCopied(""), 1500);
+  };
+
+  const Block = ({ title, desc, code, k }) => (
+    <SectionCard title={title}>
+      <div style={{ fontSize:12, color:"#9ca3af", marginBottom:10, lineHeight:1.6 }}>{desc}</div>
+      <div style={{ position:"relative", background:"#0a0f18", border:"1px solid #1a2332", borderRadius:8, padding:"14px 16px" }}>
+        <button onClick={() => copy(code, k)}
+          style={{ position:"absolute", top:8, right:8, padding:"4px 10px", borderRadius:6, border:"none", background:copied===k?"#10b981":"rgba(59,130,246,0.2)", color:copied===k?"#fff":"#60a5fa", fontSize:10, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
+          {copied===k ? "Copied ✓" : "Copy"}
+        </button>
+        <pre style={{ margin:0, fontFamily:"ui-monospace, Menlo, monospace", fontSize:11, color:"#9ca3af", whiteSpace:"pre-wrap", wordBreak:"break-all", lineHeight:1.6 }}>{code}</pre>
+      </div>
+    </SectionCard>
+  );
+
+  return (
+    <div>
+      <Block
+        title="1 — Tracking Snippet"
+        desc="Paste this single line in the <head> of every page on AiRingDesk.com. It tracks page views, stores UTM parameters, and auto-binds to any marketing form with the attributes shown below."
+        code={snippet}
+        k="snippet"
+      />
+      <Block
+        title="2 — Lead Capture Form"
+        desc={`Add the data-rd-lead attribute to any existing contact/demo form. Field names "name", "email", "phone", "business", "message" are captured automatically. Submissions flow directly into the Leads tab.`}
+        code={leadForm}
+        k="lead"
+      />
+      <Block
+        title="3 — Newsletter Signup Form"
+        desc={`For newsletter forms, use data-rd-subscribe. Only the "email" field is required. Subscribers appear in the Subscribers tab and can be exported to CSV.`}
+        code={subForm}
+        k="sub"
+      />
+      <SectionCard title="How It Works">
+        <div style={{ fontSize:12, color:"#9ca3af", lineHeight:1.8 }}>
+          <div>• <strong style={{ color:"#e5e7eb" }}>Visitor lands on AiRingDesk.com</strong> — snippet fires, records pageview + UTM params in a first-party cookie.</div>
+          <div>• <strong style={{ color:"#e5e7eb" }}>Visitor browses</strong> — additional pageviews tracked, UTM context persists across pages.</div>
+          <div>• <strong style={{ color:"#e5e7eb" }}>Visitor submits a form</strong> — lead is stored with full context (source, campaign, landing page, referrer).</div>
+          <div>• <strong style={{ color:"#e5e7eb" }}>You review in Leads tab</strong> — update status (New → Contacted → Demo → Won), add notes, assign to team.</div>
+          <div>• <strong style={{ color:"#e5e7eb" }}>Lead converts to paying customer</strong> — link their lead record to the client for attribution reporting.</div>
+        </div>
+      </SectionCard>
+      <SectionCard title="Privacy & GDPR">
+        <div style={{ fontSize:12, color:"#9ca3af", lineHeight:1.8 }}>
+          The snippet uses a first-party cookie (<code style={{ color:"#60a5fa" }}>_rdv</code>) with a 1-year expiry, scoped to your own domain. Only page path, referrer, and UTM parameters are sent — no keystrokes, no session replay, no third-party trackers. Add a mention of first-party analytics to your privacy policy to stay compliant.
+        </div>
+      </SectionCard>
     </div>
   );
 }
