@@ -61,7 +61,7 @@ nav{background:#ffffff;border-bottom:1px solid #e2e8f0;padding:0 clamp(20px,4vw,
 .step-card{background:#ffffff;border:1px solid #dde4ed;box-shadow:0 2px 12px rgba(0,0,0,.04);border-radius:20px;padding:32px;margin-bottom:24px;position:relative;overflow:hidden;transition:box-shadow .2s}
 .step-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#00d4ff,#0066cc)}
 .step-card.completed::before{background:linear-gradient(90deg,#00e87a,#059669)}
-.step-card.locked{opacity:.5;pointer-events:none}
+.step-card.locked{opacity:1;pointer-events:none;background:#f8fafc;border-color:#e8edf3}.step-card.locked .step-num{background:#94a3b8}.step-card.locked .step-title{color:#94a3b8}.step-card.locked .step-sub{color:#b0bec5}.step-card.locked .step-body{opacity:.5}.step-card.locked .step-time{opacity:.5}
 .step-header{display:flex;align-items:center;gap:14px;margin-bottom:20px}
 .step-num{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .step-card.completed .step-num{background:linear-gradient(135deg,#00e87a,#059669)}
