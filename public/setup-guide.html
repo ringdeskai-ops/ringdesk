@@ -410,26 +410,85 @@ function toggleManual() {
   mq.classList.toggle('show');
 }
 
-function scrapeWebsite() {
+async function scrapeWebsite() {
   var url = document.getElementById('websiteUrl').value.trim();
-  if(!url) { alert('Please enter your website URL first'); return; }
-  var btn = event.target;
+  if(!url){ alert('Please enter your website URL first'); return; }
+  if(!url.startsWith('http')){ url = 'https://' + url; }
+  var btn = document.querySelector('.url-btn');
   btn.textContent = 'Importing...';
   btn.disabled = true;
-  // Simulate import — real API call will go here
-  setTimeout(function() {
+
+  var token = localStorage.getItem('rd_token') || sessionStorage.getItem('rd_token');
+  if(!token){
+    document.getElementById('resultBox').style.background='#fef2f2';
+    document.getElementById('resultBox').style.borderColor='#fecaca';
     document.getElementById('resultBox').classList.add('show');
-    document.getElementById('resultText').textContent = 'Aria has been trained based on your website at ' + url + '. You can review and edit her script anytime in your dashboard under AI Settings.';
+    document.getElementById('resultBox').querySelector('h4').textContent='⚠️ Please sign in first';
+    document.getElementById('resultBox').querySelector('h4').style.color='#dc2626';
+    document.getElementById('resultText').textContent='You need to be signed in to train your AI. Please create your account first.';
+    btn.textContent='Import →';btn.disabled=false;return;
+  }
+
+  try {
+    var res = await fetch('/api/scrape-website', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body: JSON.stringify({url})
+    });
+    var data = await res.json();
+    if(!res.ok) throw new Error(data.error || 'Failed');
+
+    document.getElementById('resultBox').classList.add('show');
+    document.getElementById('resultBox').querySelector('h4').textContent = '✅ Aria is trained!';
+    document.getElementById('resultText').textContent =
+      'Aria has been set up for ' + (data.extracted.business_name || 'your business') +
+      '. Services: ' + (data.extracted.services || 'detected from your site') +
+      '. You can review and edit her script anytime in your dashboard under AI Settings.';
     document.getElementById('step2btn').style.display = 'block';
-    btn.textContent = '✓ Imported';
+    btn.textContent = '✓ Done';
     btn.style.background = '#00e87a';
-  }, 2000);
+  } catch(err) {
+    alert('Error: ' + err.message);
+    btn.textContent = 'Import →';
+    btn.disabled = false;
+  }
 }
 
-function saveManual() {
-  document.getElementById('resultBox').classList.add('show');
-  document.getElementById('resultText').textContent = 'Aria has been trained based on your answers. You can review and edit her script anytime in your dashboard under AI Settings.';
-  document.getElementById('step2btn').style.display = 'block';
+async function saveManual() {
+  var qs = document.querySelectorAll('#manualQs textarea, #manualQs input');
+  var what = qs[0] ? qs[0].value.trim() : '';
+  var hours = qs[1] ? qs[1].value.trim() : '';
+  var enquiries = qs[2] ? qs[2].value.trim() : '';
+  var greeting = qs[3] ? qs[3].value.trim() : '';
+
+  if(!what){ alert('Please describe what your business does'); return; }
+
+  var token = localStorage.getItem('rd_token') || sessionStorage.getItem('rd_token');
+  if(!token){ alert('Please sign in first'); return; }
+
+  var btn = document.querySelector('#manualQs .step-btn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+
+  try {
+    var res = await fetch('/api/train-manual', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body: JSON.stringify({what_you_do:what, opening_hours:hours, common_enquiries:enquiries, greeting})
+    });
+    var data = await res.json();
+    if(!res.ok) throw new Error(data.error || 'Failed');
+
+    document.getElementById('resultBox').classList.add('show');
+    document.getElementById('resultBox').querySelector('h4').textContent = '✅ Aria is trained!';
+    document.getElementById('resultText').textContent = 'Aria has been set up based on your answers. You can review and edit her script anytime in your dashboard under AI Settings.';
+    document.getElementById('step2btn').style.display = 'block';
+    btn.textContent = '✓ Saved';
+    btn.style.background = '#00e87a';
+  } catch(err) {
+    alert('Error: ' + err.message);
+    btn.textContent = 'Save & continue →';
+    btn.disabled = false;
+  }
 }
 </script>
 </body>
