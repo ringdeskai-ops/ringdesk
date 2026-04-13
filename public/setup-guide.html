@@ -225,7 +225,10 @@ footer{background:#fff;border-top:1px solid #e2e8f0;padding:24px clamp(20px,5vw,
       </div>
       <div class="step-tip"><span class="tip-icon">💡</span><span>Check your spam folder for the verification email if you don't see it within 1 minute.</span></div>
     </div>
-    <button class="step-btn" onclick="completeStep(1)">I've created my account →</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px">
+    <a href="/?signup=1" class="step-btn" style="display:block;text-align:center;text-decoration:none;padding:14px">Create my account →</a>
+    <button class="step-btn" style="background:#f4f7fb;color:#0a1628;border:1px solid #dde4ed;box-shadow:none" onclick="completeStep(1)">I already have an account ✓</button>
+  </div>
   </div>
 
   <!-- STEP 2 -->
