@@ -167,7 +167,12 @@ function goStep(n){
   if(panel)panel.classList.add('active');
   // Fire Google Ads conversion when user reaches Step 5 (signup complete)
   if(n===5 && typeof gtag !== 'undefined'){
-    gtag('event', 'conversion_event_begin_checkout');
+    gtag('event', 'conversion_event_purchase', {
+      value: window._selectedPlan === 'starter' ? 49 :
+             window._selectedPlan === 'professional' ? 149 :
+             window._selectedPlan === 'business' ? 349 : 29,
+      currency: 'GBP'
+    });
   }
   for(let i=1;i<=5;i++){
     const d=document.getElementById('sd'+i);
