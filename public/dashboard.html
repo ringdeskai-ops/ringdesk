@@ -369,6 +369,10 @@ tr:hover td{background:rgba(255,255,255,.015)}
           <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
           Revenue
         </button>
+        <button class="nav-btn" onclick="showPage('marketing')">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Marketing
+        </button>
       </div>
     </nav>
 
@@ -777,6 +781,67 @@ tr:hover td{background:rgba(255,255,255,.015)}
       </div>
     </div>
 
+
+    <div class="page" id="page-marketing">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Marketing <em>Dashboard</em></div>
+          <div class="page-sub">Leads, subscribers, and site analytics</div>
+        </div>
+        <div class="header-actions">
+          <button class="btn-sm btn-cyan-sm" onclick="loadMarketing()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+      <div class="stats-row" id="mktStats">
+        <div class="stat-card"><div class="stat-val" id="mktLeadsTotal" style="color:var(--cyan)">—</div><div class="stat-label">Total Leads</div></div>
+        <div class="stat-card"><div class="stat-val" id="mktLeadsNew" style="color:var(--green)">—</div><div class="stat-label">New (this week)</div></div>
+        <div class="stat-card"><div class="stat-val" id="mktSubscribers" style="color:var(--purple)">—</div><div class="stat-label">Subscribers</div></div>
+        <div class="stat-card"><div class="stat-val" id="mktEvents24h" style="color:var(--amber)">—</div><div class="stat-label">Events (24h)</div></div>
+        <div class="stat-card"><div class="stat-val" id="mktConversion" style="color:var(--green)">—</div><div class="stat-label">Conversion Rate</div></div>
+      </div>
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header">
+          <div><div class="table-title">Leads Pipeline</div><div class="table-sub">All captured leads from your website</div></div>
+          <div class="table-actions">
+            <select id="mktLeadFilter" onchange="loadMarketing()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:12px;font-family:var(--font-body)">
+              <option value="">All statuses</option>
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="qualified">Qualified</option>
+              <option value="converted">Converted</option>
+              <option value="lost">Lost</option>
+            </select>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Name</th><th>Email</th><th>Business</th><th>Source</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+            <tbody id="mktLeadsBody"><tr><td colspan="7" style="text-align:center;padding:40px;color:var(--dim)">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="table-card" style="margin-bottom:20px">
+        <div class="table-header"><div><div class="table-title">Newsletter Subscribers</div><div class="table-sub">Email subscribers from your website</div></div></div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Email</th><th>Status</th><th>Subscribed</th></tr></thead>
+            <tbody id="mktSubsBody"><tr><td colspan="3" style="text-align:center;padding:40px;color:var(--dim)">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-header"><div><div class="table-title">Recent Events</div><div class="table-sub">Pageviews and form submissions (last 24h)</div></div></div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Type</th><th>Page / Detail</th><th>Source</th><th>Time</th></tr></thead>
+            <tbody id="mktEventsBody"><tr><td colspan="4" style="text-align:center;padding:40px;color:var(--dim)">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </main>
 
   <!-- Call detail panel -->
@@ -1285,6 +1350,72 @@ function showPage(name) {
   closeDetail();
   if (name === 'calls') renderCalls();
   if (name === 'leads') renderLeads();
+  if (name === 'marketing') loadMarketing();
+}
+
+// ── MARKETING DASHBOARD ───────────────────────────────────────────
+async function loadMarketing() {
+  const token = localStorage.getItem("rd_token") || sessionStorage.getItem("rd_token");
+  const headers = { "Authorization": "Bearer " + token };
+  try {
+    const statsRes = await fetch("/api/marketing/stats", { headers });
+    if (statsRes.ok) {
+      const stats = await statsRes.json();
+      document.getElementById("mktLeadsTotal").textContent = stats.total_leads || 0;
+      document.getElementById("mktLeadsNew").textContent = stats.new_leads_7d || 0;
+      document.getElementById("mktSubscribers").textContent = stats.total_subscribers || 0;
+      document.getElementById("mktEvents24h").textContent = stats.events_24h || 0;
+      document.getElementById("mktConversion").textContent = (stats.conversion_rate || 0) + "%";
+    }
+    const filter = document.getElementById("mktLeadFilter") ? document.getElementById("mktLeadFilter").value : "";
+    const leadsUrl = "/api/marketing/leads" + (filter ? "?status=" + filter : "");
+    const leadsRes = await fetch(leadsUrl, { headers });
+    if (leadsRes.ok) {
+      const leads = await leadsRes.json();
+      const tbody = document.getElementById("mktLeadsBody");
+      if (!leads.length) {
+        tbody.innerHTML = "<tr><td colspan=7 style=text-align:center;padding:40px;color:var(--dim)>No leads yet</td></tr>";
+      } else {
+        tbody.innerHTML = leads.map(function(l) {
+          var sc = {new:"cyan",contacted:"amber",qualified:"blue",converted:"green",lost:"red"}[l.status] || "cyan";
+          var dt = l.created_at ? new Date(l.created_at).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : "—";
+          return "<tr><td style=font-weight:600>" + (l.name||"—") + "</td><td>" + (l.email||"—") + "</td><td>" + (l.business||"—") + "</td><td style=font-size:11px;color:var(--muted)>" + (l.source||"direct") + "</td><td><span style=\"display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;color:var(--" + sc + ");text-transform:capitalize\">" + (l.status||"new") + "</span></td><td style=font-size:12px;color:var(--muted)>" + dt + "</td><td><select onchange=\"updateLeadStatus(\x27" + l.id + "\x27,this.value)\" style=\"padding:4px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--surface2);color:var(--text);font-size:11px\">" + ["new","contacted","qualified","converted","lost"].map(function(s){return "<option value=" + s + (s===l.status?" selected":"") + ">" + s.charAt(0).toUpperCase()+s.slice(1) + "</option>";}).join("") + "</select></td></tr>";
+        }).join("");
+      }
+    }
+    const subsRes = await fetch("/api/marketing/subscribers", { headers });
+    if (subsRes.ok) {
+      const subs = await subsRes.json();
+      var stb = document.getElementById("mktSubsBody");
+      if (!subs.length) { stb.innerHTML = "<tr><td colspan=3 style=text-align:center;padding:40px;color:var(--dim)>No subscribers yet</td></tr>"; }
+      else { stb.innerHTML = subs.map(function(s) {
+        var dt = s.created_at ? new Date(s.created_at).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : "—";
+        var ac = s.status==="active";
+        return "<tr><td>"+s.email+"</td><td><span style=\"display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;color:"+(ac?"var(--green)":"var(--red)")+"\">"+s.status+"</span></td><td style=font-size:12px;color:var(--muted)>"+dt+"</td></tr>";
+      }).join(""); }
+    }
+    const evRes = await fetch("/api/marketing/events?limit=50", { headers });
+    if (evRes.ok) {
+      const events = await evRes.json();
+      var etb = document.getElementById("mktEventsBody");
+      if (!events.length) { etb.innerHTML = "<tr><td colspan=4 style=text-align:center;padding:40px;color:var(--dim)>No events yet</td></tr>"; }
+      else { etb.innerHTML = events.map(function(e) {
+        var tm = e.created_at ? new Date(e.created_at).toLocaleString("en-GB",{day:"2-digit",month:"short",hour:"2-digit",minute:"2-digit"}) : "—";
+        return "<tr><td style=font-size:11px;font-weight:600>"+(e.event_type||"—")+"</td><td style=font-size:12px>"+(e.page||e.metadata||"—")+"</td><td style=font-size:11px;color:var(--muted)>"+(e.source||"direct")+"</td><td style=font-size:12px;color:var(--muted)>"+tm+"</td></tr>";
+      }).join(""); }
+    }
+  } catch(err) { console.error("Marketing load error:", err); }
+}
+async function updateLeadStatus(id, status) {
+  const token = localStorage.getItem("rd_token") || sessionStorage.getItem("rd_token");
+  try {
+    await fetch("/api/marketing/leads/" + id, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+      body: JSON.stringify({ status: status })
+    });
+    loadMarketing();
+  } catch(err) { console.error("Status update error:", err); }
 }
 
 // ── HELPERS ───────────────────────────────────────────────────────────

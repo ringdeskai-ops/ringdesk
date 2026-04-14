@@ -16,3 +16,4 @@ public/og-image-*.jpg
 ecosystem.config.js
 *.bak-*
 cleanup-*.js
+*.backup-*

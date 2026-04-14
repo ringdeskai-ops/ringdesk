@@ -6379,6 +6379,10 @@ app.use("/api/admin", require("./routes/admin")(db, sendBrevoEmail));
 app.use("/api/referral", require("./routes/referral")(db, sendBrevoEmail));
 // routes registered below
 app.use("/api/gc", gcRouter);
+
+// ── Marketing platform (additive — does not touch existing code) ──
+const marketingRouter = require("./routes/marketing")(db);
+app.use("/api/marketing", marketingRouter);
 app.use("/api/blog", blogRouter);
 
 // Blog static assets (images etc)
