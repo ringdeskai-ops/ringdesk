@@ -6771,7 +6771,7 @@ wss.on('connection', (ws) => {
   let silenceTimer = null;
   let processingReply = false;
 
-  const SILENCE_MS = 600; // wait 0.6s of silence before processing
+  const SILENCE_MS = 800; // wait 0.8s of silence before processing (Deepgram guide: tolerate natural pauses)
 
   function resetSilenceTimer() {
     if (silenceTimer) clearTimeout(silenceTimer);
@@ -6921,7 +6921,7 @@ wss.on('connection', (ws) => {
           'SatFocus','Hikvision','Dahua','Texecom','Pyronix','Ajax',
           'Harrow','Balmoral','Wembley','Stanmore','Pinner','Ruislip','Uxbridge'
         ].map(k => `keyterm=${encodeURIComponent(k)}`).join('&');
-        const dgUrl = `wss://api.deepgram.com/v1/listen?model=nova-3&language=en&encoding=mulaw&sample_rate=8000&channels=1&punctuate=true&interim_results=true&endpointing=300&smart_format=true&no_delay=true&utterance_end_ms=1000&${keyterms}`;
+        const dgUrl = `wss://api.deepgram.com/v1/listen?model=nova-3&language=en&encoding=mulaw&sample_rate=8000&channels=1&punctuate=true&interim_results=true&endpointing=400&smart_format=true&no_delay=true&utterance_end_ms=1500&filler_words=true&${keyterms}`;
         dgConnection = new WebSocket(dgUrl, { headers: { Authorization: `Token ${process.env.DEEPGRAM_API_KEY}` } });
 
         dgConnection.on('open', () => console.log(`[Deepgram] Connected to Deepgram for ${callSid}`));
