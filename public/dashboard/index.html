@@ -29,7 +29,7 @@ body.light-mode {
   --bg:#ffffff;
   --black:#f4f7fb;--surface:#ffffff;--surface2:#f8fafc;--surface3:#f1f5f9;
   --border:rgba(15,23,42,0.08);--border2:rgba(15,23,42,0.13);
-  --text:#0f172a;--muted:#475569;--dim:#cbd5e1;
+  --text:#0f172a;--muted:#475569;--dim:#94a3b8;
   --cyan:#0077aa;--cyan2:#005f8a;--blue:#0052cc;
   --green:#047857;--amber:#b45309;--red:#dc2626;--purple:#6d28d9;
   --grad:linear-gradient(135deg,#0077aa,#0052cc);
@@ -38,21 +38,23 @@ body.light-mode .sidebar{background:#ffffff !important;border-right:1px solid rg
 body.light-mode .sidebar-header{border-bottom:1px solid rgba(15,23,42,0.08)}
 body.light-mode .sidebar-footer{border-top:1px solid rgba(15,23,42,0.08)}
 body.light-mode .sidebar-logo-text .ai{color:#0077aa}
-body.light-mode .sidebar-logo-text .desk{color:#94a3b8}
+body.light-mode .sidebar-logo-text .desk{color:#64748b}
+body.light-mode .sidebar-logo-text .ring{color:#0f172a}
 body.light-mode .sidebar-role{color:#0077aa}
-body.light-mode .sidebar-biz{color:#94a3b8}
-body.light-mode .nav-section-label{color:#94a3b8}
+body.light-mode .sidebar-biz{color:#64748b}
+body.light-mode .nav-section-label{color:#64748b;font-weight:800}
 body.light-mode .nav-btn{color:#475569}
 body.light-mode .nav-btn:hover{background:rgba(15,23,42,0.04);color:#0f172a}
 body.light-mode .nav-btn.active{background:rgba(0,119,170,0.08);color:#0077aa}
 body.light-mode .nav-btn.active::before{background:#0077aa}
 body.light-mode .nav-badge{background:rgba(0,119,170,0.1);color:#0077aa}
-body.light-mode .nav-icon{opacity:.6}
+body.light-mode .nav-icon{opacity:.75}
 body.light-mode .nav-btn.active .nav-icon{opacity:1}
 body.light-mode .phone-badge{background:rgba(4,120,87,0.05);border-color:rgba(4,120,87,0.15)}
 body.light-mode .phone-num{color:#047857}
 body.light-mode .phone-pulse{background:#047857;box-shadow:0 0 8px #047857}
-body.light-mode .logout-btn{border-color:rgba(15,23,42,0.1);color:#94a3b8}
+body.light-mode .phone-label{color:#64748b}
+body.light-mode .logout-btn{border-color:rgba(15,23,42,0.12);color:#64748b}
 body.light-mode .logout-btn:hover{color:#0f172a;border-color:rgba(15,23,42,0.2)}
 body.light-mode .page-title em{color:#0077aa}
 body.light-mode .stat-card{background:#ffffff;border-color:rgba(15,23,42,0.08);box-shadow:0 1px 3px rgba(15,23,42,0.04)}
@@ -81,6 +83,7 @@ body.light-mode .mob-nav-btn.active{color:#0077aa}
 body.light-mode select{background:#f8fafc;color:#0f172a}
 body.light-mode .detail-overlay{background:rgba(15,23,42,0.3)}
 body.light-mode .detail-panel{background:#ffffff;border-left-color:rgba(15,23,42,0.08)}
+body.light-mode #globeCanvas{background:#1a2942!important;box-shadow:0 2px 20px rgba(15,23,42,0.12)}
 /* END LIGHT MODE */
 
 /* ── AUTH SCREENS ──────────────────────────────────────────────── */
@@ -572,7 +575,7 @@ select option{background-color:#0c1520;color:#f0f6ff}
       <div class="form-group"><label class="form-label">Contact phone *</label><input class="form-input" type="tel" id="signupPhone" placeholder="+44 7700 900000" autocomplete="tel"/></div>
       <div class="form-group"><label class="form-label">Email address *</label><input class="form-input" type="email" id="signupEmail" placeholder="you@yourbusiness.com" autocomplete="email"/></div>
       <div class="form-group"><label class="form-label">Password *</label><input class="form-input" type="password" id="signupPass" placeholder="Min. 8 characters" autocomplete="new-password"/></div>
-      <div class="form-group"><label class="form-label">Country *</label><select class="form-input" id="signupCountry" style="cursor:pointer;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-color:#080e18;background-image:url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"%235a7a9a\" stroke-width=\"2\"><polyline points=\"6 9 12 15 18 9\"/></svg>');background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;color:#f0f6ff;border:1px solid rgba(255,255,255,0.10);"><option value="GB">🇬🇧 United Kingdom</option><option value="IE">🇮🇪 Ireland</option><option value="US">🇺🇸 United States</option><option value="AU">🇦🇺 Australia</option><option value="CA">🇨🇦 Canada</option><option value="DE">🇩🇪 Germany</option><option value="FR">🇫🇷 France</option><option value="NL">🇳🇱 Netherlands</option><option value="ES">🇪🇸 Spain</option><option value="IT">🇮🇹 Italy</option><option value="CH">🇨🇭 Switzerland</option><option value="NZ">🇳🇿 New Zealand</option><option value="SG">🇸🇬 Singapore</option><option value="AE">🇦🇪 UAE</option><option value="IN">🇮🇳 India</option><option value="ZA">🇿🇦 South Africa</option></select></div>
+      <div class="form-group"><label class="form-label">Country *</label><select class="form-input" id="signupCountry" style="cursor:pointer;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-color:var(--surface2);background-image:url('data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"%235a7a9a\" stroke-width=\"2\"><polyline points=\"6 9 12 15 18 9\"/></svg>');background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;color:#f0f6ff;border:1px solid rgba(255,255,255,0.10);"><option value="GB">🇬🇧 United Kingdom</option><option value="IE">🇮🇪 Ireland</option><option value="US">🇺🇸 United States</option><option value="AU">🇦🇺 Australia</option><option value="CA">🇨🇦 Canada</option><option value="DE">🇩🇪 Germany</option><option value="FR">🇫🇷 France</option><option value="NL">🇳🇱 Netherlands</option><option value="ES">🇪🇸 Spain</option><option value="IT">🇮🇹 Italy</option><option value="CH">🇨🇭 Switzerland</option><option value="NZ">🇳🇿 New Zealand</option><option value="SG">🇸🇬 Singapore</option><option value="AE">🇦🇪 UAE</option><option value="IN">🇮🇳 India</option><option value="ZA">🇿🇦 South Africa</option></select></div>
       <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;padding:12px 14px;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.15);border-radius:8px">
         <input type="checkbox" id="tosCheckbox" style="margin-top:2px;accent-color:#00d4ff;flex-shrink:0;width:16px;height:16px;cursor:pointer"/>
         <label for="tosCheckbox" style="font-size:12px;color:var(--muted);line-height:1.6;cursor:pointer">
@@ -3261,7 +3264,7 @@ Dedicated account manager</textarea></div>
           </div>
           <div class="form-group">
             <label class="form-label">Address Type *</label>
-            <select class="form-input" id="accAddrType" style="cursor:pointer;appearance:none;-webkit-appearance:none;background-color:#080e18;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%235a7a9a" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>');background-repeat:no-repeat;background-position:right 14px center;padding-right:36px">
+            <select class="form-input" id="accAddrType" style="cursor:pointer;appearance:none;-webkit-appearance:none;background-color:var(--surface2);background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="%235a7a9a" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>');background-repeat:no-repeat;background-position:right 14px center;padding-right:36px">
               <option value="business">🏢 Business Address</option>
               <option value="residential">🏠 Residential (home-based business)</option>
             </select>
@@ -3563,7 +3566,7 @@ Dedicated account manager</textarea></div>
               <span id="globeLiveCount" style="font-size:12px;font-weight:700;color:#00e87a">0 live</span>
             </div>
           </div>
-          <canvas id="globeCanvas" width="360" height="360" style="display:block;margin:0 auto;border-radius:50%;background:#030c14"></canvas>
+          <canvas id="globeCanvas" width="360" height="360" style="display:block;margin:0 auto;border-radius:50%;background:var(--surface)"></canvas>
         </div>
         <div style="background:linear-gradient(135deg,var(--surface2),var(--surface));border:1px solid rgba(0,212,255,.12);border-radius:16px;padding:20px">
           <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px">📍 Visitor Activity</div>

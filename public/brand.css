@@ -72,3 +72,28 @@ footer{background:var(--surface)!important;border-top:1px solid rgba(0,212,255,.
 .toggle-switch.annual .toggle-thumb{left:25px}
 .annual-badge{background:rgba(0,232,122,.12);border:1px solid rgba(0,232,122,.25);border-radius:100px;padding:3px 10px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:.04em}
 @media(max-width:600px){.plans{grid-template-columns:1fr!important}}
+
+/* LIGHT MODE THEME SWITCHER */
+body.light-mode{
+  --black:#f4f7fb;--bg:#f4f7fb;--surface:#ffffff;--surface2:#f8fafc;--surface3:#f1f5f9;
+  --border:rgba(15,23,42,0.08);--border2:rgba(15,23,42,0.13);--border3:rgba(15,23,42,0.18);
+  --text:#0f172a;--muted:#475569;--dim:#cbd5e1;
+  --cyan:#0077aa;--blue:#0052cc;--green:#047857;--amber:#b45309;--purple:#6d28d9;--red:#dc2626;
+  --grad-cyan:linear-gradient(135deg,#0077aa,#0052cc);
+}
+body.light-mode{background:var(--bg)!important}
+body.light-mode nav{background:rgba(255,255,255,0.97)!important;border-bottom:1px solid rgba(15,23,42,0.08)!important}
+body.light-mode .btn-ghost{background:rgba(15,23,42,.04)!important;color:#0f172a!important;border:1px solid rgba(15,23,42,.12)!important}
+body.light-mode .btn-ghost:hover{background:rgba(15,23,42,.08)!important;border-color:rgba(15,23,42,.2)!important;color:#0077aa!important}
+body.light-mode footer{background:#ffffff!important;border-top:1px solid rgba(15,23,42,0.08)!important}
+body.light-mode .feat-card{background:linear-gradient(135deg,#f8fafc 0%,#ffffff 100%)!important;border:1px solid rgba(15,23,42,.08)!important}
+body.light-mode .feat-card:hover{border-color:rgba(0,119,170,.25)!important;box-shadow:0 16px 40px rgba(15,23,42,.08)}
+body.light-mode .plan{background:linear-gradient(135deg,#f8fafc 0%,#ffffff 100%)!important;border-color:rgba(15,23,42,.08)}
+body.light-mode .plan:hover{box-shadow:0 32px 64px rgba(15,23,42,.08),0 0 40px rgba(0,119,170,.04);border-color:rgba(0,119,170,.15)}
+body.light-mode .plan.pop{border-color:rgba(0,119,170,.35);background:linear-gradient(135deg,rgba(0,119,170,.04) 0%,#ffffff 100%)!important}
+body.light-mode .ind-chip{background:#f8fafc!important;border:1px solid rgba(15,23,42,.08)!important}
+body.light-mode .ind-chip:hover{border-color:rgba(0,119,170,.35)!important;color:#0077aa!important;background:rgba(0,119,170,.04)!important}
+body.light-mode .cta-section{background:linear-gradient(135deg,rgba(0,119,170,.03),rgba(0,82,204,.02))!important;border-top:1px solid rgba(15,23,42,.06)!important}
+body.light-mode .location-section{background:#ffffff!important;border-color:rgba(15,23,42,.08)!important}
+body.light-mode h1 em,body.light-mode h2 em{filter:none}
+/* END LIGHT MODE */
