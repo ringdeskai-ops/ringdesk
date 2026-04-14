@@ -29,7 +29,7 @@ body.light-mode {
   --bg:#ffffff;
   --black:#f4f7fb;--surface:#ffffff;--surface2:#f8fafc;--surface3:#f1f5f9;
   --border:rgba(15,23,42,0.08);--border2:rgba(15,23,42,0.13);
-  --text:#0f172a;--muted:#475569;--dim:#94a3b8;
+  --text:#0f172a;--muted:#475569;--dim:#64748b;
   --cyan:#0077aa;--cyan2:#005f8a;--blue:#0052cc;
   --green:#047857;--amber:#b45309;--red:#dc2626;--purple:#6d28d9;
   --grad:linear-gradient(135deg,#0077aa,#0052cc);
@@ -427,7 +427,7 @@ tr:hover td{background:rgba(255,255,255,.015)}
 
 /* Select dark theme fix */
 select.form-input,select{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-color:#080e18;color:#f0f6ff}
-select option{background-color:#0c1520;color:#f0f6ff}
+select option{background-color:var(--surface);color:var(--text)}
 
 /* Scrollbar */
 ::-webkit-scrollbar{width:4px}
@@ -6987,7 +6987,7 @@ function renderIncidents() {
       + '<div id="incBody_' + idx + '" style="display:none;padding:0 20px 20px 60px;border-top:1px solid var(--border)">'
       + (inc.symptom ? '<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;font-family:monospace;margin:14px 0 5px">Symptom</div><p style="font-size:13px;color:var(--muted);line-height:1.6">' + inc.symptom + '</p>' : '')
       + (inc.cause ? '<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;font-family:monospace;margin:14px 0 5px">Root Cause</div><p style="font-size:13px;color:var(--muted);line-height:1.6">' + inc.cause + '</p>' : '')
-      + (inc.fix ? '<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;font-family:monospace;margin:14px 0 5px">Fix</div><pre style="background:#040a10;border:1px solid var(--border);border-left:3px solid #00d4ff;border-radius:8px;padding:12px;font-size:11px;color:#a8d8ea;line-height:1.7;overflow-x:auto;white-space:pre-wrap;word-break:break-word">' + inc.fix + '</pre>' : '')
+      + (inc.fix ? '<div style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;font-family:monospace;margin:14px 0 5px">Fix</div><pre style="background:var(--surface3);border:1px solid var(--border);border-left:3px solid #00d4ff;border-radius:8px;padding:12px;font-size:11px;color:#a8d8ea;line-height:1.7;overflow-x:auto;white-space:pre-wrap;word-break:break-word">' + inc.fix + '</pre>' : '')
       + (inc.warning ? '<div style="background:rgba(255,179,0,.05);border:1px solid rgba(255,179,0,.2);border-radius:8px;padding:12px;margin-top:10px"><div style="font-size:10px;color:#ffb300;text-transform:uppercase;letter-spacing:.08em;font-family:monospace;margin-bottom:5px">Warning</div><p style="font-size:13px;color:var(--muted)">' + inc.warning + '</p></div>' : '')
       + '</div></div>';
   }).join('');
