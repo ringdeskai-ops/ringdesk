@@ -1937,7 +1937,7 @@ async function triggerPostCallSMS(client, callerNumber, callType, callerName, su
 
   // After call summary SMS
   if (callType === 'completed' && client.sms_after_call && summary) {
-    const body = 'Call summary from ' + (client.ai_name||'Aria') + ': ' + summary.substring(0, 140);
+    const body = "Call from " + (callerName || "Unknown") + " (" + (callerNumber || "No number") + ")\n" + (client.ai_name||"Aria") + " summary: " + summary.substring(0, 300);
     await sendSMS(client.id, client.contact_phone || client.mobile_phone || client.work_phone, body, 'after_call');
   }
 
