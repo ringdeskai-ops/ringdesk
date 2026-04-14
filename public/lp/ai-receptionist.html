@@ -177,6 +177,9 @@ body{background:var(--bg);color:var(--navy);font-family:-apple-system,BlinkMacSy
   .lp-form-grid{grid-template-columns:1fr}
   .proof-div{display:none}
 }
+
+.lp-faq-item.open .lp-faq-ans{max-height:200px !important;padding-top:10px}
+.lp-faq-item.open .lp-faq-arr{transform:rotate(45deg);color:#0066cc}
 </style>
 </head>
 <body>
@@ -376,48 +379,128 @@ body{background:var(--bg);color:var(--navy);font-family:-apple-system,BlinkMacSy
 </div>
 
 <!-- PRICING -->
-<div class="lp-pricing">
+<div class="lp-pricing" style="max-width:1200px">
   <div class="lp-section-label">Simple pricing</div>
   <h2 class="lp-section-h">One flat monthly fee.<br>No surprises.</h2>
-  <p style="font-size:16px;color:var(--muted);line-height:1.7">No setup fees. No per-minute charges. No contracts. Cancel anytime.</p>
-  <div class="lp-price-card">
-    <div class="lp-price-badge">Most popular</div>
-    <div class="lp-price-val"><sup>£</sup>49<sub>/mo</sub></div>
-    <div class="lp-price-vat">+ VAT · 14-day free trial</div>
-    <ul class="lp-price-feats">
-      <li>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        300 calls per month
-      </li>
-      <li>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        1 UK phone number included
-      </li>
-      <li>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        AI answering 24/7
-      </li>
-      <li>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Call transcripts & summaries
-      </li>
-      <li>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Voicemail + recordings
-      </li>
-      <li>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Smart call transfers
-      </li>
-      <li>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        Full dashboard & leads tracker
-      </li>
-    </ul>
-    <button class="lp-submit" onclick="openModal('starter')">Start your free 14-day trial →</button>
-    <p style="font-size:12px;color:var(--dim);margin-top:12px;text-align:center">Card required — no charge for 14 days</p>
+  <p class="lp-section-sub" style="margin:0 auto 32px">No setup fees. No per-minute charges. No contracts. Cancel anytime.</p>
+
+  <!-- Plan switcher -->
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;text-align:left;margin-bottom:32px">
+
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;position:relative">
+      <div style="font-size:12px;font-weight:700;color:#64748b;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">Essential</div>
+      <div style="font-size:36px;font-weight:800;color:#0a1628;letter-spacing:-1.5px"><sup style="font-size:18px">£</sup>29<sub style="font-size:13px;color:#94a3b8">/mo</sub></div>
+      <div style="font-size:11px;color:#94a3b8;margin:4px 0 12px">+ VAT</div>
+      <div style="font-size:12px;font-weight:700;color:#0066cc;padding:6px 10px;background:#e8f8ff;border-radius:7px;margin-bottom:14px">150 calls per month</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ 1 UK phone number</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ AI answering 24/7</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ Email notifications</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ Call transcripts</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0">✓ 14-day free trial</div>
+      <button onclick="openModal('essential')" style="width:100%;margin-top:16px;padding:11px;background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer">Start free trial →</button>
+    </div>
+
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;position:relative">
+      <div style="font-size:12px;font-weight:700;color:#64748b;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">Starter</div>
+      <div style="font-size:36px;font-weight:800;color:#0a1628;letter-spacing:-1.5px"><sup style="font-size:18px">£</sup>49<sub style="font-size:13px;color:#94a3b8">/mo</sub></div>
+      <div style="font-size:11px;color:#94a3b8;margin:4px 0 12px">+ VAT</div>
+      <div style="font-size:12px;font-weight:700;color:#0066cc;padding:6px 10px;background:#e8f8ff;border-radius:7px;margin-bottom:14px">300 calls per month</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ Everything in Essential</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ Voicemail + recordings</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ Call dashboard & leads</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0">✓ Referral programme</div>
+      <button onclick="openModal('starter')" style="width:100%;margin-top:16px;padding:11px;background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer">Start free trial →</button>
+    </div>
+
+    <div style="background:#fff;border:2px solid #00d4ff;border-radius:16px;padding:24px;position:relative;box-shadow:0 4px 24px rgba(0,212,255,.12)">
+      <div style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;font-size:9px;font-weight:800;padding:4px 14px;border-radius:100px;white-space:nowrap;letter-spacing:.06em">MOST POPULAR</div>
+      <div style="font-size:12px;font-weight:700;color:#64748b;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">Professional</div>
+      <div style="font-size:36px;font-weight:800;color:#0a1628;letter-spacing:-1.5px"><sup style="font-size:18px">£</sup>149<sub style="font-size:13px;color:#94a3b8">/mo</sub></div>
+      <div style="font-size:11px;color:#94a3b8;margin:4px 0 12px">+ VAT</div>
+      <div style="font-size:12px;font-weight:700;color:#0066cc;padding:6px 10px;background:#e8f8ff;border-radius:7px;margin-bottom:14px">1,000 calls per month</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ Everything in Starter</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ Appointment booking</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ Custom AI personality</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ Google Calendar</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0">✓ Priority support</div>
+      <button onclick="openModal('professional')" style="width:100%;margin-top:16px;padding:11px;background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer">Start free trial →</button>
+    </div>
+
+    <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;position:relative">
+      <div style="font-size:12px;font-weight:700;color:#64748b;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">Business</div>
+      <div style="font-size:36px;font-weight:800;color:#0a1628;letter-spacing:-1.5px"><sup style="font-size:18px">£</sup>349<sub style="font-size:13px;color:#94a3b8">/mo</sub></div>
+      <div style="font-size:11px;color:#94a3b8;margin:4px 0 12px">+ VAT</div>
+      <div style="font-size:12px;font-weight:700;color:#0066cc;padding:6px 10px;background:#e8f8ff;border-radius:7px;margin-bottom:14px">5,000 calls per month</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ Everything in Pro</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ AI voice selector</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ CRM & webhooks</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0;border-bottom:1px solid #f1f5f9">✓ 2 phone numbers</div>
+      <div style="font-size:12px;color:#475569;padding:4px 0">✓ Account manager</div>
+      <button onclick="openModal('business')" style="width:100%;margin-top:16px;padding:11px;background:linear-gradient(135deg,#00d4ff,#0066cc);color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer">Start free trial →</button>
+    </div>
+
   </div>
-  <p style="font-size:13px;color:var(--dim);margin-top:16px">Plans from £29/month. <a href="/#pricing" style="color:var(--blue)">View all plans →</a></p>
+  <p style="font-size:12px;color:#94a3b8">All plans include a 14-day free trial. Card required — no charge during trial. All prices exclude VAT.</p>
+</div>
+
+<!-- COMPARISON TABLE -->
+<div style="padding:80px clamp(20px,5vw,60px);background:#f8fafc">
+  <div style="max-width:900px;margin:0 auto;text-align:center">
+    <div class="lp-section-label">Comparison</div>
+    <h2 class="lp-section-h">Why choose AiRingDesk?</h2>
+    <p style="font-size:13px;color:#94a3b8;margin-bottom:32px">Competitor pricing sourced from public websites. Prices correct as of March 2026.</p>
+    <div style="overflow-x:auto">
+    <table style="width:100%;border-collapse:collapse;font-size:13px;text-align:left">
+      <thead>
+        <tr>
+          <th style="padding:12px 16px;border-bottom:2px solid #e2e8f0;color:#94a3b8;font-size:11px;letter-spacing:.06em;text-transform:uppercase">Feature</th>
+          <th style="padding:12px 16px;border-bottom:2px solid #e2e8f0;background:#e8f8ff;color:#0066cc;font-size:11px;letter-spacing:.06em;text-transform:uppercase;border-radius:8px 8px 0 0">AiRingDesk</th>
+          <th style="padding:12px 16px;border-bottom:2px solid #e2e8f0;color:#94a3b8;font-size:11px;letter-spacing:.06em;text-transform:uppercase">Smith.ai</th>
+          <th style="padding:12px 16px;border-bottom:2px solid #e2e8f0;color:#94a3b8;font-size:11px;letter-spacing:.06em;text-transform:uppercase">Goodcall</th>
+          <th style="padding:12px 16px;border-bottom:2px solid #e2e8f0;color:#94a3b8;font-size:11px;letter-spacing:.06em;text-transform:uppercase">Dialzara</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#64748b">Starting price</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;background:#f8fcff;font-weight:600;color:#0a1628">£29/mo + VAT</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#64748b">$95/mo</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#64748b">$59/mo</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#64748b">$29/mo</td></tr>
+        <tr><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#64748b">AI technology</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;background:#f8fcff;font-weight:600;color:#0a1628">Claude AI (Anthropic)</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#64748b">Proprietary</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#64748b">GPT-4</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#64748b">GPT</td></tr>
+        <tr><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#64748b">UK phone numbers</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;background:#f8fcff;font-weight:700;color:#00e87a">✓</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#dc2626">✗</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#dc2626">✗</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#dc2626">✗</td></tr>
+        <tr><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#64748b">Flat monthly pricing</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;background:#f8fcff;font-weight:700;color:#00e87a">✓</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#dc2626">✗ Per minute</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#00e87a">✓</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#00e87a">✓</td></tr>
+        <tr><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#64748b">14-day free trial</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;background:#f8fcff;font-weight:700;color:#00e87a">✓</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#dc2626">✗</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#00e87a">✓</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#f59e0b">7 days</td></tr>
+        <tr><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#64748b">Self-serve signup</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;background:#f8fcff;font-weight:700;color:#00e87a">✓</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#dc2626">✗ Sales call</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#00e87a">✓</td><td style="padding:11px 16px;border-bottom:1px solid #f1f5f9;color:#00e87a">✓</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ SECTION -->
+<div style="padding:80px clamp(20px,5vw,60px);background:#fff">
+  <div style="max-width:720px;margin:0 auto">
+    <div class="lp-section-label">FAQ</div>
+    <h2 class="lp-section-h">Common questions</h2>
+    <div style="margin-top:32px">
+      <div class="lp-faq-item" onclick="this.classList.toggle('open')" style="border-bottom:1px solid #f1f5f9;padding:16px 0;cursor:pointer">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;color:#0a1628">Do customers know they're talking to an AI? <span style="font-size:20px;color:#94a3b8;transition:transform .2s" class="lp-faq-arr">+</span></div>
+        <div class="lp-faq-ans" style="font-size:13px;color:#64748b;line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s">That's your choice. Most businesses configure Aria to introduce herself as a "virtual receptionist." You can customise exactly what she says in her greeting.</div>
+      </div>
+      <div class="lp-faq-item" onclick="this.classList.toggle('open')" style="border-bottom:1px solid #f1f5f9;padding:16px 0;cursor:pointer">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;color:#0a1628">Can I keep my existing phone number? <span style="font-size:20px;color:#94a3b8" class="lp-faq-arr">+</span></div>
+        <div class="lp-faq-ans" style="font-size:13px;color:#64748b;line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s">Yes — you can forward your existing number to your AiRingDesk number for free. Your customers call the same number as always.</div>
+      </div>
+      <div class="lp-faq-item" onclick="this.classList.toggle('open')" style="border-bottom:1px solid #f1f5f9;padding:16px 0;cursor:pointer">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;color:#0a1628">How long does setup take? <span style="font-size:20px;color:#94a3b8" class="lp-faq-arr">+</span></div>
+        <div class="lp-faq-ans" style="font-size:13px;color:#64748b;line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s">Most businesses are live within 10 minutes. Sign up, pick your number, write your AI prompt and you're ready to take calls.</div>
+      </div>
+      <div class="lp-faq-item" onclick="this.classList.toggle('open')" style="border-bottom:1px solid #f1f5f9;padding:16px 0;cursor:pointer">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;color:#0a1628">What happens when a call goes over the limit? <span style="font-size:20px;color:#94a3b8" class="lp-faq-arr">+</span></div>
+        <div class="lp-faq-ans" style="font-size:13px;color:#64748b;line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s">Additional calls will politely let callers know your lines are busy and offer voicemail. You'll be notified to upgrade. We never cut off mid-call.</div>
+      </div>
+      <div class="lp-faq-item" onclick="this.classList.toggle('open')" style="padding:16px 0;cursor:pointer">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:15px;font-weight:600;color:#0a1628">Can I cancel anytime? <span style="font-size:20px;color:#94a3b8" class="lp-faq-arr">+</span></div>
+        <div class="lp-faq-ans" style="font-size:13px;color:#64748b;line-height:1.7;max-height:0;overflow:hidden;transition:max-height .3s">Absolutely. No lock-in, no cancellation fees. Cancel from your billing dashboard and your account stays active until the end of your billing period.</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- CTA SECTION -->
