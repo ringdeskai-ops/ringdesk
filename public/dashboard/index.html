@@ -84,6 +84,17 @@ body.light-mode select{background:#f8fafc;color:#0f172a}
 body.light-mode .detail-overlay{background:rgba(15,23,42,0.3)}
 body.light-mode .detail-panel{background:#ffffff;border-left-color:rgba(15,23,42,0.08)}
 body.light-mode #globeCanvas{background:#1a2942!important;box-shadow:0 2px 20px rgba(15,23,42,0.12)}
+body.light-mode [style*="color:#f0f6ff"]{color:#0f172a!important}
+body.light-mode [style*="color:#e8f4f8"]{color:#0f172a!important}
+body.light-mode [style*="color:#a8d8ea"]{color:#475569!important}
+body.light-mode [style*="color:#5a7a9a"]{color:#475569!important}
+body.light-mode [style*="color:#2a3f55"]{color:#94a3b8!important}
+body.light-mode [style*="color:#00d4ff"]{color:#0077aa!important}
+body.light-mode [style*="color:#00e87a"]{color:#047857!important}
+body.light-mode [style*="color:#ffb800"]{color:#b45309!important}
+body.light-mode [style*="color:#ff4466"]{color:#dc2626!important}
+body.light-mode [style*="color:#ff4444"]{color:#dc2626!important}
+body.light-mode [style*="color:#a78bfa"]{color:#6d28d9!important}
 /* END LIGHT MODE */
 
 /* ── AUTH SCREENS ──────────────────────────────────────────────── */
@@ -3723,10 +3734,10 @@ Dedicated account manager</textarea></div>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
         <button id="iFilter_all" onclick="filterIncidents('all')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:var(--cyan);color:#020408;border:none;cursor:pointer;font-family:inherit">All</button>
-        <button id="iFilter_open" onclick="filterIncidents('open')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:#0c1520;color:#f0f6ff;border:1px solid rgba(255,255,255,.2);cursor:pointer;font-family:inherit">Open</button>
-        <button id="iFilter_investigating" onclick="filterIncidents('investigating')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:#0c1520;color:#f0f6ff;border:1px solid rgba(255,255,255,.2);cursor:pointer;font-family:inherit">Investigating</button>
-        <button id="iFilter_resolved" onclick="filterIncidents('resolved')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:#0c1520;color:#f0f6ff;border:1px solid rgba(255,255,255,.2);cursor:pointer;font-family:inherit">Resolved</button>
-        <button id="iFilter_critical" onclick="filterIncidents('critical')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:#0c1520;color:#f0f6ff;border:1px solid rgba(255,255,255,.2);cursor:pointer;font-family:inherit">Critical</button>
+        <button id="iFilter_open" onclick="filterIncidents('open')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:var(--surface2);color:var(--text);border:1px solid var(--border2);cursor:pointer;font-family:inherit">Open</button>
+        <button id="iFilter_investigating" onclick="filterIncidents('investigating')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:var(--surface2);color:var(--text);border:1px solid var(--border2);cursor:pointer;font-family:inherit">Investigating</button>
+        <button id="iFilter_resolved" onclick="filterIncidents('resolved')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:var(--surface2);color:var(--text);border:1px solid var(--border2);cursor:pointer;font-family:inherit">Resolved</button>
+        <button id="iFilter_critical" onclick="filterIncidents('critical')" style="padding:6px 14px;font-size:12px;border-radius:20px;background:var(--surface2);color:var(--text);border:1px solid var(--border2);cursor:pointer;font-family:inherit">Critical</button>
       </div>
       <div id="incidentsList"><div style="text-align:center;color:var(--muted);padding:60px;font-size:14px">Loading incidents...</div></div>
       <!-- New/Edit Incident Modal -->
