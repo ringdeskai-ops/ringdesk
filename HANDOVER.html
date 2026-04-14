@@ -169,6 +169,43 @@ pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
   padding-top: 24px;
   border-top: 1px solid var(--border);
 }
+.actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+.actions button {
+  padding: 12px 24px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.35);
+}
+.actions button.secondary {
+  background: white;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  box-shadow: none;
+}
+.actions button.secondary:hover {
+  background: #eff6ff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+@media print {
+  .actions { display: none !important; }
+}
 @media print {
   body { background: white; padding: 0; font-size: 11pt; }
   .header { background: #1e293b; color: white; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -196,6 +233,11 @@ pre code { background: none; color: inherit; padding: 0; font-size: inherit; }
   <div>
     <strong>Status:</strong> Code complete, runtime-tested, committed to git. Staging deploy attempted and cleanly rolled back after discovering a pre-existing unrelated issue (staging missing the <code>ws</code> npm package). <strong>Production is completely untouched and unaffected throughout.</strong> Resume with the Quick-Resume commands at the bottom when ready.
   </div>
+</div>
+
+<div class="actions">
+  <button id="dlBtn">📥 Download this page (.html)</button>
+  <button id="pdfBtn" class="secondary">🖨 Save as PDF</button>
 </div>
 
 <div class="toc">
@@ -587,5 +629,39 @@ curl -s http://localhost:3001/api/marketing/health</code></pre>
 </div>
 
 </div>
+
+<script>
+(function() {
+  var dlBtn = document.getElementById('dlBtn');
+  var pdfBtn = document.getElementById('pdfBtn');
+
+  if (dlBtn) {
+    dlBtn.addEventListener('click', function() {
+      try {
+        // Capture the entire current page HTML including the DOCTYPE
+        var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'AiRingDesk-HANDOVER.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+      } catch (e) {
+        alert('Download failed: ' + e.message + '\n\nTry right-clicking the page and choosing "Save Page As..." instead.');
+      }
+    });
+  }
+
+  if (pdfBtn) {
+    pdfBtn.addEventListener('click', function() {
+      window.print();
+    });
+  }
+})();
+</script>
+
 </body>
 </html>
