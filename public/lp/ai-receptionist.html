@@ -414,7 +414,7 @@ body{background:var(--bg);color:var(--navy);font-family:-apple-system,BlinkMacSy
         Full dashboard & leads tracker
       </li>
     </ul>
-    <button class="lp-submit" onclick="openModal()">Start your free 14-day trial →</button>
+    <button class="lp-submit" onclick="openModal('starter')">Start your free 14-day trial →</button>
     <p style="font-size:12px;color:var(--dim);margin-top:12px;text-align:center">Card required — no charge for 14 days</p>
   </div>
   <p style="font-size:13px;color:var(--dim);margin-top:16px">Plans from £29/month. <a href="/#pricing" style="color:var(--blue)">View all plans →</a></p>
@@ -498,10 +498,13 @@ body{background:var(--bg);color:var(--navy);font-family:-apple-system,BlinkMacSy
 </div>
 
 <script>
-function openModal() {
-  document.getElementById('lpModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
+function openModal(plan) {
+  // Fire conversion tracking
   trackConversion();
+  // Store plan and redirect to homepage — full signup modal will auto-open
+  sessionStorage.setItem('ard_open_signup', '1');
+  sessionStorage.setItem('ard_lp_plan', plan || 'essential');
+  window.location.href = '/#signup';
 }
 function closeModal() {
   document.getElementById('lpModal').classList.remove('open');
