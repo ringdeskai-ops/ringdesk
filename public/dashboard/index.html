@@ -24,6 +24,65 @@
 html{overflow-x:hidden}
 body{background:var(--black);color:var(--text);font-family:var(--font-body);line-height:1.5;overflow-x:hidden}
 
+/* LIGHT MODE THEME SWITCHER */
+body.light-mode {
+  --bg:#ffffff;
+  --black:#f4f7fb;--surface:#ffffff;--surface2:#f8fafc;--surface3:#f1f5f9;
+  --border:rgba(15,23,42,0.08);--border2:rgba(15,23,42,0.13);
+  --text:#0f172a;--muted:#475569;--dim:#cbd5e1;
+  --cyan:#0077aa;--cyan2:#005f8a;--blue:#0052cc;
+  --green:#047857;--amber:#b45309;--red:#dc2626;--purple:#6d28d9;
+  --grad:linear-gradient(135deg,#0077aa,#0052cc);
+}
+body.light-mode .sidebar{background:#ffffff !important;border-right:1px solid rgba(15,23,42,0.08) !important}
+body.light-mode .sidebar-header{border-bottom:1px solid rgba(15,23,42,0.08)}
+body.light-mode .sidebar-footer{border-top:1px solid rgba(15,23,42,0.08)}
+body.light-mode .sidebar-logo-text .ai{color:#0077aa}
+body.light-mode .sidebar-logo-text .desk{color:#94a3b8}
+body.light-mode .sidebar-role{color:#0077aa}
+body.light-mode .sidebar-biz{color:#94a3b8}
+body.light-mode .nav-section-label{color:#94a3b8}
+body.light-mode .nav-btn{color:#475569}
+body.light-mode .nav-btn:hover{background:rgba(15,23,42,0.04);color:#0f172a}
+body.light-mode .nav-btn.active{background:rgba(0,119,170,0.08);color:#0077aa}
+body.light-mode .nav-btn.active::before{background:#0077aa}
+body.light-mode .nav-badge{background:rgba(0,119,170,0.1);color:#0077aa}
+body.light-mode .nav-icon{opacity:.6}
+body.light-mode .nav-btn.active .nav-icon{opacity:1}
+body.light-mode .phone-badge{background:rgba(4,120,87,0.05);border-color:rgba(4,120,87,0.15)}
+body.light-mode .phone-num{color:#047857}
+body.light-mode .phone-pulse{background:#047857;box-shadow:0 0 8px #047857}
+body.light-mode .logout-btn{border-color:rgba(15,23,42,0.1);color:#94a3b8}
+body.light-mode .logout-btn:hover{color:#0f172a;border-color:rgba(15,23,42,0.2)}
+body.light-mode .page-title em{color:#0077aa}
+body.light-mode .stat-card{background:#ffffff;border-color:rgba(15,23,42,0.08);box-shadow:0 1px 3px rgba(15,23,42,0.04)}
+body.light-mode .table-card{background:#ffffff;border-color:rgba(15,23,42,0.08);box-shadow:0 1px 3px rgba(15,23,42,0.04)}
+body.light-mode th{background:#f8fafc;color:#475569}
+body.light-mode td{border-bottom-color:rgba(15,23,42,0.06)}
+body.light-mode .form-input,body.light-mode .form-select,body.light-mode .form-textarea{background:#f8fafc;border-color:rgba(15,23,42,0.13);color:#0f172a}
+body.light-mode .form-input:focus,body.light-mode .form-select:focus{border-color:#0077aa;background:#f0f7ff}
+body.light-mode .form-input::placeholder,body.light-mode .form-textarea::placeholder{color:#94a3b8}
+body.light-mode .auth-card{background:#ffffff;border-color:rgba(15,23,42,0.1)}
+body.light-mode .auth-card::before{background:linear-gradient(90deg,transparent,#0077aa,transparent)}
+body.light-mode .auth-wrap{background:#f4f7fb}
+body.light-mode .auth-bg{background-image:linear-gradient(rgba(0,119,170,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,119,170,0.04) 1px,transparent 1px)}
+body.light-mode .auth-orb{background:radial-gradient(circle,rgba(0,119,170,0.06),transparent 70%)}
+body.light-mode .auth-tab{color:#475569}
+body.light-mode .auth-tab.active{background:#f1f5f9;color:#0f172a}
+body.light-mode .auth-btn{background:#0077aa;box-shadow:0 0 24px rgba(0,119,170,0.2)}
+body.light-mode .auth-btn:hover{background:#005f8a;box-shadow:0 0 40px rgba(0,119,170,0.3)}
+body.light-mode .btn-sm.btn-ghost-sm{background:rgba(15,23,42,0.04);border-color:rgba(15,23,42,0.12);color:#475569}
+body.light-mode .btn-sm.btn-ghost-sm:hover{background:rgba(15,23,42,0.08);color:#0f172a}
+body.light-mode .btn-sm.btn-cyan-sm{background:linear-gradient(135deg,#0077aa,#0052cc);color:#ffffff}
+body.light-mode .table-header{border-bottom-color:rgba(15,23,42,0.08)}
+body.light-mode .mob-nav{background:rgba(255,255,255,0.97);border-top:1px solid rgba(15,23,42,0.08);backdrop-filter:blur(20px)}
+body.light-mode .mob-nav-btn{color:#94a3b8}
+body.light-mode .mob-nav-btn.active{color:#0077aa}
+body.light-mode select{background:#f8fafc;color:#0f172a}
+body.light-mode .detail-overlay{background:rgba(15,23,42,0.3)}
+body.light-mode .detail-panel{background:#ffffff;border-left-color:rgba(15,23,42,0.08)}
+/* END LIGHT MODE */
+
 /* ── AUTH SCREENS ──────────────────────────────────────────────── */
 .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;position:relative;overflow:hidden}
 .auth-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,black,transparent)}
@@ -713,6 +772,9 @@ select option{background-color:#0c1520;color:#f0f6ff}
           <div class="phone-label">AI answering calls</div>
         </div>
       </div>
+      <button class="logout-btn" id="themeToggleBtn" onclick="toggleDashTheme()" style="margin-bottom:8px;display:flex;align-items:center;gap:8px">
+        <span id="themeIcon">☀️</span> Light Mode
+      </button>
       <button class="logout-btn" onclick="doLogout()">← Sign out</button>
     </div>
   </aside>
@@ -4338,6 +4400,20 @@ function showAuthError(id, msg) {
   const el = document.getElementById(id);
   el.textContent = msg; el.classList.add('show');
 }
+
+function toggleDashTheme() {
+  var isLight = document.body.classList.toggle("light-mode");
+  localStorage.setItem("ard_dash_theme", isLight ? "light" : "dark");
+  document.getElementById("themeIcon").textContent = isLight ? "🌙" : "☀️";
+  document.getElementById("themeToggleBtn").childNodes[2].textContent = isLight ? " Dark Mode" : " Light Mode";
+}
+(function initTheme() {
+  if (localStorage.getItem("ard_dash_theme") === "light") {
+    document.body.classList.add("light-mode");
+    var i = document.getElementById("themeIcon"); if (i) i.textContent = "🌙";
+    var b = document.getElementById("themeToggleBtn"); if (b && b.childNodes[2]) b.childNodes[2].textContent = " Dark Mode";
+  }
+})();
 
 function doLogout() {
   localStorage.removeItem('rd_token'); localStorage.removeItem('rd_user');
