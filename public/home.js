@@ -167,7 +167,7 @@ function goStep(n){
   if(panel)panel.classList.add('active');
   // Fire Google Ads conversion when user reaches Step 5 (signup complete)
   if(n===5 && typeof gtag !== 'undefined'){
-    gtag('event', 'conversion_event_purchase', {
+    gtag('event', 'conversion_event_begin_checkout', {
       value: window._selectedPlan === 'starter' ? 49 :
              window._selectedPlan === 'professional' ? 149 :
              window._selectedPlan === 'business' ? 349 : 29,
