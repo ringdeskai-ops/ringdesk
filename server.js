@@ -12,6 +12,7 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const path = require("path");
 const Anthropic = require("@anthropic-ai/sdk");
 const twilio = require("twilio");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -19,6 +20,7 @@ const { v4: uuidv4 } = require("uuid");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Database = require("better-sqlite3");
+const multer = require("multer");
 
 const app = express();
 const VoiceResponse = twilio.twiml.VoiceResponse;
@@ -76,6 +78,7 @@ app.use(cors({ origin: process.env.DASHBOARD_URL || "*" }));
 app.use("/stripe-webhook", bodyParser.raw({ type: "application/json" }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, "public")));
 
 // ── Auth middleware ────────────────────────────────────────────────────────────
 function authRequired(req, res, next) {
@@ -498,6 +501,100 @@ app.post("/voice/status", (req, res) => {
     .run(parseInt(CallDuration || 0), Math.floor(Date.now() / 1000), CallSid);
   db.prepare("DELETE FROM call_sessions WHERE call_sid = ?").run(CallSid);
   res.sendStatus(200);
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  VOICE CLONING — CloneVoice
+//  Instant Voice Cloning via ElevenLabs (falls back to a demo echo if no key)
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const voiceUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 25 * 1024 * 1024 }, // 25 MB
+  fileFilter: (_req, file, cb) => {
+    if (/^audio\//.test(file.mimetype)) cb(null, true);
+    else cb(new Error("Only audio files are accepted"));
+  },
+});
+
+const LANG_NAMES = {
+  en: "English", es: "Spanish", fr: "French", de: "German", it: "Italian",
+  pt: "Portuguese", hi: "Hindi", ja: "Japanese", zh: "Mandarin", ar: "Arabic",
+};
+
+async function elevenLabsClone({ sampleBuffer, sampleName, sampleMime, text, language }) {
+  const key = process.env.ELEVENLABS_API_KEY;
+  if (!key) return null;
+
+  // 1. Add voice (Instant Voice Cloning)
+  const addForm = new FormData();
+  addForm.append("name", `clonevoice-${Date.now()}`);
+  addForm.append("files", new Blob([sampleBuffer], { type: sampleMime }), sampleName);
+  if (language) addForm.append("labels", JSON.stringify({ language: LANG_NAMES[language] || language }));
+
+  const addRes = await fetch("https://api.elevenlabs.io/v1/voices/add", {
+    method: "POST",
+    headers: { "xi-api-key": key },
+    body: addForm,
+  });
+  if (!addRes.ok) throw new Error(`ElevenLabs add-voice failed: ${addRes.status}`);
+  const { voice_id } = await addRes.json();
+
+  // 2. Text-to-speech with the new voice
+  const ttsRes = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
+    method: "POST",
+    headers: {
+      "xi-api-key": key,
+      "Content-Type": "application/json",
+      "Accept": "audio/mpeg",
+    },
+    body: JSON.stringify({
+      text,
+      model_id: "eleven_multilingual_v2",
+      voice_settings: { stability: 0.5, similarity_boost: 0.8, style: 0.0, use_speaker_boost: true },
+    }),
+  });
+  if (!ttsRes.ok) throw new Error(`ElevenLabs TTS failed: ${ttsRes.status}`);
+
+  const audio = Buffer.from(await ttsRes.arrayBuffer());
+
+  // 3. Clean up the temp voice so the library doesn't fill up
+  fetch(`https://api.elevenlabs.io/v1/voices/${voice_id}`, {
+    method: "DELETE",
+    headers: { "xi-api-key": key },
+  }).catch(() => {});
+
+  return { audio, mime: "audio/mpeg" };
+}
+
+app.post("/api/voice/clone", voiceUpload.single("sample"), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: "No audio sample uploaded" });
+    const text = String(req.body.text || "").trim();
+    if (!text) return res.status(400).json({ error: "No text provided" });
+    if (text.length > 600) return res.status(400).json({ error: "Text exceeds 600 characters" });
+
+    const language = req.body.language || "en";
+
+    const cloned = await elevenLabsClone({
+      sampleBuffer: req.file.buffer,
+      sampleName: req.file.originalname || "sample.webm",
+      sampleMime: req.file.mimetype,
+      text,
+      language,
+    });
+
+    if (cloned) {
+      res.type(cloned.mime).send(cloned.audio);
+    } else {
+      // Demo fallback — echo the uploaded sample so the UX still works end-to-end.
+      console.warn("[clone] ELEVENLABS_API_KEY not set — returning sample as fallback.");
+      res.type(req.file.mimetype || "audio/webm").send(req.file.buffer);
+    }
+  } catch (err) {
+    console.error("[clone] error:", err.message);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // ── Health & Admin ─────────────────────────────────────────────────────────────
