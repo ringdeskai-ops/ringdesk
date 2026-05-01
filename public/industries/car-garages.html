@@ -1,391 +1,192 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="shortcut icon" href="/favicon.svg">
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>AI Receptionist for Car Garages & MOT Centres UK — AiRingDesk</title>
-<meta name="description" content="AI receptionist for UK car garages & MOT centres. Answers calls 24/7, books MOTs and service appointments, handles breakdown calls. From £29/month + VAT."/>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Receptionist for Car Garages &amp; MOT Centres UK — AiRingDesk</title>
+<meta name="description" content="AI receptionist for UK car garages and MOT centres. Books MOTs, handles service enquiries, captures breakdown callouts 24/7. From &pound;29/month. GDPR compliant.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://airingdesk.com/industries/car-garages"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://airingdesk.com/industries/car-garages"/>
+<meta property="og:title" content="AI Receptionist for Car Garages &amp; MOT Centres UK — AiRingDesk"/>
+<meta property="og:description" content="Never miss an MOT booking again. AiRingDesk answers calls 24/7 for car garages — books MOTs, handles service enquiries, captures breakdown callouts."/>
+<meta property="og:image" content="https://airingdesk.com/blog/assets/trades.jpg"/>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Service","name":"AiRingDesk AI Receptionist for Car Garages","description":"AI-powered phone receptionist for UK car garages and MOT centres. Books MOTs, handles service enquiries, captures breakdown callouts, and sends instant notifications 24/7.","provider":{"@type":"Organization","name":"AiRingDesk","url":"https://airingdesk.com"},"areaServed":{"@type":"Country","name":"United Kingdom"},"serviceType":"AI Phone Receptionist"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"How can an AI receptionist help my car garage?","acceptedAnswer":{"@type":"Answer","text":"AiRingDesk answers every call to your garage 24/7 — even when your team is in the workshop. It books MOT appointments, captures service and repair enquiries with vehicle details, handles breakdown callouts, and sends instant email and SMS notifications to your team. No more missed bookings while you are under a bonnet."}},
+{"@type":"Question","name":"Can it book MOT appointments automatically?","acceptedAnswer":{"@type":"Answer","text":"Yes. AiRingDesk collects the caller vehicle registration, make and model, preferred date, and contact details. It sends this information instantly to your team to confirm the MOT slot, and texts the caller to confirm their booking request was received."}},
+{"@type":"Question","name":"How much does an AI receptionist for a car garage cost?","acceptedAnswer":{"@type":"Answer","text":"AiRingDesk plans start from 29 pounds per month — less than the profit on a single MOT. All plans include 24/7 coverage, SMS notifications to callers, and unlimited concurrent calls. No contracts, cancel anytime."}},
+{"@type":"Question","name":"Can it handle breakdown and recovery calls?","acceptedAnswer":{"@type":"Answer","text":"Yes. AiRingDesk recognises urgent keywords like breakdown, stranded, will not start, overheating, and warning light. It flags these as urgent notifications and can transfer the call directly to your mobile so you can dispatch help immediately."}},
+{"@type":"Question","name":"Will it capture vehicle details from callers?","acceptedAnswer":{"@type":"Answer","text":"Yes. The AI asks for the vehicle registration, make and model, mileage if relevant, and a description of the issue. This information is included in the notification so your team can prepare a quote or check parts availability before calling back."}},
+{"@type":"Question","name":"Is it GDPR compliant?","acceptedAnswer":{"@type":"Answer","text":"Yes. AiRingDesk stores all data in the UK, is ICO registered, and provides full GDPR compliance. Your customers personal data is handled securely and never shared with third parties."}}
+]}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/brand.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-XXXXXXXXXX");</script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--black:#020408;--surface:#080e18;--surface2:#0c1520;--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);--text:#f0f6ff;--muted:#5a7a9a;--dim:#2a3f55;--cyan:#00d4ff;--green:#00e87a;--accent:#00d4ff;--font-display:'Instrument Serif',Georgia,serif;--font-body:'Geist',system-ui,sans-serif}
-body{background:var(--black);color:var(--text);font-family:var(--font-body);line-height:1.6}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,60px);background:rgba(2,4,8,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.nav-brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:var(--text);text-decoration:none}
-.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.btn{display:inline-flex;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;border:none;font-family:var(--font-body);transition:all .2s;align-items:center;gap:6px;cursor:pointer}
-.btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border2)}
-.btn-cyan{background:var(--cyan);color:#020408;font-weight:700}
-.hero{padding:120px clamp(20px,5vw,60px) 80px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,black,transparent);pointer-events:none}
-.orb{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.08),transparent 70%);top:-100px;right:-100px;filter:blur(80px);pointer-events:none}
-.hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-@media(max-width:768px){.hero-inner{grid-template-columns:1fr}}
-.stag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
-.stag::before{content:'';width:20px;height:1px;background:var(--accent)}
-h1{font-family:var(--font-display);font-size:clamp(38px,6vw,68px);font-weight:400;line-height:1.05;letter-spacing:-2px;margin-bottom:20px}
-h1 em{font-style:italic;color:var(--accent)}
-h2{font-family:var(--font-display);font-size:clamp(28px,4vw,44px);font-weight:400;letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px}
-h2 em{font-style:italic;color:var(--accent)}
-h3{font-family:var(--font-body);font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
-.hero-sub{font-size:17px;color:var(--muted);line-height:1.7;margin-bottom:32px;max-width:500px}
-.hero-ctas{display:flex;gap:10px;flex-wrap:wrap}
-.hero-card{background:rgba(8,14,24,.92);border:1px solid var(--border2);border-radius:20px;padding:28px;position:relative;overflow:hidden}
-.hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#00d4ff,transparent)}
-.stat-row{display:flex;flex-direction:column;gap:12px}
-.stat-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.02)}
-.stat-val{font-size:24px;font-weight:800;letter-spacing:-1px;color:var(--accent);min-width:70px}
-.stat-label{font-size:12px;color:var(--muted);line-height:1.5}
-section{padding:clamp(60px,8vw,100px) clamp(20px,5vw,60px)}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;max-width:1100px;margin:0 auto}
-@media(max-width:768px){.grid-2{grid-template-columns:1fr}}
-p{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:16px}
-.uses-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;max-width:1100px;margin:0 auto}
-.use-item{padding:20px 22px;border-radius:14px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:flex-start;gap:12px;transition:all .2s}
-.use-item:hover{border-color:#00d4ff33;background:rgba(0,212,255,.02)}
-.use-check{width:20px;height:20px;border-radius:50%;background:#00d4ff15;border:1px solid #00d4ff30;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:10px;color:var(--accent);font-weight:700}
-.use-text{font-size:14px;color:var(--muted);line-height:1.6}
-.quote-card{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:32px;position:relative;overflow:hidden;max-width:700px;margin:48px auto 0}
-.quote-card::before{content:'"';position:absolute;top:-10px;right:20px;font-size:120px;color:#00d4ff08;font-family:var(--font-display);line-height:1}
-.quote-text{font-family:var(--font-display);font-size:18px;font-style:italic;color:rgba(240,246,255,.8);line-height:1.7;margin-bottom:16px}
-.quote-author{font-size:13px;color:var(--muted);font-weight:600}
-.cta-section{background:var(--surface2);text-align:center;padding:80px clamp(20px,5vw,60px)}
-footer{padding:32px clamp(20px,5vw,60px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.footer-links{display:flex;gap:20px}
-.footer-links a{font-size:12px;color:var(--muted);text-decoration:none}
-
-/* New section styles */
-.content-section{max-width:800px;margin:0 auto}
-.content-section p{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:16px}
-.content-section a{color:var(--cyan);text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(0,212,255,0.4)}
-
-.convo-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px 28px;margin:24px 0;position:relative;overflow:hidden}
-.convo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),transparent)}
-.convo-line{padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start}
-.convo-line:last-child{border-bottom:none}
-.convo-who{font-size:12px;font-weight:700;min-width:60px;flex-shrink:0;padding-top:2px}
-.convo-who.caller{color:var(--muted)}.convo-who.ai{color:var(--cyan)}
-.convo-msg{font-size:14px;color:rgba(240,246,255,0.75);line-height:1.7;font-style:italic}
-
-.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:1100px;margin:32px auto 0}
-.step-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;position:relative}
-.step-num{width:32px;height:32px;border-radius:50%;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--cyan);margin-bottom:12px}
-.step-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
-.step-desc{font-size:13px;color:var(--muted);line-height:1.7}
-
-.faq-list{max-width:800px;margin:32px auto 0}
-.faq-item{border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
-.faq-q{padding:18px 22px;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--surface);transition:background .2s}
-.faq-q:hover{background:var(--surface2)}
-.faq-q::after{content:'+';font-size:20px;color:var(--cyan);font-weight:700;flex-shrink:0;margin-left:12px}
-.faq-q.open::after{content:'\2212'}
-.faq-a{padding:0 22px 18px;color:var(--muted);display:none;background:var(--surface);font-size:14px;line-height:1.8}
-.faq-a.open{display:block}
-
-.cost-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:800px;margin:24px auto 0}
-@media(max-width:768px){.cost-grid{grid-template-columns:1fr}}
-.cost-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center}
-.cost-card.highlight{border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.03)}
-.cost-card .cost-label{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
-.cost-card .cost-price{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-1px;margin-bottom:4px}
-.cost-card.highlight .cost-price{color:var(--cyan)}
-.cost-card .cost-note{font-size:11px;color:var(--dim);line-height:1.5}
-
-.blog-link-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px 28px;max-width:800px;margin:32px auto 0;display:flex;align-items:center;gap:16px;text-decoration:none;transition:all .2s}
-.blog-link-card:hover{border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.02)}
-.blog-link-icon{font-size:28px;flex-shrink:0}
-.blog-link-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px}
-.blog-link-desc{font-size:13px;color:var(--muted);line-height:1.5}
-.blog-link-arrow{margin-left:auto;color:var(--cyan);font-size:18px;flex-shrink:0}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--cyan:#00d4ff;--bg:#020408;--card:#0a1628;--border:rgba(0,212,255,.12);--text:#c8d8e8;--muted:#5a7a9a;--serif:"Instrument Serif",Georgia,serif;--sans:"Geist",system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+a{color:var(--cyan);text-decoration:none}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(2,4,8,.92);backdrop-filter:blur(20px);z-index:100}
+.nav-brand{font-family:var(--sans);font-size:20px;font-weight:700;text-decoration:none;letter-spacing:-.02em}
+.nav-brand .ai{color:#fff}.nav-brand .ring{color:var(--cyan)}.nav-brand .desk{color:#fff}
+.hero{text-align:center;padding:80px 24px 60px;max-width:800px;margin:0 auto}
+.hero .badge{display:inline-block;background:rgba(0,212,255,.08);border:1px solid var(--border);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:24px}
+.hero h1{font-family:var(--serif);font-size:clamp(36px,6vw,56px);color:#fff;line-height:1.1;margin-bottom:20px}
+.hero h1 em{font-style:italic;color:var(--cyan)}
+.hero .sub{font-size:18px;color:var(--muted);max-width:600px;margin:0 auto 32px;line-height:1.6}
+.hero-cta{display:inline-block;background:var(--cyan);color:var(--bg);padding:16px 36px;border-radius:12px;font-weight:700;font-size:16px;transition:all .2s}
+.hero-cta:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,212,255,.3)}
+.section{max-width:900px;margin:0 auto;padding:60px 24px}
+.section-title{font-family:var(--serif);font-size:clamp(28px,4vw,40px);color:#fff;text-align:center;margin-bottom:12px;line-height:1.2}
+.section-sub{text-align:center;color:var(--muted);max-width:600px;margin:0 auto 40px;font-size:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:48px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;text-align:center}
+.stat .num{font-family:var(--serif);font-size:42px;color:var(--cyan);display:block;margin-bottom:6px}
+.stat .lbl{font-size:13px;color:var(--muted);font-weight:500;line-height:1.5}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.feature{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px}
+.feature .icon{font-size:28px;margin-bottom:12px}
+.feature h3{font-family:var(--sans);font-size:16px;color:#fff;font-weight:600;margin-bottom:8px}
+.feature p{font-size:14px;color:var(--muted);line-height:1.6}
+.convo-section{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:40px;max-width:600px;margin:0 auto 48px}
+.convo-header{font-size:13px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:24px;text-align:center}
+.convo-line{display:flex;gap:12px;margin-bottom:16px}
+.convo-line .who{font-size:11px;font-weight:700;min-width:72px;padding-top:3px;text-transform:uppercase;letter-spacing:.06em}
+.convo-line .who.ai{color:var(--cyan)}
+.convo-line .who.caller{color:var(--muted)}
+.convo-line .msg{font-size:14px;color:var(--text);line-height:1.6}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.step{text-align:center;padding:24px}
+.step .num{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:rgba(0,212,255,.1);border:2px solid var(--cyan);color:var(--cyan);font-weight:700;font-size:18px;margin-bottom:16px}
+.step h3{font-size:16px;color:#fff;font-weight:600;margin-bottom:8px}
+.step p{font-size:14px;color:var(--muted);line-height:1.5}
+.faq-list{max-width:700px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border);padding:24px 0}
+.faq-q{font-size:16px;color:#fff;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq-q::after{content:"+";color:var(--cyan);font-size:22px;font-weight:300;transition:transform .2s}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;color:var(--muted);font-size:14px;line-height:1.7}
+.faq-item.open .faq-a{max-height:300px;padding-top:12px}
+.final-cta{text-align:center;padding:80px 24px;background:linear-gradient(180deg,transparent,rgba(0,212,255,.04))}
+.final-cta h2{font-family:var(--serif);font-size:clamp(28px,4vw,40px);color:#fff;margin-bottom:16px}
+.final-cta p{color:var(--muted);margin-bottom:28px;font-size:16px}
+.related{max-width:900px;margin:0 auto;padding:0 24px 60px}
+.related h3{font-family:var(--serif);font-size:22px;color:#fff;margin-bottom:16px;text-align:center}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.related-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;transition:border-color .2s}
+.related-card:hover{border-color:var(--cyan)}
+.related-card h4{font-size:15px;color:#fff;margin-bottom:6px;font-weight:600}
+.related-card p{font-size:13px;color:var(--muted);line-height:1.5}
+.footer{text-align:center;padding:40px 24px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)}
+@media(max-width:640px){.hero{padding:48px 16px 40px}.section{padding:40px 16px}.convo-section{padding:24px 16px}.stats{grid-template-columns:1fr}.features{grid-template-columns:1fr}}
 </style>
-  <link rel="canonical" href="https://airingdesk.com/industries/car-garages"/>
-  <link rel="stylesheet" href="/brand.css">
-  <meta property="og:type" content="website"/>
-  <meta property="og:url" content="https://airingdesk.com/industries/car-garages"/>
-  <meta property="og:title" content="AI Receptionist for Car Garages & MOT Centres UK — AiRingDesk"/>
-  <meta property="og:description" content="AI receptionist for UK car garages & MOT centres. Answers calls 24/7, books MOTs and service appointments. From £29/month + VAT."/>
-  <meta property="og:image" content="https://airingdesk.com/og-image.jpg"/>
-  <meta property="og:site_name" content="AiRingDesk"/>
-  <meta property="og:locale" content="en_GB"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="robots" content="index, follow"/>
-  <meta name="author" content="AiRingDesk"/>
-  <meta name="geo.region" content="GB"/>
-  <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"Service","name":"AI Receptionist for Car Garages & MOT Centres","provider":{"@type":"Organization","name":"AiRingDesk","url":"https://airingdesk.com"},"description":"AI receptionist for UK car garages & MOT centres. Answers calls 24/7, books MOTs and service appointments. From £29/month + VAT.","areaServed":{"@type":"Country","name":"United Kingdom"},"offers":{"@type":"Offer","price":"29","priceCurrency":"GBP"}}
-  </script>
-  <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-    {"@type":"Question","name":"How much does an AI answering service for garages cost?","acceptedAnswer":{"@type":"Answer","text":"AI garage answering services like AiRingDesk start from £29 per month with flat pricing and no per-call fees. Traditional human answering services cost £200-800 per month, while hiring a receptionist costs £20,000-25,000 per year."}},
-    {"@type":"Question","name":"Can an AI receptionist book MOT appointments?","acceptedAnswer":{"@type":"Answer","text":"Yes. AiRingDesk integrates with Google Calendar and can book MOT appointments, full services, interim services, and general repairs through natural phone conversations with customers."}},
-    {"@type":"Question","name":"What happens when a breakdown call comes in after hours?","acceptedAnswer":{"@type":"Answer","text":"AiRingDesk recognises urgent language like breakdown, stranded, or engine warning light and escalates immediately via SMS or email alert to the on-call mechanic with the caller's details and location."}},
-    {"@type":"Question","name":"Will customers know they are speaking to an AI?","acceptedAnswer":{"@type":"Answer","text":"Modern AI voice technology sounds natural and conversational. Most callers cannot tell the difference. What they notice is that the phone is answered instantly with no hold time."}},
-    {"@type":"Question","name":"Can I keep my existing garage phone number?","acceptedAnswer":{"@type":"Answer","text":"Yes. Simply set up a call divert from your existing number to your AiRingDesk number. Your customers keep calling the same number they always have. Setup takes about 5 minutes."}},
-    {"@type":"Question","name":"Does it work with TechMan, Garage Hive, or other GMS?","acceptedAnswer":{"@type":"Answer","text":"AiRingDesk works alongside any garage management system. Calls are logged with full transcripts and AI summaries, and bookings go to Google Calendar. The Professional plan includes webhook support for connecting to external systems."}},
-    {"@type":"Question","name":"How quickly can I set up AiRingDesk for my garage?","acceptedAnswer":{"@type":"Answer","text":"Most garages are live within 10 minutes. Sign up, choose a phone number, add your garage details and services, and Aria is ready to answer calls immediately."}},
-    {"@type":"Question","name":"Does the AI upsell services during MOT bookings?","acceptedAnswer":{"@type":"Answer","text":"Yes. You can configure Aria to suggest additional services during booking calls, such as offering a service alongside an MOT. This consistently turns single-service bookings into combined jobs."}}
-  ]}
-  </script>
 </head>
 <body>
-
-<nav>
-  <a href="/" class="nav-brand"><span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span>Ring<span style="color:var(--dim)">Desk</span><sup style="font-size:9px;color:var(--dim);vertical-align:super">®</sup> <span class="nav-dot"></span></a>
-  <div style="display:flex;gap:8px">
-    <a href="/" class="btn btn-ghost">← Home</a>
-    <a href="/dashboard?signup=1" class="btn btn-cyan">Start free trial</a>
+<nav class="nav">
+  <a href="/" class="nav-brand"><span class="ai">Ai</span><span class="ring">Ring</span><span class="desk">Desk</span>&reg;</a>
+  <div style="display:flex;gap:16px;align-items:center">
+    <a href="/industries" style="color:var(--muted);font-size:13px">Industries</a>
+    <a href="/blog" style="color:var(--muted);font-size:13px">Blog</a>
+    <a href="/#pricing" style="background:var(--cyan);color:var(--bg);padding:7px 16px;border-radius:8px;font-size:13px;font-weight:700">Start free trial</a>
   </div>
 </nav>
 
 <div class="hero">
-  <div class="orb"></div>
-  <div class="hero-inner">
-    <div>
-      <div class="stag">For Car Garages & MOT Centres</div>
-      <h1>Never miss a <em>service booking</em> again</h1>
-      <p class="hero-sub">When you're under a car, calls go to voicemail. AiRingDesk answers instantly, books MOTs and service appointments, and handles customer enquiries — 24/7.</p>
-      <div class="hero-ctas">
-        <a href="/dashboard?signup=1" class="btn btn-cyan" style="padding:12px 28px;font-size:14px">Start 14-day free trial →</a>
-        <a href="tel:+442046348499" class="btn btn-ghost" style="padding:12px 20px;font-size:14px">📞 Hear demo</a>
-      </div>
-      <p style="font-size:12px;color:var(--dim);margin-top:14px">No credit card required · Live in 10 minutes · Cancel anytime</p>
-    </div>
-    <div class="hero-card">
-      <div style="font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">Why Garages choose AiRingDesk</div>
-      <div class="stat-row">
-        <div class="stat-item"><div class="stat-val">60%</div><div class="stat-label">of garage calls go unanswered during busy periods</div></div>
-        <div class="stat-item"><div class="stat-val">£350</div><div class="stat-label">average MOT + service booking value</div></div>
-        <div class="stat-item"><div class="stat-val">69%</div><div class="stat-label">of callers never leave a voicemail message</div></div>
-      </div>
-    </div>
+  <div class="badge">&#128663; For Car Garages</div>
+  <h1>Never Miss Another<br><em>MOT Booking</em></h1>
+  <p class="sub">AiRingDesk answers every call to your garage 24/7 &mdash; books MOTs, captures service enquiries, handles breakdown callouts, and sends instant notifications to your team. From &pound;29/month.</p>
+  <a href="/#pricing" class="hero-cta">Start free trial &rarr;</a>
+</div>
+
+<div class="section">
+  <div class="stats">
+    <div class="stat"><span class="num">33m</span><span class="lbl">MOT tests carried out in the UK every year</span></div>
+    <div class="stat"><span class="num">60%</span><span class="lbl">Of workshop calls missed when staff are in the bays</span></div>
+    <div class="stat"><span class="num">&pound;55</span><span class="lbl">Average MOT fee &mdash; plus upsell on repairs</span></div>
+    <div class="stat"><span class="num">24/7</span><span class="lbl">AiRingDesk coverage including evenings &amp; weekends</span></div>
   </div>
 </div>
 
-<section style="background:var(--surface)">
-  <div class="grid-2">
-    <div>
-      <div class="stag">The problem</div>
-      <h2>Too busy on the ramp <em>to answer the phone</em></h2>
-    </div>
-    <div>
-      <p>You're mid-service, under a bonnet, or road-testing a vehicle. The phone rings. By the time you get to it, the customer has already called the next garage in their Google results.</p>
-      <p>AiRingDesk solves this permanently. Your AI receptionist answers every call instantly — booking MOTs, handling service enquiries, and only alerting you when it truly matters.</p>
-    </div>
+<div class="section" style="padding-top:0">
+  <h2 class="section-title">Hear How It Sounds</h2>
+  <p class="section-sub">A customer calling to book an MOT at 6:15pm &mdash; after your reception has gone home.</p>
+  <div class="convo-section">
+    <div class="convo-header">&#128222; MOT Booking &mdash; 6:15pm</div>
+    <div class="convo-line"><span class="who caller">Caller</span><span class="msg">Hi, my MOT is due next week and I need to book it in. Do you have any slots?</span></div>
+    <div class="convo-line"><span class="who ai">AiRingDesk</span><span class="msg">Good evening, thanks for calling Harrow Auto Centre! I can certainly help with that. Can I take your vehicle registration and your preferred date?</span></div>
+    <div class="convo-line"><span class="who caller">Caller</span><span class="msg">It is a Ford Focus, registration YK19 HNT. Any day next week would work, morning if possible.</span></div>
+    <div class="convo-line"><span class="who ai">AiRingDesk</span><span class="msg">Got it &mdash; Ford Focus, YK19 HNT, morning slot next week. Can I take your name and a contact number so the team can confirm your appointment?</span></div>
+    <div class="convo-line"><span class="who caller">Caller</span><span class="msg">Mark Stevens, 07700 900789.</span></div>
+    <div class="convo-line"><span class="who ai">AiRingDesk</span><span class="msg">Thank you, Mark. I have sent your MOT booking request to the team &mdash; they will call you to confirm the exact day and time. I will also send you a text to confirm we have received your enquiry. Is there anything else I can help with?</span></div>
   </div>
-</section>
+</div>
 
-<!-- How it works -->
-<section>
-  <div style="text-align:center;max-width:700px;margin:0 auto">
-    <div class="stag" style="justify-content:center">How it works</div>
-    <h2>Live in <em>10 minutes</em>, no tech needed</h2>
-    <p>No software to install. No hardware to buy. Just sign up, tell Aria about your garage, and she starts answering calls.</p>
+<div class="section">
+  <h2 class="section-title">Built for Car Garages</h2>
+  <p class="section-sub">Every feature designed for how garages and MOT centres actually work.</p>
+  <div class="features">
+    <div class="feature"><div class="icon">&#128736;</div><h3>MOT Booking Capture</h3><p>Collects vehicle registration, make and model, preferred date, and caller contact details &mdash; sent instantly to your team to confirm the slot.</p></div>
+    <div class="feature"><div class="icon">&#128295;</div><h3>Service &amp; Repair Enquiries</h3><p>Captures full job descriptions &mdash; brake pads, timing belt, clutch replacement, diagnostic warning lights &mdash; with vehicle details so you can prepare a quote.</p></div>
+    <div class="feature"><div class="icon">&#128680;</div><h3>Breakdown Callouts</h3><p>Recognises urgent keywords like breakdown, stranded, will not start, and overheating. Flags as emergency and can transfer directly to your mobile.</p></div>
+    <div class="feature"><div class="icon">&#128241;</div><h3>SMS Confirmation</h3><p>After every call, the caller receives a text confirming their enquiry was received. Stops them calling the garage down the road instead.</p></div>
+    <div class="feature"><div class="icon">&#127769;</div><h3>Evening &amp; Weekend Cover</h3><p>Customers search for garages after work &mdash; 5pm to 8pm is peak call time. AiRingDesk catches every one, including Saturday mornings.</p></div>
+    <div class="feature"><div class="icon">&#128274;</div><h3>GDPR Compliant</h3><p>UK data storage. ICO registered. Full GDPR compliance. Your customers&rsquo; vehicle and personal data is handled securely.</p></div>
   </div>
-  <div class="steps-grid">
-    <div class="step-card">
-      <div class="step-num">1</div>
-      <div class="step-title">Choose your number</div>
-      <div class="step-desc">Pick a UK phone number or set up forwarding from your existing garage number. Customers call the same number as always.</div>
-    </div>
-    <div class="step-card">
-      <div class="step-num">2</div>
-      <div class="step-title">Configure for your garage</div>
-      <div class="step-desc">Tell Aria your opening hours, MOT pricing, services offered, how you handle breakdowns, and any special instructions.</div>
-    </div>
-    <div class="step-card">
-      <div class="step-num">3</div>
-      <div class="step-title">Calls answered 24/7</div>
-      <div class="step-desc">Aria answers every call instantly — booking MOTs, handling service queries, taking messages, and escalating urgent calls.</div>
-    </div>
-    <div class="step-card">
-      <div class="step-num">4</div>
-      <div class="step-title">Review from your dashboard</div>
-      <div class="step-desc">Every call logged with full transcripts and AI summaries. See exactly what every customer said and what needs your attention.</div>
-    </div>
-  </div>
-</section>
+</div>
 
-<!-- Conversation demo -->
-<section style="background:var(--surface)">
-  <div style="text-align:center;max-width:700px;margin:0 auto">
-    <div class="stag" style="justify-content:center">Hear it in action</div>
-    <h2>What a real call <em>sounds like</em></h2>
-    <p>Here's how Aria handles a typical MOT booking for a garage. She sounds natural, confirms vehicle details, and upsells a service.</p>
+<div class="section">
+  <h2 class="section-title">How It Works</h2>
+  <p class="section-sub">Live in 10 minutes. No hardware, no contracts, no IT needed.</p>
+  <div class="steps">
+    <div class="step"><div class="num">1</div><h3>Get Your Number</h3><p>Receive a UK number or divert your existing garage line to AiRingDesk &mdash; for after-hours, when the team is in the workshop, or all calls.</p></div>
+    <div class="step"><div class="num">2</div><h3>Customise</h3><p>Set your garage name, services offered (MOT, servicing, repairs, diagnostics, tyres), and how you want calls handled.</p></div>
+    <div class="step"><div class="num">3</div><h3>Go Live</h3><p>Every call answered within two rings, 24/7. MOTs booked. Breakdowns flagged. SMS sent. Your team notified instantly.</p></div>
+    <div class="step"><div class="num">4</div><h3>Follow Up</h3><p>Review all calls in your dashboard with full transcripts, vehicle details, and job descriptions. Call back when you are ready.</p></div>
   </div>
-  <div class="convo-card" style="max-width:700px;margin:32px auto 0">
-    <div class="convo-line"><div class="convo-who caller">Caller</div><div class="convo-msg">"Hi, I need to book my car in for an MOT. It's due next week."</div></div>
-    <div class="convo-line"><div class="convo-who ai">Aria</div><div class="convo-msg">"I can help with that. Could I take your name and the vehicle registration?"</div></div>
-    <div class="convo-line"><div class="convo-who caller">Caller</div><div class="convo-msg">"It's Dave Thompson, registration AB12 CDE."</div></div>
-    <div class="convo-line"><div class="convo-who ai">Aria</div><div class="convo-msg">"Thank you, Dave. We have availability on Wednesday morning or Thursday afternoon. Which works better?"</div></div>
-    <div class="convo-line"><div class="convo-who caller">Caller</div><div class="convo-msg">"Wednesday morning please."</div></div>
-    <div class="convo-line"><div class="convo-who ai">Aria</div><div class="convo-msg">"That's booked — Wednesday morning for your MOT. Is there anything else you need while the car's in? A service perhaps?"</div></div>
-    <div class="convo-line"><div class="convo-who caller">Caller</div><div class="convo-msg">"Actually yeah, it could do with a full service too."</div></div>
-    <div class="convo-line"><div class="convo-who ai">Aria</div><div class="convo-msg">"I've added a full service to the booking. We'll see you Wednesday morning. You'll receive a confirmation shortly."</div></div>
-  </div>
-  <p style="text-align:center;font-size:13px;color:var(--dim);margin-top:16px">Call our demo line to hear Aria live: <a href="tel:+442046348499" style="color:var(--cyan);text-decoration:none;font-weight:600">+44 20 4634 8499</a></p>
-</section>
+</div>
 
-<!-- Cost comparison -->
-<section>
-  <div style="text-align:center;max-width:700px;margin:0 auto">
-    <div class="stag" style="justify-content:center">Cost comparison</div>
-    <h2>How AiRingDesk <em>compares</em></h2>
-    <p>Most garages can't justify a full-time receptionist. Here's how the costs stack up for a garage handling 30+ overflow calls per month.</p>
-  </div>
-  <div class="cost-grid">
-    <div class="cost-card">
-      <div class="cost-label">Full-time receptionist</div>
-      <div class="cost-price">£25,000+</div>
-      <div class="cost-note">per year · Doesn't cover evenings or weekends</div>
-    </div>
-    <div class="cost-card">
-      <div class="cost-label">Specialist garage AI</div>
-      <div class="cost-price">£97–£597</div>
-      <div class="cost-note">per month · Deep GMS integration</div>
-    </div>
-    <div class="cost-card highlight">
-      <div class="cost-label">AiRingDesk Professional</div>
-      <div class="cost-price">£149</div>
-      <div class="cost-note">per month + VAT · Flat rate, 1,000 calls</div>
-    </div>
-  </div>
-</section>
-
-<!-- Use cases -->
-<section style="background:var(--surface)">
-  <div style="text-align:center;max-width:700px;margin:0 auto;margin-bottom:32px">
-    <div class="stag" style="justify-content:center">Use cases</div>
-    <h2>Everything Aria does for <em>Car Garages</em></h2>
-  </div>
-  <div class="uses-grid">
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Book MOT & service appointments 24/7</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Answer pricing questions for MOTs, services, and repairs</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Handle warranty and insurance enquiries</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Escalate breakdown and emergency callouts</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Take messages when you're on the ramp</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Answer evenings, weekends, and bank holidays</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Upsell services during MOT bookings</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Provide opening hours and directions</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Handle cancellations and rescheduling</div></div>
-  </div>
-</section>
-
-<!-- Breakdown handling -->
-<section>
-  <div class="grid-2">
-    <div>
-      <div class="stag">Emergency handling</div>
-      <h2>Breakdowns and urgent calls, <em>handled instantly</em></h2>
-    </div>
-    <div>
-      <p>A customer stranded with a broken-down vehicle can't wait for voicemail. Aria recognises urgent language — breakdown, stranded, engine warning light, won't start, overheating — and escalates immediately.</p>
-      <p>Depending on your preferences, she can transfer the call directly to your mobile, send an urgent SMS alert with the customer's details, location, and vehicle information, or provide guidance while alerting your team.</p>
-      <p>Unlike a voicemail system, <strong style="color:var(--text)">Aria follows your emergency protocol every single time</strong> — no missed alerts, no forgotten callbacks, no lost customers.</p>
-    </div>
-  </div>
-</section>
-
-<!-- Testimonial -->
-<section style="background:var(--surface)">
-  <div class="quote-card">
-    <div class="quote-text">"I used to miss loads of calls when I was working on cars. Now they get booked in without me doing anything. AiRingDesk pays for itself with one MOT booking."</div>
-    <div class="quote-author">— Garage Owner, West London</div>
-  </div>
-</section>
-
-<!-- FAQ -->
-<section>
-  <div style="text-align:center;max-width:700px;margin:0 auto">
-    <div class="stag" style="justify-content:center">Common questions</div>
-    <h2>Frequently asked <em>questions</em></h2>
-  </div>
+<div class="section">
+  <h2 class="section-title">Frequently Asked Questions</h2>
+  <p class="section-sub">Everything garage owners ask before switching to AI call handling.</p>
   <div class="faq-list">
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">How much does an AI answering service for garages cost?</div>
-      <div class="faq-a">AI garage answering services like AiRingDesk start from £29 per month with flat pricing and no per-call fees. Specialist garage AI services with deep GMS integration range from £97 to £597 per month. Hiring a full-time receptionist costs £20,000–£25,000 per year.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Can an AI receptionist book MOT appointments?</div>
-      <div class="faq-a">Yes. AiRingDesk integrates with Google Calendar and can book MOT appointments, full services, interim services, diagnostics, and general repairs through natural phone conversations. The AI confirms vehicle details, checks availability, and adds the booking to your calendar automatically.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">What happens when a breakdown call comes in after hours?</div>
-      <div class="faq-a">AiRingDesk recognises urgent language — breakdown, stranded, engine warning light, won't start — and escalates immediately via SMS or email alert to the on-call mechanic with the caller's details, location, and vehicle information.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Will customers know they're speaking to an AI?</div>
-      <div class="faq-a">Modern AI voice technology sounds natural and conversational. Most callers cannot tell the difference. What they notice is that the phone is answered instantly with no hold time — which matters more than who is answering.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Can I keep my existing garage phone number?</div>
-      <div class="faq-a">Yes. Simply set up a call divert from your existing number to your AiRingDesk number. Your customers keep calling the same number they've always used. Setup takes about 5 minutes with your phone provider.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Does it work with TechMan, Garage Hive, or other GMS?</div>
-      <div class="faq-a">AiRingDesk works alongside any garage management system. Calls are logged with full transcripts and AI summaries, and bookings go straight to Google Calendar. The Professional plan includes webhook support for connecting to external systems like TechMan, Garage Hive, or GDS.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">How quickly can I set up AiRingDesk for my garage?</div>
-      <div class="faq-a">Most garages are live within 10 minutes. Sign up, choose a phone number, add your garage details (opening hours, MOT pricing, services, emergency protocols), and Aria is ready to answer calls immediately.</div>
-    </div>
-    <div class="faq-item">
-      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Does the AI upsell services during MOT bookings?</div>
-      <div class="faq-a">Yes. You can configure Aria to suggest additional services during booking calls — for example, offering a full service alongside an MOT, or recommending a brake check. This consistently turns single-service bookings into combined jobs worth more per visit.</div>
-    </div>
-  </div>
-</section>
-
-<!-- Blog link -->
-<section style="background:var(--surface);padding-top:40px;padding-bottom:40px">
-  <a href="/blog/best-ai-answering-service-for-car-garages-uk-2026" class="blog-link-card">
-    <div class="blog-link-icon">📖</div>
-    <div>
-      <div class="blog-link-title">Best AI Answering Service for Car Garages UK 2026: Stop Losing Bookings</div>
-      <div class="blog-link-desc">Read our complete guide comparing garage answering services — costs, features, MOT booking, and which delivers the best ROI.</div>
-    </div>
-    <div class="blog-link-arrow">→</div>
-  </a>
-</section>
-
-<!-- CTA -->
-<div class="cta-section">
-  <div class="stag" style="justify-content:center">Get started today</div>
-  <h2 style="font-family:var(--font-display);font-size:clamp(32px,5vw,56px);font-weight:400;letter-spacing:-2px;margin-bottom:16px">Ready to <em>stop missing calls?</em></h2>
-  <p style="font-size:16px;color:var(--muted);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto">14-day free trial. No credit card required. Your AI receptionist live in 10 minutes.</p>
-  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-    <a href="/dashboard?signup=1" class="btn btn-cyan" style="padding:14px 32px;font-size:15px">Start free trial →</a>
-    <a href="/contact" class="btn btn-ghost" style="padding:14px 24px;font-size:15px">Talk to us first</a>
+    <div class="faq-item"><div class="faq-q">How can an AI receptionist help my car garage?</div><div class="faq-a">AiRingDesk answers every call to your garage 24/7 &mdash; even when your team is in the workshop. It books MOT appointments, captures service and repair enquiries with vehicle details, handles breakdown callouts, and sends instant email and SMS notifications. No more missed bookings while you are under a bonnet.</div></div>
+    <div class="faq-item"><div class="faq-q">Can it book MOT appointments automatically?</div><div class="faq-a">Yes. AiRingDesk collects the vehicle registration, make and model, preferred date, and contact details. It sends this information instantly to your team to confirm the MOT slot, and texts the caller to confirm their booking request was received.</div></div>
+    <div class="faq-item"><div class="faq-q">How much does an AI receptionist for a car garage cost?</div><div class="faq-a">Plans start from &pound;29 per month &mdash; less than the profit on a single MOT. All plans include 24/7 coverage, SMS notifications to callers, and unlimited concurrent calls. No contracts, cancel anytime.</div></div>
+    <div class="faq-item"><div class="faq-q">Can it handle breakdown and recovery calls?</div><div class="faq-a">Yes. AiRingDesk recognises urgent keywords like breakdown, stranded, will not start, overheating, and warning light. It flags these as urgent notifications and can transfer the call directly to your mobile so you can dispatch help immediately.</div></div>
+    <div class="faq-item"><div class="faq-q">Will it capture vehicle details from callers?</div><div class="faq-a">Yes. The AI asks for the vehicle registration, make and model, mileage if relevant, and a description of the issue. This information is included in the notification so your team can prepare a quote or check parts availability before calling back.</div></div>
+    <div class="faq-item"><div class="faq-q">Is it GDPR compliant?</div><div class="faq-a">Yes. AiRingDesk stores all data in the UK, is ICO registered, and provides full GDPR compliance. Your customers&rsquo; personal data is handled securely and never shared with third parties.</div></div>
   </div>
 </div>
 
-<!-- Pricing -->
-<section id="pricing" style="padding:60px 24px;background:var(--black)">
-<div style="text-align:center;margin-bottom:32px">
-<div style="font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px"><span style="display:inline-block;width:24px;height:2px;background:var(--cyan)"></span>Pricing</div>
-<h2 style="font-family:'Instrument Serif',Georgia,serif;font-size:42px;font-weight:400;letter-spacing:-1px;margin-bottom:8px">Simple, <em style="font-style:italic;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">transparent</em> pricing</h2>
-<p style="font-size:15px;color:var(--muted)">No setup fees. No per-minute charges. One flat monthly fee.</p>
+<div class="final-cta">
+  <h2>Stop Losing MOT Bookings to Voicemail</h2>
+  <p>Join garages across the UK who never miss an MOT booking or service enquiry. Start your free trial today.</p>
+  <a href="/#pricing" class="hero-cta">Start free trial &rarr;</a>
 </div>
-<div class="pricing-toggle">
-<span class="toggle-label active" id="monthly-lbl">Monthly</span>
-<div class="toggle-switch" id="billing-toggle" onclick="toggleBilling()"><div class="toggle-thumb"></div></div>
-<span class="toggle-label" id="annual-lbl">Annual</span>
-<span class="annual-badge">Save 2 months free</span>
-</div>
-<div class="plans"><div class="plan"><div class="plan-name">Essential</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="29" data-annual="24">29</span><sub>/mo</sub></div><div style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px">+ VAT</div><div class="plan-calls">150 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div><div class="plan-feats"><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>1 UK phone number</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI answering 24/7</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Email notifications</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call transcripts & summaries</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call transfers</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dashboard</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>14-days trial</div></div><button onclick="location.href='/dashboard?signup=1'" class="pcta pcta-p">Start free trial &rarr;</button></div><div class="plan"><div class="plan-name">Starter</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="49" data-annual="41">49</span><sub>/mo</sub></div><div style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px">+ VAT</div><div class="plan-calls">300 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div><div class="plan-feats"><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Essential</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Voicemail + recordings</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call dashboard & leads</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Referral programme</div></div><button onclick="location.href='/dashboard?signup=1'" class="pcta pcta-g">Get started &rarr;</button></div><div class="plan pop"><div class="plan-badge">MOST POPULAR</div><div class="plan-name">Professional</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="149" data-annual="124">149</span><sub>/mo</sub></div><div style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px">+ VAT</div><div class="plan-calls">1,000 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div><div class="plan-feats"><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Starter</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Appointment booking</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom AI personality & script</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Google Calendar integration</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Priority support</div></div><button onclick="location.href='/dashboard?signup=1'" class="pcta pcta-p">Start free trial &rarr;</button></div><div class="plan"><div class="plan-name">Business</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="349" data-annual="291">349</span><sub>/mo</sub></div><div style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px">+ VAT</div><div class="plan-calls">5,000 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div><div class="plan-feats"><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Professional</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI voice & language selector</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>CRM & webhook integration</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call recording</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>2 phone numbers</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dedicated account manager</div></div><button onclick="location.href='/dashboard?signup=1'" class="pcta pcta-g">Get started &rarr;</button></div></div></div>
-<p style="font-size:13px;color:var(--dim);margin-top:24px;text-align:center">All plans include a 14-day free trial. Card required — no charge during your 14-day trial.</p>
-<p style="font-size:12px;color:var(--dim);margin-top:6px;text-align:center">All prices exclude VAT. VAT at 20% will be added at checkout.</p>
-<p style="font-size:12px;color:var(--dim);margin-top:10px;text-align:center">&#128222; <strong style="color:var(--muted)">Keep your existing number.</strong> Simply divert your current business number to your AiRingDesk number &#8212; your customers call the same number as always.</p>
-<script>if(typeof toggleBilling==='undefined'){var _annual=false;function toggleBilling(){_annual=!_annual;document.getElementById('billing-toggle').classList.toggle('annual',_annual);document.getElementById('monthly-lbl').classList.toggle('active',!_annual);document.getElementById('annual-lbl').classList.toggle('active',_annual);document.querySelectorAll('.price-val').forEach(function(e){e.textContent=_annual?e.dataset.annual:e.dataset.monthly;});}}</script>
-</section>
 
-<footer>
-  <div style="font-size:18px;font-weight:800;letter-spacing:-.5px"><span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span><sup style="font-size:9px;color:#3d5470;vertical-align:super;margin-left:1px">®</sup></div><div style="font-size:9px;color:#5a7a9a;letter-spacing:.06em;font-weight:500;margin-top:2px">Your 24/7 AI Call Desk</div>
-  <div class="footer-links">
-    <a href="/">Home</a><a href="/#pricing">Pricing</a><a href="/privacy">Privacy</a><a href="/contact">Contact</a>
+<div class="related">
+  <h3>Related Content</h3>
+  <div class="related-grid">
+    <a href="/blog/best-ai-answering-service-for-car-garages-uk-2026" class="related-card" style="text-decoration:none"><h4>Best AI Answering Service for Car Garages UK 2026</h4><p>Complete guide comparing AI answering services for UK garages and MOT centres.</p></a>
+    <a href="/industries/plumbers" class="related-card" style="text-decoration:none"><h4>AI Receptionist for Plumbers</h4><p>Emergency callouts, job bookings, and customer enquiries handled by AI 24/7.</p></a>
+    <a href="/industries/estate-agents" class="related-card" style="text-decoration:none"><h4>AI Receptionist for Estate Agents</h4><p>Viewing requests, lead qualification, and property enquiries captured around the clock.</p></a>
   </div>
-  <div style="font-size:11px;color:var(--dim)">© 2026 AiRingDesk · SatFocus Ltd · 124 City Road, London, EC1V 2NX</div>
-</footer>
+</div>
+
+<footer class="footer"><p>&copy; 2026 AiRingDesk&reg; &middot; AI Phone Receptionist for UK Businesses</p></footer>
+
+<script>
+document.querySelectorAll(".faq-q").forEach(q=>{q.addEventListener("click",()=>{const i=q.parentElement;const w=i.classList.contains("open");document.querySelectorAll(".faq-item").forEach(x=>x.classList.remove("open"));if(!w)i.classList.add("open")})});
+</script>
 </body>
 </html>
