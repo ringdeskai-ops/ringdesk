@@ -1,233 +1,328 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="shortcut icon" href="/favicon.svg">
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Receptionist for Estate Agents UK — AiRingDesk</title>
-<meta name="description" content="AI receptionist for UK estate agents. Handles property enquiries, books viewings and qualifies leads 24/7. Never miss a buyer or seller call again."/>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<meta name="description" content="AI receptionist for UK estate agents. Answers calls 24/7, captures viewing requests, qualifies buyers and sellers, sends SMS confirmations. From £29/month. GDPR compliant.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://airingdesk.com/industries/estate-agents"/>
+
+<!-- Open Graph -->
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://airingdesk.com/industries/estate-agents"/>
+<meta property="og:title" content="AI Receptionist for Estate Agents UK — AiRingDesk"/>
+<meta property="og:description" content="Never miss a property enquiry again. AiRingDesk answers calls 24/7 for estate agents — captures viewing requests, qualifies leads, sends SMS confirmations."/>
+<meta property="og:image" content="https://airingdesk.com/blog/assets/real-estate.jpg"/>
+
+<!-- Schema: LocalBusiness + FAQPage -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "AiRingDesk AI Receptionist for Estate Agents",
+  "description": "AI-powered phone receptionist for UK estate agents. Answers calls 24/7, captures viewing requests, qualifies buyers and sellers, and sends instant notifications.",
+  "provider": {"@type": "Organization", "name": "AiRingDesk", "url": "https://airingdesk.com"},
+  "areaServed": {"@type": "Country", "name": "United Kingdom"},
+  "serviceType": "AI Phone Receptionist"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "How can an AI receptionist help my estate agency?", "acceptedAnswer": {"@type": "Answer", "text": "AiRingDesk answers buyer and vendor calls 24/7, captures viewing requests with property details and caller contact information, qualifies leads by position (first-time buyer, chain-free, investor), sends instant email and SMS notifications to your negotiators, and texts the caller to confirm receipt of their enquiry. It works evenings, weekends, and bank holidays when 40% of property enquiries arrive."}},
+    {"@type": "Question", "name": "Can it book property viewings automatically?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. AiRingDesk collects viewing preferences, property details, the caller's name and number, and their preferred date and time. It sends this information instantly to your team to confirm the viewing slot, and sends an SMS to the caller confirming their enquiry has been received."}},
+    {"@type": "Question", "name": "How much does an AI receptionist for estate agents cost?", "acceptedAnswer": {"@type": "Answer", "text": "AiRingDesk plans start from £29 per month — less than the cost of a single day of a receptionist's annual salary. All plans include 24/7 coverage, SMS notifications, and unlimited concurrent calls."}},
+    {"@type": "Question", "name": "Is it GDPR compliant for handling property data?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. AiRingDesk stores all data in the UK, is ICO registered, and provides full GDPR compliance. Your callers' personal data is handled securely and never shared with third parties."}},
+    {"@type": "Question", "name": "Can it transfer urgent calls to my team?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. For existing clients chasing exchange dates, solicitor queries, or anything time-critical, AiRingDesk can transfer the call live to a specific team member or branch manager in real time."}},
+    {"@type": "Question", "name": "Will callers know they're speaking to an AI?", "acceptedAnswer": {"@type": "Answer", "text": "AiRingDesk uses natural, conversational AI that sounds professional and human-like. Most callers simply experience a prompt, helpful response to their enquiry. The AI introduces itself by your agency name and handles the call with the same professionalism your team would."}}
+  ]
+}
+</script>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/brand.css">
+
+<!-- GA4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
+
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--black:#020408;--surface:#080e18;--surface2:#0c1520;--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);--text:#f0f6ff;--muted:#5a7a9a;--dim:#2a3f55;--cyan:#00d4ff;--green:#00e87a;--accent:#ffb800;--font-display:'Instrument Serif',Georgia,serif;--font-body:'Geist',system-ui,sans-serif}
-body{background:var(--black);color:var(--text);font-family:var(--font-body);line-height:1.6}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,60px);background:rgba(2,4,8,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.nav-brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:var(--text);text-decoration:none}
-.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.btn{display:inline-flex;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;border:none;font-family:var(--font-body);transition:all .2s;align-items:center;gap:6px;cursor:pointer}
-.btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border2)}
-.btn-cyan{background:var(--cyan);color:#020408;font-weight:700}
-.hero{padding:120px clamp(20px,5vw,60px) 80px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,black,transparent);pointer-events:none}
-.orb{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(255,184,0,.08),transparent 70%);top:-100px;right:-100px;filter:blur(80px);pointer-events:none}
-.hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-@media(max-width:768px){.hero-inner{grid-template-columns:1fr}}
-.stag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
-.stag::before{content:'';width:20px;height:1px;background:var(--accent)}
-h1{font-family:var(--font-display);font-size:clamp(38px,6vw,68px);font-weight:400;line-height:1.05;letter-spacing:-2px;margin-bottom:20px}
-h1 em{font-style:italic;color:var(--accent)}
-h2{font-family:var(--font-display);font-size:clamp(28px,4vw,44px);font-weight:400;letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px}
-h2 em{font-style:italic;color:var(--accent)}
-.hero-sub{font-size:17px;color:var(--muted);line-height:1.7;margin-bottom:32px;max-width:500px}
-.hero-ctas{display:flex;gap:10px;flex-wrap:wrap}
-.hero-card{background:rgba(8,14,24,.92);border:1px solid var(--border2);border-radius:20px;padding:28px;position:relative;overflow:hidden}
-.hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#ffb800,transparent)}
-.stat-row{display:flex;flex-direction:column;gap:12px}
-.stat-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.02)}
-.stat-val{font-size:24px;font-weight:800;letter-spacing:-1px;color:var(--accent);min-width:70px}
-.stat-label{font-size:12px;color:var(--muted);line-height:1.5}
-section{padding:clamp(60px,8vw,100px) clamp(20px,5vw,60px)}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;max-width:1100px;margin:0 auto}
-@media(max-width:768px){.grid-2{grid-template-columns:1fr}}
-p{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:16px}
-.uses-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;max-width:1100px;margin:0 auto}
-.use-item{padding:20px 22px;border-radius:14px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:flex-start;gap:12px;transition:all .2s}
-.use-item:hover{border-color:#ffb80033;background:rgba(0,212,255,.02)}
-.use-check{width:20px;height:20px;border-radius:50%;background:#ffb80015;border:1px solid #ffb80030;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:10px;color:var(--accent);font-weight:700}
-.use-text{font-size:14px;color:var(--muted);line-height:1.6}
-.quote-card{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:32px;position:relative;overflow:hidden;max-width:700px;margin:48px auto 0}
-.quote-card::before{content:'"';position:absolute;top:-10px;right:20px;font-size:120px;color:#ffb80008;font-family:var(--font-display);line-height:1}
-.quote-text{font-family:var(--font-display);font-size:18px;font-style:italic;color:rgba(240,246,255,.8);line-height:1.7;margin-bottom:16px}
-.quote-author{font-size:13px;color:var(--muted);font-weight:600}
-.cta-section{background:var(--surface2);text-align:center;padding:80px clamp(20px,5vw,60px)}
-footer{padding:32px clamp(20px,5vw,60px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.footer-links{display:flex;gap:20px}
-.footer-links a{font-size:12px;color:var(--muted);text-decoration:none}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--cyan:#00d4ff;--bg:#020408;--card:#0a1628;--border:rgba(0,212,255,.12);--text:#c8d8e8;--muted:#5a7a9a;--serif:'Instrument Serif',Georgia,serif;--sans:'Geist',system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+a{color:var(--cyan);text-decoration:none}
+
+/* Nav */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(2,4,8,.92);backdrop-filter:blur(20px);z-index:100}
+.nav-brand{font-family:var(--sans);font-size:20px;font-weight:700;text-decoration:none;letter-spacing:-.02em}
+.nav-brand .ai{color:#fff}.nav-brand .ring{color:var(--cyan)}.nav-brand .desk{color:#fff}
+
+/* Hero */
+.hero{text-align:center;padding:80px 24px 60px;max-width:800px;margin:0 auto}
+.hero .badge{display:inline-block;background:rgba(0,212,255,.08);border:1px solid var(--border);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:24px}
+.hero h1{font-family:var(--serif);font-size:clamp(36px,6vw,56px);color:#fff;line-height:1.1;margin-bottom:20px}
+.hero h1 em{font-style:italic;color:var(--cyan)}
+.hero .sub{font-size:18px;color:var(--muted);max-width:600px;margin:0 auto 32px;line-height:1.6}
+.hero-cta{display:inline-block;background:var(--cyan);color:var(--bg);padding:16px 36px;border-radius:12px;font-weight:700;font-size:16px;transition:all .2s}
+.hero-cta:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,212,255,.3)}
+
+/* Section */
+.section{max-width:900px;margin:0 auto;padding:60px 24px}
+.section-title{font-family:var(--serif);font-size:clamp(28px,4vw,40px);color:#fff;text-align:center;margin-bottom:12px;line-height:1.2}
+.section-sub{text-align:center;color:var(--muted);max-width:600px;margin:0 auto 40px;font-size:16px}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:48px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;text-align:center}
+.stat .num{font-family:var(--serif);font-size:42px;color:var(--cyan);display:block;margin-bottom:6px}
+.stat .lbl{font-size:13px;color:var(--muted);font-weight:500;line-height:1.5}
+
+/* Features Grid */
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.feature{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px}
+.feature .icon{font-size:28px;margin-bottom:12px}
+.feature h3{font-family:var(--sans);font-size:16px;color:#fff;font-weight:600;margin-bottom:8px}
+.feature p{font-size:14px;color:var(--muted);line-height:1.6}
+
+/* Conversation Demo */
+.convo-section{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:40px;max-width:600px;margin:0 auto 48px}
+.convo-header{font-size:13px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:24px;text-align:center}
+.convo-line{display:flex;gap:12px;margin-bottom:16px}
+.convo-line .who{font-size:11px;font-weight:700;min-width:72px;padding-top:3px;text-transform:uppercase;letter-spacing:.06em}
+.convo-line .who.ai{color:var(--cyan)}
+.convo-line .who.caller{color:var(--muted)}
+.convo-line .msg{font-size:14px;color:var(--text);line-height:1.6}
+
+/* How It Works */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.step{text-align:center;padding:24px}
+.step .num{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:rgba(0,212,255,.1);border:2px solid var(--cyan);color:var(--cyan);font-weight:700;font-size:18px;margin-bottom:16px}
+.step h3{font-size:16px;color:#fff;font-weight:600;margin-bottom:8px}
+.step p{font-size:14px;color:var(--muted);line-height:1.5}
+
+/* FAQ */
+.faq-list{max-width:700px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border);padding:24px 0}
+.faq-q{font-size:16px;color:#fff;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq-q::after{content:'+';color:var(--cyan);font-size:22px;font-weight:300;transition:transform .2s}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;color:var(--muted);font-size:14px;line-height:1.7}
+.faq-item.open .faq-a{max-height:300px;padding-top:12px}
+
+/* CTA */
+.final-cta{text-align:center;padding:80px 24px;background:linear-gradient(180deg,transparent,rgba(0,212,255,.04))}
+.final-cta h2{font-family:var(--serif);font-size:clamp(28px,4vw,40px);color:#fff;margin-bottom:16px}
+.final-cta p{color:var(--muted);margin-bottom:28px;font-size:16px}
+
+/* Related */
+.related{max-width:900px;margin:0 auto;padding:0 24px 60px}
+.related h3{font-family:var(--serif);font-size:22px;color:#fff;margin-bottom:16px;text-align:center}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.related-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;transition:border-color .2s}
+.related-card:hover{border-color:var(--cyan)}
+.related-card h4{font-size:15px;color:#fff;margin-bottom:6px;font-weight:600}
+.related-card p{font-size:13px;color:var(--muted);line-height:1.5}
+
+/* Footer */
+.footer{text-align:center;padding:40px 24px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)}
+
+@media(max-width:640px){
+  .hero{padding:48px 16px 40px}
+  .section{padding:40px 16px}
+  .convo-section{padding:24px 16px}
+  .stats{grid-template-columns:1fr}
+  .features{grid-template-columns:1fr}
+}
 </style>
-  <!-- SEO: Canonical -->
-  <link rel="canonical" href="https://airingdesk.com/industries/estate-agents"/>
-  <!-- SEO: Open Graph -->
-  <meta property="og:type" content="website"/>
-  <meta property="og:url" content="https://airingdesk.com/industries/estate-agents"/>
-  <meta property="og:title" content="AI Receptionist for Estate Agents UK — AiRingDesk"/>
-  <meta property="og:description" content="AI receptionist for UK estate agents. Handles property enquiries, books viewings and qualifies leads 24/7. Never miss a buyer or seller call again."/>
-  <meta property="og:image" content="https://airingdesk.com/og-image.jpg"/>
-  <meta property="og:site_name" content="AiRingDesk"/>
-  <meta property="og:locale" content="en_GB"/>
-  <!-- SEO: Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="twitter:title" content="AI Receptionist for Estate Agents UK — AiRingDesk"/>
-  <meta name="twitter:description" content="AI receptionist for UK estate agents. Handles property enquiries, books viewings and qualifies leads 24/7. Never miss a buyer or seller call again."/>
-  <meta name="twitter:image" content="https://airingdesk.com/og-image.jpg"/>
-  <!-- SEO: Additional -->
-  <meta name="robots" content="index, follow"/>
-  <meta name="author" content="AiRingDesk"/>
-  <meta name="geo.region" content="GB"/>
-  <meta name="geo.placename" content="United Kingdom"/>
-  <!-- SEO: Schema.org JSON-LD -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "AI Receptionist for Estate Agents",
-    "provider": {
-      "@type": "Organization",
-      "name": "AiRingDesk",
-      "url": "https://airingdesk.com"
-    },
-    "description": "AI receptionist for UK estate agents. Handles property enquiries, books viewings and qualifies leads 24/7. Never miss a buyer or seller call again.",
-    "areaServed": {
-      "@type": "Country",
-      "name": "United Kingdom"
-    },
-    "offers": {
-      "@type": "Offer",
-      "price": "29",
-      "priceCurrency": "GBP"
-    }
-  }
-  </script>
-<link rel="stylesheet" href="/brand.css"><!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-1ZJ2W7DSKP"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-1ZJ2W7DSKP");</script>
 </head>
 <body>
-<nav>
-  <a href="/" class="nav-brand">
-    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(0,102,204,.15));border:1px solid rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 16px rgba(0,212,255,.15)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
-    </div>
-    <div>
-      <div style="font-size:18px;font-weight:800;letter-spacing:-.5px"><span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span><sup style="font-size:9px;color:#3d5470;vertical-align:super;margin-left:1px">®</sup></div>
-      <div style="font-size:9px;color:#5a7a9a;letter-spacing:.06em;font-weight:500;margin-top:1px">Your 24/7 AI Call Desk</div>
-    </div>
-  </a>
-  <div style="display:flex;gap:8px">
-    <a href="/" class="btn btn-ghost">← Home</a>
-    <a href="/dashboard?signup=1" class="btn btn-cyan">Start free trial</a>
+
+<nav class="nav">
+  <a href="/" class="nav-brand"><span class="ai">Ai</span><span class="ring">Ring</span><span class="desk">Desk</span>®</a>
+  <div style="display:flex;gap:16px;align-items:center">
+    <a href="/industries" style="color:var(--muted);font-size:13px">Industries</a>
+    <a href="/blog" style="color:var(--muted);font-size:13px">Blog</a>
+    <a href="/#pricing" style="background:var(--cyan);color:var(--bg);padding:7px 16px;border-radius:8px;font-size:13px;font-weight:700">Start free trial</a>
   </div>
 </nav>
-<section class="hero">
-  <div class="orb"></div>
-  <div class="hero-inner">
-    <div>
-      <div class="stag">For Estate Agents</div>
-      <h1><em>Every property enquiry answered instantly</em></h1>
-      <p class="hero-sub">AiRingDesk handles buyer and seller enquiries, books viewings, and captures every lead — even when your team is out showing properties.</p>
-      <div class="hero-ctas">
-        <a href="/dashboard?signup=1" class="btn btn-cyan" style="padding:13px 28px;font-size:15px">Start 14-day free trial →</a>
-        <a href="tel:+442046348499" class="btn btn-ghost" style="padding:13px 22px;font-size:15px">📞 Hear demo</a>
-      </div>
-      <p style="font-size:12px;color:var(--dim);margin-top:12px">No credit card required · Live in 30 minutes · Cancel anytime</p>
-    </div>
-    <div class="hero-card">
-      <div style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px">Why Estate Agents choose AiRingDesk</div>
-      <div class="stat-row">
-        <div class="stat-item"><div class="stat-val">£8,500</div><div class="stat-label">average estate agent commission per sale</div></div>
-<div class="stat-item"><div class="stat-val">60%</div><div class="stat-label">of property buyers call multiple agents simultaneously</div></div>
-<div class="stat-item"><div class="stat-val">45min</div><div class="stat-label">is the average response time without AI</div></div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<section style="background:var(--surface)">
-  <div class="grid-2">
-    <div>
-      <div class="stag">The problem</div>
-      <h2>Why calls get <em>missed</em></h2>
-      <p>Property buyers and sellers expect immediate responses. When your agents are out on viewings, calls go unanswered. A missed call could mean a lost instruction worth thousands in commission.</p>
-      <p>AiRingDesk solves this permanently. Your AI receptionist answers every call, handles every routine enquiry, and only transfers to you when it truly matters.</p>
-    </div>
-    <div>
-      <div style="background:var(--black);border:1px solid var(--border2);border-radius:16px;padding:24px">
-        <div style="font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:700;margin-bottom:16px">Cost comparison</div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:10px;background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.15)">
-            <span style="font-size:13px;color:var(--muted)">Full-time receptionist</span>
-            <span style="font-size:16px;font-weight:800;color:#ff8899">£25,000+/yr</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:10px;background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15)">
-            <span style="font-size:13px;color:var(--muted)">Part-time receptionist</span>
-            <span style="font-size:16px;font-weight:800;color:#ffcc44">£12,000+/yr</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:10px;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.2)">
-            <span style="font-size:13px;color:var(--text);font-weight:600">AiRingDesk Professional</span>
-            <span style="font-size:16px;font-weight:800;color:var(--green)">£149/mo + VAT</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+<!-- Hero -->
+<div class="hero">
+  <div class="badge">🏠 For Estate Agents</div>
+  <h1>Never Miss Another<br><em>Property Enquiry</em></h1>
+  <p class="sub">AiRingDesk answers every call to your estate agency 24/7 — captures viewing requests, qualifies buyers and sellers, and sends instant notifications to your team. From £29/month.</p>
+  <a href="/#pricing" class="hero-cta">Start free trial →</a>
+</div>
 
-<section style="background:var(--black)">
-  <div style="text-align:center;margin-bottom:40px;max-width:1100px;margin-left:auto;margin-right:auto">
-    <div class="stag">Use cases</div>
-    <h2>Everything Aria does for <em>Estate Agents</em></h2>
-  </div>
-  <div class="uses-grid">
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Book property viewings instantly around the clock</div></div>
-<div class="use-item"><div class="use-check">✓</div><div class="use-text">Answer questions about specific properties and pricing</div></div>
-<div class="use-item"><div class="use-check">✓</div><div class="use-text">Capture buyer and seller lead information</div></div>
-<div class="use-item"><div class="use-check">✓</div><div class="use-text">Handle landlord and tenant enquiries separately</div></div>
-<div class="use-item"><div class="use-check">✓</div><div class="use-text">Transfer urgent calls to the right negotiator</div></div>
-<div class="use-item"><div class="use-check">✓</div><div class="use-text">Provide area and market information</div></div>
-  </div>
-  <div class="quote-card">
-    <div class="quote-text">"We now capture every out-of-hours enquiry. Last month Aria booked 12 viewings that would have gone to competitors."</div>
-    <div class="quote-author">— James Chen, Alpine Estates, London</div>
-  </div>
-</section>
-
-<div class="cta-section">
-  <div class="stag" style="justify-content:center">Get started today</div>
-  <h2 style="font-family:var(--font-display);font-size:clamp(32px,5vw,56px);font-weight:400;letter-spacing:-2px;margin-bottom:16px">Ready to <em>stop missing calls?</em></h2>
-  <p style="font-size:16px;color:var(--muted);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto">14-day free trial. No credit card required. Your AI receptionist live in 30 minutes.</p>
-  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-    <a href="/dashboard?signup=1" class="btn btn-cyan" style="padding:14px 32px;font-size:15px">Start free trial →</a>
-    <a href="/contact" class="btn btn-ghost" style="padding:14px 24px;font-size:15px">Talk to us first</a>
+<!-- Stats -->
+<div class="section">
+  <div class="stats">
+    <div class="stat"><span class="num">£119m</span><span class="lbl">Lost annually by UK estate agents to missed calls</span></div>
+    <div class="stat"><span class="num">40%</span><span class="lbl">Of property enquiries arrive outside office hours</span></div>
+    <div class="stat"><span class="num">85%</span><span class="lbl">Of callers won't try again if nobody answers</span></div>
+    <div class="stat"><span class="num">24/7</span><span class="lbl">AiRingDesk coverage including evenings &amp; weekends</span></div>
   </div>
 </div>
+
+<!-- Conversation Demo -->
+<div class="section" style="padding-top:0">
+  <h2 class="section-title">Hear How It Sounds</h2>
+  <p class="section-sub">Here's a typical call handled by AiRingDesk for an estate agency — a buyer calling about a Rightmove listing at 8:30pm.</p>
+  <div class="convo-section">
+    <div class="convo-header">📞 Live Viewing Request — 8:32pm</div>
+    <div class="convo-line"><span class="who caller">Caller</span><span class="msg">Hi, I'm calling about the four-bed detached on Elm Grove — I saw it on Rightmove. Is it still on the market?</span></div>
+    <div class="convo-line"><span class="who ai">AiRingDesk</span><span class="msg">Good evening, thank you for calling Harrow Property Group! Yes, the four-bedroom detached on Elm Grove is still available. Would you like to arrange a viewing?</span></div>
+    <div class="convo-line"><span class="who caller">Caller</span><span class="msg">Yes please. We're chain-free and pre-approved — is this weekend possible?</span></div>
+    <div class="convo-line"><span class="who ai">AiRingDesk</span><span class="msg">Brilliant — chain-free and pre-approved, that's great. Let me take your details. Can I get your name and a contact number?</span></div>
+    <div class="convo-line"><span class="who caller">Caller</span><span class="msg">Sarah Mitchell, 07700 900456.</span></div>
+    <div class="convo-line"><span class="who ai">AiRingDesk</span><span class="msg">Thank you, Sarah. I've sent your viewing request to the team — you're chain-free and pre-approved, interested in the Elm Grove property, for this weekend. They'll call you to confirm the exact time. I'll also send you an SMS to confirm we've received your enquiry.</span></div>
   </div>
-  </div>
-  </div>
-  </div>
-  <section id="pricing" style="padding:60px 24px;background:var(--black)">
-<div style="text-align:center;margin-bottom:32px">
-<div style="font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px"><span style="display:inline-block;width:24px;height:2px;background:var(--cyan)"></span>Pricing</div>
-<h2 style="font-family:'Instrument Serif',Georgia,serif;font-size:42px;font-weight:400;letter-spacing:-1px;margin-bottom:8px">Simple, <em style="font-style:italic;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">transparent</em> pricing</h2>
-<p style="font-size:15px;color:var(--muted)">No setup fees. No per-minute charges. One flat monthly fee.</p>
 </div>
-<div class="pricing-toggle">
-<span class="toggle-label active" id="monthly-lbl">Monthly</span>
-<div class="toggle-switch" id="billing-toggle" onclick="toggleBilling()"><div class="toggle-thumb"></div></div>
-<span class="toggle-label" id="annual-lbl">Annual</span>
-<span class="annual-badge">Save 2 months free</span>
-</div>
-<div class="plans"><div class="plan"><div class="plan-name">Essential</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="29" data-annual="24">29</span><sub>/mo</sub></div><div style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px">+ VAT</div><div class="plan-calls">150 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div><div class="plan-feats"><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>1 UK phone number</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI answering 24/7</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Email notifications</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call transcripts & summaries</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call transfers</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dashboard</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>14-days trial</div></div><button onclick="location.href='/dashboard?signup=1'" class="pcta pcta-p">Start free trial &rarr;</button></div><div class="plan"><div class="plan-name">Starter</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="49" data-annual="41">49</span><sub>/mo</sub></div><div style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px">+ VAT</div><div class="plan-calls">300 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div><div class="plan-feats"><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Essential</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Voicemail + recordings</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call dashboard & leads</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Referral programme</div></div><button onclick="location.href='/dashboard?signup=1'" class="pcta pcta-g">Get started &rarr;</button></div><div class="plan pop"><div class="plan-badge">MOST POPULAR</div><div class="plan-name">Professional</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="149" data-annual="124">149</span><sub>/mo</sub></div><div style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px">+ VAT</div><div class="plan-calls">1,000 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div><div class="plan-feats"><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Starter</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Appointment booking</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom AI personality & script</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Google Calendar integration</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Priority support</div></div><button onclick="location.href='/dashboard?signup=1'" class="pcta pcta-p">Start free trial &rarr;</button></div><div class="plan"><div class="plan-name">Business</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="349" data-annual="291">349</span><sub>/mo</sub></div><div style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px">+ VAT</div><div class="plan-calls">5,000 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div><div class="plan-feats"><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Professional</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI voice & language selector</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>CRM & webhook integration</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call recording</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>2 phone numbers</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dedicated account manager</div></div><button onclick="location.href='/dashboard?signup=1'" class="pcta pcta-g">Get started &rarr;</button></div></div></div>
-<p style="font-size:13px;color:var(--dim);margin-top:24px;text-align:center">All plans include a 14-day free trial. Card required — no charge during your 14-day trial.</p>
-<p style="font-size:12px;color:var(--dim);margin-top:6px;text-align:center">All prices exclude VAT. VAT at 20% will be added at checkout.</p>
-<p style="font-size:12px;color:var(--dim);margin-top:10px;text-align:center">&#128222; <strong style="color:var(--muted)">Keep your existing number.</strong> Simply divert your current business number to your AiRingDesk number &#8212; your customers call the same number as always.</p>
-<script>if(typeof toggleBilling==='undefined'){var _annual=false;function toggleBilling(){_annual=!_annual;document.getElementById('billing-toggle').classList.toggle('annual',_annual);document.getElementById('monthly-lbl').classList.toggle('active',!_annual);document.getElementById('annual-lbl').classList.toggle('active',_annual);document.querySelectorAll('.price-val').forEach(function(e){e.textContent=_annual?e.dataset.annual:e.dataset.monthly;});}}</script>
-</section>
-<footer>
-  <div style="font-size:18px;font-weight:800;letter-spacing:-.5px"><span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span><sup style="font-size:9px;color:#3d5470;vertical-align:super;margin-left:1px">®</sup></div><div style="font-size:9px;color:#5a7a9a;letter-spacing:.06em;font-weight:500;margin-top:2px">Your 24/7 AI Call Desk</div>
-  <div class="footer-links">
-    <a href="/">Home</a><a href="/#pricing">Pricing</a><a href="/privacy">Privacy</a><a href="/contact">Contact</a>
+
+<!-- Features -->
+<div class="section">
+  <h2 class="section-title">Built for Estate Agents</h2>
+  <p class="section-sub">Every feature designed for the way property agencies actually work.</p>
+  <div class="features">
+    <div class="feature">
+      <div class="icon">🏠</div>
+      <h3>Viewing Request Capture</h3>
+      <p>Collects property details, caller name, number, preferred viewing date, and buyer position — sent instantly to the right negotiator.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">🔍</div>
+      <h3>Lead Qualification</h3>
+      <p>Asks callers whether they're buyers, sellers, landlords, or tenants. Captures their position: first-time buyer, chain-free, investor, cash buyer.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">📱</div>
+      <h3>SMS Confirmation</h3>
+      <p>Sends an automatic text to the caller confirming their enquiry was received. Stops them calling the next agent on the list.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">📞</div>
+      <h3>Urgent Call Transfer</h3>
+      <p>Exchange queries, solicitor chases, and time-critical calls get transferred live to your branch manager or negotiator.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">🌙</div>
+      <h3>Evening &amp; Weekend Cover</h3>
+      <p>40% of Rightmove enquiries arrive after 5pm. AiRingDesk catches every single one — including 9pm on a Sunday.</p>
+    </div>
+    <div class="feature">
+      <div class="icon">🔒</div>
+      <h3>GDPR Compliant</h3>
+      <p>UK data storage. ICO registered. Full GDPR compliance. Your clients' personal data is handled securely and never shared.</p>
+    </div>
   </div>
-  <div style="font-size:11px;color:var(--dim)">© 2026 AiRingDesk · SatFocus Ltd · 124 City Road, London, EC1V 2NX</div>
+</div>
+
+<!-- How It Works -->
+<div class="section">
+  <h2 class="section-title">How It Works</h2>
+  <p class="section-sub">Live in 10 minutes. No hardware, no contracts, no IT department required.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="num">1</div>
+      <h3>Get Your Number</h3>
+      <p>Receive a UK number or divert your existing line to AiRingDesk — for after-hours, overflow, or all calls.</p>
+    </div>
+    <div class="step">
+      <div class="num">2</div>
+      <h3>Customise</h3>
+      <p>Set your agency name, greeting, and call routing. Tell the AI how to handle viewing requests, valuations, and urgent calls.</p>
+    </div>
+    <div class="step">
+      <div class="num">3</div>
+      <h3>Go Live</h3>
+      <p>Every call answered within two rings, 24/7. Viewing requests captured. SMS sent. Your team notified instantly.</p>
+    </div>
+    <div class="step">
+      <div class="num">4</div>
+      <h3>Follow Up</h3>
+      <p>See every call in your dashboard with full transcripts, caller details, and the property they enquired about.</p>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="section">
+  <h2 class="section-title">Frequently Asked Questions</h2>
+  <p class="section-sub">Everything estate agents ask before switching to AI call handling.</p>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q">How can an AI receptionist help my estate agency?</div>
+      <div class="faq-a">AiRingDesk answers buyer and vendor calls 24/7, captures viewing requests with property details and caller contact information, qualifies leads by position (first-time buyer, chain-free, investor), sends instant email and SMS notifications to your negotiators, and texts the caller to confirm receipt. It works evenings, weekends, and bank holidays — exactly when 40% of property enquiries arrive.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Can it book property viewings automatically?</div>
+      <div class="faq-a">Yes. AiRingDesk collects viewing preferences, property details, the caller's name and number, and their preferred date and time. It sends this information instantly to your team to confirm the slot, and sends an SMS to the caller confirming their enquiry has been received.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">How much does an AI receptionist for estate agents cost?</div>
+      <div class="faq-a">AiRingDesk plans start from £29 per month — less than the cost of a single day of a receptionist's annual salary. All plans include 24/7 coverage, SMS notifications, and unlimited concurrent calls. No contracts, cancel anytime.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Is it GDPR compliant for handling property data?</div>
+      <div class="faq-a">Yes. AiRingDesk stores all data in the UK, is ICO registered, and provides full GDPR compliance. Your callers' personal data is handled securely and never shared with third parties.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Can it transfer urgent calls to my team?</div>
+      <div class="faq-a">Yes. For existing clients chasing exchange dates, solicitor queries, or anything time-critical, AiRingDesk can transfer the call live to a specific team member or branch manager in real time.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q">Will callers know they're speaking to an AI?</div>
+      <div class="faq-a">AiRingDesk uses natural, conversational AI that sounds professional and human-like. Most callers simply experience a prompt, helpful response. The AI introduces itself by your agency name and handles the call with the same professionalism your team would.</div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="final-cta">
+  <h2>Stop Losing Leads to Voicemail</h2>
+  <p>Join estate agents across the UK who never miss a property enquiry. Start your free trial today.</p>
+  <a href="/#pricing" class="hero-cta">Start free trial →</a>
+</div>
+
+<!-- Related -->
+<div class="related">
+  <h3>Related Content</h3>
+  <div class="related-grid">
+    <a href="/blog/best-ai-answering-service-for-estate-agents-uk-2026" class="related-card" style="text-decoration:none">
+      <h4>Best AI Answering Service for Estate Agents UK 2026</h4>
+      <p>Complete guide comparing AI answering services for UK estate agencies — costs, features, and what to look for.</p>
+    </a>
+    <a href="/industries/dental" class="related-card" style="text-decoration:none">
+      <h4>AI Receptionist for Dental Clinics</h4>
+      <p>How dental clinics use AI to capture every patient call and book appointments 24/7.</p>
+    </a>
+    <a href="/industries/plumbers" class="related-card" style="text-decoration:none">
+      <h4>AI Receptionist for Plumbers</h4>
+      <p>Emergency callouts, job bookings, and customer enquiries handled by AI around the clock.</p>
+    </a>
+  </div>
+</div>
+
+<footer class="footer">
+  <p>© 2026 AiRingDesk® · AI Phone Receptionist for UK Businesses</p>
 </footer>
+
+<script>
+document.querySelectorAll('.faq-q').forEach(q=>{
+  q.addEventListener('click',()=>{
+    const item=q.parentElement;
+    const wasOpen=item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));
+    if(!wasOpen)item.classList.add('open');
+  });
+});
+</script>
+
 </body>
 </html>

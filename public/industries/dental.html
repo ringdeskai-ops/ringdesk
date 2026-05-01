@@ -29,6 +29,7 @@ h1{font-family:var(--font-display);font-size:clamp(38px,6vw,68px);font-weight:40
 h1 em{font-style:italic;color:var(--accent)}
 h2{font-family:var(--font-display);font-size:clamp(28px,4vw,44px);font-weight:400;letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px}
 h2 em{font-style:italic;color:var(--accent)}
+h3{font-family:var(--font-body);font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
 .hero-sub{font-size:17px;color:var(--muted);line-height:1.7;margin-bottom:32px;max-width:500px}
 .hero-ctas{display:flex;gap:10px;flex-wrap:wrap}
 .hero-card{background:rgba(8,14,24,.92);border:1px solid var(--border2);border-radius:20px;padding:28px;position:relative;overflow:hidden}
@@ -54,28 +55,81 @@ p{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:16px}
 footer{padding:32px clamp(20px,5vw,60px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
 .footer-links{display:flex;gap:20px}
 .footer-links a{font-size:12px;color:var(--muted);text-decoration:none}
+
+/* ── NEW: Additional section styles ── */
+.content-section{max-width:800px;margin:0 auto}
+.content-section p{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:16px}
+.content-section h3{margin-top:32px;margin-bottom:10px}
+.content-section a{color:var(--cyan);text-decoration:underline;text-underline-offset:3px;text-decoration-color:rgba(0,212,255,0.4)}
+.content-section a:hover{text-decoration-color:var(--cyan)}
+
+/* Conversation demo */
+.convo-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px 28px;margin:24px 0;position:relative;overflow:hidden}
+.convo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),transparent)}
+.convo-line{padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start}
+.convo-line:last-child{border-bottom:none}
+.convo-who{font-size:12px;font-weight:700;min-width:60px;flex-shrink:0;padding-top:2px}
+.convo-who.caller{color:var(--muted)}
+.convo-who.ai{color:var(--cyan)}
+.convo-msg{font-size:14px;color:rgba(240,246,255,0.75);line-height:1.7;font-style:italic}
+
+/* Steps */
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:1100px;margin:32px auto 0}
+.step-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;position:relative}
+.step-num{width:32px;height:32px;border-radius:50%;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--cyan);margin-bottom:12px}
+.step-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
+.step-desc{font-size:13px;color:var(--muted);line-height:1.7}
+
+/* FAQ */
+.faq-list{max-width:800px;margin:32px auto 0}
+.faq-item{border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
+.faq-q{padding:18px 22px;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--surface);transition:background .2s}
+.faq-q:hover{background:var(--surface2)}
+.faq-q::after{content:'+';font-size:20px;color:var(--cyan);font-weight:700;flex-shrink:0;margin-left:12px}
+.faq-q.open::after{content:'−'}
+.faq-a{padding:0 22px 18px;color:var(--muted);display:none;background:var(--surface);font-size:14px;line-height:1.8}
+.faq-a.open{display:block}
+
+/* Cost comparison enhanced */
+.cost-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:800px;margin:24px auto 0}
+@media(max-width:768px){.cost-grid{grid-template-columns:1fr}}
+.cost-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center}
+.cost-card.highlight{border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.03)}
+.cost-card .cost-label{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
+.cost-card .cost-price{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-1px;margin-bottom:4px}
+.cost-card.highlight .cost-price{color:var(--cyan)}
+.cost-card .cost-note{font-size:11px;color:var(--dim);line-height:1.5}
+
+/* Blog link card */
+.blog-link-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px 28px;max-width:800px;margin:32px auto 0;display:flex;align-items:center;gap:16px;text-decoration:none;transition:all .2s}
+.blog-link-card:hover{border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.02)}
+.blog-link-icon{font-size:28px;flex-shrink:0}
+.blog-link-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px}
+.blog-link-desc{font-size:13px;color:var(--muted);line-height:1.5}
+.blog-link-arrow{margin-left:auto;color:var(--cyan);font-size:18px;flex-shrink:0}
 </style>
   <!-- SEO: Canonical -->
   <link rel="canonical" href="https://airingdesk.com/industries/dental"/>
+  <link rel="stylesheet" href="/brand.css">
   <!-- SEO: Open Graph -->
   <meta property="og:type" content="website"/>
   <meta property="og:url" content="https://airingdesk.com/industries/dental"/>
   <meta property="og:title" content="AI Receptionist for Dental Clinics UK — AiRingDesk"/>
   <meta property="og:description" content="Never miss a patient call again. AiRingDesk answers calls 24/7 for dental clinics, books appointments and handles patient enquiries. From £29/month + VAT."/>
-  <meta property="og:image" content="https://airingdesk.com/og-image.jpg"/>
+  <meta property="og:image" content="https://airingdesk.com/blog/assets/dental-hero.png"/>
   <meta property="og:site_name" content="AiRingDesk"/>
   <meta property="og:locale" content="en_GB"/>
   <!-- SEO: Twitter Card -->
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:title" content="AI Receptionist for Dental Clinics UK — AiRingDesk"/>
   <meta name="twitter:description" content="Never miss a patient call again. AiRingDesk answers calls 24/7 for dental clinics, books appointments and handles patient enquiries. From £29/month + VAT."/>
-  <meta name="twitter:image" content="https://airingdesk.com/og-image.jpg"/>
+  <meta name="twitter:image" content="https://airingdesk.com/blog/assets/dental-hero.png"/>
   <!-- SEO: Additional -->
   <meta name="robots" content="index, follow"/>
   <meta name="author" content="AiRingDesk"/>
   <meta name="geo.region" content="GB"/>
   <meta name="geo.placename" content="United Kingdom"/>
-  <!-- SEO: Schema.org JSON-LD -->
+  <!-- SEO: Schema.org JSON-LD (Service) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -98,27 +152,93 @@ footer{padding:32px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
     }
   }
   </script>
-<link rel="stylesheet" href="/brand.css"><!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-1ZJ2W7DSKP"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-1ZJ2W7DSKP");</script>
+  <!-- SEO: FAQ Schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How much does a dental answering service cost in the UK?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "AI-powered dental answering services like AiRingDesk start from £29 per month with flat pricing and no per-call fees. Traditional human answering services typically cost £200–£800 per month depending on call volume."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can an AI receptionist book dental appointments?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. AiRingDesk integrates with Google Calendar and can book, reschedule, and cancel appointments 24/7 through natural voice conversations with patients."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What happens when a dental emergency call comes in after hours?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "AiRingDesk recognises emergency language — severe pain, swelling, knocked-out tooth, bleeding — and either transfers the call directly to your on-call dentist or sends an urgent SMS and email alert with the patient's details."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do patients know they are speaking to an AI?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "That's your choice. Most practices configure Aria to introduce herself as a virtual receptionist. The AI sounds natural and conversational — most callers cannot tell the difference."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is AiRingDesk GDPR compliant for dental practices?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. AiRingDesk is fully GDPR compliant, ICO registered, and stores all data in UK and European data centres. Patient information is processed securely in accordance with UK data protection requirements."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Can I keep my existing dental practice phone number?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Simply set up a call divert from your existing number to your AiRingDesk number. Your patients keep calling the same number they always have — no disruption."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How quickly can I set up AiRingDesk for my dental practice?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Most dental practices are live within 10 minutes. Sign up, choose a number, add your practice details and FAQs, and Aria is ready to answer calls."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does AiRingDesk handle NHS vs private patient enquiries?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. You can configure Aria with information about which treatments you offer on the NHS vs privately, pricing for common procedures, and any specific eligibility criteria. She'll answer patient questions accurately based on your instructions."
+        }
+      }
+    ]
+  }
+  </script>
 </head>
 <body>
+
+<!-- NAV -->
 <nav>
-  <a href="/" class="nav-brand">
-    <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(0,102,204,.15));border:1px solid rgba(0,212,255,.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 0 16px rgba(0,212,255,.15)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14z"/></svg>
-    </div>
-    <div>
-      <div style="font-size:18px;font-weight:800;letter-spacing:-.5px"><span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span><sup style="font-size:9px;color:#3d5470;vertical-align:super;margin-left:1px">®</sup></div>
-      <div style="font-size:9px;color:#5a7a9a;letter-spacing:.06em;font-weight:500;margin-top:1px">Your 24/7 AI Call Desk</div>
-    </div>
-  </a>
+  <a href="/" class="nav-brand"><span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span>Ring<span style="color:var(--dim)">Desk</span><sup style="font-size:9px;color:var(--dim);vertical-align:super">®</sup> <span class="nav-dot"></span></a>
   <div style="display:flex;gap:8px">
     <a href="/" class="btn btn-ghost">← Home</a>
     <a href="/dashboard?signup=1" class="btn btn-cyan">Start free trial</a>
   </div>
 </nav>
-<section class="hero">
+
+<!-- HERO -->
+<div class="hero">
   <div class="orb"></div>
   <div class="hero-inner">
     <div>
@@ -126,85 +246,220 @@ footer{padding:32px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
       <h1><em>Never miss a patient call again</em></h1>
       <p class="hero-sub">AiRingDesk answers every call to your dental practice — booking appointments, handling insurance queries, and transferring urgent cases to your team.</p>
       <div class="hero-ctas">
-        <a href="/dashboard?signup=1" class="btn btn-cyan" style="padding:13px 28px;font-size:15px">Start 14-day free trial →</a>
-        <a href="tel:+442046348499" class="btn btn-ghost" style="padding:13px 22px;font-size:15px">📞 Hear demo</a>
+        <a href="/dashboard?signup=1" class="btn btn-cyan" style="padding:12px 28px;font-size:14px">Start 14-day free trial →</a>
+        <a href="tel:+442046348499" class="btn btn-ghost" style="padding:12px 20px;font-size:14px">📞 Hear demo</a>
       </div>
-      <p style="font-size:12px;color:var(--dim);margin-top:12px">No credit card required · Live in 30 minutes · Cancel anytime</p>
+      <p style="font-size:12px;color:var(--dim);margin-top:14px">No credit card required · Live in 10 minutes · Cancel anytime</p>
     </div>
     <div class="hero-card">
-      <div style="font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:16px">Why Dental Clinics choose AiRingDesk</div>
+      <div style="font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">Why Dental Clinics choose AiRingDesk</div>
       <div class="stat-row">
         <div class="stat-item"><div class="stat-val">43%</div><div class="stat-label">of dental calls go unanswered during peak hours</div></div>
-<div class="stat-item"><div class="stat-val">£180</div><div class="stat-label">average value of a new patient appointment</div></div>
-<div class="stat-item"><div class="stat-val">62%</div><div class="stat-label">of callers never try again after reaching voicemail</div></div>
+        <div class="stat-item"><div class="stat-val">£180</div><div class="stat-label">average value of a new patient appointment</div></div>
+        <div class="stat-item"><div class="stat-val">62%</div><div class="stat-label">of callers never try again after reaching voicemail</div></div>
       </div>
     </div>
   </div>
-</section>
+</div>
 
+<!-- SECTION: The problem -->
 <section style="background:var(--surface)">
   <div class="grid-2">
     <div>
       <div class="stag">The problem</div>
       <h2>Why calls get <em>missed</em></h2>
-      <p>Dental receptionists are busy. Patients call during treatment, between appointments, and after hours. Every missed call is a potential patient going to another practice.</p>
-      <p>AiRingDesk solves this permanently. Your AI receptionist answers every call, handles every routine enquiry, and only transfers to you when it truly matters.</p>
     </div>
     <div>
-      <div style="background:var(--black);border:1px solid var(--border2);border-radius:16px;padding:24px">
-        <div style="font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;font-weight:700;margin-bottom:16px">Cost comparison</div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:10px;background:rgba(255,68,102,.06);border:1px solid rgba(255,68,102,.15)">
-            <span style="font-size:13px;color:var(--muted)">Full-time receptionist</span>
-            <span style="font-size:16px;font-weight:800;color:#ff8899">£25,000+/yr</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:10px;background:rgba(255,184,0,.06);border:1px solid rgba(255,184,0,.15)">
-            <span style="font-size:13px;color:var(--muted)">Part-time receptionist</span>
-            <span style="font-size:16px;font-weight:800;color:#ffcc44">£12,000+/yr</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:10px;background:rgba(0,232,122,.06);border:1px solid rgba(0,232,122,.2)">
-            <span style="font-size:13px;color:var(--text);font-weight:600">AiRingDesk Professional</span>
-            <span style="font-size:16px;font-weight:800;color:var(--green)">£149/mo + VAT</span>
-          </div>
-        </div>
-      </div>
+      <p>Dental receptionists are busy. Patients call during treatment, between appointments, and after hours. Every missed call is a potential patient going to another practice.</p>
+      <p>AiRingDesk solves this permanently. Your AI receptionist answers every call, handles every routine enquiry, and only transfers to you when it truly matters.</p>
     </div>
   </div>
 </section>
 
-<section style="background:var(--black)">
-  <div style="text-align:center;margin-bottom:40px;max-width:1100px;margin-left:auto;margin-right:auto">
-    <div class="stag">Use cases</div>
+<!-- SECTION: How it works for dental practices (NEW) -->
+<section>
+  <div style="text-align:center;max-width:700px;margin:0 auto">
+    <div class="stag" style="justify-content:center">How it works</div>
+    <h2>Your AI receptionist, <em>set up in 10 minutes</em></h2>
+    <p>No technical knowledge needed. No integration projects. Just sign up, tell Aria about your practice, and she starts answering calls.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-title">Choose your number</div>
+      <div class="step-desc">Pick a UK phone number from our marketplace, or set up forwarding from your existing practice number. Patients call the same number as always.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-title">Configure for dentistry</div>
+      <div class="step-desc">Tell Aria your opening hours, treatments offered, NHS vs private information, pricing for common procedures, and how you want emergencies handled.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-title">Go live 24/7</div>
+      <div class="step-desc">Aria answers every call instantly — booking appointments, answering patient questions, taking messages, and transferring urgent calls to your team.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-num">4</div>
+      <div class="step-title">Review everything</div>
+      <div class="step-desc">Every call logged with full transcripts and AI summaries. See exactly what every patient said, what Aria handled, and what needs your attention.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION: Hear a real conversation (NEW) -->
+<section style="background:var(--surface)">
+  <div style="text-align:center;max-width:700px;margin:0 auto">
+    <div class="stag" style="justify-content:center">Hear it in action</div>
+    <h2>What a real call <em>sounds like</em></h2>
+    <p>Here's how Aria handles a typical appointment booking for a dental practice. She sounds natural, understands context, and follows your practice's protocols.</p>
+  </div>
+  <div class="convo-card" style="max-width:700px;margin:32px auto 0">
+    <div class="convo-line"><div class="convo-who caller">Patient</div><div class="convo-msg">"Hi, I'd like to book an appointment — I've been having some pain in my back tooth for the last couple of days."</div></div>
+    <div class="convo-line"><div class="convo-who ai">Aria</div><div class="convo-msg">"I'm sorry to hear about the pain. I can help you book an appointment. Could I take your name and a contact number? I'll check what we have available this week."</div></div>
+    <div class="convo-line"><div class="convo-who caller">Patient</div><div class="convo-msg">"It's Sarah Williams, 07700 900123."</div></div>
+    <div class="convo-line"><div class="convo-who ai">Aria</div><div class="convo-msg">"Thank you, Sarah. We have availability on Thursday afternoon at 2:30pm or Friday morning at 10am. Which works better for you?"</div></div>
+    <div class="convo-line"><div class="convo-who caller">Patient</div><div class="convo-msg">"Thursday at 2:30 would be perfect."</div></div>
+    <div class="convo-line"><div class="convo-who ai">Aria</div><div class="convo-msg">"That's booked for you — Thursday at 2:30pm. You'll receive a confirmation shortly. In the meantime, if the pain worsens or you notice any swelling, please call back and we'll arrange an emergency appointment."</div></div>
+  </div>
+  <p style="text-align:center;font-size:13px;color:var(--dim);margin-top:16px">Call our demo line to hear Aria live: <a href="tel:+442046348499" style="color:var(--cyan);text-decoration:none;font-weight:600">+44 20 4634 8499</a></p>
+</section>
+
+<!-- SECTION: Cost comparison -->
+<section>
+  <div style="text-align:center;max-width:700px;margin:0 auto">
+    <div class="stag" style="justify-content:center">Cost comparison</div>
+    <h2>How AiRingDesk <em>compares</em></h2>
+    <p>Most dental practices spend thousands on reception staff who still can't answer every call. Here's how the costs stack up for a practice handling 40 overflow calls per month.</p>
+  </div>
+  <div class="cost-grid">
+    <div class="cost-card">
+      <div class="cost-label">Full-time receptionist</div>
+      <div class="cost-price">£25,000+</div>
+      <div class="cost-note">per year · Still can't answer after hours</div>
+    </div>
+    <div class="cost-card">
+      <div class="cost-label">Human answering service</div>
+      <div class="cost-price">£400+</div>
+      <div class="cost-note">per month · Per-call charges on top</div>
+    </div>
+    <div class="cost-card highlight">
+      <div class="cost-label">AiRingDesk Professional</div>
+      <div class="cost-price">£149</div>
+      <div class="cost-note">per month + VAT · Flat rate, 1,000 calls included</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION: Use cases -->
+<section style="background:var(--surface)">
+  <div style="text-align:center;max-width:700px;margin:0 auto;margin-bottom:32px">
+    <div class="stag" style="justify-content:center">Use cases</div>
     <h2>Everything Aria does for <em>Dental Clinics</em></h2>
   </div>
   <div class="uses-grid">
     <div class="use-item"><div class="use-check">✓</div><div class="use-text">Book and confirm appointments 24/7</div></div>
-<div class="use-item"><div class="use-check">✓</div><div class="use-text">Answer questions about NHS vs private treatment</div></div>
-<div class="use-item"><div class="use-check">✓</div><div class="use-text">Handle insurance and payment queries</div></div>
-<div class="use-item"><div class="use-check">✓</div><div class="use-text">Send appointment reminders via callback</div></div>
-<div class="use-item"><div class="use-check">✓</div><div class="use-text">Transfer urgent dental emergencies immediately</div></div>
-<div class="use-item"><div class="use-check">✓</div><div class="use-text">Take messages when reception is busy</div></div>
+    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Answer questions about NHS vs private treatment</div></div>
+    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Handle insurance and payment queries</div></div>
+    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Send appointment reminders via callback</div></div>
+    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Transfer urgent dental emergencies immediately</div></div>
+    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Take messages when reception is busy</div></div>
+    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Provide practice opening hours and directions</div></div>
+    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Explain pricing for common treatments</div></div>
+    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Handle cancellations and rescheduling</div></div>
   </div>
+</section>
+
+<!-- SECTION: Dental emergencies (NEW) -->
+<section>
+  <div class="grid-2">
+    <div>
+      <div class="stag">Emergency handling</div>
+      <h2>Dental emergencies, <em>handled instantly</em></h2>
+    </div>
+    <div>
+      <p>A patient with a knocked-out tooth or severe swelling can't wait for voicemail. Aria recognises emergency language — mentions of severe pain, bleeding, swelling, trauma, or dental injury — and escalates immediately.</p>
+      <p>Depending on your preferences, she can transfer the call directly to your on-call dentist's mobile, send an urgent SMS alert with the patient's details and symptoms, or provide immediate first-aid guidance while simultaneously alerting your team.</p>
+      <p>Unlike human answering services, <strong style="color:var(--text)">Aria follows your emergency protocol every single time</strong>. She never forgets to ask a follow-up question, never misclassifies an emergency as routine, and never fails to send the alert.</p>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION: Testimonial -->
+<section style="background:var(--surface)">
   <div class="quote-card">
     <div class="quote-text">"We were losing 8-10 new patient enquiries every week after hours. AiRingDesk pays for itself with just one new patient per month."</div>
     <div class="quote-author">— Dr. Sarah Mitchell, Westside Dental, Bristol</div>
   </div>
 </section>
 
+<!-- SECTION: FAQ (NEW) -->
+<section>
+  <div style="text-align:center;max-width:700px;margin:0 auto">
+    <div class="stag" style="justify-content:center">Common questions</div>
+    <h2>Frequently asked <em>questions</em></h2>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">How much does a dental answering service cost in the UK?</div>
+      <div class="faq-a">AI-powered dental answering services like AiRingDesk start from £29 per month with flat pricing and no per-call fees. Traditional human answering services from providers like Moneypenny or Best Reception typically cost £200–£800 per month depending on call volume, with additional per-minute charges on top.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Can an AI receptionist book dental appointments?</div>
+      <div class="faq-a">Yes. AiRingDesk integrates with Google Calendar and can book, reschedule, and cancel appointments 24/7 through natural voice conversations with patients. The AI handles the full booking conversation — confirming the patient's name, contact details, preferred time, and reason for the appointment — then adds it directly to your calendar.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">What happens when a dental emergency call comes in after hours?</div>
+      <div class="faq-a">AiRingDesk recognises emergency language — severe pain, swelling, knocked-out tooth, bleeding — and either transfers the call directly to your on-call dentist or sends an urgent SMS and email alert with the patient's details and symptoms. You configure exactly how emergencies are handled for your practice.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Do patients know they're speaking to an AI?</div>
+      <div class="faq-a">That's your choice. Most practices configure Aria to introduce herself as a "virtual receptionist." The AI sounds natural and conversational using advanced voice synthesis — most callers cannot tell the difference. What patients notice most is that their call is answered instantly, with no hold time.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Is AiRingDesk GDPR compliant for dental practices?</div>
+      <div class="faq-a">Yes. AiRingDesk is fully GDPR compliant, ICO registered (ZB199222), and stores all data in UK and European data centres. Patient information is processed securely in accordance with UK data protection requirements. We never share patient data with third parties.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Can I keep my existing dental practice phone number?</div>
+      <div class="faq-a">Yes. Simply set up a call divert from your existing number to your AiRingDesk number — this takes about 5 minutes with your phone provider. Your patients keep calling the same number they've always used. No disruption, no confusion.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">How quickly can I set up AiRingDesk for my dental practice?</div>
+      <div class="faq-a">Most dental practices are live within 10 minutes. Sign up, choose a phone number, add your practice details and FAQs (opening hours, treatments, NHS vs private info, emergency protocols), and Aria is ready to answer calls immediately.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Does AiRingDesk handle NHS vs private patient enquiries?</div>
+      <div class="faq-a">Yes. You can configure Aria with detailed information about which treatments you offer on the NHS vs privately, pricing for common procedures (check-ups, fillings, crowns, whitening), and any specific eligibility criteria. She'll answer patient questions accurately based on your instructions.</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECTION: Blog link (NEW) -->
+<section style="background:var(--surface);padding-top:40px;padding-bottom:40px">
+  <a href="/blog/best-answering-service-for-dentists-uk-2026" class="blog-link-card">
+    <div class="blog-link-icon">📖</div>
+    <div>
+      <div class="blog-link-title">Best Answering Service for Dentists UK 2026: AI vs Human vs Voicemail</div>
+      <div class="blog-link-desc">Read our complete guide comparing dental answering services — costs, features, and which option delivers the best ROI.</div>
+    </div>
+    <div class="blog-link-arrow">→</div>
+  </a>
+</section>
+
+<!-- CTA -->
 <div class="cta-section">
   <div class="stag" style="justify-content:center">Get started today</div>
   <h2 style="font-family:var(--font-display);font-size:clamp(32px,5vw,56px);font-weight:400;letter-spacing:-2px;margin-bottom:16px">Ready to <em>stop missing calls?</em></h2>
-  <p style="font-size:16px;color:var(--muted);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto">14-day free trial. No credit card required. Your AI receptionist live in 30 minutes.</p>
+  <p style="font-size:16px;color:var(--muted);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto">14-day free trial. No credit card required. Your AI receptionist live in 10 minutes.</p>
   <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
     <a href="/dashboard?signup=1" class="btn btn-cyan" style="padding:14px 32px;font-size:15px">Start free trial →</a>
     <a href="/contact" class="btn btn-ghost" style="padding:14px 24px;font-size:15px">Talk to us first</a>
   </div>
 </div>
-  </div>
-  </div>
-  </div>
-  </div>
-  <section id="pricing" style="padding:60px 24px;background:var(--black)">
+
+<!-- PRICING -->
+<section id="pricing" style="padding:60px 24px;background:var(--black)">
 <div style="text-align:center;margin-bottom:32px">
 <div style="font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px"><span style="display:inline-block;width:24px;height:2px;background:var(--cyan)"></span>Pricing</div>
 <h2 style="font-family:'Instrument Serif',Georgia,serif;font-size:42px;font-weight:400;letter-spacing:-1px;margin-bottom:8px">Simple, <em style="font-style:italic;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">transparent</em> pricing</h2>
@@ -222,6 +477,8 @@ footer{padding:32px clamp(20px,5vw,60px);border-top:1px solid var(--border);disp
 <p style="font-size:12px;color:var(--dim);margin-top:10px;text-align:center">&#128222; <strong style="color:var(--muted)">Keep your existing number.</strong> Simply divert your current business number to your AiRingDesk number &#8212; your customers call the same number as always.</p>
 <script>if(typeof toggleBilling==='undefined'){var _annual=false;function toggleBilling(){_annual=!_annual;document.getElementById('billing-toggle').classList.toggle('annual',_annual);document.getElementById('monthly-lbl').classList.toggle('active',!_annual);document.getElementById('annual-lbl').classList.toggle('active',_annual);document.querySelectorAll('.price-val').forEach(function(e){e.textContent=_annual?e.dataset.annual:e.dataset.monthly;});}}</script>
 </section>
+
+<!-- FOOTER -->
 <footer>
   <div style="font-size:18px;font-weight:800;letter-spacing:-.5px"><span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span><sup style="font-size:9px;color:#3d5470;vertical-align:super;margin-left:1px">®</sup></div><div style="font-size:9px;color:#5a7a9a;letter-spacing:.06em;font-weight:500;margin-top:2px">Your 24/7 AI Call Desk</div>
   <div class="footer-links">

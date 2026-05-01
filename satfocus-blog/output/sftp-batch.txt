@@ -1,0 +1,9 @@
+put /var/www/vhosts/airingdesk.com/httpdocs/satfocus-blog/output/index.html /home/aismarts/satfocussecurity.co.uk/news/index.html
+put /var/www/vhosts/airingdesk.com/httpdocs/satfocus-blog/output/news-sitemap.xml /home/aismarts/satfocussecurity.co.uk/news/news-sitemap.xml
+put /var/www/vhosts/airingdesk.com/httpdocs/satfocus-blog/output/.htaccess /home/aismarts/satfocussecurity.co.uk/news/.htaccess
+put /var/www/vhosts/airingdesk.com/httpdocs/satfocus-blog/output/ajax-alarm-system-uk-installation-review-2026.html /home/aismarts/satfocussecurity.co.uk/news/ajax-alarm-system-uk-installation-review-2026/index.html
+put /var/www/vhosts/airingdesk.com/httpdocs/satfocus-blog/output/best-cctv-systems-for-homes-uk-expert-guide-2026.html /home/aismarts/satfocussecurity.co.uk/news/best-cctv-systems-for-homes-uk-expert-guide-2026/index.html
+put /var/www/vhosts/airingdesk.com/httpdocs/satfocus-blog/output/burglar-alarm-systems-uk-expert-guide-installation-2026.html /home/aismarts/satfocussecurity.co.uk/news/burglar-alarm-systems-uk-expert-guide-installation-2026/index.html
+put /var/www/vhosts/airingdesk.com/httpdocs/satfocus-blog/output/cctv-installation-london-professional-security-cameras.html /home/aismarts/satfocussecurity.co.uk/news/cctv-installation-london-professional-security-cameras/index.html
+put /var/www/vhosts/airingdesk.com/httpdocs/satfocus-blog/output/home-security-systems-london-expert-installation-2026.html /home/aismarts/satfocussecurity.co.uk/news/home-security-systems-london-expert-installation-2026/index.html
+put /var/www/vhosts/airingdesk.com/httpdocs/satfocus-blog/output/intruder-alarm-installation-london-expert-security-2026.html /home/aismarts/satfocussecurity.co.uk/news/intruder-alarm-installation-london-expert-security-2026/index.html
