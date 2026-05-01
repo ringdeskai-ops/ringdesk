@@ -1,296 +1,191 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="shortcut icon" href="/favicon.svg">
-  <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Receptionist for Plumbers UK — AiRingDesk</title>
-<meta name="description" content="AI receptionist for UK plumbers. Answers calls 24/7, handles emergency callouts, books jobs and captures every lead. From £29/month + VAT."/>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<meta name="description" content="AI receptionist for UK plumbers. Answers emergency callouts 24/7, books jobs, captures every lead, sends SMS confirmations. From £29/month. GDPR compliant.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="canonical" href="https://airingdesk.com/industries/plumbers"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://airingdesk.com/industries/plumbers"/>
+<meta property="og:title" content="AI Receptionist for Plumbers UK — AiRingDesk"/>
+<meta property="og:description" content="Never miss an emergency callout again. AiRingDesk answers calls 24/7 for plumbers — captures job details, flags emergencies, sends SMS confirmations."/>
+<meta property="og:image" content="https://airingdesk.com/blog/assets/plumbers.jpg"/>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Service","name":"AiRingDesk AI Receptionist for Plumbers","description":"AI-powered phone receptionist for UK plumbers. Answers emergency callouts 24/7, books jobs, captures lead details, and sends instant notifications.","provider":{"@type":"Organization","name":"AiRingDesk","url":"https://airingdesk.com"},"areaServed":{"@type":"Country","name":"United Kingdom"},"serviceType":"AI Phone Receptionist"}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"How can an AI receptionist help my plumbing business?","acceptedAnswer":{"@type":"Answer","text":"AiRingDesk answers every call to your plumbing business 24/7 — even when you are on a job. It captures the caller's name, address, issue description, and urgency level, then sends you an instant email and SMS notification. Emergency calls (burst pipes, leaks, gas concerns) are flagged as urgent so you know which callbacks cannot wait."}},
+{"@type":"Question","name":"Can it handle emergency plumbing callouts?","acceptedAnswer":{"@type":"Answer","text":"Yes. AiRingDesk recognises urgent keywords like burst, leak, flooding, no hot water, and gas smell. It flags these notifications as emergencies and can transfer the call directly to your mobile if you choose. It also gives callers practical advice like locating their stopcock while they wait."}},
+{"@type":"Question","name":"How much does an AI receptionist for plumbers cost?","acceptedAnswer":{"@type":"Answer","text":"AiRingDesk plans start from £29 per month — less than the cost of a single missed job. All plans include 24/7 coverage, SMS notifications to callers, and unlimited concurrent calls. No contracts, cancel anytime."}},
+{"@type":"Question","name":"Will it work when I am on a job and cannot answer?","acceptedAnswer":{"@type":"Answer","text":"That is exactly what it is designed for. When you are under a sink, in a loft, or mid-way through a boiler install, AiRingDesk answers every call, captures the job details, and notifies you by email and SMS. You review and call back when you are ready."}},
+{"@type":"Question","name":"Can it book non-urgent jobs like boiler services?","acceptedAnswer":{"@type":"Answer","text":"Yes. For routine work like boiler services, bathroom quotes, radiator replacements, and annual gas checks, AiRingDesk collects the job details, preferred date, and contact information, then sends it to you ready to schedule."}},
+{"@type":"Question","name":"Is it GDPR compliant?","acceptedAnswer":{"@type":"Answer","text":"Yes. AiRingDesk stores all data in the UK, is ICO registered, and provides full GDPR compliance. Your customers' personal data is handled securely and never shared with third parties."}}
+]}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/brand.css">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date());gtag("config","G-XXXXXXXXXX");</script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--black:#020408;--surface:#080e18;--surface2:#0c1520;--border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);--text:#f0f6ff;--muted:#5a7a9a;--dim:#2a3f55;--cyan:#00d4ff;--green:#00e87a;--accent:#00d4ff;--font-display:'Instrument Serif',Georgia,serif;--font-body:'Geist',system-ui,sans-serif}
-body{background:var(--black);color:var(--text);font-family:var(--font-body);line-height:1.6}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(20px,5vw,60px);background:rgba(2,4,8,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.nav-brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:800;color:var(--text);text-decoration:none}
-.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.btn{display:inline-flex;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;border:none;font-family:var(--font-body);transition:all .2s;align-items:center;gap:6px;cursor:pointer}
-.btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border2)}
-.btn-cyan{background:var(--cyan);color:#020408;font-weight:700}
-.hero{padding:120px clamp(20px,5vw,60px) 80px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.03) 1px,transparent 1px);background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 60% at 50% 40%,black,transparent);pointer-events:none}
-.orb{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,255,.08),transparent 70%);top:-100px;right:-100px;filter:blur(80px);pointer-events:none}
-.hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-@media(max-width:768px){.hero-inner{grid-template-columns:1fr}}
-.stag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-bottom:16px}
-.stag::before{content:'';width:20px;height:1px;background:var(--accent)}
-h1{font-family:var(--font-display);font-size:clamp(38px,6vw,68px);font-weight:400;line-height:1.05;letter-spacing:-2px;margin-bottom:20px}
-h1 em{font-style:italic;color:var(--accent)}
-h2{font-family:var(--font-display);font-size:clamp(28px,4vw,44px);font-weight:400;letter-spacing:-1.5px;line-height:1.1;margin-bottom:16px}
-h2 em{font-style:italic;color:var(--accent)}
-h3{font-family:var(--font-body);font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
-.hero-sub{font-size:17px;color:var(--muted);line-height:1.7;margin-bottom:32px;max-width:500px}
-.hero-ctas{display:flex;gap:10px;flex-wrap:wrap}
-.hero-card{background:rgba(8,14,24,.92);border:1px solid var(--border2);border-radius:20px;padding:28px;position:relative;overflow:hidden}
-.hero-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,#00d4ff,transparent)}
-.stat-row{display:flex;flex-direction:column;gap:12px}
-.stat-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.02)}
-.stat-val{font-size:24px;font-weight:800;letter-spacing:-1px;color:var(--accent);min-width:70px}
-.stat-label{font-size:12px;color:var(--muted);line-height:1.5}
-section{padding:clamp(60px,8vw,100px) clamp(20px,5vw,60px)}
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;max-width:1100px;margin:0 auto}
-@media(max-width:768px){.grid-2{grid-template-columns:1fr}}
-p{font-size:15px;color:var(--muted);line-height:1.8;margin-bottom:16px}
-.uses-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;max-width:1100px;margin:0 auto}
-.use-item{padding:20px 22px;border-radius:14px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:flex-start;gap:12px;transition:all .2s}
-.use-item:hover{border-color:#00d4ff33;background:rgba(0,212,255,.02)}
-.use-check{width:20px;height:20px;border-radius:50%;background:#00d4ff15;border:1px solid #00d4ff30;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;font-size:10px;color:var(--accent);font-weight:700}
-.use-text{font-size:14px;color:var(--muted);line-height:1.6}
-.quote-card{background:var(--surface);border:1px solid var(--border2);border-radius:20px;padding:32px;position:relative;overflow:hidden;max-width:700px;margin:48px auto 0}
-.quote-card::before{content:'"';position:absolute;top:-10px;right:20px;font-size:120px;color:#00d4ff08;font-family:var(--font-display);line-height:1}
-.quote-text{font-family:var(--font-display);font-size:18px;font-style:italic;color:rgba(240,246,255,.8);line-height:1.7;margin-bottom:16px}
-.quote-author{font-size:13px;color:var(--muted);font-weight:600}
-.cta-section{background:var(--surface2);text-align:center;padding:80px clamp(20px,5vw,60px)}
-footer{padding:32px clamp(20px,5vw,60px);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.footer-links{display:flex;gap:20px}
-.footer-links a{font-size:12px;color:var(--muted);text-decoration:none}
-.convo-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px 28px;margin:24px 0;position:relative;overflow:hidden}
-.convo-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,0.3),transparent)}
-.convo-line{padding:10px 0;border-bottom:1px solid var(--border);display:flex;gap:12px;align-items:flex-start}
-.convo-line:last-child{border-bottom:none}
-.convo-who{font-size:12px;font-weight:700;min-width:60px;flex-shrink:0;padding-top:2px}
-.convo-who.caller{color:var(--muted)}.convo-who.ai{color:var(--cyan)}
-.convo-msg{font-size:14px;color:rgba(240,246,255,0.75);line-height:1.7;font-style:italic}
-.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;max-width:1100px;margin:32px auto 0}
-.step-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px}
-.step-num{width:32px;height:32px;border-radius:50%;background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--cyan);margin-bottom:12px}
-.step-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
-.step-desc{font-size:13px;color:var(--muted);line-height:1.7}
-.faq-list{max-width:800px;margin:32px auto 0}
-.faq-item{border:1px solid var(--border);border-radius:14px;margin-bottom:10px;overflow:hidden}
-.faq-q{padding:18px 22px;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;background:var(--surface);transition:background .2s}
-.faq-q:hover{background:var(--surface2)}
-.faq-q::after{content:'+';font-size:20px;color:var(--cyan);font-weight:700;flex-shrink:0;margin-left:12px}
-.faq-q.open::after{content:'\2212'}
-.faq-a{padding:0 22px 18px;color:var(--muted);display:none;background:var(--surface);font-size:14px;line-height:1.8}
-.faq-a.open{display:block}
-.cost-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:800px;margin:24px auto 0}
-@media(max-width:768px){.cost-grid{grid-template-columns:1fr}}
-.cost-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;text-align:center}
-.cost-card.highlight{border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.03)}
-.cost-card .cost-label{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em}
-.cost-card .cost-price{font-size:28px;font-weight:800;color:var(--text);letter-spacing:-1px;margin-bottom:4px}
-.cost-card.highlight .cost-price{color:var(--cyan)}
-.cost-card .cost-note{font-size:11px;color:var(--dim);line-height:1.5}
-.blog-link-card{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:24px 28px;max-width:800px;margin:32px auto 0;display:flex;align-items:center;gap:16px;text-decoration:none;transition:all .2s}
-.blog-link-card:hover{border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.02)}
-.blog-link-icon{font-size:28px;flex-shrink:0}
-.blog-link-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px}
-.blog-link-desc{font-size:13px;color:var(--muted);line-height:1.5}
-.blog-link-arrow{margin-left:auto;color:var(--cyan);font-size:18px;flex-shrink:0}
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--cyan:#00d4ff;--bg:#020408;--card:#0a1628;--border:rgba(0,212,255,.12);--text:#c8d8e8;--muted:#5a7a9a;--serif:"Instrument Serif",Georgia,serif;--sans:"Geist",system-ui,sans-serif}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.75;-webkit-font-smoothing:antialiased}
+a{color:var(--cyan);text-decoration:none}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:rgba(2,4,8,.92);backdrop-filter:blur(20px);z-index:100}
+.nav-brand{font-family:var(--sans);font-size:20px;font-weight:700;text-decoration:none;letter-spacing:-.02em}
+.nav-brand .ai{color:#fff}.nav-brand .ring{color:var(--cyan)}.nav-brand .desk{color:#fff}
+.hero{text-align:center;padding:80px 24px 60px;max-width:800px;margin:0 auto}
+.hero .badge{display:inline-block;background:rgba(0,212,255,.08);border:1px solid var(--border);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:24px}
+.hero h1{font-family:var(--serif);font-size:clamp(36px,6vw,56px);color:#fff;line-height:1.1;margin-bottom:20px}
+.hero h1 em{font-style:italic;color:var(--cyan)}
+.hero .sub{font-size:18px;color:var(--muted);max-width:600px;margin:0 auto 32px;line-height:1.6}
+.hero-cta{display:inline-block;background:var(--cyan);color:var(--bg);padding:16px 36px;border-radius:12px;font-weight:700;font-size:16px;transition:all .2s}
+.hero-cta:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(0,212,255,.3)}
+.section{max-width:900px;margin:0 auto;padding:60px 24px}
+.section-title{font-family:var(--serif);font-size:clamp(28px,4vw,40px);color:#fff;text-align:center;margin-bottom:12px;line-height:1.2}
+.section-sub{text-align:center;color:var(--muted);max-width:600px;margin:0 auto 40px;font-size:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:48px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;text-align:center}
+.stat .num{font-family:var(--serif);font-size:42px;color:var(--cyan);display:block;margin-bottom:6px}
+.stat .lbl{font-size:13px;color:var(--muted);font-weight:500;line-height:1.5}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}
+.feature{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px}
+.feature .icon{font-size:28px;margin-bottom:12px}
+.feature h3{font-family:var(--sans);font-size:16px;color:#fff;font-weight:600;margin-bottom:8px}
+.feature p{font-size:14px;color:var(--muted);line-height:1.6}
+.convo-section{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:40px;max-width:600px;margin:0 auto 48px}
+.convo-header{font-size:13px;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.1em;margin-bottom:24px;text-align:center}
+.convo-line{display:flex;gap:12px;margin-bottom:16px}
+.convo-line .who{font-size:11px;font-weight:700;min-width:72px;padding-top:3px;text-transform:uppercase;letter-spacing:.06em}
+.convo-line .who.ai{color:var(--cyan)}
+.convo-line .who.caller{color:var(--muted)}
+.convo-line .msg{font-size:14px;color:var(--text);line-height:1.6}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.step{text-align:center;padding:24px}
+.step .num{display:inline-flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:rgba(0,212,255,.1);border:2px solid var(--cyan);color:var(--cyan);font-weight:700;font-size:18px;margin-bottom:16px}
+.step h3{font-size:16px;color:#fff;font-weight:600;margin-bottom:8px}
+.step p{font-size:14px;color:var(--muted);line-height:1.5}
+.faq-list{max-width:700px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border);padding:24px 0}
+.faq-q{font-size:16px;color:#fff;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.faq-q::after{content:"+";color:var(--cyan);font-size:22px;font-weight:300;transition:transform .2s}
+.faq-item.open .faq-q::after{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .3s ease;color:var(--muted);font-size:14px;line-height:1.7}
+.faq-item.open .faq-a{max-height:300px;padding-top:12px}
+.final-cta{text-align:center;padding:80px 24px;background:linear-gradient(180deg,transparent,rgba(0,212,255,.04))}
+.final-cta h2{font-family:var(--serif);font-size:clamp(28px,4vw,40px);color:#fff;margin-bottom:16px}
+.final-cta p{color:var(--muted);margin-bottom:28px;font-size:16px}
+.related{max-width:900px;margin:0 auto;padding:0 24px 60px}
+.related h3{font-family:var(--serif);font-size:22px;color:#fff;margin-bottom:16px;text-align:center}
+.related-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.related-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;transition:border-color .2s}
+.related-card:hover{border-color:var(--cyan)}
+.related-card h4{font-size:15px;color:#fff;margin-bottom:6px;font-weight:600}
+.related-card p{font-size:13px;color:var(--muted);line-height:1.5}
+.footer{text-align:center;padding:40px 24px;border-top:1px solid var(--border);font-size:13px;color:var(--muted)}
+@media(max-width:640px){.hero{padding:48px 16px 40px}.section{padding:40px 16px}.convo-section{padding:24px 16px}.stats{grid-template-columns:1fr}.features{grid-template-columns:1fr}}
 </style>
-  <link rel="canonical" href="https://airingdesk.com/industries/plumbers"/>
-  <link rel="stylesheet" href="/brand.css">
-  <meta property="og:type" content="website"/>
-  <meta property="og:url" content="https://airingdesk.com/industries/plumbers"/>
-  <meta property="og:title" content="AI Receptionist for Plumbers UK — AiRingDesk"/>
-  <meta property="og:description" content="AI receptionist for UK plumbers. Answers calls 24/7, handles emergency callouts, books jobs. From £29/month + VAT."/>
-  <meta property="og:image" content="https://airingdesk.com/og-image.jpg"/>
-  <meta property="og:site_name" content="AiRingDesk"/>
-  <meta property="og:locale" content="en_GB"/>
-  <meta name="twitter:card" content="summary_large_image"/>
-  <meta name="robots" content="index, follow"/>
-  <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"Service","name":"AI Receptionist for Plumbers","provider":{"@type":"Organization","name":"AiRingDesk","url":"https://airingdesk.com"},"description":"AI receptionist for UK plumbers. Answers calls 24/7, handles emergency callouts, books jobs and captures every lead. From £29/month + VAT.","areaServed":{"@type":"Country","name":"United Kingdom"},"offers":{"@type":"Offer","price":"29","priceCurrency":"GBP"}}
-  </script>
-  <script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-    {"@type":"Question","name":"How much does an AI answering service for plumbers cost?","acceptedAnswer":{"@type":"Answer","text":"AiRingDesk starts from £29 per month with flat pricing and no per-call fees. No per-minute charges, no setup fees. The Professional plan at £149/month includes job booking and Google Calendar integration."}},
-    {"@type":"Question","name":"Can an AI receptionist handle emergency plumbing calls?","acceptedAnswer":{"@type":"Answer","text":"Yes. AiRingDesk recognises emergency keywords like burst pipe, flooding, leak, no hot water, and gas smell. It escalates immediately via SMS or call transfer to the on-call plumber with full details."}},
-    {"@type":"Question","name":"Can an AI book plumbing jobs into my calendar?","acceptedAnswer":{"@type":"Answer","text":"Yes. AiRingDesk integrates with Google Calendar and can book jobs through natural phone conversations, confirming the customer's details, type of work, and preferred time."}},
-    {"@type":"Question","name":"Will customers know they are speaking to an AI?","acceptedAnswer":{"@type":"Answer","text":"Most callers cannot tell the difference. Modern AI voice technology sounds natural and conversational. What customers notice is that the phone is answered instantly."}},
-    {"@type":"Question","name":"Can I keep my existing phone number?","acceptedAnswer":{"@type":"Answer","text":"Yes. Simply set up a call divert from your existing number to your AiRingDesk number. Customers keep calling the same number. Setup takes 5 minutes."}},
-    {"@type":"Question","name":"How quickly can I set up AiRingDesk?","acceptedAnswer":{"@type":"Answer","text":"Most plumbers are live within 10 minutes. Sign up, choose a number, add your services and emergency protocols, and Aria is ready to answer calls."}}
-  ]}
-  </script>
 </head>
 <body>
-
-<nav>
-  <a href="/" class="nav-brand"><span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span>Ring<span style="color:var(--dim)">Desk</span><sup style="font-size:9px;color:var(--dim);vertical-align:super">®</sup> <span class="nav-dot"></span></a>
-  <div style="display:flex;gap:8px">
-    <a href="/" class="btn btn-ghost">← Home</a>
-    <a href="/dashboard?signup=1" class="btn btn-cyan">Start free trial</a>
+<nav class="nav">
+  <a href="/" class="nav-brand"><span class="ai">Ai</span><span class="ring">Ring</span><span class="desk">Desk</span>&reg;</a>
+  <div style="display:flex;gap:16px;align-items:center">
+    <a href="/industries" style="color:var(--muted);font-size:13px">Industries</a>
+    <a href="/blog" style="color:var(--muted);font-size:13px">Blog</a>
+    <a href="/#pricing" style="background:var(--cyan);color:var(--bg);padding:7px 16px;border-radius:8px;font-size:13px;font-weight:700">Start free trial</a>
   </div>
 </nav>
 
 <div class="hero">
-  <div class="orb"></div>
-  <div class="hero-inner">
-    <div>
-      <div class="stag">For Plumbers</div>
-      <h1>Never miss an <em>emergency callout</em> again</h1>
-      <p class="hero-sub">You're under a sink when the phone rings. By the time you get to it, the customer has called the next plumber. AiRingDesk answers instantly — booking jobs, handling enquiries, and dispatching emergencies 24/7.</p>
-      <div class="hero-ctas">
-        <a href="/dashboard?signup=1" class="btn btn-cyan" style="padding:12px 28px;font-size:14px">Start 14-day free trial →</a>
-        <a href="tel:+442046348499" class="btn btn-ghost" style="padding:12px 20px;font-size:14px">📞 Hear demo</a>
-      </div>
-      <p style="font-size:12px;color:var(--dim);margin-top:14px">No credit card required · Live in 10 minutes · Cancel anytime</p>
-    </div>
-    <div class="hero-card">
-      <div style="font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px">Why Plumbers choose AiRingDesk</div>
-      <div class="stat-row">
-        <div class="stat-item"><div class="stat-val">40%</div><div class="stat-label">of plumber calls missed while on the tools</div></div>
-        <div class="stat-item"><div class="stat-val">£300</div><div class="stat-label">average plumbing job value</div></div>
-        <div class="stat-item"><div class="stat-val">69%</div><div class="stat-label">of callers never leave a voicemail</div></div>
-      </div>
-    </div>
+  <div class="badge">&#128295; For Plumbers</div>
+  <h1>Never Miss Another<br><em>Emergency Callout</em></h1>
+  <p class="sub">AiRingDesk answers every call to your plumbing business 24/7 — handles emergency callouts, books routine jobs, and sends instant notifications to you. Even when you are elbow-deep in a repair. From &pound;29/month.</p>
+  <a href="/#pricing" class="hero-cta">Start free trial &rarr;</a>
+</div>
+
+<div class="section">
+  <div class="stats">
+    <div class="stat"><span class="num">60&ndash;80%</span><span class="lbl">Of calls missed by tradespeople on the job</span></div>
+    <div class="stat"><span class="num">&pound;450</span><span class="lbl">Average value of a UK plumbing job</span></div>
+    <div class="stat"><span class="num">85%</span><span class="lbl">Of callers will not leave a voicemail</span></div>
+    <div class="stat"><span class="num">24/7</span><span class="lbl">AiRingDesk coverage including nights &amp; weekends</span></div>
   </div>
 </div>
 
-<section style="background:var(--surface)">
-  <div class="grid-2">
-    <div><div class="stag">The problem</div><h2>Too busy on the tools <em>to answer the phone</em></h2></div>
-    <div>
-      <p>You're elbow-deep in a boiler repair, under a sink, or driving between jobs. The phone rings and you can't answer. By the time you call back, the customer has already booked someone else.</p>
-      <p>AiRingDesk solves this permanently. Your AI receptionist answers every call instantly — booking jobs, handling quote requests, and dispatching emergencies to your mobile via SMS.</p>
-    </div>
+<div class="section" style="padding-top:0">
+  <h2 class="section-title">Hear How It Sounds</h2>
+  <p class="section-sub">A real emergency callout handled by AiRingDesk at 6:47am on a Monday morning.</p>
+  <div class="convo-section">
+    <div class="convo-header">&#128222; Emergency Callout &mdash; 6:47am</div>
+    <div class="convo-line"><span class="who caller">Caller</span><span class="msg">Hi, I have got water pouring through my kitchen ceiling &mdash; I think a pipe has burst upstairs. Can someone come out urgently?</span></div>
+    <div class="convo-line"><span class="who ai">AiRingDesk</span><span class="msg">I am sorry to hear that &mdash; let me get you some help right away. Can I take your name and the address where the leak is?</span></div>
+    <div class="convo-line"><span class="who caller">Caller</span><span class="msg">It is David Thompson, 14 Maple Road, Harrow, HA2 8BQ.</span></div>
+    <div class="convo-line"><span class="who ai">AiRingDesk</span><span class="msg">Thank you, David. I have sent an urgent notification to the plumber with your details. While you wait, if you can find the stopcock &mdash; usually under the kitchen sink &mdash; turning it clockwise will stop the water flow. Someone will call you back very shortly.</span></div>
+    <div class="convo-line"><span class="who caller">Caller</span><span class="msg">Thank you, that is really helpful.</span></div>
   </div>
-</section>
+</div>
 
-<section>
-  <div style="text-align:center;max-width:700px;margin:0 auto">
-    <div class="stag" style="justify-content:center">How it works</div>
-    <h2>Live in <em>10 minutes</em>, no tech needed</h2>
-    <p>No software to install. No hardware to buy. Just sign up, tell Aria about your plumbing business, and she starts answering calls.</p>
+<div class="section">
+  <h2 class="section-title">Built for Plumbers</h2>
+  <p class="section-sub">Every feature designed for how plumbing businesses actually work.</p>
+  <div class="features">
+    <div class="feature"><div class="icon">&#128680;</div><h3>Emergency Prioritisation</h3><p>Recognises urgent keywords &mdash; burst, leak, flooding, no hot water, gas smell &mdash; and flags the notification so you know which callbacks cannot wait.</p></div>
+    <div class="feature"><div class="icon">&#128197;</div><h3>Job Booking</h3><p>For routine work like boiler services, bathroom quotes, and radiator replacements, the AI collects job details, preferred date, and contact info ready for you to schedule.</p></div>
+    <div class="feature"><div class="icon">&#127769;</div><h3>After-Hours Coverage</h3><p>Plumbing emergencies do not respect business hours. AiRingDesk answers at 6am on a Monday or 11pm on Christmas Eve, giving callers immediate reassurance.</p></div>
+    <div class="feature"><div class="icon">&#128241;</div><h3>SMS Confirmation</h3><p>After every call, the caller receives a text confirming their enquiry was received. Stops them calling the next plumber on their list.</p></div>
+    <div class="feature"><div class="icon">&#128222;</div><h3>Live Call Transfer</h3><p>For genuine emergencies like gas leaks or flooding, the AI can transfer the call directly to your mobile so you can speak to the customer immediately.</p></div>
+    <div class="feature"><div class="icon">&#128274;</div><h3>GDPR Compliant</h3><p>UK data storage. ICO registered. Full GDPR compliance. Your customers&rsquo; personal data is handled securely and never shared.</p></div>
   </div>
-  <div class="steps-grid">
-    <div class="step-card"><div class="step-num">1</div><div class="step-title">Choose your number</div><div class="step-desc">Pick a UK phone number or set up forwarding from your existing number. Customers call the same number as always.</div></div>
-    <div class="step-card"><div class="step-num">2</div><div class="step-title">Configure for plumbing</div><div class="step-desc">Tell Aria your services, pricing for common jobs, how you handle emergencies, and your availability.</div></div>
-    <div class="step-card"><div class="step-num">3</div><div class="step-title">Calls answered 24/7</div><div class="step-desc">Aria answers every call — booking jobs, handling quotes, taking messages, and dispatching emergencies via SMS.</div></div>
-    <div class="step-card"><div class="step-num">4</div><div class="step-title">Review between jobs</div><div class="step-desc">Full transcripts and AI summaries sent to your email. Check your phone between jobs and see exactly who called and what they needed.</div></div>
-  </div>
-</section>
+</div>
 
-<section style="background:var(--surface)">
-  <div style="text-align:center;max-width:700px;margin:0 auto">
-    <div class="stag" style="justify-content:center">Hear it in action</div>
-    <h2>What a real call <em>sounds like</em></h2>
-    <p>Here's how Aria handles an emergency call for a plumber. She detects the urgency and dispatches immediately.</p>
+<div class="section">
+  <h2 class="section-title">How It Works</h2>
+  <p class="section-sub">Live in 10 minutes. No hardware, no contracts, no IT needed.</p>
+  <div class="steps">
+    <div class="step"><div class="num">1</div><h3>Get Your Number</h3><p>Receive a UK number or divert your existing line to AiRingDesk &mdash; for after-hours, on-the-job, or all calls.</p></div>
+    <div class="step"><div class="num">2</div><h3>Customise</h3><p>Set your business name, services offered (emergency, boiler install, bathroom fitting), and how you want calls handled.</p></div>
+    <div class="step"><div class="num">3</div><h3>Go Live</h3><p>Every call answered within two rings, 24/7. Emergencies flagged. Job details captured. SMS sent. You notified instantly.</p></div>
+    <div class="step"><div class="num">4</div><h3>Call Back</h3><p>Review all calls in your dashboard with full transcripts. Call back in priority order when you are ready &mdash; emergencies first.</p></div>
   </div>
-  <div class="convo-card" style="max-width:700px;margin:32px auto 0">
-    <div class="convo-line"><div class="convo-who caller">Caller</div><div class="convo-msg">"Hello — I've got water pouring through my kitchen ceiling. I think a pipe's burst upstairs."</div></div>
-    <div class="convo-line"><div class="convo-who ai">Aria</div><div class="convo-msg">"I'm sorry to hear that — that sounds urgent. Can I take your name and address so we can get someone to you as quickly as possible?"</div></div>
-    <div class="convo-line"><div class="convo-who caller">Caller</div><div class="convo-msg">"It's James Porter, 28 Maple Drive, Harrow, HA2 6BQ."</div></div>
-    <div class="convo-line"><div class="convo-who ai">Aria</div><div class="convo-msg">"Thank you, James. I've sent an urgent alert to the team with your details. In the meantime, if you can locate your stopcock and turn off the water, that will help reduce the damage. Someone will call you back within minutes."</div></div>
-  </div>
-  <p style="text-align:center;font-size:13px;color:var(--dim);margin-top:16px">Call our demo line: <a href="tel:+442046348499" style="color:var(--cyan);text-decoration:none;font-weight:600">+44 20 4634 8499</a></p>
-</section>
+</div>
 
-<section>
-  <div style="text-align:center;max-width:700px;margin:0 auto">
-    <div class="stag" style="justify-content:center">Cost comparison</div>
-    <h2>How AiRingDesk <em>compares</em></h2>
-  </div>
-  <div class="cost-grid">
-    <div class="cost-card"><div class="cost-label">Receptionist</div><div class="cost-price">£25,000+</div><div class="cost-note">per year · No evenings or weekends</div></div>
-    <div class="cost-card"><div class="cost-label">Human answering service</div><div class="cost-price">£200+</div><div class="cost-note">per month · Per-call charges on top</div></div>
-    <div class="cost-card highlight"><div class="cost-label">AiRingDesk</div><div class="cost-price">£29–£149</div><div class="cost-note">per month + VAT · Flat rate, 24/7 included</div></div>
-  </div>
-</section>
-
-<section style="background:var(--surface)">
-  <div style="text-align:center;max-width:700px;margin:0 auto;margin-bottom:32px">
-    <div class="stag" style="justify-content:center">Use cases</div>
-    <h2>Everything Aria does for <em>Plumbers</em></h2>
-  </div>
-  <div class="uses-grid">
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Book plumbing jobs and schedule callbacks</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Detect and escalate emergency callouts instantly</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Answer pricing questions for common jobs</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Handle quote requests and take detailed messages</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Answer evenings, weekends, and bank holidays</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Send SMS alerts for urgent jobs</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Provide availability and opening hours</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Handle cancellations and rescheduling</div></div>
-    <div class="use-item"><div class="use-check">✓</div><div class="use-text">Capture every lead while you're on the tools</div></div>
-  </div>
-</section>
-
-<section>
-  <div class="grid-2">
-    <div><div class="stag">Emergency handling</div><h2>Burst pipes and emergencies, <em>dispatched instantly</em></h2></div>
-    <div>
-      <p>A burst pipe at 2am, a boiler breakdown in January, sewage backing up — these customers are calling every plumber until someone answers. If that's not you, it's your competitor.</p>
-      <p>Aria recognises emergency keywords — burst pipe, flooding, leak, no hot water, gas smell, sewage, water damage — and escalates immediately. She sends an urgent SMS to your mobile with the customer's name, address, phone number, and problem description.</p>
-      <p><strong style="color:var(--text)">Every emergency follows your exact protocol, every time.</strong> No missed alerts, no forgotten callbacks, no lost £500+ emergency callouts.</p>
-    </div>
-  </div>
-</section>
-
-<section style="background:var(--surface)">
-  <div class="quote-card">
-    <div class="quote-text">"I was losing jobs every week because I couldn't answer the phone on site. Now Aria handles everything and I just check my phone between jobs. Best £29 I spend each month."</div>
-    <div class="quote-author">— Plumber, West London</div>
-  </div>
-</section>
-
-<section>
-  <div style="text-align:center;max-width:700px;margin:0 auto">
-    <div class="stag" style="justify-content:center">Common questions</div>
-    <h2>Frequently asked <em>questions</em></h2>
-  </div>
+<div class="section">
+  <h2 class="section-title">Frequently Asked Questions</h2>
+  <p class="section-sub">Everything plumbers ask before switching to AI call handling.</p>
   <div class="faq-list">
-    <div class="faq-item"><div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">How much does an AI answering service for plumbers cost?</div><div class="faq-a">AiRingDesk starts from £29 per month with flat pricing and no per-call fees. The Professional plan at £149/month includes job booking and Google Calendar integration. No setup fees, and evenings/weekends are included at no extra cost.</div></div>
-    <div class="faq-item"><div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Can an AI receptionist handle emergency plumbing calls?</div><div class="faq-a">Yes. AiRingDesk recognises emergency keywords like burst pipe, flooding, leak, no hot water, and gas smell. It escalates immediately via SMS or call transfer to the on-call plumber with the customer's address, contact details, and problem description.</div></div>
-    <div class="faq-item"><div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">What happens when I'm on a job and can't answer?</div><div class="faq-a">Aria answers every call instantly, takes the customer's details, books the job if it's routine, or sends you an urgent SMS if it's an emergency. Between jobs you check your phone — full transcripts and AI summaries by email.</div></div>
-    <div class="faq-item"><div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Can an AI book plumbing jobs into my calendar?</div><div class="faq-a">Yes. AiRingDesk integrates with Google Calendar and books jobs through natural phone conversations — confirming the customer's details, type of work needed, and preferred date and time.</div></div>
-    <div class="faq-item"><div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Will customers know they're speaking to an AI?</div><div class="faq-a">Most callers cannot tell the difference. Modern AI voice technology sounds natural and conversational. What customers notice is that the phone is answered instantly — which is exactly what someone with a burst pipe needs.</div></div>
-    <div class="faq-item"><div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">Can I keep my existing phone number?</div><div class="faq-a">Yes. Set up a call divert from your existing number to your AiRingDesk number. Customers keep calling the same number. Setup takes 5 minutes with your phone provider.</div></div>
-    <div class="faq-item"><div class="faq-q" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">How quickly can I set up AiRingDesk?</div><div class="faq-a">Most plumbers are live within 10 minutes. Sign up, choose a phone number, add your services, pricing, and emergency protocols, and Aria is ready to answer calls immediately.</div></div>
-  </div>
-</section>
-
-<section style="background:var(--surface);padding-top:40px;padding-bottom:40px">
-  <a href="/blog/best-ai-answering-service-for-plumbers-uk-2026" class="blog-link-card">
-    <div class="blog-link-icon">📖</div>
-    <div>
-      <div class="blog-link-title">Best AI Answering Service for Plumbers UK 2026: Never Miss an Emergency Call</div>
-      <div class="blog-link-desc">Read our complete guide — emergency dispatch, job booking, cost comparison, and which service delivers the best ROI for plumbers.</div>
-    </div>
-    <div class="blog-link-arrow">→</div>
-  </a>
-</section>
-
-<div class="cta-section">
-  <div class="stag" style="justify-content:center">Get started today</div>
-  <h2 style="font-family:var(--font-display);font-size:clamp(32px,5vw,56px);font-weight:400;letter-spacing:-2px;margin-bottom:16px">Ready to <em>stop missing calls?</em></h2>
-  <p style="font-size:16px;color:var(--muted);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto">14-day free trial. No credit card required. Your AI receptionist live in 10 minutes.</p>
-  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-    <a href="/dashboard?signup=1" class="btn btn-cyan" style="padding:14px 32px;font-size:15px">Start free trial →</a>
-    <a href="/contact" class="btn btn-ghost" style="padding:14px 24px;font-size:15px">Talk to us first</a>
+    <div class="faq-item"><div class="faq-q">How can an AI receptionist help my plumbing business?</div><div class="faq-a">AiRingDesk answers every call to your plumbing business 24/7 &mdash; even when you are on a job. It captures the caller&rsquo;s name, address, issue description, and urgency level, then sends you an instant email and SMS notification. Emergency calls are flagged so you know which callbacks cannot wait.</div></div>
+    <div class="faq-item"><div class="faq-q">Can it handle emergency plumbing callouts?</div><div class="faq-a">Yes. AiRingDesk recognises urgent keywords like burst, leak, flooding, no hot water, and gas smell. It flags these notifications as emergencies and can transfer the call directly to your mobile. It also gives callers practical advice like locating their stopcock while they wait.</div></div>
+    <div class="faq-item"><div class="faq-q">How much does an AI receptionist for plumbers cost?</div><div class="faq-a">Plans start from &pound;29 per month &mdash; less than the cost of a single missed job. All plans include 24/7 coverage, SMS notifications to callers, and unlimited concurrent calls. No contracts, cancel anytime.</div></div>
+    <div class="faq-item"><div class="faq-q">Will it work when I am on a job and cannot answer?</div><div class="faq-a">That is exactly what it is designed for. When you are under a sink, in a loft, or mid-way through a boiler install, AiRingDesk answers every call, captures the job details, and notifies you by email and SMS. You review and call back when you are ready.</div></div>
+    <div class="faq-item"><div class="faq-q">Can it book non-urgent jobs like boiler services?</div><div class="faq-a">Yes. For routine work like boiler services, bathroom quotes, radiator replacements, and annual gas checks, AiRingDesk collects the job details, preferred date, and contact information, then sends it to you ready to schedule.</div></div>
+    <div class="faq-item"><div class="faq-q">Is it GDPR compliant?</div><div class="faq-a">Yes. AiRingDesk stores all data in the UK, is ICO registered, and provides full GDPR compliance. Your customers&rsquo; personal data is handled securely and never shared with third parties.</div></div>
   </div>
 </div>
 
-<section id="pricing" style="padding:60px 24px;background:var(--black)">
-<div style="text-align:center;margin-bottom:32px">
-<div style="font-size:11px;font-weight:700;color:var(--cyan);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px"><span style="display:inline-block;width:24px;height:2px;background:var(--cyan)"></span>Pricing</div>
-<h2 style="font-family:'Instrument Serif',Georgia,serif;font-size:42px;font-weight:400;letter-spacing:-1px;margin-bottom:8px">Simple, <em style="font-style:italic;background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">transparent</em> pricing</h2>
-<p style="font-size:15px;color:var(--muted)">No setup fees. No per-minute charges. One flat monthly fee.</p>
+<div class="final-cta">
+  <h2>Stop Losing Jobs to Missed Calls</h2>
+  <p>Join plumbers across the UK who capture every emergency callout and job booking. Start your free trial today.</p>
+  <a href="/#pricing" class="hero-cta">Start free trial &rarr;</a>
 </div>
-<div class="pricing-toggle"><span class="toggle-label active" id="monthly-lbl">Monthly</span><div class="toggle-switch" id="billing-toggle" onclick="toggleBilling()"><div class="toggle-thumb"></div></div><span class="toggle-label" id="annual-lbl">Annual</span><span class="annual-badge">Save 2 months free</span></div>
-<div class="plans"><div class="plan"><div class="plan-name">Essential</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="29" data-annual="24">29</span><sub>/mo</sub></div><div style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px">+ VAT</div><div class="plan-calls">150 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div><div class="plan-feats"><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>1 UK phone number</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI answering 24/7</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Email notifications</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call transcripts & summaries</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call transfers</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dashboard</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>14-days trial</div></div><button onclick="location.href='/dashboard?signup=1'" class="pcta pcta-p">Start free trial &rarr;</button></div><div class="plan"><div class="plan-name">Starter</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="49" data-annual="41">49</span><sub>/mo</sub></div><div style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px">+ VAT</div><div class="plan-calls">300 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div><div class="plan-feats"><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Essential</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Voicemail + recordings</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call dashboard & leads</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Referral programme</div></div><button onclick="location.href='/dashboard?signup=1'" class="pcta pcta-g">Get started &rarr;</button></div><div class="plan pop"><div class="plan-badge">MOST POPULAR</div><div class="plan-name">Professional</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="149" data-annual="124">149</span><sub>/mo</sub></div><div style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px">+ VAT</div><div class="plan-calls">1,000 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div><div class="plan-feats"><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Starter</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Appointment booking</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Custom AI personality & script</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Google Calendar integration</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Priority support</div></div><button onclick="location.href='/dashboard?signup=1'" class="pcta pcta-p">Start free trial &rarr;</button></div><div class="plan"><div class="plan-name">Business</div><div class="plan-price"><sup>£</sup><span class="price-val" data-monthly="349" data-annual="291">349</span><sub>/mo</sub></div><div style="font-size:11px;color:var(--dim);margin-bottom:12px;min-height:16px">+ VAT</div><div class="plan-calls">5,000 calls per month<div style="font-size:10px;color:var(--dim);margin-top:3px">Inbound calls, any duration</div></div><div class="plan-feats"><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Everything in Professional</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>AI voice & language selector</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>CRM & webhook integration</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Call recording</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>2 phone numbers</div><div class="pf"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#00e87a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Dedicated account manager</div></div><button onclick="location.href='/dashboard?signup=1'" class="pcta pcta-g">Get started &rarr;</button></div></div></div>
-<p style="font-size:13px;color:var(--dim);margin-top:24px;text-align:center">All plans include a 14-day free trial. Card required — no charge during your 14-day trial.</p>
-<p style="font-size:12px;color:var(--dim);margin-top:6px;text-align:center">All prices exclude VAT. VAT at 20% will be added at checkout.</p>
-<p style="font-size:12px;color:var(--dim);margin-top:10px;text-align:center">&#128222; <strong style="color:var(--muted)">Keep your existing number.</strong> Simply divert your current business number to your AiRingDesk number &#8212; your customers call the same number as always.</p>
-<script>if(typeof toggleBilling==='undefined'){var _annual=false;function toggleBilling(){_annual=!_annual;document.getElementById('billing-toggle').classList.toggle('annual',_annual);document.getElementById('monthly-lbl').classList.toggle('active',!_annual);document.getElementById('annual-lbl').classList.toggle('active',_annual);document.querySelectorAll('.price-val').forEach(function(e){e.textContent=_annual?e.dataset.annual:e.dataset.monthly;});}}</script>
-</section>
 
-<footer>
-  <div style="font-size:18px;font-weight:800;letter-spacing:-.5px"><span style="background:linear-gradient(135deg,#00d4ff,#0099ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Ai</span><span style="color:#f0f4f8">Ring</span><span style="color:#3d5470">Desk</span><sup style="font-size:9px;color:#3d5470;vertical-align:super;margin-left:1px">®</sup></div><div style="font-size:9px;color:#5a7a9a;letter-spacing:.06em;font-weight:500;margin-top:2px">Your 24/7 AI Call Desk</div>
-  <div class="footer-links"><a href="/">Home</a><a href="/#pricing">Pricing</a><a href="/privacy">Privacy</a><a href="/contact">Contact</a></div>
-  <div style="font-size:11px;color:var(--dim)">© 2026 AiRingDesk · SatFocus Ltd · 124 City Road, London, EC1V 2NX</div>
-</footer>
+<div class="related">
+  <h3>Related Content</h3>
+  <div class="related-grid">
+    <a href="/blog/best-ai-answering-service-for-plumbers-uk-2026" class="related-card" style="text-decoration:none"><h4>Best AI Answering Service for Plumbers UK 2026</h4><p>Complete guide comparing AI answering services for UK plumbing businesses.</p></a>
+    <a href="/industries/estate-agents" class="related-card" style="text-decoration:none"><h4>AI Receptionist for Estate Agents</h4><p>How estate agents capture every property enquiry and viewing request 24/7.</p></a>
+    <a href="/industries/dental" class="related-card" style="text-decoration:none"><h4>AI Receptionist for Dental Clinics</h4><p>How dental clinics use AI to capture every patient call and book appointments.</p></a>
+  </div>
+</div>
+
+<footer class="footer"><p>&copy; 2026 AiRingDesk&reg; &middot; AI Phone Receptionist for UK Businesses</p></footer>
+
+<script>
+document.querySelectorAll(".faq-q").forEach(q=>{q.addEventListener("click",()=>{const i=q.parentElement;const w=i.classList.contains("open");document.querySelectorAll(".faq-item").forEach(x=>x.classList.remove("open"));if(!w)i.classList.add("open")})});
+</script>
 </body>
 </html>
