@@ -398,7 +398,7 @@ async function generateHeroImage(title, keyword, category) {
   console.log('  🎨 Generating Canva hero image...');
   try {
     // Use Claude API with Canva MCP to generate a branded hero image
-    const apiKey = process.env.ANTHROPIC_API_KEY;
+    // Use module-level apiKey (loaded at startup from PM2 env)
     if (!apiKey) { console.log('  ⚠️  No API key — skipping hero image'); return null; }
 
     const designQuery = `Professional security company blog hero banner image.
