@@ -1120,10 +1120,10 @@ function rebuildPricing() {
 }
 
 // Redirect directory URLs to homepage to avoid 404s
-app.get('/industries', (req, res) => res.redirect(301, '/'));
-app.get('/industries/', (req, res) => res.redirect(301, '/'));
-app.get('/locations', (req, res) => res.redirect(301, '/'));
-app.get('/locations/', (req, res) => res.redirect(301, '/'));
+app.get('/industries', (req, res) => res.sendFile(path.join(__dirname, 'public', 'industries', 'index.html')));
+app.get('/industries/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'industries', 'index.html')));
+app.get('/locations', (req, res) => res.sendFile(path.join(__dirname, 'public', 'locations', 'index.html')));
+app.get('/locations/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'locations', 'index.html')));
 
 app.get('/api/pricing-plans', (req, res) => {
   try {
