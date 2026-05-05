@@ -1549,16 +1549,17 @@ Example reply: "Confirmed for Monday 10am, Thiru! [BOOK:Thiru|2026-04-07|10:00|n
 }
 
 async function askClaude(client, session, userMessage) {
-  let history = JSON.parse(session.history || "[]");
-  // Keep only last 10 messages to prevent history bloat and timeouts
-  if (history.length > 10) history = history.slice(-10);
-  history.push({ role: "user", content: userMessage });
+  let fullHistory = JSON.parse(session.history || "[]");
+  fullHistory.push({ role: "user", content: userMessage });
+
+  // Send only last 10 messages to Claude to keep tokens low, but keep full history intact
+  const claudeMessages = fullHistory.length > 10 ? fullHistory.slice(-10) : fullHistory;
 
   const response = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 100,
     system: buildSystemPrompt(client, session),
-    messages: history,
+    messages: claudeMessages,
   }, { timeout: 8000 });
 
   let reply = response.content[0]?.text || "Could you please repeat that?";
@@ -1587,9 +1588,9 @@ async function askClaude(client, session, userMessage) {
   // Strip CALLERDATA tags from spoken reply
   reply = reply.replace(/\[CALLERDATA:[^\]]+\]/g, '').trim();
 
-  history.push({ role: "assistant", content: reply });
+  fullHistory.push({ role: "assistant", content: reply });
   db.prepare("UPDATE call_sessions SET history = ? WHERE call_sid = ?")
-    .run(JSON.stringify(history), session.call_sid);
+    .run(JSON.stringify(fullHistory), session.call_sid);
 
   return { reply, transferDept };
 }
@@ -6798,15 +6799,7 @@ wss.on('connection', (ws) => {
         const cleanReply = reply.replace('[VOICEMAIL]', '').replace(/\[CALLERDATA:[^\]]+\]/g, '').replace(/\[TRANSFER:\w+\]/g, '').replace(/\[BOOK:[^\]]+\]/g, '').trim();
         console.log(`[Deepgram] Claude reply for ${callSid}: "${cleanReply}"${hasVoicemail ? ' [→VOICEMAIL]' : ''}${transferDept ? ' [→TRANSFER:'+transferDept+']' : ''}`);
 
-        // Save transcript history
-        try {
-          const currentSession = db.prepare("SELECT history FROM call_sessions WHERE call_sid = ?").get(callSid);
-          let hist = JSON.parse(currentSession?.history || '[]');
-          hist.push({ role: 'user', content: spokenText });
-          hist.push({ role: 'assistant', content: cleanReply });
-          db.prepare("UPDATE call_sessions SET history = ? WHERE call_sid = ?")
-            .run(JSON.stringify(hist), callSid);
-        } catch(e) { console.error('[Deepgram] History save error:', e.message); }
+        // History is already saved by askClaude — no duplicate save needed
 
         // Use Twilio REST API to inject TwiML back into the live call
         const voice = clientRecord.ai_voice || 'Google.en-GB-Neural2-C';
